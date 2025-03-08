@@ -1,0 +1,25 @@
+name: thesis
+channels:
+  - conda-forge
+dependencies:
+  # Basic libraries
+  - python=3.12
+  - pip=25.0.1
+  # Data Science libraries
+  - numpy=2.2.3
+  - pandas=2.2.3
+  - scipy=1.15.2
+  - matplotlib=3.10.1
+  - seaborn=0.13.2
+  # Machine Learning libraries
+  - scikit-learn=1.6.1
+  - catboost=1.2.5
+  - pip:
+    # PyTorch and related libraries
+    - --extra-index-url https://download.pytorch.org/whl/cu118
+    - torch==2.6.0+cu118
+    - torchvision==0.21.0+cu118
+    - torchaudio==2.6.0+cu118
+    # Machine Learning libraries with GPU versions through pip
+    - xgboost==2.1.4
+    - lightgbm==4.6.0
