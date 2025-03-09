@@ -3,8 +3,9 @@ channels:
   - conda-forge
 dependencies:
   # Basic libraries
-  - python=3.12
+  - python=3.12.9
   - pip=25.0.1
+  - ipykernel=6.29.5
   # Data Science libraries
   - numpy=2.2.3
   - pandas=2.2.3
