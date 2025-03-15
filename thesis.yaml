@@ -27,3 +27,5 @@ dependencies:
     - lightgbm==4.6.0
     # SUMO Simulator library
     - eclipse-sumo==1.21.0
+    # Hyperparameter tuning libraries
+    - hyperopt==0.2.7
