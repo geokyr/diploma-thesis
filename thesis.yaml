@@ -12,6 +12,7 @@ dependencies:
   - scipy=1.15.2
   - matplotlib=3.10.1
   - seaborn=0.13.2
+  - cupy=13.4.0
   # Machine Learning libraries
   - scikit-learn=1.6.1
   - catboost=1.2.5
