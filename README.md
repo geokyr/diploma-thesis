@@ -24,5 +24,5 @@ To install SUMO, you can use the [64-bit installer for Windows](https://sumo.dlr
 
 To take full advantage of all Python tools install the dependencies:
 ```
-pip install -r $SUMO_HOME/tools/requirements.txt
+pip install -r $env:SUMO_HOME/tools/requirements.txt
 ```
