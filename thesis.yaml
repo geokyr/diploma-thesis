@@ -25,5 +25,7 @@ dependencies:
     # Machine Learning libraries with GPU versions only through pip
     - xgboost==2.1.4
     - lightgbm==4.6.0
+    # SUMO Simulator library
+    - eclipse-sumo==1.21.0
     # Hyperparameter tuning libraries
     - hyperopt==0.2.7
