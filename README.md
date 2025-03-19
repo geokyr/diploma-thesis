@@ -16,3 +16,13 @@ conda activate thesis
 ```bash
 conda deactivate
 ```
+
+## SUMO Installation
+For more information, refer to the relevant section on the [Official Docs](https://sumo.dlr.de/docs/Downloads.php).
+
+To install SUMO, you can use the [64-bit installer for Windows](https://sumo.dlr.de/releases/1.22.0/sumo-win64-1.22.0.msi). Run it and follow the instructions. The default installation path is `C:\Program Files (x86)\Eclipse\Sumo\`. Make sure to check the option: Set SUMO_HOME and adapt PATH and PYTHONPATH.
+
+To take full advantage of all Python tools install the dependencies:
+```
+pip install -r $SUMO_HOME/tools/requirements.txt
+```
