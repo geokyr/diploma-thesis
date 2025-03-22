@@ -5,24 +5,46 @@ Continuous Machine Learning, Concept Drift, MLOps, and Cooperative, Connected an
 ## Environment Setup
 - Make sure you have conda (miniconda or anaconda) installed.
 - Run the following command to create the environment:
-```bash
+
+```powershell
 conda env create -f thesis.yaml
 ```
 - Activate the environment:
-```bash
+
+```powershell
 conda activate thesis
 ```
 - Deactivate the environment when done:
-```bash
+
+```powershell
 conda deactivate
 ```
 
-## SUMO Installation
-For more information, refer to the relevant section on the [Official Docs](https://sumo.dlr.de/docs/Downloads.php).
+## SUMO Setup
 
-To install SUMO, you can use the [64-bit installer for Windows](https://sumo.dlr.de/releases/1.22.0/sumo-win64-1.22.0.msi). Run it and follow the instructions. The default installation path is `C:\Program Files (x86)\Eclipse\Sumo\`. Make sure to check the option: Set SUMO_HOME and adapt PATH and PYTHONPATH.
+### Installation
+SUMO is installed on the conda environment.
 
-To take full advantage of all Python tools install the dependencies:
+### Environment Variables
+To use SUMO, you need to set the environment variable `SUMO_HOME` to the path where SUMO is installed. It is also a useful idea to add the SUMO binaries and tools to the `PATH` environment variable. You can do this by running the following command in your terminal:
+
+```powershell
+Set-Content -Path "$env:CONDA_PREFIX\etc\conda\activate.d\env_vars.ps1" -Value '$env:SUMO_HOME = "$env:CONDA_PREFIX\Lib\site-packages\sumo"
+$env:PATH = "$env:PATH;$env:SUMO_HOME\bin;$env:SUMO_HOME\tools"'
 ```
+
+This command creates a PowerShell script that sets the `SUMO_HOME` environment variable every time you activate the conda environment. To restart the conda environment and reset the environment variables, run the following command:
+
+```powershell
+conda deactivate
+conda activate thesis
+echo $env:SUMO_HOME
+echo $env:PATH
+```
+
+### Tools
+To take full advantage of all Python tools, install the dependencies:
+
+```powershell
 pip install -r $env:SUMO_HOME/tools/requirements.txt
 ```
