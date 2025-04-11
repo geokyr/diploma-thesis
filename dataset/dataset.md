@@ -16,7 +16,7 @@
 ## Parameters
 - Duration: 36000
 - Add Polygons: True
-- Import Public Transport: True
+- Import Public Transport: True (This is not used in the simulation, so it can be ignored)
 - Car-only Network: True
 
 ## Vehicles
