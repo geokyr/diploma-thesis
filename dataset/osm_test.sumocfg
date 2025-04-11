@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2024-07-05 15:27:20 by Eclipse SUMO sumo Version 1.20.0
+-->
+
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="osm.net.xml.gz"/>
+        <route-files value="route_files_test/traffic_day_1_hour_1.veh.xml,
+                             route_files_test/traffic_day_1_hour_2.veh.xml,
+                             route_files_test/traffic_day_1_hour_3.veh.xml,
+                             route_files_test/traffic_day_1_hour_4.veh.xml,
+                             route_files_test/traffic_day_1_hour_5.veh.xml,
+                             route_files_test/traffic_day_1_hour_6.veh.xml,
+                             route_files_test/traffic_day_1_hour_7.veh.xml,
+                             route_files_test/traffic_day_1_hour_8.veh.xml,
+                             route_files_test/traffic_day_1_hour_9.veh.xml,
+                             route_files_test/traffic_day_1_hour_10.veh.xml"/>
+        <additional-files value="osm.poly.xml.gz,vtypes.xml"/>
+    </input>
+
+    <time>
+        <begin value="0"/>
+        <end value="36000"/>
+    </time>
+
+    <processing>
+        <ignore-route-errors value="true"/>
+        <tls.actuated.jam-threshold value="30"/>
+    </processing>
+
+    <routing>
+        <device.rerouting.adaptation-steps value="18"/>
+        <device.rerouting.adaptation-interval value="10"/>
+    </routing>
+
+    <report>
+        <verbose value="true"/>
+        <duration-log.statistics value="true"/>
+        <no-step-log value="true"/>
+    </report>
+
+    <gui_only>
+        <gui-settings-file value="osm.view.xml"/>
+    </gui_only>
+
+    <output>
+        <netstate-dump value="athens_dump_output_10hour_testing.xml"/>
+        <fcd-output value="athens_fcd_output_10hour_testing.xml"/>
+        <fcd-output.attributes value="id,x,y,type,speed,acceleration,odometer"/>
+        <emission-output value="athens_emission_output_10hour_testing.xml"/>
+        <emission-output.attributes value="id,eclass,fuel,type,waiting"/>
+        <emission-output.precision value="2"/>
+    </output>
+
+</configuration>
