@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-03-23 20:37:17.025671 by $Id: ptlines2flows.py v1_3_1+0313-ccb31df3eb jakob.erdmann@dlr.de 2019-09-02 13:26:32 +0200 $ UNKNOWN
+<configuration>
+    <net-file value="C:\Users\george\Desktop\diploma-thesis\2025-03-23-20-36-55\osm.net.xml.gz"/>
+    <ptlines-file value="C:\Users\george\Desktop\diploma-thesis\2025-03-23-20-36-55\osm_ptlines.xml"/>
+    <ptstops-file value="C:\Users\george\Desktop\diploma-thesis\2025-03-23-20-36-55\osm_stops.add.xml"/>
+    <output-file value="C:\Users\george\Desktop\diploma-thesis\2025-03-23-20-36-55\osm_pt.rou.xml"/>
+    <stopinfos-file value="C:\Users\george\Desktop\diploma-thesis\2025-03-23-20-36-55\stopinfos.xml"/>
+    <routes-file value="C:\Users\george\Desktop\diploma-thesis\2025-03-23-20-36-55\vehroutes.xml"/>
+    <trips-file value="C:\Users\george\Desktop\diploma-thesis\2025-03-23-20-36-55\trips.trips.xml"/>
+    <end value="36000.0"/>
+    <min-stops value="0"/>
+    <extend-to-fringe value="True"/>
+    <random-begin value="True"/>
+    <seed value="42"/>
+    <ignore-errors value="True"/>
+    <vtype-prefix value="pt_"/>
+    <verbose value="True"/>
+</configuration>
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <vType id="pt_bus" vClass="bus" speedFactor="0.95"/>
+    <vType id="pt_tram" vClass="tram" speedFactor="1.0"/>
+    <vType id="pt_train" vClass="rail"/>
+    <vType id="pt_subway" vClass="subway"/>
+    <vType id="pt_light_rail" vClass="rail_urban"/>
+    <vType id="pt_monorail" vClass="rail_urban"/>
+    <vType id="pt_trolleybus" vClass="bus" speedFactor="0.95"/>
+    <vType id="pt_minibus" vClass="bus" speedFactor="0.95"/>
+    <vType id="pt_share_taxi" vClass="taxi" speedFactor="0.95"/>
+    <vType id="pt_aerialway" vClass="cable_car" length="2.5" width="2" personCapacity="4"/>
+    <vType id="pt_ferry" vClass="ship"/>
+    <trip id="0_trolleybus_10:0" type="pt_trolleybus" depart="3.0" departLane="best" from="167920332#0" to="881725976#0">
+        <stop busStop="2560629818" duration="30"/>  <!-- ΠΙΝΑΚΟΘΗΚΗ -->
+    </trip>
+    <trip id="1_bus_035:0" type="pt_bus" depart="15.0" departLane="best" from="601294009#0" to="-715534866#0">
+        <stop busStop="2786688743" duration="30"/>  <!-- ΠΛ. ΕΞΑΡΧΕΙΩΝ -->
+    </trip>
+    <trip id="2_bus_732:0" type="pt_bus" depart="15.0" departLane="best" from="10741754#0" to="10741751#0">
+        <stop busStop="11877289039" duration="30"/>  <!-- ΧΑΛΚΟΚΟΝΔΥΛΗ -->
+    </trip>
+    <trip id="3_bus_856:0" type="pt_bus" depart="17.0" departLane="best" from="221139568" to="-741087755">
+        <stop busStop="1792445580" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="4_bus_026:0" type="pt_bus" depart="19.0" departLane="best" from="715534866#0" to="722762256">
+        <stop busStop="-2786682035" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="5_bus_Ε14:0" type="pt_bus" depart="27.0" departLane="best" from="167920332#0" to="23182987#0">
+        <stop busStop="1792445582" duration="30"/>  <!-- ΝΟΣΟΚΟΜΕΙΟ ΕΥΑΓΓΕΛΙΣΜΟΣ -->
+    </trip>
+    <trip id="6_bus_227:0" type="pt_bus" depart="28.0" departLane="best" from="221139568" to="-715534866#0">
+        <stop busStop="1792445580" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="7_bus_204B:0" type="pt_bus" depart="38.0" departLane="best" from="49288908#0" to="-972690317">
+        <stop busStop="2652597221" duration="30"/>  <!-- ΚΑΝΑΡΗ -->
+        <stop busStop="2652597231" duration="30"/>  <!-- ΝΟΜΙΚΗ -->
+        <stop busStop="1792445580" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="8_bus_214:0" type="pt_bus" depart="47.0" departLane="best" from="295056177#0" to="-295056177#1">
+        <stop busStop="6644789228" duration="30"/>  <!-- ΕΥΑΓΓΕΛΙΣΜΟΣ -->
+    </trip>
+    <trip id="9_bus_224:0" type="pt_bus" depart="52.0" departLane="best" from="260124785" to="167907745#0">
+        <stop busStop="1613240806" duration="30"/>  <!-- ΠΛ.ΚΑΝΙΓΓΟΣ -->
+        <stop busStop="1799562372" duration="30"/>  <!-- ΖΩΟΔ.ΠΗΓΗΣ -->
+    </trip>
+    <trip id="10_bus_500:0" type="pt_bus" depart="54.0" departLane="best" from="715534866#0" to="189099793">
+        <stop busStop="-2786682035" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="11_bus_500:1" type="pt_bus" depart="55.0" departLane="best" from="260124785" to="-715534866#0">
+        <stop busStop="2515049716" duration="30"/>  <!-- ΠΟΛΥΤΕΧΝΕΙΟ -->
+    </trip>
+    <trip id="12_bus_500:2" type="pt_bus" depart="58.0" departLane="best" from="260124785" to="-741087755">
+        <stop busStop="2515049716" duration="30"/>  <!-- ΠΟΛΥΤΕΧΝΕΙΟ -->
+    </trip>
+    <trip id="13_bus_622:0" type="pt_bus" depart="60.0" departLane="best" from="260124785" to="922515461#0">
+        <stop busStop="1613240806" duration="30"/>  <!-- ΠΛ.ΚΑΝΙΓΓΟΣ -->
+    </trip>
+    <trip id="14_bus_790:0" type="pt_bus" depart="65.0" departLane="best" from="741087755" to="23182987#0">
+        <stop busStop="3459200593" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="15_bus_813:0" type="pt_bus" depart="93.0" departLane="best" from="741087755" to="601290886#11">
+        <stop busStop="1800860234" duration="30"/>  <!-- None -->
+        <stop busStop="1800860243" duration="30"/>  <!-- ΝΑΥΑΡΙΝΟΥ -->
+        <stop busStop="1800860231" duration="30"/>  <!-- ΑΡΑΧΩΒΗΣ -->
+        <stop busStop="1800860238" duration="30"/>  <!-- ΚΑΛΛΙΔΡΟΜΙΟΥ -->
+        <stop busStop="1800860250" duration="30"/>  <!-- ΤΣΙΜΙΣΚΗ -->
+    </trip>
+    <trip id="16_bus_022:0" type="pt_bus" depart="98.0" departLane="best" from="327261701#0" to="309269227">
+        <stop busStop="10572209196" duration="30"/>  <!-- ΑΦΕΤΗΡΙΑ - ΣΙΝΑ -->
+    </trip>
+    <trip id="17_bus_Β9:0" type="pt_bus" depart="102.0" departLane="best" from="32245113#0" to="10741751#0">
+        <stop busStop="1997456424" duration="30"/>  <!-- ΣΤΟΥΡΝΑΡΗ -->
+    </trip>
+    <trip id="18_bus_Χ14_ΣΥΝΤΑΓΜΑ_-_ΚΗΦΙΣΙΑ:0" type="pt_bus" depart="119.0" departLane="best" from="221139568" to="169130590">
+        <stop busStop="-7021774778" duration="30"/>  <!-- ΣΥΝΤΑΓΜΑ -->
+    </trip>
+    <trip id="19_bus_051:0" type="pt_bus" depart="125.0" departLane="best" from="1098831917" to="741087752">
+        <stop busStop="2786681834" duration="30"/>  <!-- ΒΑΘΗ -->
+    </trip>
+    <trip id="20_bus_051:1" type="pt_bus" depart="126.0" departLane="best" from="741087752" to="286070634#0">
+        <stop busStop="3459098593" duration="30"/>  <!-- ΕΘΝΙΚΟ ΘΕΑΤΡΟ -->
+    </trip>
+    <trip id="21_bus_235:0" type="pt_bus" depart="131.0" departLane="best" from="167920332#0" to="922515461#0">
+        <stop busStop="1792445582" duration="30"/>  <!-- ΝΟΣΟΚΟΜΕΙΟ ΕΥΑΓΓΕΛΙΣΜΟΣ -->
+    </trip>
+    <trip id="22_bus_608:0" type="pt_bus" depart="131.0" departLane="best" from="260124785" to="922515461#0">
+        <stop busStop="1799562372" duration="30"/>  <!-- ΖΩΟΔ.ΠΗΓΗΣ -->
+        <stop busStop="1792445558" duration="30"/>  <!-- None -->
+        <stop busStop="1792445581" duration="30"/>  <!-- ΝΟΣΟΚΟΜΕΙΟ ΕΥΑΓΓΕΛΙΣΜΟΣ -->
+    </trip>
+    <trip id="23_bus_608:1" type="pt_bus" depart="132.0" departLane="best" from="167920332#0" to="189099793">
+        <stop busStop="1792445582" duration="30"/>  <!-- ΝΟΣΟΚΟΜΕΙΟ ΕΥΑΓΓΕΛΙΣΜΟΣ -->
+        <stop busStop="1792445584" duration="30"/>  <!-- ΡΗΓΙΛΛΗΣ -->
+        <stop busStop="1792445592" duration="30"/>  <!-- ΣΥΝΤΑΓΜΑ -->
+        <stop busStop="1618000514" duration="30"/>  <!-- ΡΕΞ -->
+        <stop busStop="1799459850" duration="30"/>  <!-- ΠΟΛΥΤΕΧΝΕΙΟ -->
+    </trip>
+    <trip id="24_bus_230:0" type="pt_bus" depart="133.0" departLane="best" from="221139568" to="601290886#11">
+        <stop busStop="7900407481" duration="30"/>  <!-- None -->
+        <stop busStop="1800860234" duration="30"/>  <!-- None -->
+        <stop busStop="1800860243" duration="30"/>  <!-- ΝΑΥΑΡΙΝΟΥ -->
+        <stop busStop="1800860231" duration="30"/>  <!-- ΑΡΑΧΩΒΗΣ -->
+        <stop busStop="1800860238" duration="30"/>  <!-- ΚΑΛΛΙΔΡΟΜΙΟΥ -->
+        <stop busStop="1800860250" duration="30"/>  <!-- ΤΣΙΜΙΣΚΗ -->
+    </trip>
+    <trip id="25_bus_230:1" type="pt_bus" depart="136.0" departLane="best" from="634252645#0" to="560974709">
+        <stop busStop="1800990636" duration="30"/>  <!-- ΛΑΣΚΑΡΕΩΣ -->
+        <stop busStop="1800990687" duration="30"/>  <!-- ΤΣΙΜΙΣΚΗ -->
+        <stop busStop="1800990635" duration="30"/>  <!-- ΚΑΛΛΙΔΡΟΜΙΟΥ -->
+        <stop busStop="1800990612" duration="30"/>  <!-- ΔΙΔΟΤΟΥ -->
+    </trip>
+    <trip id="26_bus_220:0" type="pt_bus" depart="137.0" departLane="best" from="661575900" to="922515461#0">
+        <stop busStop="1818038857" duration="30"/>  <!-- ΧΙΛΤΟΝ -->
+    </trip>
+    <trip id="27_subway_Μ3:0" type="pt_subway" depart="139.0" departLane="best" from="799602875" to="800265935">
+        <stop busStop="7478322261" duration="30"/>  <!-- Ευαγγελισμός -->
+        <stop busStop="7478372541" duration="30"/>  <!-- Σύνταγμα -->
+        <stop busStop="7478372529" duration="30"/>  <!-- Μοναστηράκι -->
+    </trip>
+    <trip id="28_bus_500:3" type="pt_bus" depart="147.0" departLane="best" from="741087755" to="189099793">
+        <stop busStop="3459098893" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="29_subway_Μ2:0" type="pt_subway" depart="157.0" departLane="best" from="799826579" to="799826592">
+        <stop busStop="7480425252" duration="30"/>  <!-- Σύνταγμα -->
+        <stop busStop="7480425260" duration="30"/>  <!-- Πανεπιστήμιο -->
+        <stop busStop="7480425272" duration="30"/>  <!-- Ομόνοια -->
+    </trip>
+    <trip id="30_subway_Μ3:1" type="pt_subway" depart="158.0" departLane="best" from="799602878" to="799602880">
+        <stop busStop="7478372546" duration="30"/>  <!-- Μοναστηράκι -->
+        <stop busStop="7478372558" duration="30"/>  <!-- Σύνταγμα -->
+        <stop busStop="7478372569" duration="30"/>  <!-- Ευαγγελισμός -->
+    </trip>
+    <trip id="31_trolleybus_1:0" type="pt_trolleybus" depart="160.0" departLane="best" from="741087755" to="23182987#0">
+        <stop busStop="3459098893" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="32_trolleybus_4:0" type="pt_trolleybus" depart="160.0" departLane="best" from="260124785" to="23182987#0">
+        <stop busStop="2515049716" duration="30"/>  <!-- ΠΟΛΥΤΕΧΝΕΙΟ -->
+    </trip>
+    <trip id="33_trolleybus_5:0" type="pt_trolleybus" depart="165.0" departLane="best" from="260124785" to="23182987#0">
+        <stop busStop="2515049716" duration="30"/>  <!-- ΠΟΛΥΤΕΧΝΕΙΟ -->
+    </trip>
+    <trip id="34_trolleybus_10:1" type="pt_trolleybus" depart="166.0" departLane="best" from="295056178#0" to="169130590">
+        <stop busStop="2560629699" duration="30"/>  <!-- ΠΙΝΑΚΟΘΗΚΗ -->
+    </trip>
+    <trip id="35_trolleybus_12:0" type="pt_trolleybus" depart="173.0" departLane="best" from="221139568" to="286070634#0">
+        <stop busStop="1792445580" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="36_trolleybus_21:0" type="pt_trolleybus" depart="188.0" departLane="best" from="741087755" to="-741087755">
+        <stop busStop="3459098893" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="37_bus_Α2:0" type="pt_bus" depart="189.0" departLane="best" from="380901379#0" to="560974709">
+        <stop busStop="7137782788" duration="30"/>  <!-- ΑΦΕΤΗΡΙΑ - ΡΗΓΑ ΦΕΡΑΙΟΥ -->
+    </trip>
+    <trip id="38_bus_Ε14:1" type="pt_bus" depart="201.0" departLane="best" from="221139568" to="169130590">
+        <stop busStop="-2786691403" duration="30"/>  <!-- ΣΥΝΤΑΓΜΑ -->
+    </trip>
+    <trip id="39_bus_025:0" type="pt_bus" depart="204.0" departLane="best" from="634252645#0" to="-715534866#0">
+        <stop busStop="1800990636" duration="30"/>  <!-- ΛΑΣΚΑΡΕΩΣ -->
+    </trip>
+    <trip id="40_bus_026:1" type="pt_bus" depart="218.0" departLane="best" from="634252645#0" to="-715534866#0">
+        <stop busStop="1800990636" duration="30"/>  <!-- ΛΑΣΚΑΡΕΩΣ -->
+    </trip>
+    <trip id="41_bus_035:1" type="pt_bus" depart="222.0" departLane="best" from="715534866#0" to="189099793">
+        <stop busStop="-2786682035" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="42_bus_046:0" type="pt_bus" depart="227.0" departLane="best" from="741721487#0" to="741721487#0">
+        <stop busStop="2786689547" duration="30"/>  <!-- ΠΟΛΥΤΕΧΝΕΙΟ -->
+    </trip>
+    <trip id="43_bus_049:0" type="pt_bus" depart="227.0" departLane="best" from="741087755" to="977757276">
+        <stop busStop="3940080735" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="44_bus_051:2" type="pt_bus" depart="237.0" departLane="best" from="1098831917" to="286070634#0">
+        <stop busStop="2786681834" duration="30"/>  <!-- ΒΑΘΗ -->
+    </trip>
+    <trip id="45_bus_054:0" type="pt_bus" depart="239.0" departLane="best" from="260124785" to="189099793">
+        <stop busStop="1997103900" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="46_bus_057:0" type="pt_bus" depart="253.0" departLane="best" from="741087755" to="286070634#0">
+        <stop busStop="3459098893" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="47_bus_203:0" type="pt_bus" depart="253.0" departLane="best" from="295056177#0" to="-295056177#1">
+        <stop busStop="6644789228" duration="30"/>  <!-- ΕΥΑΓΓΕΛΙΣΜΟΣ -->
+    </trip>
+    <trip id="48_bus_204:0" type="pt_bus" depart="275.0" departLane="best" from="49288908#0" to="-972690317">
+        <stop busStop="2652597221" duration="30"/>  <!-- ΚΑΝΑΡΗ -->
+        <stop busStop="2652597231" duration="30"/>  <!-- ΝΟΜΙΚΗ -->
+        <stop busStop="1792445580" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="49_bus_209:0" type="pt_bus" depart="303.0" departLane="best" from="23182767#0" to="23182767#0">
+        <stop busStop="2182353004" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="50_bus_221:0" type="pt_bus" depart="305.0" departLane="best" from="5728512" to="167907745#0">
+        <stop busStop="1818038857" duration="30"/>  <!-- ΧΙΛΤΟΝ -->
+    </trip>
+    <trip id="51_bus_224:1" type="pt_bus" depart="321.0" departLane="best" from="5728512" to="10971761">
+        <stop busStop="1818038857" duration="30"/>  <!-- ΧΙΛΤΟΝ -->
+    </trip>
+    <trip id="52_bus_227:1" type="pt_bus" depart="326.0" departLane="best" from="715534866#0" to="23182987#0">
+        <stop busStop="-2786682035" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="53_bus_250:0" type="pt_bus" depart="331.0" departLane="best" from="295056177#0" to="167907745#0">
+        <stop busStop="6644789228" duration="30"/>  <!-- ΕΥΑΓΓΕΛΙΣΜΟΣ -->
+    </trip>
+    <trip id="54_bus_550:0" type="pt_bus" depart="334.0" departLane="best" from="295056178#0" to="169130590">
+        <stop busStop="2560629699" duration="30"/>  <!-- ΠΙΝΑΚΟΘΗΚΗ -->
+    </trip>
+    <trip id="55_bus_622:1" type="pt_bus" depart="336.0" departLane="best" from="167920332#0" to="189099793">
+        <stop busStop="1792445582" duration="30"/>  <!-- ΝΟΣΟΚΟΜΕΙΟ ΕΥΑΓΓΕΛΙΣΜΟΣ -->
+    </trip>
+    <trip id="56_bus_813:1" type="pt_bus" depart="346.0" departLane="best" from="634252645#0" to="-741087755">
+        <stop busStop="1618000514" duration="30"/>  <!-- ΡΕΞ -->
+    </trip>
+    <trip id="57_bus_815:0" type="pt_bus" depart="350.0" departLane="best" from="741087755" to="922515461#0">
+        <stop busStop="1800860234" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="58_bus_838:0" type="pt_bus" depart="353.0" departLane="best" from="741087755" to="286067598#4">
+        <stop busStop="3940829188" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="59_bus_856:1" type="pt_bus" depart="362.0" departLane="best" from="741087755" to="23182990#0">
+        <stop busStop="2512113609" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="60_trolleybus_12:1" type="pt_trolleybus" depart="365.0" departLane="best" from="741087755" to="23182987#0">
+        <stop busStop="3459098893" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="61_bus_Α2:1" type="pt_bus" depart="371.0" departLane="best" from="221139568" to="23183273#0">
+        <stop busStop="1792445580" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="62_bus_Α3:0" type="pt_bus" depart="376.0" departLane="best" from="221139568" to="751068056">
+        <stop busStop="1792445580" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="63_bus_Α7_ΚΗΦΙΣΙΑ_(ΠΛ.ΠΛΑΤΑΝΟΥ)_-_ΣΤΟΥΡΝΑΡΗ:0" type="pt_bus" depart="381.0" departLane="best" from="260124785" to="755022871#0">
+        <stop busStop="2656090022" duration="30"/>  <!-- ΣΤΟΥΡΝΑΡΗ -->
+    </trip>
+    <trip id="64_bus_Γ12:0" type="pt_bus" depart="383.0" departLane="best" from="10741754#0" to="10741751#0">
+        <stop busStop="1997456424" duration="30"/>  <!-- ΣΤΟΥΡΝΑΡΗ -->
+    </trip>
+    <trip id="65_bus_Χ14_ΚΗΦΙΣΙΑ_-_ΣΥΝΤΑΓΜΑ:0" type="pt_bus" depart="383.0" departLane="best" from="167920332#0" to="23182987#0">
+        <stop busStop="1792445582" duration="30"/>  <!-- ΝΟΣΟΚΟΜΕΙΟ ΕΥΑΓΓΕΛΙΣΜΟΣ -->
+    </trip>
+    <trip id="66_bus_Χ95_ΣΥΝΤΑΓΜΑ_-_ΑΕΡΟΛ._ΑΘΗΝΩΝ_(EXPRESS):0" type="pt_bus" depart="388.0" departLane="best" from="23182990#0" to="169130590">
+        <stop busStop="12668841452" duration="30"/>  <!-- ΣΥΝΤΑΓΜΑ -->
+    </trip>
+    <trip id="67_bus_Α11:0" type="pt_bus" depart="389.0" departLane="best" from="741033482" to="54700033#0">
+        <stop busStop="2672706268" duration="30"/>  <!-- ΑΦΕΤΗΡΙΑ -->
+    </trip>
+    <trip id="68_bus_Β11:0" type="pt_bus" depart="393.0" departLane="best" from="741033482" to="54700033#0">
+        <stop busStop="2672706268" duration="30"/>  <!-- ΑΦΕΤΗΡΙΑ -->
+    </trip>
+    <trip id="69_bus_Β11:1" type="pt_bus" depart="406.0" departLane="best" from="10741754#0" to="741033482">
+        <stop busStop="2672706268" duration="30"/>  <!-- ΑΦΕΤΗΡΙΑ -->
+    </trip>
+    <trip id="70_bus_021:0" type="pt_bus" depart="410.0" departLane="best" from="10971765" to="10971765">
+        <stop busStop="2858090709" duration="30"/>  <!-- ΠΛ. ΚΑΝΙΓΓΟΣ -->
+    </trip>
+    <trip id="71_trolleybus_6:0" type="pt_trolleybus" depart="418.0" departLane="best" from="762514801#3" to="10741751#0">
+        <stop busStop="1956880737" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="72_trolleybus_6:1" type="pt_trolleybus" depart="422.0" departLane="best" from="260124785" to="762514801#3">
+        <stop busStop="1613240806" duration="30"/>  <!-- ΠΛ.ΚΑΝΙΓΓΟΣ -->
+    </trip>
+    <trip id="73_trolleybus_15:0" type="pt_trolleybus" depart="437.0" departLane="best" from="221139568" to="311453391">
+        <stop busStop="7900407481" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="74_trolleybus_15:1" type="pt_trolleybus" depart="437.0" departLane="best" from="260124785" to="23182987#0">
+        <stop busStop="2515049716" duration="30"/>  <!-- ΠΟΛΥΤΕΧΝΕΙΟ -->
+    </trip>
+    <trip id="75_trolleybus_3:0" type="pt_trolleybus" depart="441.0" departLane="best" from="260124785" to="169130590">
+        <stop busStop="1613240806" duration="30"/>  <!-- ΠΛ.ΚΑΝΙΓΓΟΣ -->
+    </trip>
+    <trip id="76_trolleybus_3:1" type="pt_trolleybus" depart="465.0" departLane="best" from="167920332#0" to="311453391">
+        <stop busStop="1792445582" duration="30"/>  <!-- ΝΟΣΟΚΟΜΕΙΟ ΕΥΑΓΓΕΛΙΣΜΟΣ -->
+    </trip>
+    <trip id="77_bus_11:0" type="pt_bus" depart="475.0" departLane="best" from="260124785" to="23182987#0">
+        <stop busStop="2515049716" duration="30"/>  <!-- ΠΟΛΥΤΕΧΝΕΙΟ -->
+    </trip>
+    <trip id="78_bus_11:1" type="pt_bus" depart="483.0" departLane="best" from="221139568" to="311453391">
+        <stop busStop="7900407481" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="79_trolleybus_2:0" type="pt_trolleybus" depart="484.0" departLane="best" from="260124785" to="23182987#0">
+        <stop busStop="2515049716" duration="30"/>  <!-- ΠΟΛΥΤΕΧΝΕΙΟ -->
+    </trip>
+    <trip id="80_bus_2:1" type="pt_bus" depart="485.0" departLane="best" from="221139568" to="311453391">
+        <stop busStop="7900407481" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="81_subway_Μ1:0" type="pt_subway" depart="497.0" departLane="best" from="86322959" to="86322965#4">
+        <stop busStop="9666216520" duration="30"/>  <!-- Μοναστηράκι -->
+        <stop busStop="5396738090" duration="30"/>  <!-- Ομόνοια -->
+    </trip>
+    <trip id="82_subway_Μ3:2" type="pt_subway" depart="505.0" departLane="best" from="799602878" to="799602880">
+        <stop busStop="7478372546" duration="30"/>  <!-- Μοναστηράκι -->
+        <stop busStop="7478372558" duration="30"/>  <!-- Σύνταγμα -->
+        <stop busStop="7478372569" duration="30"/>  <!-- Ευαγγελισμός -->
+    </trip>
+    <trip id="83_bus_049:1" type="pt_bus" depart="508.0" departLane="best" from="760848368#0" to="286067598#4">
+        <stop busStop="3940829188" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="84_bus_040:0" type="pt_bus" depart="517.0" departLane="best" from="221139568" to="23182987#0">
+        <stop busStop="2786692509" duration="30"/>  <!-- ΣΥΝΤΑΓΜΑ -->
+    </trip>
+    <trip id="85_bus_040:1" type="pt_bus" depart="525.0" departLane="best" from="23182987#0" to="23182987#0">
+        <stop busStop="2786692509" duration="30"/>  <!-- ΣΥΝΤΑΓΜΑ -->
+    </trip>
+    <trip id="86_trolleybus_5:1" type="pt_trolleybus" depart="535.0" departLane="best" from="221139568" to="311453391">
+        <stop busStop="7900407481" duration="30"/>  <!-- None -->
+        <stop busStop="1613243552" duration="30"/>  <!-- ΟΜΟΝΟΙΑ -->
+    </trip>
+    <trip id="87_trolleybus_1:1" type="pt_trolleybus" depart="538.0" departLane="best" from="221139568" to="286070634#0">
+        <stop busStop="1792445580" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="88_bus_815:1" type="pt_bus" depart="548.0" departLane="best" from="167920332#0" to="-741087755">
+        <stop busStop="1618000514" duration="30"/>  <!-- ΡΕΞ -->
+    </trip>
+    <trip id="89_bus_790:1" type="pt_bus" depart="561.0" departLane="best" from="221139568" to="286070634#0">
+        <stop busStop="7900407481" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="90_subway_Μ3:3" type="pt_subway" depart="565.0" departLane="best" from="799602875" to="800265935">
+        <stop busStop="7478322261" duration="30"/>  <!-- Ευαγγελισμός -->
+        <stop busStop="7478372541" duration="30"/>  <!-- Σύνταγμα -->
+        <stop busStop="7478372529" duration="30"/>  <!-- Μοναστηράκι -->
+    </trip>
+    <trip id="91_subway_Μ1:1" type="pt_subway" depart="574.0" departLane="best" from="1051862655" to="557570459#4">
+        <stop busStop="5396738094" duration="30"/>  <!-- Ομόνοια -->
+        <stop busStop="97819323" duration="30"/>  <!-- Μοναστηράκι -->
+    </trip>
+    <trip id="92_subway_Μ2:1" type="pt_subway" depart="583.0" departLane="best" from="799826585" to="799826585">
+        <stop busStop="7480417761" duration="30"/>  <!-- Ομόνοια -->
+        <stop busStop="7480417749" duration="30"/>  <!-- Πανεπιστήμιο -->
+        <stop busStop="7480425125" duration="30"/>  <!-- Σύνταγμα -->
+    </trip>
+    <trip id="93_bus_025:1" type="pt_bus" depart="593.0" departLane="best" from="715534866#0" to="722762256">
+        <stop busStop="-2786682035" duration="30"/>  <!-- None -->
+    </trip>
+    <trip id="94_bus_4:1" type="pt_bus" depart="598.0" departLane="best" from="221139568" to="311453391">
+        <stop busStop="7900407481" duration="30"/>  <!-- None -->
+    </trip>
+</routes>
