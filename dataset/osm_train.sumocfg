@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2024-07-05 15:27:20 by Eclipse SUMO sumo Version 1.20.0
+<!-- generated on 2024-07-05 15:27:20 by Eclipse SUMO sumo Version 1.21.0
 -->
 
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
         <net-file value="osm.net.xml.gz"/>
-        <route-files value="route_files_train/traffic_day_1_hour_1.veh.xml,
-                             route_files_train/traffic_day_1_hour_2.veh.xml,
-                             route_files_train/traffic_day_1_hour_3.veh.xml,
-                             route_files_train/traffic_day_1_hour_4.veh.xml,
-                             route_files_train/traffic_day_1_hour_5.veh.xml,
-                             route_files_train/traffic_day_1_hour_6.veh.xml,
-                             route_files_train/traffic_day_1_hour_7.veh.xml,
-                             route_files_train/traffic_day_1_hour_8.veh.xml,
-                             route_files_train/traffic_day_1_hour_9.veh.xml,
-                             route_files_train/traffic_day_1_hour_10.veh.xml"/>
+        <route-files value="train/00h-routes.rou.xml,
+                            train/01h-routes.rou.xml,
+                            train/02h-routes.rou.xml,
+                            train/03h-routes.rou.xml,
+                            train/04h-routes.rou.xml,
+                            train/05h-routes.rou.xml,
+                            train/06h-routes.rou.xml,
+                            train/07h-routes.rou.xml,
+                            train/08h-routes.rou.xml,
+                            train/09h-routes.rou.xml"/>
         <additional-files value="osm.poly.xml.gz,vtypes.xml"/>
     </input>
 
@@ -46,10 +46,10 @@
     </gui_only>
 
     <output>
-        <netstate-dump value="athens_dump_output_10hour_training.xml"/>
-        <fcd-output value="athens_fcd_output_10hour_training.xml"/>
+        <netstate-dump value="athens-dump-10h-train.xml"/>
+        <fcd-output value="athens-fcd-10h-train.xml"/>
         <fcd-output.attributes value="id,x,y,type,speed,acceleration,odometer"/>
-        <emission-output value="athens_emission_output_10hour_training.xml"/>
+        <emission-output value="athens-emission-10h-train.xml"/>
         <emission-output.attributes value="id,eclass,fuel,type,waiting"/>
         <emission-output.precision value="2"/>
     </output>
