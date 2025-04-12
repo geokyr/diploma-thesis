@@ -14,4 +14,12 @@
     <!-- Bus -->
     <vType id="bus" vClass="bus" accel="1.2" decel="4.0" sigma="0.5"
            length="12.0" minGap="2.5" maxSpeed="23.61" emissionClass="HBEFA3/Bus" color="1,1,0"/>
+    
+    <!-- Standard passenger car red color -->
+    <vType id="car_red" vClass="passenger" accel="2.6" decel="4.5" sigma="0.5"
+           length="5.0" minGap="2.5" maxSpeed="55.55" emissionClass="HBEFA3/PC_G_EU4" color="255,0,0"/>
+
+    <!-- Standard passenger car green color -->
+    <vType id="car_green" vClass="passenger" accel="2.6" decel="4.5" sigma="0.5"
+           length="5.0" minGap="2.5" maxSpeed="55.55" emissionClass="HBEFA3/PC_G_EU4" color="0,255,0"/>
 </vTypes>
