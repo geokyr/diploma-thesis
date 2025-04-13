@@ -16,7 +16,8 @@
                             test/06h-routes.rou.xml,
                             test/07h-routes.rou.xml,
                             test/08h-routes.rou.xml,
-                            test/09h-routes.rou.xml"/>
+                            test/09h-routes.rou.xml,
+                            ../checkRoutes.rou.xml"/>
         <additional-files value="osm.poly.xml.gz,vtypes.xml"/>
     </input>
 
