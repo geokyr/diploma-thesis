@@ -35,7 +35,7 @@ Disable all random traffic generation
 ## Fixed Trips
 ```
 netedit .\dataset\athens-osmWebWizard\osm.net.xml.gz
-duarouter -n .\dataset\athens-osmWebWizard\osm.net.xml.gz -r .\dataset\fixedRoutes.rou.xml -o checkRoutes.rou.xml --ignore-errors
+duarouter -n .\dataset\athens-osmWebWizard\osm.net.xml.gz -r .\dataset\fixed-routes.rou.xml -o check-routes.rou.xml --ignore-errors
 ```
 
 ### 1. Omonoia to Evangelismos

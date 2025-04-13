@@ -7,17 +7,7 @@
 
     <input>
         <net-file value="osm.net.xml.gz"/>
-        <route-files value="test/00h-routes.rou.xml,
-                            test/01h-routes.rou.xml,
-                            test/02h-routes.rou.xml,
-                            test/03h-routes.rou.xml,
-                            test/04h-routes.rou.xml,
-                            test/05h-routes.rou.xml,
-                            test/06h-routes.rou.xml,
-                            test/07h-routes.rou.xml,
-                            test/08h-routes.rou.xml,
-                            test/09h-routes.rou.xml,
-                            ../checkRoutes.rou.xml"/>
+        <route-files value="train-routes.rou.xml"/>
         <additional-files value="osm.poly.xml.gz,vtypes.xml"/>
     </input>
 
@@ -47,10 +37,10 @@
     </gui_only>
 
     <output>
-        <netstate-dump value="athens-dump-10h-test.xml"/>
-        <fcd-output value="athens-fcd-10h-test.xml"/>
+        <netstate-dump value="athens-dump-10h-train.xml"/>
+        <fcd-output value="athens-fcd-10h-train.xml"/>
         <fcd-output.attributes value="id,x,y,type,speed,acceleration,odometer"/>
-        <emission-output value="athens-emission-10h-test.xml"/>
+        <emission-output value="athens-emission-10h-train.xml"/>
         <emission-output.attributes value="id,eclass,fuel,type,waiting"/>
         <emission-output.precision value="2"/>
     </output>

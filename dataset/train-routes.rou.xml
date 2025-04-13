@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2025-04-13 18:06:25.083110 by randomTrips.py UNKNOWN
+<!-- generated on 2025-04-13 18:27:02.753505 by randomTrips.py UNKNOWN
 <configuration>
     <net-file value="athens-osmWebWizard\osm.net.xml.gz"/>
     <output-trip-file value="train-trips.rou.xml"/>
@@ -11,7 +11,7 @@
 </configuration>
 -->
 
-<!-- generated on 2025-04-13 18:06:24 by Eclipse SUMO duarouter Version 1.21.0
+<!-- generated on 2025-04-13 18:27:01 by Eclipse SUMO duarouter Version 1.21.0
 <duarouterConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
 
     <input>
