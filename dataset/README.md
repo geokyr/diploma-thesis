@@ -59,9 +59,16 @@ netedit ./dataset/athens-osmWebWizard/osm.net.xml.gz
 - -820421378#1 (Leof. Vasilissis Sofias)
 
 ## Simulation
+With GUI:
 ```bash
 sumo-gui -c ./dataset/athens-osmWebWizard/train.sumocfg
 sumo-gui -c ./dataset/athens-osmWebWizard/test.sumocfg
+```
+
+Without GUI:
+```bash
+sumo -c ./dataset/athens-osmWebWizard/train.sumocfg
+sumo -c ./dataset/athens-osmWebWizard/test.sumocfg
 ```
 
 ## Convertion
