@@ -63,3 +63,26 @@ netedit ./dataset/athens-osmWebWizard/osm.net.xml.gz
 sumo-gui -c ./dataset/athens-osmWebWizard/train.sumocfg
 sumo-gui -c ./dataset/athens-osmWebWizard/test.sumocfg
 ```
+
+## Convertion
+For Windows:
+
+```powershell
+python $env:SUMO_HOME\tools\xml\xml2csv.py .\dataset\athens-osmWebWizard\dump-train-athens-10h.xml
+python $env:SUMO_HOME\tools\xml\xml2csv.py .\dataset\athens-osmWebWizard\dump-test-athens-10h.xml
+python $env:SUMO_HOME\tools\xml\xml2csv.py .\dataset\athens-osmWebWizard\emission-train-athens-10h.xml
+python $env:SUMO_HOME\tools\xml\xml2csv.py .\dataset\athens-osmWebWizard\emission-test-athens-10h.xml
+python $env:SUMO_HOME\tools\xml\xml2csv.py .\dataset\athens-osmWebWizard\fcd-train-athens-10h.xml
+python $env:SUMO_HOME\tools\xml\xml2csv.py .\dataset\athens-osmWebWizard\fcd-test-athens-10h.xml
+```
+
+For Linux/MacOS:
+
+```bash
+python $SUMO_HOME/tools/xml/xml2csv.py ./dataset/athens-osmWebWizard/dump-train-athens-10h.xml
+python $SUMO_HOME/tools/xml/xml2csv.py ./dataset/athens-osmWebWizard/dump-test-athens-10h.xml
+python $SUMO_HOME/tools/xml/xml2csv.py ./dataset/athens-osmWebWizard/emission-train-athens-10h.xml
+python $SUMO_HOME/tools/xml/xml2csv.py ./dataset/athens-osmWebWizard/emission-test-athens-10h.xml
+python $SUMO_HOME/tools/xml/xml2csv.py ./dataset/athens-osmWebWizard/fcd-train-athens-10h.xml
+python $SUMO_HOME/tools/xml/xml2csv.py ./dataset/athens-osmWebWizard/fcd-test-athens-10h.xml
+```
