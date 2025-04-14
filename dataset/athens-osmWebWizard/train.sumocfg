@@ -12,11 +12,6 @@
                                  vtypes.xml"/>
     </input>
 
-    <time>
-        <begin value="0"/>
-        <end value="36000"/>
-    </time>
-
     <processing>
         <ignore-route-errors value="true"/>
         <tls.actuated.jam-threshold value="30"/>
