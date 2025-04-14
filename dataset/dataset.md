@@ -1,9 +1,16 @@
 # Dataset
 
 ## OSM Web Wizard
+For Windows:
 ```powershell
 conda activate thesis
-python $env:SUMO_HOME/tools/osmWebWizard.py
+python $env:SUMO_HOME\tools\osmWebWizard.py
+```
+
+For Linux/MacOS:
+```bash
+conda activate thesis
+python $SUMO_HOME/tools/osmWebWizard.py
 ```
 
 ## Area Size
@@ -33,21 +40,20 @@ Disable all random traffic generation
 - [Vehicle Type Parameter Defaults](https://sumo.dlr.de/docs/Vehicle_Type_Parameter_Defaults.html)
 
 ## Fixed Trips
-```
-netedit .\dataset\athens-osmWebWizard\osm.net.xml.gz
-duarouter -n .\dataset\athens-osmWebWizard\osm.net.xml.gz -r .\dataset\fixed-routes.rou.xml -o check-routes.rou.xml --ignore-errors
+```bash
+netedit ./dataset/athens-osmWebWizard/osm.net.xml.gz
 ```
 
-### 1. Omonoia to Evangelismos
+### Trip 1 - Omonoia to Evangelismos
 - Starting Edge: 23182962 (Stadiou)
 - Destination Edge: 169130585 (Leof. Vasilissis Sofias)
 
-#### A. Via Akadimias
+#### Route A - Via Akadimias
 - 260124786#0 (Akadimias)
 - 1209362820 (Pl. Filikis Eterias)
 - 299645496 (Marasli)
 
-#### B. Via Stadiou
+#### Route B - Via Stadiou
 - 299506410#0 (Stadiou)
 - 221139568 (Leof. Vasilissis Amalias)
 - -820421378#1 (Leof. Vasilissis Sofias)
