@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2025-04-14 20:47:51 by Eclipse SUMO duarouter Version 1.21.0
+<!-- generated on 2025-04-15 01:50:39 by Eclipse SUMO duarouter Version 1.21.0
 <duarouterConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
 
     <input>
         <net-file value="athens-osmWebWizard\osm.net.xml.gz"/>
-        <additional-files value="athens-osmWebWizard\vtypes.xml"/>
         <route-files value="athens-osmWebWizard\fixed-flows.rou.xml"/>
     </input>
 
