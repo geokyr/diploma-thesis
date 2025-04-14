@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2025-03-23 20:37:21 by Eclipse SUMO sumo Version 1.21.0
+<!-- generated on 2025-04-12 16:09:46 by Eclipse SUMO sumo Version 1.21.0
 -->
 
-<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+<sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
         <net-file value="osm.net.xml.gz"/>
-        <route-files value="test-routes.rou.xml,
-                            fixed-routes.rou.xml"/>
-        <additional-files value="osm.poly.xml.gz,vtypes.xml"/>
+        <route-files value="train-routes.rou.xml"/>
+        <additional-files value="osm.poly.xml.gz,
+                                 vtypes.xml"/>
     </input>
 
     <time>
@@ -38,12 +38,12 @@
     </gui_only>
 
     <output>
-        <netstate-dump value="athens-dump-10h-test.xml"/>
-        <fcd-output value="athens-fcd-10h-test.xml"/>
-        <fcd-output.attributes value="id,x,y,type,speed,acceleration,odometer"/>
-        <emission-output value="athens-emission-10h-test.xml"/>
-        <emission-output.attributes value="id,eclass,fuel,type,waiting"/>
+        <netstate-dump value="dump-train-athens-10h.xml"/>
+        <fcd-output value="fcd-train-athens-10h.xml"/>
+        <fcd-output.attributes value="id, x, y, type, speed, acceleration, odometer"/>
+        <emission-output value="emission-train-athens-10h.xml"/>
+        <emission-output.attributes value="id, eclass, fuel, type, waiting"/>
         <emission-output.precision value="2"/>
     </output>
 
-</configuration>
+</sumoConfiguration>

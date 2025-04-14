@@ -7,9 +7,16 @@
 
     <input>
         <net-file value="osm.net.xml.gz"/>
-        <route-files value="../../checkRoutes.rou.xml"/>
-        <additional-files value="osm.poly.xml.gz"/>
+        <route-files value="test-routes.rou.xml,
+                            fixed-routes.rou.xml"/>
+        <additional-files value="osm.poly.xml.gz,
+                                 vtypes.xml"/>
     </input>
+
+    <time>
+        <begin value="0"/>
+        <end value="36000"/>
+    </time>
 
     <processing>
         <ignore-route-errors value="true"/>
@@ -30,5 +37,14 @@
     <gui_only>
         <gui-settings-file value="osm.view.xml"/>
     </gui_only>
+
+    <output>
+        <netstate-dump value="dump-test-athens-10h.xml"/>
+        <fcd-output value="fcd-test-athens-10h.xml"/>
+        <fcd-output.attributes value="id, x, y, type, speed, acceleration, odometer"/>
+        <emission-output value="emission-test-athens-10h.xml"/>
+        <emission-output.attributes value="id, eclass, fuel, type, waiting"/>
+        <emission-output.precision value="2"/>
+    </output>
 
 </sumoConfiguration>

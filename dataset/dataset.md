@@ -57,3 +57,9 @@ netedit ./dataset/athens-osmWebWizard/osm.net.xml.gz
 - 299506410#0 (Stadiou)
 - 221139568 (Leof. Vasilissis Amalias)
 - -820421378#1 (Leof. Vasilissis Sofias)
+
+## Simulation
+```bash
+sumo-gui -c ./dataset/athens-osmWebWizard/train.sumocfg
+sumo-gui -c ./dataset/athens-osmWebWizard/test.sumocfg
+```
