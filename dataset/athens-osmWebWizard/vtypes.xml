@@ -3,10 +3,6 @@
     <vType id="car" vClass="passenger" accel="2.6" decel="4.5" sigma="0.5"
            length="5.00" minGap="2.50" maxSpeed="55.55" emissionClass="HBEFA3/PC_G_EU4" color="1,0,0"/>
     
-    <!-- Light duty vehicle -->
-    <vType id="ldv" vClass="delivery" accel="2.6" decel="4.5" sigma="0.5"
-           length="6.50" minGap="2.50" maxSpeed="55.55" emissionClass="HBEFA3/LDV" color="0,0,1"/>
-    
     <!-- Heavy duty vehicle -->
     <vType id="truck" vClass="truck" accel="1.3" decel="4.0" sigma="0.5"
            length="7.10" minGap="2.50" maxSpeed="36.11" emissionClass="HBEFA3/HDV" color="0,1,0"/>

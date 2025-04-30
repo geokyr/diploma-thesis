@@ -7,10 +7,8 @@
 
     <input>
         <net-file value="osm.net.xml.gz"/>
-        <route-files value="test-routes.rou.xml,
-                            fixed-routes.rou.xml"/>
-        <additional-files value="osm.poly.xml.gz,
-                                 vtypes.xml"/>
+        <route-files value="test.trips.xml, fixed.rou.xml"/>
+        <additional-files value="osm.poly.xml.gz, vtypes.xml"/>
     </input>
 
     <processing>
