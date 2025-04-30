@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2025-04-15 01:50:39 by Eclipse SUMO duarouter Version 1.21.0
+<!-- generated on 2025-04-30 02:10:26 by Eclipse SUMO duarouter Version 1.21.0
 <duarouterConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
 
     <input>
@@ -17,10 +17,10 @@
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
     <vType id="car_red" length="5.00" minGap="2.50" maxSpeed="55.55" vClass="passenger" emissionClass="HBEFA3/PC_G_EU4" color="red" accel="2.6" decel="4.5" sigma="0.5"/>
+    <vType id="car_green" length="5.00" minGap="2.50" maxSpeed="55.55" vClass="passenger" emissionClass="HBEFA3/PC_G_EU4" color="green" accel="2.6" decel="4.5" sigma="0.5"/>
     <vehicle id="trip1-routeA.0" type="car_red" depart="0.00">
         <route edges="23182962 189063912#0 207971475#0 636473899#0 636473899#6 636473899#9 636473899#10 636473899#12 52493436#8 52493436#12 260124786#0 260124786#2 168914459#0 751068056 168914458#0 299510529#0 299644700#0 299644700#2 299644700#5 299644700#7 299644700#8 23182848#0 23182848#2 1102900327#0 1209362820 -1210315343 391433166#0 391433166#3 -573760699#3 -573760699#0 -23184151#1 299645496 224026881#0 224026881#2 52493494#0 169130585"/>
     </vehicle>
-    <vType id="car_green" length="5.00" minGap="2.50" maxSpeed="55.55" vClass="passenger" emissionClass="HBEFA3/PC_G_EU4" color="green" accel="2.6" decel="4.5" sigma="0.5"/>
     <vehicle id="trip1-routeB.0" type="car_green" depart="0.00">
         <route edges="23182962 189063912#0 207971475#0 207971475#1 284241336#0 284241336#5 52493742 52493741#0 704293239#0 299506410#0 207979572#0 23182767#0 23182990#0 221139568 23182816 -170993800#2 -917873078 -259803253 -972690969 -909651170#1 -909651169 -820421378#1 -909651173#2 -909651172 -972690317 284174992#0 169130585"/>
     </vehicle>
