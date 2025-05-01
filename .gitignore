@@ -1,8 +1,2 @@
 *.csv
 !.vscode
-dump-test-athens-10h.xml
-dump-train-athens-10h.xml
-emission-test-athens-10h.xml
-emission-train-athens-10h.xml
-fcd-test-athens-10h.xml
-fcd-train-athens-10h.xml
