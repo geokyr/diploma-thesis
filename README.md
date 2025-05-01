@@ -30,7 +30,7 @@ conda deactivate
 SUMO is already installed on the conda environment.
 
 ### Environment Variables
-To use SUMO, you need to set the environment variable `SUMO_HOME` to the path where SUMO is installed. It is also useful to add the SUMO binaries and tools to the `PATH` environment variable. You can do this by utilizing the `activate.d` scripts provided by conda, that run every time you activate the environment.
+To use SUMO, you need to set the environment variable `SUMO_HOME` to the path where SUMO is installed. It is also useful to add the SUMO binaries and tools to the `PATH` environment variable. You can do this by utilizing the `activate.d` scripts provided by conda that run every time you activate the environment.
 
 For Windows:
 
