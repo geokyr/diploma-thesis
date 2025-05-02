@@ -1,0 +1,9 @@
+<additional>
+  <!-- close entire edge “e17” -->
+  <edge id="e17" closed="true"/>
+
+  <!-- close lane 1 of edge “e32” -->
+  <lane id="e32_1" closed="true"/>
+</additional>
+
+<!-- <additional-files value="osm.poly.xml.gz, vtypes.xml, closure.add.xml"/> -->
