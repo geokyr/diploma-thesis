@@ -1,0 +1,7 @@
+<additional>
+    <!-- rain vehicle type for the rain drift scenario -->
+    <vTypes>
+        <vType id="car-rain" vClass="passenger" accel="2.0" decel="4.0" length="5.00"
+               minGap="3.50" maxSpeed="33.33" emissionClass="HBEFA3/PC_G_EU4" speedFactor="0.8"/>
+    </vTypes>
+</additional>
