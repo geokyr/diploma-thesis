@@ -1,16 +1,17 @@
 <additional>
-  <!-- close panepistimiou -->
-  <edge id="167920360#1" closed="true"/>
-  <edge id="23182965#0" closed="true"/>
-  <edge id="207979569#0" closed="true"/>
-  <edge id="207979569#3" closed="true"/>
-  <edge id="168914464#0" closed="true"/>
-  <edge id="167907746#0" closed="true"/>
-  <edge id="704293238" closed="true"/>
-  <edge id="207891571#0" closed="true"/>
-  <edge id="168904430" closed="true"/>
-  <edge id="284241337#0" closed="true"/>
-
-  <!-- close lane 0 of edge 207979569#0 -->
-  <lane id="207979569#0_0" closed="true"/>
+    <!-- close panepistimiou road -->
+    <rerouter id="drift" edges="167920360#1 23182965#0 207979569#0 207979569#3 168914464#0 167907746#0 704293238 207891571#0 168904430 284241337#0">
+        <interval begin="0" end="36000">
+            <closingReroute id="167920360#1" disallow="all"/>
+            <closingReroute id="23182965#0" disallow="all"/>
+            <closingReroute id="207979569#0" disallow="all"/>
+            <closingReroute id="207979569#3" disallow="all"/>
+            <closingReroute id="168914464#0" disallow="all"/>
+            <closingReroute id="167907746#0" disallow="all"/>
+            <closingReroute id="704293238" disallow="all"/>
+            <closingReroute id="207891571#0" disallow="all"/>
+            <closingReroute id="168904430" disallow="all"/>
+            <closingReroute id="284241337#0" disallow="all"/>
+        </interval>
+    </rerouter>
 </additional>
