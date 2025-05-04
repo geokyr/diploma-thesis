@@ -1,7 +1,16 @@
 <additional>
-  <!-- close entire edge “e17” -->
-  <edge id="e17" closed="true"/>
+  <!-- close panepistimiou -->
+  <edge id="167920360#1" closed="true"/>
+  <edge id="23182965#0" closed="true"/>
+  <edge id="207979569#0" closed="true"/>
+  <edge id="207979569#3" closed="true"/>
+  <edge id="168914464#0" closed="true"/>
+  <edge id="167907746#0" closed="true"/>
+  <edge id="704293238" closed="true"/>
+  <edge id="207891571#0" closed="true"/>
+  <edge id="168904430" closed="true"/>
+  <edge id="284241337#0" closed="true"/>
 
-  <!-- close lane 1 of edge “e32” -->
-  <lane id="e32_1" closed="true"/>
+  <!-- close lane 0 of edge 207979569#0 -->
+  <lane id="207979569#0_0" closed="true"/>
 </additional>
