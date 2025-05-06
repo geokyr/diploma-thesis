@@ -1,6 +1,9 @@
 <additional>
     <rerouter id="drift" edges="167920360#1 23182965#0 207979569#0 207979569#3 168914464#0 167907746#0 704293238 207891571#0 168904430 284241337#0">
         <interval begin="0" end="36000">
+            <!-- panepistimiou 2 lanes -->
+            <closingLaneReroute id="167920360#0_0" disallow="all"/>
+            <closingLaneReroute id="167920360#0_1" disallow="all"/>
             <closingLaneReroute id="167920360#1_0" disallow="all"/>
             <closingLaneReroute id="167920360#1_1" disallow="all"/>
             <closingLaneReroute id="23182965#0_0" disallow="all"/>
@@ -21,6 +24,34 @@
             <closingLaneReroute id="168904430_1" disallow="all"/>
             <closingLaneReroute id="284241337#0_0" disallow="all"/>
             <closingLaneReroute id="284241337#0_1" disallow="all"/>
+            <!-- akadimias 2 lanes -->
+            <closingLaneReroute id="168914459#0_0" disallow="all"/>
+            <closingLaneReroute id="168914459#0_1" disallow="all"/>
+            <closingLaneReroute id="751068056_0" disallow="all"/>
+            <closingLaneReroute id="751068056_1" disallow="all"/>
+            <closingLaneReroute id="168914458#0_0" disallow="all"/>
+            <closingLaneReroute id="168914458#0_1" disallow="all"/>
+            <closingLaneReroute id="299510529#0_0" disallow="all"/>
+            <closingLaneReroute id="299510529#0_1" disallow="all"/>
+            <closingLaneReroute id="299644700#0_0" disallow="all"/>
+            <closingLaneReroute id="299644700#0_1" disallow="all"/>
+            <closingLaneReroute id="299644700#2_0" disallow="all"/>
+            <closingLaneReroute id="299644700#2_1" disallow="all"/>
+            <closingLaneReroute id="299644700#5_0" disallow="all"/>
+            <closingLaneReroute id="299644700#5_1" disallow="all"/>
+            <closingLaneReroute id="299644700#7_0" disallow="all"/>
+            <closingLaneReroute id="299644700#7_1" disallow="all"/>
+            <closingLaneReroute id="299644700#8_0" disallow="all"/>
+            <closingLaneReroute id="299644700#8_1" disallow="all"/>
+            <!-- stadiou 1 lane -->
+            <closingLaneReroute id="207971475#1_0" disallow="all"/>
+            <closingLaneReroute id="284241336#0_0" disallow="all"/>
+            <closingLaneReroute id="284241336#5_0" disallow="all"/>
+            <closingLaneReroute id="52493742_0" disallow="all"/>
+            <closingLaneReroute id="52493741#0_0" disallow="all"/>
+            <closingLaneReroute id="704293239#0_0" disallow="all"/>
+            <closingLaneReroute id="299506410#0_0" disallow="all"/>
+            <closingLaneReroute id="207979572#0_0" disallow="all"/>
         </interval>
     </rerouter>
 </additional>
