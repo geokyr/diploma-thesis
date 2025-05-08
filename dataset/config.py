@@ -21,6 +21,7 @@ XML2CSV = SUMO_HOME / "tools" / "xml" / "xml2csv.py"
 BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "athens-10h"
 PLOTS_DIR = DATA_DIR / "plots"
+
 NETWORK = DATA_DIR / "osm.net.xml.gz"
 TRAIN_FCD = DATA_DIR / "train-fcd.xml"
 TEST_FCD = DATA_DIR / "test-fcd.xml"
