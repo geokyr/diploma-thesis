@@ -34,9 +34,9 @@
     <output>
         <netstate-dump value="test-dump.xml"/>
         <fcd-output value="test-fcd.xml"/>
-        <fcd-output.attributes value="id, x, y, type, speed, acceleration, odometer"/>
+        <fcd-output.attributes value="id, x, y, speed, acceleration, odometer"/>
         <emission-output value="test-emission.xml"/>
-        <emission-output.attributes value="id, eclass, fuel, type, waiting"/>
+        <emission-output.attributes value="id, fuel, waiting"/>
         <emission-output.precision value="2"/>
     </output>
 
