@@ -54,7 +54,7 @@ def plot_average_speed_and_vehicle_count_per_second(
 def plot_average_speed_and_traffic_generation_period_per_hour(
     df_hour: pd.DataFrame,
     df_average_speed_kmh_per_hour: pd.DataFrame,
-    traffic_generation_periods: list,
+    traffic_generation_periods: list[int],
     simulation_id: str,
 ) -> None:
     """
@@ -63,7 +63,7 @@ def plot_average_speed_and_traffic_generation_period_per_hour(
     Args:
         df_hour (pd.DataFrame): DataFrame containing hour-wise data.
         df_average_speed_kmh_per_hour (pd.DataFrame): DataFrame containing average speed per hour in km/h.
-        traffic_generation_periods (list): List of traffic generation periods in seconds.
+        traffic_generation_periods (list[int]): List of traffic generation periods in seconds.
         simulation_id (str): Simulation ID to identify the dataset.
     """
     fig, ax1 = plt.subplots(figsize=(10, 4))
