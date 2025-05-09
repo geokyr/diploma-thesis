@@ -4,9 +4,6 @@ from pathlib import Path
 
 from config import DUAROUTER, OSM_WEB_WIZARD, RANDOM_TRIPS, XML2CSV
 
-# TODO: Change print and return combo to raise error/exception
-#       Change success messages to something more informative
-
 
 def generate_fixed_routes(
     network: Path, fixed_flows_file: Path, fixed_routes_file: Path, fixed_routes_alt_file: Path
@@ -19,14 +16,16 @@ def generate_fixed_routes(
         fixed_flows_file (Path): Path to the fixed flows file.
         fixed_routes_file (Path): Path to the output fixed routes file.
         fixed_routes_alt_file (Path): Path to the alternative output fixed routes file.
+
+    Raises:
+        FileNotFoundError: If the network or fixed flows file does not exist.
+        RuntimeError: If the fixed routes file generation fails.
     """
     if not network.exists():
-        print(f"Network file not found: {network}")
-        return
+        raise FileNotFoundError(f"Network file not found: {network}")
 
     if not fixed_flows_file.exists():
-        print(f"Fixed flows file not found: {fixed_flows_file}")
-        return
+        raise FileNotFoundError(f"Fixed flows file not found: {fixed_flows_file}")
 
     command = [
         str(DUAROUTER),
@@ -47,12 +46,13 @@ def generate_fixed_routes(
 
     if fixed_routes_file.exists() and fixed_routes_alt_file.exists():
         fixed_routes_alt_file.unlink()
-        print("Success:", fixed_routes_file)
+        print(f"Fixed routes generated successfully: {fixed_routes_file}")
     else:
-        print("Failed:", fixed_routes_file)
+        raise RuntimeError(f"Failed to generate fixed routes: {fixed_routes_file}")
 
 
 def generate_random_trips(
+    network: Path,
     trips_file: Path,
     traffic_generation_periods: list[int],
     seed: int = 42,
@@ -63,12 +63,20 @@ def generate_random_trips(
     Generate random trips using the SUMO randomTrips tool.
 
     Args:
+        network (Path): Path to the network file.
         trips_file (Path): Path to the output trips file.
         traffic_generation_periods (list[int]): List of traffic generation periods.
         seed (int): Random seed for trip generation.
         start_time (int): Start time for trip generation in seconds.
         end_time (int): End time for trip generation in seconds.
+
+    Raises:
+        FileNotFoundError: If the network file does not exist.
+        RuntimeError: If the random trips generation fails.
     """
+    if not network.exists():
+        raise FileNotFoundError(f"Network file not found: {network}")
+
     traffic_generation_periods_str = ",".join(str(v) for v in traffic_generation_periods)
     routes_temp_file = Path(__file__).parent / "routes.rou.xml"
 
@@ -76,7 +84,7 @@ def generate_random_trips(
         "python",
         str(RANDOM_TRIPS),
         "--net-file",
-        str(NETWORK),
+        str(network),
         "--begin",
         str(start_time),
         "--end",
@@ -99,7 +107,9 @@ def generate_random_trips(
 
     if trips_file.exists() and routes_temp_file.exists():
         routes_temp_file.unlink()
-        print("Success:", trips_file)
+        print(f"Random trips generated successfully: {trips_file}")
+    else:
+        raise RuntimeError(f"Failed to generate random trips: {trips_file}")
 
 
 def update_trip_ids(trips_file: Path) -> None:
@@ -108,10 +118,12 @@ def update_trip_ids(trips_file: Path) -> None:
 
     Args:
         trips_file (Path): Path to the trips file to be updated.
+
+    Raises:
+        FileNotFoundError: If the trips file does not exist.
     """
     if not trips_file.exists():
-        print(f"Trips file not found: {trips_file}")
-        return
+        raise FileNotFoundError(f"Trips file not found: {trips_file}")
 
     tree = ET.parse(trips_file)
     root = tree.getroot()
@@ -122,7 +134,7 @@ def update_trip_ids(trips_file: Path) -> None:
         trip_id += 1
 
     tree.write(trips_file)
-    print("Updated:", trips_file)
+    print(f"Updated a total of {trip_id} trip IDs in {trips_file}")
 
 
 def update_vehicle_types(trips_file: Path, fixed_routes_file: Path | None = None, vehicle_type: str = "car") -> None:
@@ -133,10 +145,12 @@ def update_vehicle_types(trips_file: Path, fixed_routes_file: Path | None = None
         trips_file (Path): Path to the trips file to be updated.
         fixed_routes_file (Path | None): Path to the fixed routes file to be updated, if provided.
         vehicle_type (str): Vehicle type to set in the files.
+
+    Raises:
+        FileNotFoundError: If the trips file or fixed routes file does not exist.
     """
     if not trips_file.exists():
-        print(f"Trips file not found: {trips_file}")
-        return
+        raise FileNotFoundError(f"Trips file not found: {trips_file}")
 
     tree = ET.parse(trips_file)
     root = tree.getroot()
@@ -145,14 +159,13 @@ def update_vehicle_types(trips_file: Path, fixed_routes_file: Path | None = None
         trip.set("type", vehicle_type)
 
     tree.write(trips_file)
-    print("Updated:", trips_file)
+    print(f"Vehicle types set to '{vehicle_type}' in {trips_file}")
 
     if not fixed_routes_file:
         return
 
     if not fixed_routes_file.exists():
-        print(f"Fixed routes file not found: {fixed_routes_file}")
-        return
+        raise FileNotFoundError(f"Fixed routes file not found: {fixed_routes_file}")
 
     tree = ET.parse(fixed_routes_file)
     root = tree.getroot()
@@ -161,7 +174,7 @@ def update_vehicle_types(trips_file: Path, fixed_routes_file: Path | None = None
         vehicle.set("type", vehicle_type)
 
     tree.write(fixed_routes_file)
-    print("Updated:", fixed_routes_file)
+    print(f"Vehicle types set to '{vehicle_type}' in {fixed_routes_file}")
 
 
 def simulate_scenario(simulation_config: Path) -> None:
@@ -170,10 +183,12 @@ def simulate_scenario(simulation_config: Path) -> None:
 
     Args:
         simulation_config (Path): Path to the SUMO configuration file.
+
+    Raises:
+        FileNotFoundError: If the simulation configuration file does not exist.
     """
     if not simulation_config.exists():
-        print(f"Simulation config file not found: {simulation_config}")
-        return
+        raise FileNotFoundError(f"Simulation config file not found: {simulation_config}")
 
     command = [
         "sumo",
@@ -188,7 +203,7 @@ def simulate_scenario(simulation_config: Path) -> None:
         print("Warnings/Errors from sumo:")
         print(result.stderr)
 
-    print("Success:", simulation_config)
+    print(f"Simulation completed successfully: {simulation_config}")
 
 
 def simulate_gui_scenario(simulation_config: Path) -> None:
@@ -197,10 +212,12 @@ def simulate_gui_scenario(simulation_config: Path) -> None:
 
     Args:
         simulation_config (Path): Path to the SUMO configuration file.
+
+    Raises:
+        FileNotFoundError: If the simulation configuration file does not exist.
     """
     if not simulation_config.exists():
-        print(f"Simulation config file not found: {simulation_config}")
-        return
+        raise FileNotFoundError(f"Simulation config file not found: {simulation_config}")
 
     command = [
         "sumo-gui",
@@ -215,7 +232,7 @@ def simulate_gui_scenario(simulation_config: Path) -> None:
         print("Warnings/Errors from sumo-gui:")
         print(result.stderr)
 
-    print("Success:", simulation_config)
+    print(f"Simulation completed successfully: {simulation_config}")
 
 
 def edit_network(network: Path) -> None:
@@ -224,10 +241,12 @@ def edit_network(network: Path) -> None:
 
     Args:
         network (Path): Path to the network file to be edited.
+
+    Raises:
+        FileNotFoundError: If the network file does not exist.
     """
     if not network.exists():
-        print(f"Network file not found: {network}")
-        return
+        raise FileNotFoundError(f"Network file not found: {network}")
 
     command = [
         "netedit",
@@ -241,7 +260,7 @@ def edit_network(network: Path) -> None:
         print("Warnings/Errors from netedit:")
         print(result.stderr)
 
-    print("Success:", network)
+    print(f"Network edited successfully: {network}")
 
 
 def generate_network() -> None:
@@ -260,21 +279,23 @@ def generate_network() -> None:
         print("Warnings/Errors from osmWebWizard:")
         print(result.stderr)
 
-    print("Success.")
+    print("Network generated successfully.")
 
 
-def convert_xml_to_csv(xml_file: Path, csv_file: Path, delete_original: bool = False) -> None:
+def convert_xml_to_csv(xml_file: Path, delete_original: bool = False) -> None:
     """
     Convert an XML file to a CSV file and delete the original XML file if specified.
 
     Args:
         xml_file (Path): Path to the XML file to be converted.
-        csv_file (Path): Path to the output CSV file.
         delete_original (bool): Whether to delete the original XML file after conversion.
+
+    Raises:
+        FileNotFoundError: If the XML file does not exist.
+        RuntimeError: If the conversion fails or the output CSV file is missing.
     """
     if not xml_file.exists():
-        print(f"XML file not found: {xml_file}")
-        return
+        raise FileNotFoundError(f"XML file not found: {xml_file}")
 
     command = [
         "python",
@@ -289,7 +310,10 @@ def convert_xml_to_csv(xml_file: Path, csv_file: Path, delete_original: bool = F
         print("Warnings/Errors from xml2csv:")
         print(result.stderr)
 
+    csv_file = xml_file.with_suffix(".csv")
     if csv_file.exists():
         if delete_original:
             xml_file.unlink()
-        print("Success:", csv_file)
+        print(f"Converted {xml_file} to {csv_file}")
+    else:
+        raise RuntimeError(f"Failed to convert {xml_file}, missing output file: {csv_file}")
