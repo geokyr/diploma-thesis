@@ -45,13 +45,12 @@ def parse_fcd_output(fcd_output: Path) -> pd.DataFrame:
     return pd.DataFrame(data)
 
 
-def preprocess_fcd(df_fcd: pd.DataFrame, simulation_id: str) -> pd.DataFrame:
+def preprocess_fcd(df_fcd: pd.DataFrame) -> pd.DataFrame:
     """
     Remove nulls and records beyond 10 hours, print basic stats, and return the cleaned FCD.
 
     Args:
         df_fcd (pd.DataFrame): DataFrame containing vehicle data that must have `timestep_time`, `speed_kmh`, and `vehicle_id` columns.
-        simulation_id (str): Simulation ID to identify the dataset.
 
     Returns:
         pd.DataFrame: Preprocessed DataFrame where all rows are non-null and records are within 10 hours.
@@ -63,7 +62,6 @@ def preprocess_fcd(df_fcd: pd.DataFrame, simulation_id: str) -> pd.DataFrame:
     average_trip_distance = df_fcd.groupby("vehicle_id")["odometer"].max().mean()
     unique_vehicles_count = df_fcd["vehicle_id"].nunique()
 
-    print(f"Dataset: {simulation_id}")
     print(f"Data shape: {df_fcd.shape}")
     print(f"Average speed: {average_speed:.2f} km/h")
     print(f"Average trip distance: {average_trip_distance:.2f} m")
