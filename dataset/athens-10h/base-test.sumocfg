@@ -7,7 +7,7 @@
 
     <input>
         <net-file value="osm.net.xml.gz"/>
-        <route-files value="train.trips.xml"/>
+        <route-files value="base-test.trips.xml, fixed.rou.xml"/>
         <additional-files value="osm.poly.xml.gz, vtypes.xml"/>
     </input>
 
@@ -32,10 +32,10 @@
     </gui_only>
 
     <output>
-        <netstate-dump value="train-dump.xml"/>
-        <fcd-output value="train-fcd.xml"/>
+        <netstate-dump value="base-test-dump.xml"/>
+        <fcd-output value="base-test-fcd.xml"/>
         <fcd-output.attributes value="id, x, y, speed, acceleration, odometer"/>
-        <emission-output value="train-emission.xml"/>
+        <emission-output value="base-test-emission.xml"/>
         <emission-output.attributes value="id, fuel, waiting"/>
         <emission-output.precision value="2"/>
     </output>
