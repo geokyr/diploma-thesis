@@ -5,6 +5,25 @@ from pathlib import Path
 from config import DUAROUTER, OSM_WEB_WIZARD, RANDOM_TRIPS, XML2CSV
 
 
+def generate_network() -> None:
+    """
+    Generate a network using the SUMO osmWebWizard tool.
+    """
+    command = [
+        "python",
+        str(OSM_WEB_WIZARD),
+    ]
+
+    print("Executing:", " ".join(command))
+    result = subprocess.run(command, capture_output=True, check=True, text=True)
+
+    if result.stderr:
+        print("Warnings/Errors from osmWebWizard:")
+        print(result.stderr)
+
+    print("Network generated successfully.")
+
+
 def generate_fixed_routes(
     network: Path, fixed_flows_file: Path, fixed_routes_file: Path, fixed_routes_alt_file: Path
 ) -> None:
@@ -261,25 +280,6 @@ def edit_network(network: Path) -> None:
         print(result.stderr)
 
     print(f"Network edited successfully: {network}")
-
-
-def generate_network() -> None:
-    """
-    Generate a network using the SUMO osmWebWizard tool.
-    """
-    command = [
-        "python",
-        str(OSM_WEB_WIZARD),
-    ]
-
-    print("Executing:", " ".join(command))
-    result = subprocess.run(command, capture_output=True, check=True, text=True)
-
-    if result.stderr:
-        print("Warnings/Errors from osmWebWizard:")
-        print(result.stderr)
-
-    print("Network generated successfully.")
 
 
 def convert_xml_to_csv(xml_file: Path, delete_original: bool = False) -> None:
