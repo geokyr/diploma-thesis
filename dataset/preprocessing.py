@@ -87,12 +87,12 @@ def aggregate_fcd(df_fcd: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
 
     df_per_second = (
         df_fcd.groupby("second")
-        .agg(average_speed=("speed_kmh", "mean"), vehicle_count=("vehicle_id", "nunique"))
+        .agg(average_speed_kmh=("speed_kmh", "mean"), vehicle_count=("vehicle_id", "nunique"))
         .reset_index()
     )
     df_per_hour = (
         df_fcd.groupby("hour")
-        .agg(average_speed=("speed_kmh", "mean"), vehicle_count=("vehicle_id", "nunique"))
+        .agg(average_speed_kmh=("speed_kmh", "mean"), vehicle_count=("vehicle_id", "nunique"))
         .reset_index()
     )
 
