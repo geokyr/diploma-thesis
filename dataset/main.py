@@ -79,16 +79,16 @@ def generate_dataset(
     if convert:
         convert_xml_to_csv(xml_file=fcd_output, delete_original=delete_original)
 
-    plot_speed_histogram(df_speed_kmh=df_fcd["speed_kmh"], dataset_id=dataset_id)
+    plot_speed_histogram(speeds_kmh=df_fcd["speed_kmh"], dataset_id=dataset_id)
     plot_average_speed_and_vehicle_count_per_second(
-        df_second=df_fcd_per_second["second"],
-        df_average_speed_kmh_per_second=df_fcd_per_second["average_speed_kmh"],
-        df_vehicle_count_per_second=df_fcd_per_second["vehicle_count"],
+        seconds=df_fcd_per_second["second"],
+        average_speeds_kmh_per_second=df_fcd_per_second["average_speed_kmh"],
+        vehicle_counts_per_second=df_fcd_per_second["vehicle_count"],
         dataset_id=dataset_id,
     )
     plot_average_speed_and_traffic_generation_period_per_hour(
-        df_hour=df_fcd_per_hour["hour"],
-        df_average_speed_kmh_per_hour=df_fcd_per_hour["average_speed_kmh"],
+        hours=df_fcd_per_hour["hour"],
+        average_speeds_kmh_per_hour=df_fcd_per_hour["average_speed_kmh"],
         traffic_generation_periods=traffic_generation_periods,
         dataset_id=dataset_id,
     )
