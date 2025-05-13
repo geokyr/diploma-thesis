@@ -24,6 +24,34 @@ def generate_network() -> None:
     print("Network generated successfully.")
 
 
+def edit_network(network: Path) -> None:
+    """
+    Edit the network file using the SUMO netedit tool.
+
+    Args:
+        network (Path): Path to the network file to be edited.
+
+    Raises:
+        FileNotFoundError: If the network file does not exist.
+    """
+    if not network.exists():
+        raise FileNotFoundError(f"Network file not found: {network}")
+
+    command = [
+        "netedit",
+        str(network),
+    ]
+
+    print("Executing:", " ".join(command))
+    result = subprocess.run(command, capture_output=True, check=True, text=True)
+
+    if result.stderr:
+        print("Warnings/Errors from netedit:")
+        print(result.stderr)
+
+    print(f"Network edited successfully: {network}")
+
+
 def generate_fixed_routes(
     network: Path, fixed_flows_file: Path, fixed_routes_file: Path, fixed_routes_alt_file: Path
 ) -> None:
@@ -163,7 +191,7 @@ def update_vehicle_types(trips_file: Path, vehicle_type: str = "car", fixed_rout
     Args:
         trips_file (Path): Path to the trips file to be updated.
         vehicle_type (str): Vehicle type to set in the files.
-        fixed_routes_file (Path | None): Path to the fixed routes file to be updated, if provided.
+        fixed_routes_file (Path | None): Path to the fixed routes file to be updated (optional).
 
     Raises:
         FileNotFoundError: If the trips file or fixed routes file does not exist.
@@ -196,23 +224,24 @@ def update_vehicle_types(trips_file: Path, vehicle_type: str = "car", fixed_rout
     print(f"Vehicle types set to '{vehicle_type}' in {fixed_routes_file}")
 
 
-def simulate_scenario(simulation_config: Path) -> None:
+def simulate_scenario(config: Path, gui: bool = False) -> None:
     """
     Run a SUMO simulation using the provided configuration file.
 
     Args:
-        simulation_config (Path): Path to the SUMO configuration file.
+        config (Path): Path to the SUMO configuration file.
+        gui (bool): Flag for running the simulation in GUI mode.
 
     Raises:
         FileNotFoundError: If the simulation configuration file does not exist.
     """
-    if not simulation_config.exists():
-        raise FileNotFoundError(f"Simulation config file not found: {simulation_config}")
+    if not config.exists():
+        raise FileNotFoundError(f"Simulation config file not found: {config}")
 
     command = [
-        "sumo",
+        "sumo-gui" if gui else "sumo",
         "-c",
-        str(simulation_config),
+        str(config),
     ]
 
     print("Executing:", " ".join(command))
@@ -222,64 +251,7 @@ def simulate_scenario(simulation_config: Path) -> None:
         print("Warnings/Errors from sumo:")
         print(result.stderr)
 
-    print(f"Simulation completed successfully: {simulation_config}")
-
-
-def simulate_gui_scenario(simulation_config: Path) -> None:
-    """
-    Run a SUMO simulation in GUI mode using the provided configuration file.
-
-    Args:
-        simulation_config (Path): Path to the SUMO configuration file.
-
-    Raises:
-        FileNotFoundError: If the simulation configuration file does not exist.
-    """
-    if not simulation_config.exists():
-        raise FileNotFoundError(f"Simulation config file not found: {simulation_config}")
-
-    command = [
-        "sumo-gui",
-        "-c",
-        str(simulation_config),
-    ]
-
-    print("Executing:", " ".join(command))
-    result = subprocess.run(command, capture_output=True, check=True, text=True)
-
-    if result.stderr:
-        print("Warnings/Errors from sumo-gui:")
-        print(result.stderr)
-
-    print(f"Simulation completed successfully: {simulation_config}")
-
-
-def edit_network(network: Path) -> None:
-    """
-    Edit the network file using the SUMO netedit tool.
-
-    Args:
-        network (Path): Path to the network file to be edited.
-
-    Raises:
-        FileNotFoundError: If the network file does not exist.
-    """
-    if not network.exists():
-        raise FileNotFoundError(f"Network file not found: {network}")
-
-    command = [
-        "netedit",
-        str(network),
-    ]
-
-    print("Executing:", " ".join(command))
-    result = subprocess.run(command, capture_output=True, check=True, text=True)
-
-    if result.stderr:
-        print("Warnings/Errors from netedit:")
-        print(result.stderr)
-
-    print(f"Network edited successfully: {network}")
+    print(f"Simulation completed successfully: {config}")
 
 
 def convert_xml_to_csv(xml_file: Path, delete_original: bool = False) -> None:
@@ -288,7 +260,7 @@ def convert_xml_to_csv(xml_file: Path, delete_original: bool = False) -> None:
 
     Args:
         xml_file (Path): Path to the XML file to be converted.
-        delete_original (bool): Whether to delete the original XML file after conversion.
+        delete_original (bool): Flag for deleting the original XML file after conversion.
 
     Raises:
         FileNotFoundError: If the XML file does not exist.
