@@ -125,7 +125,7 @@ def generate_random_trips(
         raise FileNotFoundError(f"Network file not found: {network}")
 
     traffic_generation_periods_str = ",".join(str(v) for v in traffic_generation_periods)
-    routes_temp_file = Path(__file__).parent / "routes.rou.xml"
+    routes_temp_file = Path.cwd() / "routes.rou.xml"
 
     command = [
         "python",
