@@ -18,7 +18,6 @@ def plot_speed_histogram(df_speed_kmh: pd.Series, dataset_id: str, bins: int = 3
     plt.xlabel("Speed (km/h)")
     plt.ylabel("Count")
     plt.savefig(PLOTS_DIR / f"{dataset_id}-speed-histogram.png")
-    plt.show()
 
 
 def plot_average_speed_and_vehicle_count_per_second(
@@ -51,7 +50,6 @@ def plot_average_speed_and_vehicle_count_per_second(
 
     plt.title(f"Average Speed & Vehicle Count (Per Second) - {dataset_id}")
     plt.savefig(PLOTS_DIR / f"{dataset_id}-average-speed-and-vehicle-count-per-second.png")
-    plt.show()
 
 
 def plot_average_speed_and_traffic_generation_period_per_hour(
@@ -84,4 +82,3 @@ def plot_average_speed_and_traffic_generation_period_per_hour(
 
     plt.title(f"Average Speed & Traffic Generation Period (Per Hour) - {dataset_id}")
     plt.savefig(PLOTS_DIR / f"{dataset_id}-average-speed-and-traffic-generation-period-per-hour.png")
-    plt.show()
