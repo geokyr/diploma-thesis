@@ -24,6 +24,7 @@ XML2CSV = SUMO_HOME / "tools" / "xml" / "xml2csv.py"
 BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "athens-10h"
 PLOTS_DIR = DATA_DIR / "plots"
+PLOTS_DIR.mkdir(parents=True, exist_ok=True)
 
 NETWORK = DATA_DIR / "osm.net.xml.gz"
 FIXED_FLOWS_FILE = DATA_DIR / "fixed.flows.xml"
