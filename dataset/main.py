@@ -99,11 +99,11 @@ def main():
         print("Generating network...")
         generate_network()
 
-    if not FIXED_ROUTES_FILE.exists():
+    if not FIXED_FLOWS_FILE.exists():
         print("Editing network...")
         edit_network(network=NETWORK)
 
-    if not FIXED_FLOWS_FILE.exists():
+    if not FIXED_ROUTES_FILE.exists():
         print("Generating fixed flows...")
         generate_fixed_routes(
             network=NETWORK,
