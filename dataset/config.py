@@ -30,7 +30,20 @@ FIXED_FLOWS_FILE = DATA_DIR / "fixed.flows.xml"
 FIXED_ROUTES_FILE = DATA_DIR / "fixed.rou.xml"
 FIXED_ROUTES_ALT_FILE = DATA_DIR / "fixed.rou.alt.xml"
 
-scenarios = ["base", "closure", "rain"]
+VEHICLE_TYPE_CAR = "car"
+VEHICLE_TYPE_CAR_RAIN = "car-rain"
+
+SCENARIOS = {
+    "base": {"vehicle_type": VEHICLE_TYPE_CAR},
+    "closure": {"vehicle_type": VEHICLE_TYPE_CAR},
+    "rain": {"vehicle_type": VEHICLE_TYPE_CAR_RAIN},
+}
+
+DEFAULT_FLAGS = {
+    "gui": False,
+    "convert": False,
+    "delete_original": False,
+}
 
 DATASET_SPECS = [
     {
@@ -41,13 +54,11 @@ DATASET_SPECS = [
             "trips_file": DATA_DIR / f"{name}-train.trips.xml",
             "traffic_generation_periods": TRAIN_TRAFFIC_GENERATION_PERIODS,
             "seed": TRAIN_SEED,
-            "vehicle_type": "car-rain" if name == "rain" else "car",
             "config": DATA_DIR / f"{name}-train.sumocfg",
             "fcd_output": DATA_DIR / f"{name}-train-fcd.xml",
             "fixed_routes_file": None,
-            "gui": False,
-            "convert": False,
-            "delete_original": False,
+            **extra_specs,
+            **DEFAULT_FLAGS,
         },
         "test": {
             "dataset_id": f"{name}-test",
@@ -55,14 +66,12 @@ DATASET_SPECS = [
             "trips_file": DATA_DIR / f"{name}-test.trips.xml",
             "traffic_generation_periods": TEST_TRAFFIC_GENERATION_PERIODS,
             "seed": TEST_SEED,
-            "vehicle_type": "car-rain" if name == "rain" else "car",
             "config": DATA_DIR / f"{name}-test.sumocfg",
             "fcd_output": DATA_DIR / f"{name}-test-fcd.xml",
             "fixed_routes_file": FIXED_ROUTES_FILE,
-            "gui": False,
-            "convert": False,
-            "delete_original": False,
+            **extra_specs,
+            **DEFAULT_FLAGS,
         },
     }
-    for name in scenarios
+    for name, extra_specs in SCENARIOS.items()
 ]
