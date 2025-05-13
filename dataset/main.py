@@ -79,7 +79,7 @@ def generate_dataset(
     if convert:
         convert_xml_to_csv(xml_file=fcd_output, delete_original=delete_original)
 
-    plot_speed_histogram(df_speed_kmh=df_fcd_per_second["speed_kmh"], dataset_id=dataset_id)
+    plot_speed_histogram(df_speed_kmh=df_fcd["speed_kmh"], dataset_id=dataset_id)
     plot_average_speed_and_vehicle_count_per_second(
         df_second=df_fcd_per_second["second"],
         df_average_speed_kmh_per_second=df_fcd_per_second["average_speed_kmh"],
