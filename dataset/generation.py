@@ -156,14 +156,14 @@ def update_trip_ids(trips_file: Path) -> None:
     print(f"Updated a total of {trip_id} trip IDs in {trips_file}")
 
 
-def update_vehicle_types(trips_file: Path, fixed_routes_file: Path | None = None, vehicle_type: str = "car") -> None:
+def update_vehicle_types(trips_file: Path, vehicle_type: str = "car", fixed_routes_file: Path | None = None) -> None:
     """
     Update vehicle types in the given trips file and, if provided, in fixed routes file.
 
     Args:
         trips_file (Path): Path to the trips file to be updated.
-        fixed_routes_file (Path | None): Path to the fixed routes file to be updated, if provided.
         vehicle_type (str): Vehicle type to set in the files.
+        fixed_routes_file (Path | None): Path to the fixed routes file to be updated, if provided.
 
     Raises:
         FileNotFoundError: If the trips file or fixed routes file does not exist.
