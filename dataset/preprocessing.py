@@ -47,27 +47,35 @@ def parse_fcd_output(fcd_output: Path) -> pd.DataFrame:
 
 def preprocess_fcd(df_fcd: pd.DataFrame) -> pd.DataFrame:
     """
-    Remove nulls and records beyond 10 hours, print basic stats, and return the cleaned FCD.
+    Remove nulls and records beyond 10 hours.
 
     Args:
         df_fcd (pd.DataFrame): DataFrame containing vehicle data that must have `timestep_time`, `speed_kmh`, and `vehicle_id` columns.
 
     Returns:
-        pd.DataFrame: Preprocessed DataFrame where all rows are non-null and records are within 10 hours.
+        pd.DataFrame: Preprocessed DataFrame with non-null rows and timesteps under 10 hours.
     """
-    df_fcd = df_fcd.dropna().reset_index(drop=True)
-    df_fcd = df_fcd[df_fcd["timestep_time"] < 36000]
+    df_fcd_clean = df_fcd.dropna().reset_index(drop=True)
+    df_fcd_clean = df_fcd_clean[df_fcd_clean["timestep_time"] < 36000]
+    return df_fcd_clean
 
+
+def report_fcd_stats(df_fcd: pd.DataFrame) -> None:
+    """
+    Print basic statistics for an FCD DataFrame.
+
+    Args:
+        df_fcd (pd.DataFrame): DataFrame containing vehicle data that must have `speed_kmh`, `vehicle_id` and `odometer` columns.
+    """
+    data_shape = df_fcd.shape
     average_speed = df_fcd["speed_kmh"].mean()
     average_trip_distance = df_fcd.groupby("vehicle_id")["odometer"].max().mean()
     unique_vehicles_count = df_fcd["vehicle_id"].nunique()
 
-    print(f"Data shape: {df_fcd.shape}")
+    print(f"Data shape: {data_shape}")
     print(f"Average speed: {average_speed:.2f} km/h")
     print(f"Average trip distance: {average_trip_distance:.2f} m")
     print(f"Number of unique vehicles: {unique_vehicles_count}")
-
-    return df_fcd
 
 
 def aggregate_fcd(df_fcd: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
