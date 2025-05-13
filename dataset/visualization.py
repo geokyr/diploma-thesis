@@ -41,7 +41,7 @@ def plot_average_speed_and_vehicle_count_per_second(
     ax1.set_ylabel("Average Speed (km/h)")
 
     ax2 = ax1.twinx()
-    ax2.plot(seconds, vehicle_counts_per_second, label="Vehicle Count", color="green")
+    ax2.plot(seconds, vehicle_counts_per_second, label="Vehicle Count", color="orange")
     ax2.set_ylabel("Count")
 
     lines = ax1.get_lines() + ax2.get_lines()
