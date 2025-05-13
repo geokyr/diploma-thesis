@@ -95,19 +95,22 @@ def generate_dataset(
 
 
 def main():
-    print("Generating network...")
-    generate_network()
+    if not NETWORK.exists():
+        print("Generating network...")
+        generate_network()
 
-    print("Editing network...")
-    edit_network(network=NETWORK)
+    if not FIXED_ROUTES_FILE.exists():
+        print("Editing network...")
+        edit_network(network=NETWORK)
 
-    print("Generating fixed routes...")
-    generate_fixed_routes(
-        network=NETWORK,
-        fixed_flows_file=FIXED_FLOWS_FILE,
-        fixed_routes_file=FIXED_ROUTES_FILE,
-        fixed_routes_alt_file=FIXED_ROUTES_ALT_FILE,
-    )
+    if not FIXED_FLOWS_FILE.exists():
+        print("Generating fixed flows...")
+        generate_fixed_routes(
+            network=NETWORK,
+            fixed_flows_file=FIXED_FLOWS_FILE,
+            fixed_routes_file=FIXED_ROUTES_FILE,
+            fixed_routes_alt_file=FIXED_ROUTES_ALT_FILE,
+        )
 
     for spec in DATASET_SPECS:
         name = spec["name"]
