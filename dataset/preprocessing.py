@@ -104,6 +104,6 @@ def aggregate_fcd(df_fcd: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
         .reset_index()
     )
 
-    df_fcd = df_fcd.drop(columns=["second", "hour"])
+    df_fcd = df_fcd.drop(columns=["second", "hour"], inplace=True)
 
     return df_per_second, df_per_hour
