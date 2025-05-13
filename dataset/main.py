@@ -1,38 +1,14 @@
+from pathlib import Path
+
 from config import (
-    BASE_TEST_DATASET_ID,
-    BASE_TEST_FCD,
-    BASE_TEST_SIMULATION_CONFIG,
-    BASE_TEST_TRIPS_FILE,
-    BASE_TRAIN_DATASET_ID,
-    BASE_TRAIN_FCD,
-    BASE_TRAIN_SIMULATION_CONFIG,
-    BASE_TRAIN_TRIPS_FILE,
-    CLOSURE_TEST_DATASET_ID,
-    CLOSURE_TEST_FCD,
-    CLOSURE_TEST_SIMULATION_CONFIG,
-    CLOSURE_TEST_TRIPS_FILE,
-    CLOSURE_TRAIN_DATASET_ID,
-    CLOSURE_TRAIN_FCD,
-    CLOSURE_TRAIN_SIMULATION_CONFIG,
-    CLOSURE_TRAIN_TRIPS_FILE,
+    DATASET_SPECS,
     FIXED_FLOWS_FILE,
     FIXED_ROUTES_ALT_FILE,
     FIXED_ROUTES_FILE,
     NETWORK,
-    RAIN_TEST_DATASET_ID,
-    RAIN_TEST_FCD,
-    RAIN_TEST_SIMULATION_CONFIG,
-    RAIN_TEST_TRIPS_FILE,
-    RAIN_TRAIN_DATASET_ID,
-    RAIN_TRAIN_FCD,
-    RAIN_TRAIN_SIMULATION_CONFIG,
-    RAIN_TRAIN_TRIPS_FILE,
-    TEST_SEED,
-    TEST_TRAFFIC_GENERATION_PERIODS,
-    TRAIN_SEED,
-    TRAIN_TRAFFIC_GENERATION_PERIODS,
 )
 from generation import (
+    convert_xml_to_csv,
     edit_network,
     generate_fixed_routes,
     generate_network,
@@ -45,6 +21,7 @@ from preprocessing import (
     aggregate_fcd,
     parse_fcd_output,
     preprocess_fcd,
+    report_fcd_stats,
 )
 from visualization import (
     plot_average_speed_and_traffic_generation_period_per_hour,
@@ -53,189 +30,67 @@ from visualization import (
 )
 
 
-def generate_base_train_dataset():
+def generate_dataset(
+    dataset_id: str,
+    network: Path,
+    trips_file: Path,
+    traffic_generation_periods: list[int],
+    seed: int,
+    vehicle_type: str,
+    config: Path,
+    fcd_output: Path,
+    fixed_routes_file: Path | None = None,
+    gui: bool = False,
+    convert: bool = False,
+    delete_original: bool = False,
+) -> None:
+    """
+    Generate a dataset based on the provided parameters.
+
+    Args:
+        dataset_id (str): Dataset ID to identify the dataset.
+        network (Path): Path to the network file.
+        trips_file (Path): Path to the output trips file.
+        traffic_generation_periods (list[int]): List of traffic generation periods.
+        seed (int): Random seed for trip generation.
+        vehicle_type (str): Vehicle type to set in the files.
+        config (Path): Path to the SUMO configuration file.
+        fcd_output (Path): Path to the XML FCD output file.
+        fixed_routes_file (Path | None): Path to the fixed routes file to be updated(optional).
+        gui (bool): Flag for running the simulation in GUI mode.
+        convert (bool): Flag for converting the FCD output to a CSV file.
+        delete_original (bool): Flag for deleting the original XML file after conversion.
+    """
     generate_random_trips(
-        network=NETWORK,
-        trips_file=BASE_TRAIN_TRIPS_FILE,
-        traffic_generation_periods=TRAIN_TRAFFIC_GENERATION_PERIODS,
-        seed=TRAIN_SEED,
+        network=network,
+        trips_file=trips_file,
+        traffic_generation_periods=traffic_generation_periods,
+        seed=seed,
     )
-    update_trip_ids(trips_file=BASE_TRAIN_TRIPS_FILE)
-    update_vehicle_types(trips_file=BASE_TRAIN_TRIPS_FILE, vehicle_type="car")
+    update_trip_ids(trips_file=trips_file)
+    update_vehicle_types(trips_file=trips_file, vehicle_type=vehicle_type, fixed_routes_file=fixed_routes_file)
 
-    simulate_scenario(simulation_config=BASE_TRAIN_SIMULATION_CONFIG)
+    simulate_scenario(config=config, gui=gui)
 
-    df_base_train_fcd = parse_fcd_output(fcd_output=BASE_TRAIN_FCD)
-    df_base_train_fcd = preprocess_fcd(df_fcd=df_base_train_fcd)
-    df_base_train_fcd_per_second, df_base_train_fcd_per_hour = aggregate_fcd(df_fcd=df_base_train_fcd)
+    df_fcd_raw = parse_fcd_output(fcd_output=fcd_output)
+    df_fcd = preprocess_fcd(df_fcd=df_fcd_raw)
+    report_fcd_stats(df_fcd=df_fcd)
+    df_fcd_per_second, df_fcd_per_hour = aggregate_fcd(df_fcd=df_fcd)
+    if convert:
+        convert_xml_to_csv(xml_file=fcd_output, delete_original=delete_original)
 
-    plot_speed_histogram(df_speed_kmh=df_base_train_fcd_per_second["speed_kmh"], dataset_id=BASE_TRAIN_DATASET_ID)
+    plot_speed_histogram(df_speed_kmh=df_fcd_per_second["speed_kmh"], dataset_id=dataset_id)
     plot_average_speed_and_vehicle_count_per_second(
-        df_second=df_base_train_fcd_per_second["second"],
-        df_average_speed_kmh_per_second=df_base_train_fcd_per_second["average_speed_kmh"],
-        df_vehicle_count_per_second=df_base_train_fcd_per_second["vehicle_count"],
-        dataset_id=BASE_TRAIN_DATASET_ID,
+        df_second=df_fcd_per_second["second"],
+        df_average_speed_kmh_per_second=df_fcd_per_second["average_speed_kmh"],
+        df_vehicle_count_per_second=df_fcd_per_second["vehicle_count"],
+        dataset_id=dataset_id,
     )
     plot_average_speed_and_traffic_generation_period_per_hour(
-        df_hour=df_base_train_fcd_per_hour["hour"],
-        df_average_speed_kmh_per_hour=df_base_train_fcd_per_hour["average_speed_kmh"],
-        traffic_generation_periods=TRAIN_TRAFFIC_GENERATION_PERIODS,
-        dataset_id=BASE_TRAIN_DATASET_ID,
-    )
-
-
-def generate_base_test_dataset():
-    generate_random_trips(
-        network=NETWORK,
-        trips_file=BASE_TEST_TRIPS_FILE,
-        traffic_generation_periods=TEST_TRAFFIC_GENERATION_PERIODS,
-        seed=TEST_SEED,
-    )
-    update_trip_ids(trips_file=BASE_TEST_TRIPS_FILE)
-    update_vehicle_types(trips_file=BASE_TEST_TRIPS_FILE, fixed_routes_file=FIXED_ROUTES_FILE, vehicle_type="car")
-
-    simulate_scenario(simulation_config=BASE_TEST_SIMULATION_CONFIG)
-
-    df_base_test_fcd = parse_fcd_output(fcd_output=BASE_TEST_FCD)
-    df_base_test_fcd = preprocess_fcd(df_fcd=df_base_test_fcd)
-    df_base_test_fcd_per_second, df_base_test_fcd_per_hour = aggregate_fcd(df_fcd=df_base_test_fcd)
-
-    plot_speed_histogram(df_speed_kmh=df_base_test_fcd_per_second["speed_kmh"], dataset_id=BASE_TEST_DATASET_ID)
-    plot_average_speed_and_vehicle_count_per_second(
-        df_second=df_base_test_fcd_per_second["second"],
-        df_average_speed_kmh_per_second=df_base_test_fcd_per_second["average_speed_kmh"],
-        df_vehicle_count_per_second=df_base_test_fcd_per_second["vehicle_count"],
-        dataset_id=BASE_TEST_DATASET_ID,
-    )
-    plot_average_speed_and_traffic_generation_period_per_hour(
-        df_hour=df_base_test_fcd_per_hour["hour"],
-        df_average_speed_kmh_per_hour=df_base_test_fcd_per_hour["average_speed_kmh"],
-        traffic_generation_periods=TEST_TRAFFIC_GENERATION_PERIODS,
-        dataset_id=BASE_TEST_DATASET_ID,
-    )
-
-
-def generate_closure_train_dataset():
-    generate_random_trips(
-        network=NETWORK,
-        trips_file=CLOSURE_TRAIN_TRIPS_FILE,
-        traffic_generation_periods=TRAIN_TRAFFIC_GENERATION_PERIODS,
-        seed=TRAIN_SEED,
-    )
-    update_trip_ids(trips_file=CLOSURE_TRAIN_TRIPS_FILE)
-    update_vehicle_types(trips_file=CLOSURE_TRAIN_TRIPS_FILE, vehicle_type="car")
-
-    simulate_scenario(simulation_config=CLOSURE_TRAIN_SIMULATION_CONFIG)
-
-    df_closure_train_fcd = parse_fcd_output(fcd_output=CLOSURE_TRAIN_FCD)
-    df_closure_train_fcd = preprocess_fcd(df_fcd=df_closure_train_fcd)
-    df_closure_train_fcd_per_second, df_closure_train_fcd_per_hour = aggregate_fcd(df_fcd=df_closure_train_fcd)
-
-    plot_speed_histogram(df_speed_kmh=df_closure_train_fcd_per_second["speed_kmh"], dataset_id=CLOSURE_TRAIN_DATASET_ID)
-    plot_average_speed_and_vehicle_count_per_second(
-        df_second=df_closure_train_fcd_per_second["second"],
-        df_average_speed_kmh_per_second=df_closure_train_fcd_per_second["average_speed_kmh"],
-        df_vehicle_count_per_second=df_closure_train_fcd_per_second["vehicle_count"],
-        dataset_id=CLOSURE_TRAIN_DATASET_ID,
-    )
-    plot_average_speed_and_traffic_generation_period_per_hour(
-        df_hour=df_closure_train_fcd_per_hour["hour"],
-        df_average_speed_kmh_per_hour=df_closure_train_fcd_per_hour["average_speed_kmh"],
-        traffic_generation_periods=TRAIN_TRAFFIC_GENERATION_PERIODS,
-        dataset_id=CLOSURE_TRAIN_DATASET_ID,
-    )
-
-
-def generate_closure_test_dataset():
-    generate_random_trips(
-        network=NETWORK,
-        trips_file=CLOSURE_TEST_TRIPS_FILE,
-        traffic_generation_periods=TEST_TRAFFIC_GENERATION_PERIODS,
-        seed=TEST_SEED,
-    )
-    update_trip_ids(trips_file=CLOSURE_TEST_TRIPS_FILE)
-    update_vehicle_types(trips_file=CLOSURE_TEST_TRIPS_FILE, fixed_routes_file=FIXED_ROUTES_FILE, vehicle_type="car")
-
-    simulate_scenario(simulation_config=CLOSURE_TEST_SIMULATION_CONFIG)
-
-    df_closure_test_fcd = parse_fcd_output(fcd_output=CLOSURE_TEST_FCD)
-    df_closure_test_fcd = preprocess_fcd(df_fcd=df_closure_test_fcd)
-    df_closure_test_fcd_per_second, df_closure_test_fcd_per_hour = aggregate_fcd(df_fcd=df_closure_test_fcd)
-
-    plot_speed_histogram(df_speed_kmh=df_closure_test_fcd_per_second["speed_kmh"], dataset_id=CLOSURE_TEST_DATASET_ID)
-    plot_average_speed_and_vehicle_count_per_second(
-        df_second=df_closure_test_fcd_per_second["second"],
-        df_average_speed_kmh_per_second=df_closure_test_fcd_per_second["average_speed_kmh"],
-        df_vehicle_count_per_second=df_closure_test_fcd_per_second["vehicle_count"],
-        dataset_id=CLOSURE_TEST_DATASET_ID,
-    )
-    plot_average_speed_and_traffic_generation_period_per_hour(
-        df_hour=df_closure_test_fcd_per_hour["hour"],
-        df_average_speed_kmh_per_hour=df_closure_test_fcd_per_hour["average_speed_kmh"],
-        traffic_generation_periods=TEST_TRAFFIC_GENERATION_PERIODS,
-        dataset_id=CLOSURE_TEST_DATASET_ID,
-    )
-
-
-def generate_rain_train_dataset():
-    generate_random_trips(
-        network=NETWORK,
-        trips_file=RAIN_TRAIN_TRIPS_FILE,
-        traffic_generation_periods=TRAIN_TRAFFIC_GENERATION_PERIODS,
-        seed=TRAIN_SEED,
-    )
-    update_trip_ids(trips_file=RAIN_TRAIN_TRIPS_FILE)
-    update_vehicle_types(trips_file=RAIN_TRAIN_TRIPS_FILE, vehicle_type="car-rain")
-
-    simulate_scenario(simulation_config=RAIN_TRAIN_SIMULATION_CONFIG)
-
-    df_rain_train_fcd = parse_fcd_output(fcd_output=RAIN_TRAIN_FCD)
-    df_rain_train_fcd = preprocess_fcd(df_fcd=df_rain_train_fcd)
-    df_rain_train_fcd_per_second, df_rain_train_fcd_per_hour = aggregate_fcd(df_fcd=df_rain_train_fcd)
-
-    plot_speed_histogram(df_speed_kmh=df_rain_train_fcd_per_second["speed_kmh"], dataset_id=RAIN_TRAIN_DATASET_ID)
-    plot_average_speed_and_vehicle_count_per_second(
-        df_second=df_rain_train_fcd_per_second["second"],
-        df_average_speed_kmh_per_second=df_rain_train_fcd_per_second["average_speed_kmh"],
-        df_vehicle_count_per_second=df_rain_train_fcd_per_second["vehicle_count"],
-        dataset_id=RAIN_TRAIN_DATASET_ID,
-    )
-    plot_average_speed_and_traffic_generation_period_per_hour(
-        df_hour=df_rain_train_fcd_per_hour["hour"],
-        df_average_speed_kmh_per_hour=df_rain_train_fcd_per_hour["average_speed_kmh"],
-        traffic_generation_periods=TRAIN_TRAFFIC_GENERATION_PERIODS,
-        dataset_id=RAIN_TRAIN_DATASET_ID,
-    )
-
-
-def generate_rain_test_dataset():
-    generate_random_trips(
-        network=NETWORK,
-        trips_file=RAIN_TEST_TRIPS_FILE,
-        traffic_generation_periods=TEST_TRAFFIC_GENERATION_PERIODS,
-        seed=TEST_SEED,
-    )
-    update_trip_ids(trips_file=RAIN_TEST_TRIPS_FILE)
-    update_vehicle_types(trips_file=RAIN_TEST_TRIPS_FILE, fixed_routes_file=FIXED_ROUTES_FILE, vehicle_type="car-rain")
-
-    simulate_scenario(simulation_config=RAIN_TEST_SIMULATION_CONFIG)
-
-    df_rain_test_fcd = parse_fcd_output(fcd_output=RAIN_TEST_FCD)
-    df_rain_test_fcd = preprocess_fcd(df_fcd=df_rain_test_fcd)
-    df_rain_test_fcd_per_second, df_rain_test_fcd_per_hour = aggregate_fcd(df_fcd=df_rain_test_fcd)
-
-    plot_speed_histogram(df_speed_kmh=df_rain_test_fcd_per_second["speed_kmh"], dataset_id=RAIN_TEST_DATASET_ID)
-    plot_average_speed_and_vehicle_count_per_second(
-        df_second=df_rain_test_fcd_per_second["second"],
-        df_average_speed_kmh_per_second=df_rain_test_fcd_per_second["average_speed_kmh"],
-        df_vehicle_count_per_second=df_rain_test_fcd_per_second["vehicle_count"],
-        dataset_id=RAIN_TEST_DATASET_ID,
-    )
-    plot_average_speed_and_traffic_generation_period_per_hour(
-        df_hour=df_rain_test_fcd_per_hour["hour"],
-        df_average_speed_kmh_per_hour=df_rain_test_fcd_per_hour["average_speed_kmh"],
-        traffic_generation_periods=TEST_TRAFFIC_GENERATION_PERIODS,
-        dataset_id=RAIN_TEST_DATASET_ID,
+        df_hour=df_fcd_per_hour["hour"],
+        df_average_speed_kmh_per_hour=df_fcd_per_hour["average_speed_kmh"],
+        traffic_generation_periods=traffic_generation_periods,
+        dataset_id=dataset_id,
     )
 
 
@@ -254,23 +109,12 @@ def main():
         fixed_routes_alt_file=FIXED_ROUTES_ALT_FILE,
     )
 
-    print("Generating base train dataset...")
-    generate_base_train_dataset()
-
-    print("Generating base test dataset...")
-    generate_base_test_dataset()
-
-    print("Generating closure train dataset...")
-    generate_closure_train_dataset()
-
-    print("Generating closure test dataset...")
-    generate_closure_test_dataset()
-
-    print("Generating rain train dataset...")
-    generate_rain_train_dataset()
-
-    print("Generating rain test dataset...")
-    generate_rain_test_dataset()
+    for spec in DATASET_SPECS:
+        name = spec["name"]
+        print(f"Generating {name} train dataset...")
+        generate_dataset(**spec["train"])
+        print(f"Generating {name} test dataset...")
+        generate_dataset(**spec["test"])
 
 
 if __name__ == "__main__":
