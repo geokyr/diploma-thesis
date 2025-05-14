@@ -1,12 +1,6 @@
 from pathlib import Path
 
-from config import (
-    DATASET_SPECS,
-    FIXED_FLOWS_FILE,
-    FIXED_ROUTES_ALT_FILE,
-    FIXED_ROUTES_FILE,
-    NETWORK,
-)
+from config import DATASET_SPECS, FIXED_FLOWS_FILE, FIXED_ROUTES_ALT_FILE, FIXED_ROUTES_FILE, NETWORK
 from generation import (
     convert_xml_to_csv,
     edit_network,
@@ -17,12 +11,7 @@ from generation import (
     update_trip_ids,
     update_vehicle_types,
 )
-from preprocessing import (
-    aggregate_fcd,
-    parse_fcd_output,
-    preprocess_fcd,
-    report_fcd_stats,
-)
+from preprocessing import aggregate_fcd, parse_fcd_output, preprocess_fcd, report_fcd_stats
 from visualization import (
     plot_average_speed_and_traffic_generation_period_per_hour,
     plot_average_speed_and_vehicle_count_per_second,
