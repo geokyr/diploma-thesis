@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import pandas as pd
+from logger import logger
 
 
 def parse_fcd_output(fcd_output: Path) -> pd.DataFrame:
@@ -21,6 +22,7 @@ def parse_fcd_output(fcd_output: Path) -> pd.DataFrame:
             - acceleration: Acceleration of the vehicle in m/s^2.
             - odometer: Distance traveled by the vehicle in meters.
     """
+    logger.info(f"Parsing FCD output file: {fcd_output}")
     data = []
     context = ET.iterparse(fcd_output, events=("end",))
 
@@ -42,6 +44,7 @@ def parse_fcd_output(fcd_output: Path) -> pd.DataFrame:
                 )
             element.clear()
 
+    logger.info(f"Parsed {len(data)} vehicle records from FCD output")
     return pd.DataFrame(data)
 
 
@@ -55,14 +58,18 @@ def preprocess_fcd(df_fcd: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Preprocessed DataFrame with non-null rows and timesteps under 10 hours.
     """
+    initial_rows = len(df_fcd)
     df_fcd_clean = df_fcd.dropna().reset_index(drop=True)
     df_fcd_clean = df_fcd_clean[df_fcd_clean["timestep_time"] < 36000]
+    final_rows = len(df_fcd_clean)
+
+    logger.info(f"Preprocessing completed: {initial_rows} -> {final_rows} rows ({initial_rows - final_rows} removed)")
     return df_fcd_clean
 
 
 def report_fcd_stats(df_fcd: pd.DataFrame) -> None:
     """
-    Print basic statistics for an FCD DataFrame.
+    Log basic statistics for an FCD DataFrame.
 
     Args:
         df_fcd (pd.DataFrame): DataFrame containing vehicle data that must have `speed_kmh`, `vehicle_id` and `odometer` columns.
@@ -72,10 +79,11 @@ def report_fcd_stats(df_fcd: pd.DataFrame) -> None:
     average_trip_distance = df_fcd.groupby("vehicle_id")["odometer"].max().mean()
     unique_vehicles_count = df_fcd["vehicle_id"].nunique()
 
-    print(f"Data shape: {data_shape}")
-    print(f"Average speed: {average_speed:.2f} km/h")
-    print(f"Average trip distance: {average_trip_distance:.2f} m")
-    print(f"Number of unique vehicles: {unique_vehicles_count}")
+    logger.info("FCD Dataset Statistics")
+    logger.info(f"Data shape: {data_shape}")
+    logger.info(f"Average speed: {average_speed:.2f} km/h")
+    logger.info(f"Average trip distance: {average_trip_distance:.2f} m")
+    logger.info(f"Number of unique vehicles: {unique_vehicles_count}")
 
 
 def aggregate_fcd(df_fcd: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -90,6 +98,7 @@ def aggregate_fcd(df_fcd: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
             - df_per_second: DataFrame containing average speed and vehicle count per second.
             - df_per_hour: DataFrame containing average speed and vehicle count per hour.
     """
+    logger.info("Aggregating FCD data per second and per hour")
     df_fcd["second"] = df_fcd["timestep_time"].astype(int)
     df_fcd["hour"] = (df_fcd["timestep_time"] // 3600).astype(int)
 
@@ -106,4 +115,5 @@ def aggregate_fcd(df_fcd: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
 
     df_fcd = df_fcd.drop(columns=["second", "hour"], inplace=True)
 
+    logger.info(f"Aggregation completed: {len(df_per_second)} seconds, {len(df_per_hour)} hours")
     return df_per_second, df_per_hour
