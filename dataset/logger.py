@@ -55,35 +55,52 @@ def setup_logger(
 
 
 def log_subprocess_result(
+    operation_name: str,
     logger: logging.Logger,
     command: list[str],
     result: subprocess.CompletedProcess,
-    success_message: str,
-    operation_name: str,
 ) -> None:
     """
-    Log subprocess execution results with appropriate levels.
+    Log subprocess execution results with consistent formatting.
 
     Args:
+        operation_name (str): Name of the operation for error messages.
         logger (logging.Logger): Logger instance to use.
         command (list[str]): The command that was executed.
         result (subprocess.CompletedProcess): The subprocess.CompletedProcess result.
-        success_message (str): Message to log on success.
-        operation_name (str): Name of the operation for error messages.
     """
     command_str = " ".join(str(arg) for arg in command)
-    logger.info(f"Executing: {command_str}")
+    logger.info(f"Executing {operation_name}")
+    logger.info(f"Command: {command_str}")
 
     if result.stdout:
-        logger.info(f"stdout: {result.stdout}")
+        logger.info(f"stdout from {operation_name}: {result.stdout}")
 
     if result.stderr:
         logger.warning(f"stderr from {operation_name}: {result.stderr}")
 
-    if result.returncode == 0:
-        logger.info(success_message)
-    else:
+    if result.returncode != 0:
         logger.error(f"{operation_name} failed with return code {result.returncode}")
+
+
+def log_subprocess_error(
+    operation_name: str,
+    logger: logging.Logger,
+    command: list[str],
+    error: Exception,
+) -> None:
+    """
+    Log subprocess errors with consistent formatting.
+
+    Args:
+        operation_name (str): Name of the operation for error messages.
+        logger (logging.Logger): Logger instance to use.
+        command (list[str]): The command that failed.
+        error (Exception): The exception that occurred.
+    """
+    command_str = " ".join(str(arg) for arg in command)
+    logger.error(f"Failed to run {operation_name}: {error}")
+    logger.error(f"Command: {command_str}")
 
 
 logger = setup_logger(log_file=LOG_FILE)
