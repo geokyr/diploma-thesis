@@ -83,14 +83,14 @@ def log_subprocess_result(
         logger.error(f"{operation_name} failed with return code {result.returncode}")
 
 
-def log_subprocess_error(
+def log_error(
     operation_name: str,
     logger: logging.Logger,
     command: list[str],
     error: Exception,
 ) -> None:
     """
-    Log a subprocess error with consistent formatting.
+    Log an error with consistent formatting.
 
     Args:
         operation_name (str): Name of the operation for error messages.
