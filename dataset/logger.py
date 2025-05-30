@@ -83,24 +83,4 @@ def log_subprocess_result(
         logger.error(f"{operation_name} failed with return code {result.returncode}")
 
 
-def log_error(
-    operation_name: str,
-    logger: logging.Logger,
-    command: list[str],
-    error: Exception,
-) -> None:
-    """
-    Log an error with consistent formatting.
-
-    Args:
-        operation_name (str): Name of the operation for error messages.
-        logger (logging.Logger): Logger instance to use.
-        command (list[str]): The command that failed.
-        error (Exception): The exception that occurred.
-    """
-    command_str = " ".join(str(arg) for arg in command)
-    logger.error(f"Failed to run {operation_name}: {error}")
-    logger.error(f"Command: {command_str}")
-
-
 logger = setup_logger(log_file=LOG_FILE)
