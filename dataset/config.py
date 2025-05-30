@@ -23,10 +23,14 @@ DUAROUTER = SUMO_HOME / "bin" / ("duarouter.exe" if os.name == "nt" else "duarou
 XML2CSV = SUMO_HOME / "tools" / "xml" / "xml2csv.py"
 
 BASE_DIR = Path(__file__).parent
+LOGS_DIR = BASE_DIR / "logs"
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
 DATA_DIR = BASE_DIR / "athens-10h"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
 PLOTS_DIR = DATA_DIR / "plots"
 PLOTS_DIR.mkdir(parents=True, exist_ok=True)
 
+LOG_FILE = LOGS_DIR / "dataset.log"
 NETWORK = DATA_DIR / "osm.net.xml.gz"
 FIXED_FLOWS_FILE = DATA_DIR / "fixed.flows.xml"
 FIXED_ROUTES_FILE = DATA_DIR / "fixed.rou.xml"
