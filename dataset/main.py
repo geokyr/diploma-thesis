@@ -11,6 +11,7 @@ from generation import (
     update_trip_ids,
     update_vehicle_types,
 )
+from logger import logger
 from preprocessing import aggregate_fcd, parse_fcd_output, preprocess_fcd, report_fcd_stats
 from visualization import (
     plot_average_speed_and_traffic_generation_period_per_hour,
@@ -50,6 +51,8 @@ def generate_dataset(
         convert (bool): Flag for converting the FCD output to a CSV file.
         delete_original (bool): Flag for deleting the original XML file after conversion.
     """
+    logger.info(f"Starting dataset generation for: {dataset_id}")
+
     generate_random_trips(
         network=network,
         trips_file=trips_file,
@@ -82,18 +85,22 @@ def generate_dataset(
         dataset_id=dataset_id,
     )
 
+    logger.info(f"Completed dataset generation for: {dataset_id}")
+
 
 def main():
+    logger.info("Starting dataset generation process")
+
     if not NETWORK.exists():
-        print("Generating network...")
+        logger.info("Network file not found, generating network...")
         generate_network()
 
     if not FIXED_FLOWS_FILE.exists():
-        print("Editing network...")
+        logger.info("Fixed flows file not found, editing network...")
         edit_network(network=NETWORK)
 
     if not FIXED_ROUTES_FILE.exists():
-        print("Generating fixed flows...")
+        logger.info("Fixed routes file not found, generating fixed flows...")
         generate_fixed_routes(
             network=NETWORK,
             fixed_flows_file=FIXED_FLOWS_FILE,
@@ -103,10 +110,12 @@ def main():
 
     for spec in DATASET_SPECS:
         name = spec["name"]
-        print(f"Generating {name} train dataset...")
+        logger.info(f"Generating {name} train dataset...")
         generate_dataset(**spec["train"])
-        print(f"Generating {name} test dataset...")
+        logger.info(f"Generating {name} test dataset...")
         generate_dataset(**spec["test"])
+
+    logger.info("Dataset generation process completed successfully")
 
 
 if __name__ == "__main__":
