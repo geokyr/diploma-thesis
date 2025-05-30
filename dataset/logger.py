@@ -61,7 +61,7 @@ def log_subprocess_result(
     result: subprocess.CompletedProcess,
 ) -> None:
     """
-    Log subprocess execution results with consistent formatting.
+    Log a subprocess execution result with consistent formatting.
 
     Args:
         operation_name (str): Name of the operation for error messages.
@@ -90,7 +90,7 @@ def log_subprocess_error(
     error: Exception,
 ) -> None:
     """
-    Log subprocess errors with consistent formatting.
+    Log a subprocess error with consistent formatting.
 
     Args:
         operation_name (str): Name of the operation for error messages.
