@@ -46,7 +46,7 @@ def generate_dataset(
         vehicle_type (str): Vehicle type to set in the files.
         config (Path): Path to the SUMO configuration file.
         fcd_output (Path): Path to the XML FCD output file.
-        fixed_routes_file (Path | None): Path to the fixed routes file to be updated(optional).
+        fixed_routes_file (Path | None): Path to the fixed routes file to be updated (optional).
         gui (bool): Flag for running the simulation in GUI mode.
         convert (bool): Flag for converting the FCD output to a CSV file.
         delete_original (bool): Flag for deleting the original XML file after conversion.
