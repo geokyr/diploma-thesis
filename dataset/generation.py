@@ -3,25 +3,42 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from config import DUAROUTER, OSM_WEB_WIZARD, RANDOM_TRIPS, XML2CSV
+from logger import log_subprocess_result, logger
 
 
 def generate_network() -> None:
     """
     Generate a network using the SUMO osmWebWizard tool.
+
+    Raises:
+        Exception: If the network generation fails.
     """
     command = [
         "python",
         str(OSM_WEB_WIZARD),
     ]
 
-    print("Executing:", " ".join(command))
-    result = subprocess.run(command, capture_output=True, check=True, text=True)
+    try:
+        process = subprocess.Popen(command)
 
-    if result.stderr:
-        print("Warnings/Errors from osmWebWizard:")
-        print(result.stderr)
+        command_str = " ".join(str(arg) for arg in command)
+        logger.info("Executing osmWebWizard")
+        logger.info(f"Command: {command_str}")
+        logger.info("Generate the network in the osmWebWizard window")
+        input("When finished, close the osmWebWizard window and press Enter")
 
-    print("Network generated successfully.")
+        if process.poll() is None:
+            try:
+                process.terminate()
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                process.kill()
+
+        logger.info("Network generation completed")
+
+    except Exception as e:
+        logger.error(f"Failed to generate network: {e}")
+        raise
 
 
 def edit_network(network: Path) -> None:
@@ -33,23 +50,27 @@ def edit_network(network: Path) -> None:
 
     Raises:
         FileNotFoundError: If the network file does not exist.
+        Exception: If the network editing fails.
     """
     if not network.exists():
-        raise FileNotFoundError(f"Network file not found: {network}")
+        error_msg = f"Network file not found: {network}"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
 
     command = [
         "netedit",
         str(network),
     ]
 
-    print("Executing:", " ".join(command))
-    result = subprocess.run(command, capture_output=True, check=True, text=True)
+    try:
+        result = subprocess.run(command, capture_output=True, check=True, text=True)
+        log_subprocess_result("netedit", logger, command, result)
 
-    if result.stderr:
-        print("Warnings/Errors from netedit:")
-        print(result.stderr)
+        logger.info(f"Network editing completed: {network}")
 
-    print(f"Network edited successfully: {network}")
+    except Exception as e:
+        logger.error(f"Failed to edit network: {e}")
+        raise
 
 
 def generate_fixed_routes(
@@ -65,14 +86,18 @@ def generate_fixed_routes(
         fixed_routes_alt_file (Path): Path to the alternative output fixed routes file.
 
     Raises:
-        FileNotFoundError: If the network or fixed flows file does not exist.
-        RuntimeError: If the fixed routes file generation fails.
+        FileNotFoundError: If the network, fixed flows, or fixed routes file does not exist.
+        Exception: If the fixed routes generation fails.
     """
     if not network.exists():
-        raise FileNotFoundError(f"Network file not found: {network}")
+        error_msg = f"Network file not found: {network}"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
 
     if not fixed_flows_file.exists():
-        raise FileNotFoundError(f"Fixed flows file not found: {fixed_flows_file}")
+        error_msg = f"Fixed flows file not found: {fixed_flows_file}"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
 
     command = [
         str(DUAROUTER),
@@ -84,18 +109,21 @@ def generate_fixed_routes(
         str(fixed_routes_file),
     ]
 
-    print("Executing:", " ".join(command))
-    result = subprocess.run(command, capture_output=True, check=True, text=True)
+    try:
+        result = subprocess.run(command, capture_output=True, check=True, text=True)
+        log_subprocess_result("duarouter", logger, command, result)
 
-    if result.stderr:
-        print("Warnings/Errors from duarouter:")
-        print(result.stderr)
+    except Exception as e:
+        logger.error(f"Failed to generate fixed routes: {e}")
+        raise
 
     if fixed_routes_file.exists() and fixed_routes_alt_file.exists():
         fixed_routes_alt_file.unlink()
-        print(f"Fixed routes generated successfully: {fixed_routes_file}")
+        logger.info(f"Fixed routes generated successfully: {fixed_routes_file}")
     else:
-        raise RuntimeError(f"Failed to generate fixed routes: {fixed_routes_file}")
+        error_msg = f"Fixed routes file not found: {fixed_routes_file}"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
 
 
 def generate_random_trips(
@@ -118,11 +146,13 @@ def generate_random_trips(
         end_time (int): End time for trip generation in seconds.
 
     Raises:
-        FileNotFoundError: If the network file does not exist.
-        RuntimeError: If the random trips generation fails.
+        FileNotFoundError: If the network, or trips file does not exist.
+        Exception: If the random trips generation fails.
     """
     if not network.exists():
-        raise FileNotFoundError(f"Network file not found: {network}")
+        error_msg = f"Network file not found: {network}"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
 
     traffic_generation_periods_str = ",".join(str(v) for v in traffic_generation_periods)
     routes_temp_file = Path.cwd() / "routes.rou.xml"
@@ -145,18 +175,21 @@ def generate_random_trips(
         "--validate",
     ]
 
-    print("Executing:", " ".join(command))
-    result = subprocess.run(command, capture_output=True, check=True, text=True)
+    try:
+        result = subprocess.run(command, capture_output=True, check=True, text=True)
+        log_subprocess_result("randomTrips", logger, command, result)
 
-    if result.stderr:
-        print("Warnings/Errors from randomTrips:")
-        print(result.stderr)
+    except Exception as e:
+        logger.error(f"Failed to generate random trips: {e}")
+        raise
 
     if trips_file.exists() and routes_temp_file.exists():
         routes_temp_file.unlink()
-        print(f"Random trips generated successfully: {trips_file}")
+        logger.info(f"Random trips generated successfully: {trips_file}")
     else:
-        raise RuntimeError(f"Failed to generate random trips: {trips_file}")
+        error_msg = f"Random trips file not found: {trips_file}"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
 
 
 def update_trip_ids(trips_file: Path) -> None:
@@ -168,20 +201,27 @@ def update_trip_ids(trips_file: Path) -> None:
 
     Raises:
         FileNotFoundError: If the trips file does not exist.
+        Exception: If the trip IDs update fails.
     """
     if not trips_file.exists():
+        logger.error(f"Trips file not found: {trips_file}")
         raise FileNotFoundError(f"Trips file not found: {trips_file}")
 
-    tree = ET.parse(trips_file)
-    root = tree.getroot()
+    try:
+        tree = ET.parse(trips_file)
+        root = tree.getroot()
 
-    trip_id = 0
-    for trip in root.findall("trip"):
-        trip.set("id", str(trip_id))
-        trip_id += 1
+        trip_id = 0
+        for trip in root.findall("trip"):
+            trip.set("id", str(trip_id))
+            trip_id += 1
 
-    tree.write(trips_file)
-    print(f"Updated a total of {trip_id} trip IDs in {trips_file}")
+        tree.write(trips_file)
+        logger.info(f"Updated a total of {trip_id} trip IDs in {trips_file}")
+
+    except Exception as e:
+        logger.error(f"Failed to update trip IDs: {e}")
+        raise
 
 
 def update_vehicle_types(trips_file: Path, vehicle_type: str = "car", fixed_routes_file: Path | None = None) -> None:
@@ -194,34 +234,46 @@ def update_vehicle_types(trips_file: Path, vehicle_type: str = "car", fixed_rout
         fixed_routes_file (Path | None): Path to the fixed routes file to be updated (optional).
 
     Raises:
-        FileNotFoundError: If the trips file or fixed routes file does not exist.
+        FileNotFoundError: If the trips, or fixed routes file does not exist.
+        Exception: If the vehicle types update fails.
     """
     if not trips_file.exists():
+        logger.error(f"Trips file not found: {trips_file}")
         raise FileNotFoundError(f"Trips file not found: {trips_file}")
 
-    tree = ET.parse(trips_file)
-    root = tree.getroot()
+    try:
+        tree = ET.parse(trips_file)
+        root = tree.getroot()
 
-    for trip in root.findall("trip"):
-        trip.set("type", vehicle_type)
+        trip_count = 0
+        for trip in root.findall("trip"):
+            trip.set("type", vehicle_type)
+            trip_count += 1
 
-    tree.write(trips_file)
-    print(f"Vehicle types set to '{vehicle_type}' in {trips_file}")
+        tree.write(trips_file)
+        logger.info(f"Vehicle types set to '{vehicle_type}' for {trip_count} trips in {trips_file}")
 
-    if not fixed_routes_file:
-        return
+        if not fixed_routes_file:
+            return
 
-    if not fixed_routes_file.exists():
-        raise FileNotFoundError(f"Fixed routes file not found: {fixed_routes_file}")
+        if not fixed_routes_file.exists():
+            logger.error(f"Fixed routes file not found: {fixed_routes_file}")
+            raise FileNotFoundError(f"Fixed routes file not found: {fixed_routes_file}")
 
-    tree = ET.parse(fixed_routes_file)
-    root = tree.getroot()
+        tree = ET.parse(fixed_routes_file)
+        root = tree.getroot()
 
-    for vehicle in root.findall("vehicle"):
-        vehicle.set("type", vehicle_type)
+        vehicle_count = 0
+        for vehicle in root.findall("vehicle"):
+            vehicle.set("type", vehicle_type)
+            vehicle_count += 1
 
-    tree.write(fixed_routes_file)
-    print(f"Vehicle types set to '{vehicle_type}' in {fixed_routes_file}")
+        tree.write(fixed_routes_file)
+        logger.info(f"Vehicle types set to '{vehicle_type}' for {vehicle_count} vehicles in {fixed_routes_file}")
+
+    except Exception as e:
+        logger.error(f"Failed to update vehicle types: {e}")
+        raise
 
 
 def simulate_scenario(config: Path, gui: bool = False) -> None:
@@ -234,9 +286,12 @@ def simulate_scenario(config: Path, gui: bool = False) -> None:
 
     Raises:
         FileNotFoundError: If the simulation configuration file does not exist.
+        Exception: If the simulation fails.
     """
     if not config.exists():
-        raise FileNotFoundError(f"Simulation config file not found: {config}")
+        error_msg = f"Simulation config file not found: {config}"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
 
     command = [
         "sumo-gui" if gui else "sumo",
@@ -244,14 +299,15 @@ def simulate_scenario(config: Path, gui: bool = False) -> None:
         str(config),
     ]
 
-    print("Executing:", " ".join(command))
-    result = subprocess.run(command, capture_output=True, check=True, text=True)
+    try:
+        result = subprocess.run(command, capture_output=True, check=True, text=True)
+        log_subprocess_result("sumo", logger, command, result)
 
-    if result.stderr:
-        print("Warnings/Errors from sumo:")
-        print(result.stderr)
+        logger.info(f"Simulation completed: {config}")
 
-    print(f"Simulation completed successfully: {config}")
+    except Exception as e:
+        logger.error(f"Failed to simulate scenario: {e}")
+        raise
 
 
 def convert_xml_to_csv(xml_file: Path, delete_original: bool = False) -> None:
@@ -264,10 +320,12 @@ def convert_xml_to_csv(xml_file: Path, delete_original: bool = False) -> None:
 
     Raises:
         FileNotFoundError: If the XML file does not exist.
-        RuntimeError: If the conversion fails or the output CSV file is missing.
+        Exception: If the XML to CSV conversion fails.
     """
     if not xml_file.exists():
-        raise FileNotFoundError(f"XML file not found: {xml_file}")
+        error_msg = f"XML file not found: {xml_file}"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
 
     command = [
         "python",
@@ -275,17 +333,22 @@ def convert_xml_to_csv(xml_file: Path, delete_original: bool = False) -> None:
         str(xml_file),
     ]
 
-    print("Executing:", " ".join(command))
-    result = subprocess.run(command, capture_output=True, check=True, text=True)
+    try:
+        result = subprocess.run(command, capture_output=True, check=True, text=True)
+        log_subprocess_result("xml2csv", logger, command, result)
 
-    if result.stderr:
-        print("Warnings/Errors from xml2csv:")
-        print(result.stderr)
+    except Exception as e:
+        logger.error(f"Failed to convert XML to CSV: {e}")
+        raise
 
     csv_file = xml_file.with_suffix(".csv")
     if csv_file.exists():
         if delete_original:
             xml_file.unlink()
-        print(f"Converted {xml_file} to {csv_file}")
+            logger.info(f"Converted {xml_file} to {csv_file} and deleted original")
+        else:
+            logger.info(f"Converted {xml_file} to {csv_file}")
     else:
-        raise RuntimeError(f"Failed to convert {xml_file}, missing output file: {csv_file}")
+        error_msg = f"CSV file not found: {csv_file}"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
