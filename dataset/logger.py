@@ -82,8 +82,5 @@ def log_subprocess_result(
     if result.stderr:
         logger.warning(f"stderr from {operation_name}: {result.stderr}")
 
-    if result.returncode != 0:
-        logger.error(f"{operation_name} failed with return code {result.returncode}")
-
 
 logger = setup_logger(log_file=LOG_FILE)
