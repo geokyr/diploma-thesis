@@ -92,15 +92,15 @@ def main():
     logger.info("Starting dataset generation process")
 
     if not NETWORK.exists():
-        logger.info("Network file not found, generating network...")
+        logger.info("Network file not found, generating network")
         generate_network()
 
     if not FIXED_FLOWS_FILE.exists():
-        logger.info("Fixed flows file not found, editing network...")
+        logger.info("Fixed flows file not found, editing network")
         edit_network(network=NETWORK)
 
     if not FIXED_ROUTES_FILE.exists():
-        logger.info("Fixed routes file not found, generating fixed flows...")
+        logger.info("Fixed routes file not found, generating fixed flows")
         generate_fixed_routes(
             network=NETWORK,
             fixed_flows_file=FIXED_FLOWS_FILE,
@@ -110,9 +110,9 @@ def main():
 
     for spec in DATASET_SPECS:
         name = spec["name"]
-        logger.info(f"Generating {name} train dataset...")
+        logger.info(f"Generating {name} train dataset")
         generate_dataset(**spec["train"])
-        logger.info(f"Generating {name} test dataset...")
+        logger.info(f"Generating {name} test dataset")
         generate_dataset(**spec["test"])
 
     logger.info("Dataset generation process completed successfully")
