@@ -105,11 +105,9 @@ if __name__ == "__main__":
         res = train_and_evaluate(X_train, y_train, X_test, y_test, name)
         all_results[name] = res
 
-    # Print results to terminal
     print("\nAll Results:")
     print(json.dumps(all_results, indent=2))
 
-    # Save results to file
     with open("models/results.json", "w") as f:
         json.dump(all_results, f, indent=2)
     print("\nResults saved to models/results.json")
