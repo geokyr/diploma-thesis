@@ -87,9 +87,9 @@ if __name__ == "__main__":
     os.environ["LOKY_MAX_CPU_COUNT"] = "12"
 
     scenarios = [
-        ("base", "data/1.0.0/base-train-fcd.csv", "data/1.0.0/base-test-fcd.csv"),
-        ("closure", "data/1.0.0/closure-train-fcd.csv", "data/1.0.0/closure-test-fcd.csv"),
-        ("rain", "data/1.0.0/rain-train-fcd.csv", "data/1.0.0/rain-test-fcd.csv"),
+        ("base", "dataset/1.0.0/base-train-fcd.csv", "dataset/1.0.0/base-test-fcd.csv"),
+        ("closure", "dataset/1.0.0/closure-train-fcd.csv", "dataset/1.0.0/closure-test-fcd.csv"),
+        ("rain", "dataset/1.0.0/rain-train-fcd.csv", "dataset/1.0.0/rain-test-fcd.csv"),
     ]
 
     all_results = {}
