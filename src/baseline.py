@@ -75,7 +75,7 @@ def train_and_evaluate(X_train, y_train, X_test, y_test, scenario_name):
         print(f"{name} - MAE: {mae:.2f}s, RMSE: {rmse:.2f}s, MAPE: {mape * 100:.2f}%")
 
         # Save the model
-        model_path = os.path.join("artifacts", "models", f"{scenario_name}-{name}.joblib")
+        model_path = os.path.join("artifacts", "baseline", f"{scenario_name}-{name}.joblib")
         joblib.dump(model, model_path)
         print(f"Model saved to {model_path}")
 
@@ -108,6 +108,6 @@ if __name__ == "__main__":
     print("\nAll Results:")
     print(json.dumps(all_results, indent=2))
 
-    with open("artifacts/results/results.json", "w") as f:
+    with open("artifacts/baseline/results.json", "w") as f:
         json.dump(all_results, f, indent=2)
-    print("\nResults saved to artifacts/results/results.json")
+    print("\nResults saved to artifacts/baseline/results.json")
