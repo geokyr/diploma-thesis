@@ -75,7 +75,7 @@ def train_and_evaluate(X_train, y_train, X_test, y_test, scenario_name):
         print(f"{name} - MAE: {mae:.2f}s, RMSE: {rmse:.2f}s, MAPE: {mape * 100:.2f}%")
 
         # Save the model
-        model_path = os.path.join("artifacts", f"{scenario_name}-{name}.joblib")
+        model_path = os.path.join("artifacts", "models", f"{scenario_name}-{name}.joblib")
         joblib.dump(model, model_path)
         print(f"Model saved to {model_path}")
 
@@ -87,9 +87,9 @@ if __name__ == "__main__":
     os.environ["LOKY_MAX_CPU_COUNT"] = "12"
 
     scenarios = [
-        ("base", "dataset/1.0.0/base-train-fcd.csv", "dataset/1.0.0/base-test-fcd.csv"),
-        ("closure", "dataset/1.0.0/closure-train-fcd.csv", "dataset/1.0.0/closure-test-fcd.csv"),
-        ("rain", "dataset/1.0.0/rain-train-fcd.csv", "dataset/1.0.0/rain-test-fcd.csv"),
+        ("base", "data/1.0.0/base-train-fcd.csv", "data/1.0.0/base-test-fcd.csv"),
+        ("closure", "data/1.0.0/closure-train-fcd.csv", "data/1.0.0/closure-test-fcd.csv"),
+        ("rain", "data/1.0.0/rain-train-fcd.csv", "data/1.0.0/rain-test-fcd.csv"),
     ]
 
     all_results = {}
@@ -108,6 +108,6 @@ if __name__ == "__main__":
     print("\nAll Results:")
     print(json.dumps(all_results, indent=2))
 
-    with open("artifacts/results.json", "w") as f:
+    with open("artifacts/results/results.json", "w") as f:
         json.dump(all_results, f, indent=2)
-    print("\nResults saved to artifacts/results.json")
+    print("\nResults saved to artifacts/results/results.json")
