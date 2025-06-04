@@ -29,7 +29,6 @@ DATASET_LOGGER_NAME = "dataset"
 
 DATASET_DIR = PROJECT_ROOT / "src" / "dataset"
 SIMULATION_DIR = DATASET_DIR / "athens-10h"
-SIMULATION_DIR.mkdir(parents=True, exist_ok=True)
 PLOTS_DIR = SIMULATION_DIR / "plots"
 PLOTS_DIR.mkdir(parents=True, exist_ok=True)
 
