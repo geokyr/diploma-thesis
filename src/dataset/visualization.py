@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-from config import PLOTS_DIR
+
+from src.dataset.config import PLOTS_DIR
 
 
 def plot_speed_histogram(speeds_kmh: pd.Series, dataset_id: str, bins: int = 30) -> None:
