@@ -3,7 +3,8 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from config import DUAROUTER, OSM_WEB_WIZARD, RANDOM_TRIPS, XML2CSV
-from logger import log_subprocess_result, logger
+
+from common.logger import log_subprocess_result, logger
 
 
 def generate_network() -> None:

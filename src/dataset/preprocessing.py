@@ -2,7 +2,8 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import pandas as pd
-from logger import logger
+
+from common.logger import logger
 
 
 def parse_fcd_output(fcd_output: Path) -> pd.DataFrame:

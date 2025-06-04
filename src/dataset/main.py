@@ -11,13 +11,14 @@ from generation import (
     update_trip_ids,
     update_vehicle_types,
 )
-from logger import logger
 from preprocessing import aggregate_fcd, parse_fcd_output, preprocess_fcd, report_fcd_stats
 from visualization import (
     plot_average_speed_and_traffic_generation_period_per_hour,
     plot_average_speed_and_vehicle_count_per_second,
     plot_speed_histogram,
 )
+
+from common.logger import logger
 
 
 def generate_dataset(
