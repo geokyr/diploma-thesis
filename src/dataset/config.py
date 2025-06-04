@@ -21,19 +21,22 @@ RANDOM_TRIPS = SUMO_HOME / "tools" / "randomTrips.py"
 DUAROUTER = SUMO_HOME / "bin" / ("duarouter.exe" if os.name == "nt" else "duarouter")
 XML2CSV = SUMO_HOME / "tools" / "xml" / "xml2csv.py"
 
-BASE_DIR = Path(__file__).parent
-LOGS_DIR = BASE_DIR / "logs"
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+LOGS_DIR = PROJECT_ROOT / "logs"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
-DATA_DIR = BASE_DIR / "athens-10h"
-DATA_DIR.mkdir(parents=True, exist_ok=True)
-PLOTS_DIR = DATA_DIR / "plots"
+DATASET_LOG_FILE = LOGS_DIR / "dataset.log"
+DATASET_LOGGER_NAME = "dataset"
+
+DATASET_DIR = PROJECT_ROOT / "src" / "dataset"
+SIMULATION_DIR = DATASET_DIR / "athens-10h"
+SIMULATION_DIR.mkdir(parents=True, exist_ok=True)
+PLOTS_DIR = SIMULATION_DIR / "plots"
 PLOTS_DIR.mkdir(parents=True, exist_ok=True)
 
-LOG_FILE = LOGS_DIR / "dataset.log"
-NETWORK = DATA_DIR / "osm.net.xml.gz"
-FIXED_FLOWS_FILE = DATA_DIR / "fixed.flows.xml"
-FIXED_ROUTES_FILE = DATA_DIR / "fixed.rou.xml"
-FIXED_ROUTES_ALT_FILE = DATA_DIR / "fixed.rou.alt.xml"
+NETWORK = SIMULATION_DIR / "osm.net.xml.gz"
+FIXED_FLOWS_FILE = SIMULATION_DIR / "fixed.flows.xml"
+FIXED_ROUTES_FILE = SIMULATION_DIR / "fixed.rou.xml"
+FIXED_ROUTES_ALT_FILE = SIMULATION_DIR / "fixed.rou.alt.xml"
 
 VEHICLE_TYPE_CAR = "car"
 VEHICLE_TYPE_CAR_RAIN = "car-rain"
@@ -56,11 +59,11 @@ DATASET_SPECS = [
         "train": {
             "dataset_id": f"{name}-train",
             "network": NETWORK,
-            "trips_file": DATA_DIR / f"{name}-train.trips.xml",
+            "trips_file": SIMULATION_DIR / f"{name}-train.trips.xml",
             "traffic_generation_periods": TRAIN_TRAFFIC_GENERATION_PERIODS,
             "seed": TRAIN_SEED,
-            "config": DATA_DIR / f"{name}-train.sumocfg",
-            "fcd_output": DATA_DIR / f"{name}-train-fcd.xml",
+            "config": SIMULATION_DIR / f"{name}-train.sumocfg",
+            "fcd_output": SIMULATION_DIR / f"{name}-train-fcd.xml",
             "fixed_routes_file": None,
             **extra_specs,
             **DEFAULT_FLAGS,
@@ -68,11 +71,11 @@ DATASET_SPECS = [
         "test": {
             "dataset_id": f"{name}-test",
             "network": NETWORK,
-            "trips_file": DATA_DIR / f"{name}-test.trips.xml",
+            "trips_file": SIMULATION_DIR / f"{name}-test.trips.xml",
             "traffic_generation_periods": TEST_TRAFFIC_GENERATION_PERIODS,
             "seed": TEST_SEED,
-            "config": DATA_DIR / f"{name}-test.sumocfg",
-            "fcd_output": DATA_DIR / f"{name}-test-fcd.xml",
+            "config": SIMULATION_DIR / f"{name}-test.sumocfg",
+            "fcd_output": SIMULATION_DIR / f"{name}-test-fcd.xml",
             "fixed_routes_file": FIXED_ROUTES_FILE,
             **extra_specs,
             **DEFAULT_FLAGS,

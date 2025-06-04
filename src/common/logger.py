@@ -4,7 +4,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from dataset.config import LOG_FILE
+from dataset.config import DATASET_LOG_FILE, DATASET_LOGGER_NAME
 
 
 def setup_logger(
@@ -83,4 +83,4 @@ def log_subprocess_result(
         logger.warning(f"stderr from {operation_name}: {result.stderr}")
 
 
-dataset_logger = setup_logger(name="dataset", log_file=LOG_FILE)
+dataset_logger = setup_logger(name=DATASET_LOGGER_NAME, log_file=DATASET_LOG_FILE)
