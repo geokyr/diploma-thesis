@@ -4,7 +4,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from dataset.config import DATASET_LOG_FILE, DATASET_LOGGER_NAME
+from src.dataset.config import DATASET_LOG_FILE, DATASET_LOGGER_NAME
 
 
 def setup_logger(
