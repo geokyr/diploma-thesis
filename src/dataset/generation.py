@@ -2,9 +2,10 @@ import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from src.common.logger import dataset_logger as logger
-from src.common.logger import log_subprocess_result
-from src.dataset.config import DUAROUTER, OSM_WEB_WIZARD, RANDOM_TRIPS, XML2CSV
+from src.common.logger import log_subprocess_result, setup_logger
+from src.dataset.config import DATASET_LOGGER_NAME, DUAROUTER, LOG_FILES_CONFIG, OSM_WEB_WIZARD, RANDOM_TRIPS, XML2CSV
+
+logger = setup_logger(name=DATASET_LOGGER_NAME, log_file=LOG_FILES_CONFIG[DATASET_LOGGER_NAME])
 
 
 def generate_network() -> None:

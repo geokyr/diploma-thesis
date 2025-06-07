@@ -1,7 +1,10 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from src.dataset.config import PLOTS_DIR
+from src.common.logger import setup_logger
+from src.dataset.config import DATASET_LOGGER_NAME, LOG_FILES_CONFIG, PLOTS_DIR
+
+logger = setup_logger(name=DATASET_LOGGER_NAME, log_file=LOG_FILES_CONFIG[DATASET_LOGGER_NAME])
 
 
 def plot_speed_histogram(speeds_kmh: pd.Series, dataset_id: str, bins: int = 30) -> None:
@@ -19,6 +22,7 @@ def plot_speed_histogram(speeds_kmh: pd.Series, dataset_id: str, bins: int = 30)
     plt.xlabel("Speed (km/h)")
     plt.ylabel("Count")
     plt.savefig(PLOTS_DIR / f"{dataset_id}-speed-histogram.png")
+    logger.info(f"Saved speed histogram to {PLOTS_DIR / f'{dataset_id}-speed-histogram.png'}")
 
 
 def plot_average_speed_and_vehicle_count_per_second(
@@ -51,6 +55,9 @@ def plot_average_speed_and_vehicle_count_per_second(
 
     plt.title(f"Average Speed & Vehicle Count (Per Second) - {dataset_id}")
     plt.savefig(PLOTS_DIR / f"{dataset_id}-average-speed-and-vehicle-count-per-second.png")
+    logger.info(
+        f"Saved average speed and vehicle count per second to {PLOTS_DIR / f'{dataset_id}-average-speed-and-vehicle-count-per-second.png'}"
+    )
 
 
 def plot_average_speed_and_traffic_generation_period_per_hour(
@@ -83,3 +90,6 @@ def plot_average_speed_and_traffic_generation_period_per_hour(
 
     plt.title(f"Average Speed & Traffic Generation Period (Per Hour) - {dataset_id}")
     plt.savefig(PLOTS_DIR / f"{dataset_id}-average-speed-and-traffic-generation-period-per-hour.png")
+    logger.info(
+        f"Saved average speed and traffic generation period per hour to {PLOTS_DIR / f'{dataset_id}-average-speed-and-traffic-generation-period-per-hour.png'}"
+    )

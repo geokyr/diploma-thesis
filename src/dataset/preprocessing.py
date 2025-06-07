@@ -3,7 +3,10 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.common.logger import dataset_logger as logger
+from src.common.logger import setup_logger
+from src.dataset.config import DATASET_LOGGER_NAME, LOG_FILES_CONFIG
+
+logger = setup_logger(name=DATASET_LOGGER_NAME, log_file=LOG_FILES_CONFIG[DATASET_LOGGER_NAME])
 
 
 def parse_fcd_output(fcd_output: Path) -> pd.DataFrame:

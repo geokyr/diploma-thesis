@@ -1,7 +1,15 @@
 from pathlib import Path
 
-from src.common.logger import dataset_logger as logger
-from src.dataset.config import DATASET_SPECS, FIXED_FLOWS_FILE, FIXED_ROUTES_ALT_FILE, FIXED_ROUTES_FILE, NETWORK
+from src.common.logger import setup_logger
+from src.dataset.config import (
+    DATASET_LOGGER_NAME,
+    DATASET_SPECS,
+    FIXED_FLOWS_FILE,
+    FIXED_ROUTES_ALT_FILE,
+    FIXED_ROUTES_FILE,
+    LOG_FILES_CONFIG,
+    NETWORK,
+)
 from src.dataset.generation import (
     convert_xml_to_csv,
     edit_network,
@@ -18,6 +26,8 @@ from src.dataset.visualization import (
     plot_average_speed_and_vehicle_count_per_second,
     plot_speed_histogram,
 )
+
+logger = setup_logger(name=DATASET_LOGGER_NAME, log_file=LOG_FILES_CONFIG[DATASET_LOGGER_NAME])
 
 
 def generate_dataset(
