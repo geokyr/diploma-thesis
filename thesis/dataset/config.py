@@ -31,7 +31,7 @@ LOGGER_NAMES = [
 ]
 LOG_FILES_CONFIG = {name: LOGS_DIR / f"{name}.log" for name in LOGGER_NAMES}
 
-DATASET_DIR = PROJECT_ROOT / "src" / "dataset"
+DATASET_DIR = PROJECT_ROOT / "thesis" / "dataset"
 SIMULATION_DIR = DATASET_DIR / "athens-10h"
 PLOTS_DIR = SIMULATION_DIR / "plots"
 PLOTS_DIR.mkdir(parents=True, exist_ok=True)

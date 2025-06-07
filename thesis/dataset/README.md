@@ -2,5 +2,5 @@
 
 ## Running the Dataset Generation Script
 ```bash
-python -m src.dataset.main
+python -m thesis.dataset.main
 ```
