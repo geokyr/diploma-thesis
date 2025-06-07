@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from src.common.logger import setup_logger
-from src.dataset.config import (
+from thesis.common.logger import setup_logger
+from thesis.dataset.config import (
     DATASET_LOGGER_NAME,
     DATASET_SPECS,
     FIXED_FLOWS_FILE,
@@ -10,7 +10,7 @@ from src.dataset.config import (
     LOG_FILES_CONFIG,
     NETWORK,
 )
-from src.dataset.generation import (
+from thesis.dataset.generation import (
     convert_xml_to_csv,
     edit_network,
     generate_fixed_routes,
@@ -20,8 +20,8 @@ from src.dataset.generation import (
     update_trip_ids,
     update_vehicle_types,
 )
-from src.dataset.preprocessing import aggregate_fcd, parse_fcd_output, preprocess_fcd, report_fcd_stats
-from src.dataset.visualization import (
+from thesis.dataset.preprocessing import aggregate_fcd, parse_fcd_output, preprocess_fcd, report_fcd_stats
+from thesis.dataset.visualization import (
     plot_average_speed_and_traffic_generation_period_per_hour,
     plot_average_speed_and_vehicle_count_per_second,
     plot_speed_histogram,

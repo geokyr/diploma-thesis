@@ -13,7 +13,7 @@ TEST_TRAFFIC_GENERATION_PERIODS = [p * np.random.uniform(0.98, 1.02) for p in TR
 SUMO_HOME_ENV = os.environ.get("SUMO_HOME", None)
 if SUMO_HOME_ENV is None:
     raise EnvironmentError(
-        "Please set the SUMO_HOME environment variable. Also add SUMO_HOME/bin and SUMO_HOME/tools to your PATH."
+        "SUMO_HOME environment variable is not set. Please run `conda deactivate && conda activate thesis` to set up the SUMO_HOME environment variable, and to add SUMO_HOME/bin and SUMO_HOME/tools to your PATH."
     )
 SUMO_HOME = Path(SUMO_HOME_ENV)
 

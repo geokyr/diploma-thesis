@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.common.logger import setup_logger
-from src.dataset.config import DATASET_LOGGER_NAME, LOG_FILES_CONFIG
+from thesis.common.logger import setup_logger
+from thesis.dataset.config import DATASET_LOGGER_NAME, LOG_FILES_CONFIG
 
 logger = setup_logger(name=DATASET_LOGGER_NAME, log_file=LOG_FILES_CONFIG[DATASET_LOGGER_NAME])
 
