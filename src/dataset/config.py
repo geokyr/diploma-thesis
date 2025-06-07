@@ -24,8 +24,11 @@ XML2CSV = SUMO_HOME / "tools" / "xml" / "xml2csv.py"
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 LOGS_DIR = PROJECT_ROOT / "logs"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
-DATASET_LOG_FILE = LOGS_DIR / "dataset.log"
 DATASET_LOGGER_NAME = "dataset"
+LOGGER_NAMES = [
+    DATASET_LOGGER_NAME,
+]
+LOG_FILES_CONFIG = {name: LOGS_DIR / f"{name}.log" for name in LOGGER_NAMES}
 
 DATASET_DIR = PROJECT_ROOT / "src" / "dataset"
 SIMULATION_DIR = DATASET_DIR / "athens-10h"
