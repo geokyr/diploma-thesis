@@ -29,3 +29,5 @@ dependencies:
     - eclipse-sumo==1.21.0
     # Hyperparameter tuning libraries
     - hyperopt==0.2.7
+    # Editable install of the thesis package
+    - --editable .
