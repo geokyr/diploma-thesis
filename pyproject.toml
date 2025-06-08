@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "thesis"
+version = "0.1.0"
+description = "Source code for the diploma thesis"
+authors = [
+    {name = "George Kyriakopoulos", email = "imgeorgekyr@gmail.com"}
+]
+requires-python = "==3.12.9"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["thesis*"]

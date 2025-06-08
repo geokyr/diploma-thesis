@@ -77,3 +77,10 @@ pip install -r $env:SUMO_HOME/tools/requirements.txt
 # For Linux/MacOS
 pip install -r $SUMO_HOME/tools/requirements.txt
 ```
+
+### Editable Installation
+In order for the various python scripts to work correctly, the source code package needs to be installed in the environment in editable mode. To do that run the following command:
+
+```bash
+pip install -e .
+```
