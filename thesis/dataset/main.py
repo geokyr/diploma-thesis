@@ -1,13 +1,11 @@
 from pathlib import Path
 
-from thesis.common.logger import setup_logger
+from thesis.common.logger import DATASET_LOGGER_NAME, LOG_FILES_CONFIG, setup_logger
 from thesis.dataset.config import (
-    DATASET_LOGGER_NAME,
     DATASET_SPECS,
     FIXED_FLOWS_FILE,
     FIXED_ROUTES_ALT_FILE,
     FIXED_ROUTES_FILE,
-    LOG_FILES_CONFIG,
     NETWORK,
 )
 from thesis.dataset.generation import (
