@@ -150,9 +150,9 @@ if __name__ == "__main__":
         res = train_and_evaluate(X_train, y_train, X_test, y_test, name)
         all_results[name] = res
 
-    logger.info("\nAll Results:")
+    logger.info("All Results:")
     logger.info(json.dumps(all_results, indent=2))
 
     with open("artifacts/baseline/results.json", "w") as f:
         json.dump(all_results, f, indent=2)
-    logger.info("\nResults saved to artifacts/baseline/results.json")
+    logger.info("Results saved to artifacts/baseline/results.json")
