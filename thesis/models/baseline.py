@@ -13,13 +13,14 @@ from sklearn.neural_network import MLPRegressor
 from xgboost import XGBRegressor
 
 from thesis.common.logger import BASELINE_LOGGER_NAME, LOG_FILES_CONFIG, setup_logger
+from thesis.models.config import BASELINE_ARTIFACTS_DIR, RANDOM_STATE, TRAIN_TEST_SPECS
 
 logger = setup_logger(name=BASELINE_LOGGER_NAME, log_file=LOG_FILES_CONFIG[BASELINE_LOGGER_NAME])
 
 
-def load_and_prepare(fcd_path: str) -> pd.DataFrame:
+def load_and_prepare_trips(fcd_path: str) -> pd.DataFrame:
     """
-    Load and prepare the FCD data for training and evaluation.
+    Load and prepare the trips from FCD data for training and evaluation.
 
     Args:
         fcd_path (str): The path to the FCD data file.
@@ -27,6 +28,7 @@ def load_and_prepare(fcd_path: str) -> pd.DataFrame:
     Returns:
         pd.DataFrame: A DataFrame containing the prepared FCD data in trips format.
     """
+    logger.info(f"Loading FCD data from {fcd_path}...")
     dtype = {
         "timestep_time": int,
         "vehicle_acceleration": float,
@@ -37,7 +39,9 @@ def load_and_prepare(fcd_path: str) -> pd.DataFrame:
         "vehicle_y": float,
     }
     df = pd.read_csv(fcd_path, sep=";", header=0, dtype=dtype)
+    logger.info(f"Loaded {len(df)} rows of FCD data.")
 
+    logger.info("Preparing trips...")
     trips = []
     for vehicle_id, group in df.groupby("vehicle_id"):
         start = group.iloc[0]
@@ -56,7 +60,9 @@ def load_and_prepare(fcd_path: str) -> pd.DataFrame:
                 "duration": end["timestep_time"] - start["timestep_time"],
             }
         )
-    return pd.DataFrame(trips)
+    trips_df = pd.DataFrame(trips)
+    logger.info(f"Prepared {len(trips_df)} trips.")
+    return trips_df
 
 
 def make_features(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
@@ -69,18 +75,64 @@ def make_features(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
     Returns:
         tuple[pd.DataFrame, pd.Series]: A tuple containing the features and the target variable.
     """
+    logger.info("Making features...")
     X = df[["origin_x", "origin_y", "dest_x", "dest_y", "hour", "distance"]]
     y = df["duration"]
+    logger.info(f"Made {len(X)} features and {len(y)} target variables.")
     return X, y
 
 
-def train_and_evaluate(
-    X_train: pd.DataFrame, y_train: pd.Series, X_test: pd.DataFrame, y_test: pd.Series, scenario_name: str
-) -> dict:
+def initialize_models() -> dict:
     """
-    Train and evaluate the baseline model.
+    Initialize the baseline models.
 
     Args:
+        random_state (int): The random state to use for the models.
+
+    Returns:
+        dict: A dictionary containing the initialized models.
+    """
+    logger.info("Initializing models...")
+    models = {
+        "linear-regression": LinearRegression(),
+        "multi-layer-perceptron": MLPRegressor(random_state=RANDOM_STATE),
+        "xgboost": XGBRegressor(random_state=RANDOM_STATE),
+        "lightgbm": LGBMRegressor(random_state=RANDOM_STATE, verbose=0),
+        "catboost": CatBoostRegressor(random_state=RANDOM_STATE, verbose=0, allow_writing_files=False),
+    }
+    logger.info(f"Initialized {len(models)} models.")
+    return models
+
+
+def save_model(model, model_name: str, scenario_name: str) -> None:
+    """
+    Save a model to the artifacts directory.
+
+    Args:
+        model: The machine learning model to save.
+        model_name (str): The name of the model.
+        scenario_name (str): The name of the scenario.
+    """
+    model_path = BASELINE_ARTIFACTS_DIR / f"{scenario_name}-{model_name}.joblib"
+    joblib.dump(model, model_path)
+    logger.info(f"Model saved to {model_path}")
+
+
+def train_and_evaluate_model(
+    model,
+    model_name: str,
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    X_test: pd.DataFrame,
+    y_test: pd.Series,
+    scenario_name: str,
+) -> dict:
+    """
+    Train and evaluate a single baseline model.
+
+    Args:
+        model: The machine learning model to train and evaluate.
+        model_name (str): The name of the model.
         X_train (pd.DataFrame): A DataFrame containing the training features.
         y_train (pd.Series): A Series containing the training target variable.
         X_test (pd.DataFrame): A DataFrame containing the test features.
@@ -90,69 +142,99 @@ def train_and_evaluate(
     Returns:
         dict: A dictionary containing the results of the training and evaluation.
     """
-    models = {
-        "linear-regression": LinearRegression(),
-        "xgboost": XGBRegressor(random_state=42),
-        "lightgbm": LGBMRegressor(random_state=42, verbose=0),
-        "catboost": CatBoostRegressor(random_state=42, verbose=0, allow_writing_files=False),
-        "multi-layer-perceptron": MLPRegressor(random_state=42),
+    logger.info(f"Training {model_name}...")
+
+    train_start = time.perf_counter()
+    model.fit(X_train, y_train)
+    train_end = time.perf_counter()
+    train_time = train_end - train_start
+
+    eval_start = time.perf_counter()
+    preds = model.predict(X_test)
+    eval_end = time.perf_counter()
+    eval_time = eval_end - eval_start
+
+    mae = mean_absolute_error(y_test, preds)
+    rmse = np.sqrt(mean_squared_error(y_test, preds))
+    mape = mean_absolute_percentage_error(y_test, preds)
+
+    logger.info(
+        f"{model_name} - MAE: {mae:.2f}s, RMSE: {rmse:.2f}s, MAPE: {mape * 100:.2f}%, Training: {train_time:.3f}s, Evaluation: {eval_time:.3f}s"
+    )
+
+    save_model(model, model_name, scenario_name)
+
+    results = {
+        "MAE": mae,
+        "RMSE": rmse,
+        "MAPE": mape,
+        "Training": train_time,
+        "Evaluation": eval_time,
     }
-
-    results = {}
-    for name, model in models.items():
-        print(f"Training {name}...")
-
-        train_start = time.perf_counter()
-        model.fit(X_train, y_train)
-        train_end = time.perf_counter()
-        train_time = train_end - train_start
-
-        eval_start = time.perf_counter()
-        preds = model.predict(X_test)
-        eval_end = time.perf_counter()
-        eval_time = eval_end - eval_start
-
-        mae = mean_absolute_error(y_test, preds)
-        rmse = np.sqrt(mean_squared_error(y_test, preds))
-        mape = mean_absolute_percentage_error(y_test, preds)
-
-        results[name] = {"MAE": mae, "RMSE": rmse, "MAPE": mape, "Training": train_time, "Evaluation": eval_time}
-        logger.info(
-            f"{name} - MAE: {mae:.2f}s, RMSE: {rmse:.2f}s, MAPE: {mape * 100:.2f}%, Training: {train_time:.3f}s, Evaluation: {eval_time:.3f}s"
-        )
-
-        model_path = os.path.join("artifacts", "baseline", f"{scenario_name}-{name}.joblib")
-        joblib.dump(model, model_path)
-        logger.info(f"Model saved to {model_path}")
 
     return results
 
 
-if __name__ == "__main__":
+def run_scenario(scenario_name: str, train_path: str, test_path: str) -> dict:
+    """
+    Run a complete training and evaluation scenario.
+
+    Args:
+        scenario_name (str): The name of the scenario.
+        train_path (str): Path to the training FCD data.
+        test_path (str): Path to the test FCD data.
+
+    Returns:
+        dict: Results dictionary for the scenario.
+    """
+    logger.info(f"Running scenario: {scenario_name}")
+
+    train_trips = load_and_prepare_trips(train_path)
+    test_trips = load_and_prepare_trips(test_path)
+
+    X_train, y_train = make_features(train_trips)
+    X_test, y_test = make_features(test_trips)
+
+    models = initialize_models()
+    scenario_results = {}
+    for model_name, model in models.items():
+        model_results = train_and_evaluate_model(model, model_name, X_train, y_train, X_test, y_test, scenario_name)
+        scenario_results[model_name] = model_results
+
+    logger.info(f"Completed scenario: {scenario_name}")
+    return scenario_results
+
+
+def save_results(results: dict) -> None:
+    """
+    Save results to a JSON file.
+
+    Args:
+        results (dict): The results dictionary to save.
+    """
+    results_filepath = BASELINE_ARTIFACTS_DIR / "results.json"
+    with open(results_filepath, "w") as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Results saved to {results_filepath}")
+
+
+def main() -> None:
     # Silence a WinError2 about core count
     os.environ["LOKY_MAX_CPU_COUNT"] = "12"
 
-    scenarios = [
-        (scenario, f"data/1.0.0/{scenario}-train-fcd.csv", f"data/1.0.0/{scenario}-test-fcd.csv")
-        for scenario in ["base", "closure", "rain"]
-    ]
+    logger.info("Starting baseline evaluation...")
+    results = {}
 
-    all_results = {}
-    for name, train_path, test_path in scenarios:
-        logger.info(f"Scenario: {name}")
+    for scenario_name, train_path, test_path in TRAIN_TEST_SPECS:
+        scenario_results = run_scenario(scenario_name, train_path, test_path)
+        results[scenario_name] = scenario_results
 
-        train_trips = load_and_prepare(train_path)
-        test_trips = load_and_prepare(test_path)
+    save_results(results)
 
-        X_train, y_train = make_features(train_trips)
-        X_test, y_test = make_features(test_trips)
+    logger.info("Results:")
+    logger.info(json.dumps(results, indent=2))
+    logger.info("Baseline evaluation completed.")
 
-        res = train_and_evaluate(X_train, y_train, X_test, y_test, name)
-        all_results[name] = res
 
-    logger.info("All Results:")
-    logger.info(json.dumps(all_results, indent=2))
-
-    with open("artifacts/baseline/results.json", "w") as f:
-        json.dump(all_results, f, indent=2)
-    logger.info("Results saved to artifacts/baseline/results.json")
+if __name__ == "__main__":
+    main()
