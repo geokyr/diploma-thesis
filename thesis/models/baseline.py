@@ -17,7 +17,16 @@ from thesis.common.logger import BASELINE_LOGGER_NAME, LOG_FILES_CONFIG, setup_l
 logger = setup_logger(name=BASELINE_LOGGER_NAME, log_file=LOG_FILES_CONFIG[BASELINE_LOGGER_NAME])
 
 
-def load_and_prepare(fcd_path):
+def load_and_prepare(fcd_path: str) -> pd.DataFrame:
+    """
+    Load and prepare the FCD data for training and evaluation.
+
+    Args:
+        fcd_path (str): The path to the FCD data file.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the prepared FCD data in trips format.
+    """
     dtype = {
         "timestep_time": int,
         "vehicle_acceleration": float,
@@ -50,13 +59,37 @@ def load_and_prepare(fcd_path):
     return pd.DataFrame(trips)
 
 
-def make_features(df):
+def make_features(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
+    """
+    Make features for the baseline model.
+
+    Args:
+        df (pd.DataFrame): A DataFrame containing the prepared FCD data in trips format.
+
+    Returns:
+        tuple[pd.DataFrame, pd.Series]: A tuple containing the features and the target variable.
+    """
     X = df[["origin_x", "origin_y", "dest_x", "dest_y", "hour", "distance"]]
     y = df["duration"]
     return X, y
 
 
-def train_and_evaluate(X_train, y_train, X_test, y_test, scenario_name):
+def train_and_evaluate(
+    X_train: pd.DataFrame, y_train: pd.Series, X_test: pd.DataFrame, y_test: pd.Series, scenario_name: str
+) -> dict:
+    """
+    Train and evaluate the baseline model.
+
+    Args:
+        X_train (pd.DataFrame): A DataFrame containing the training features.
+        y_train (pd.Series): A Series containing the training target variable.
+        X_test (pd.DataFrame): A DataFrame containing the test features.
+        y_test (pd.Series): A Series containing the test target variable.
+        scenario_name (str): The name of the scenario.
+
+    Returns:
+        dict: A dictionary containing the results of the training and evaluation.
+    """
     models = {
         "linear-regression": LinearRegression(),
         "xgboost": XGBRegressor(random_state=42),
