@@ -1,5 +1,6 @@
 import json
 import os
+import time
 
 import joblib
 import numpy as np
@@ -10,6 +11,10 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error
 from sklearn.neural_network import MLPRegressor
 from xgboost import XGBRegressor
+
+from thesis.common.logger import BASELINE_LOGGER_NAME, LOG_FILES_CONFIG, setup_logger
+
+logger = setup_logger(name=BASELINE_LOGGER_NAME, log_file=LOG_FILES_CONFIG[BASELINE_LOGGER_NAME])
 
 
 def load_and_prepare(fcd_path):
@@ -64,20 +69,28 @@ def train_and_evaluate(X_train, y_train, X_test, y_test, scenario_name):
     for name, model in models.items():
         print(f"Training {name}...")
 
+        train_start = time.perf_counter()
         model.fit(X_train, y_train)
+        train_end = time.perf_counter()
+        train_time = train_end - train_start
+
+        eval_start = time.perf_counter()
         preds = model.predict(X_test)
+        eval_end = time.perf_counter()
+        eval_time = eval_end - eval_start
 
         mae = mean_absolute_error(y_test, preds)
         rmse = np.sqrt(mean_squared_error(y_test, preds))
         mape = mean_absolute_percentage_error(y_test, preds)
 
-        results[name] = {"MAE": mae, "RMSE": rmse, "MAPE": mape}
-        print(f"{name} - MAE: {mae:.2f}s, RMSE: {rmse:.2f}s, MAPE: {mape * 100:.2f}%")
+        results[name] = {"MAE": mae, "RMSE": rmse, "MAPE": mape, "Training": train_time, "Evaluation": eval_time}
+        logger.info(
+            f"{name} - MAE: {mae:.2f}s, RMSE: {rmse:.2f}s, MAPE: {mape * 100:.2f}%, Training: {train_time:.3f}s, Evaluation: {eval_time:.3f}s"
+        )
 
-        # Save the model
         model_path = os.path.join("artifacts", "baseline", f"{scenario_name}-{name}.joblib")
         joblib.dump(model, model_path)
-        print(f"Model saved to {model_path}")
+        logger.info(f"Model saved to {model_path}")
 
     return results
 
@@ -87,14 +100,13 @@ if __name__ == "__main__":
     os.environ["LOKY_MAX_CPU_COUNT"] = "12"
 
     scenarios = [
-        ("base", "data/1.0.0/base-train-fcd.csv", "data/1.0.0/base-test-fcd.csv"),
-        ("closure", "data/1.0.0/closure-train-fcd.csv", "data/1.0.0/closure-test-fcd.csv"),
-        ("rain", "data/1.0.0/rain-train-fcd.csv", "data/1.0.0/rain-test-fcd.csv"),
+        (scenario, f"data/1.0.0/{scenario}-train-fcd.csv", f"data/1.0.0/{scenario}-test-fcd.csv")
+        for scenario in ["base", "closure", "rain"]
     ]
 
     all_results = {}
     for name, train_path, test_path in scenarios:
-        print(f"Scenario: {name}")
+        logger.info(f"Scenario: {name}")
 
         train_trips = load_and_prepare(train_path)
         test_trips = load_and_prepare(test_path)
@@ -105,9 +117,9 @@ if __name__ == "__main__":
         res = train_and_evaluate(X_train, y_train, X_test, y_test, name)
         all_results[name] = res
 
-    print("\nAll Results:")
-    print(json.dumps(all_results, indent=2))
+    logger.info("\nAll Results:")
+    logger.info(json.dumps(all_results, indent=2))
 
     with open("artifacts/baseline/results.json", "w") as f:
         json.dump(all_results, f, indent=2)
-    print("\nResults saved to artifacts/baseline/results.json")
+    logger.info("\nResults saved to artifacts/baseline/results.json")

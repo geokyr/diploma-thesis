@@ -9,11 +9,11 @@ LOGS_DIR = PROJECT_ROOT / "logs"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 DATASET_LOGGER_NAME = "dataset"
-MODELS_BASELINE_LOGGER_NAME = "models_baseline"
+BASELINE_LOGGER_NAME = "baseline"
 
 LOGGER_NAMES = [
     DATASET_LOGGER_NAME,
-    MODELS_BASELINE_LOGGER_NAME,
+    BASELINE_LOGGER_NAME,
 ]
 LOG_FILES_CONFIG = {name: LOGS_DIR / f"{name}.log" for name in LOGGER_NAMES}
 
