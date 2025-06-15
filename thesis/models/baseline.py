@@ -3,17 +3,16 @@ import os
 import time
 
 import joblib
-import numpy as np
 import pandas as pd
 from catboost import CatBoostRegressor
 from lightgbm import LGBMRegressor
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error
+from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, root_mean_squared_error
 from sklearn.neural_network import MLPRegressor
 from xgboost import XGBRegressor
 
 from thesis.common.logger import BASELINE_LOGGER_NAME, LOG_FILES_CONFIG, setup_logger
-from thesis.models.config import BASELINE_ARTIFACTS_DIR, RANDOM_STATE, TRAIN_TEST_SPECS
+from thesis.models.config import BASELINE_ARTIFACTS_DIR, EXTRA_SCENARIOS_SPECS, RANDOM_STATE, SCENARIOS_SPECS
 
 logger = setup_logger(name=BASELINE_LOGGER_NAME, log_file=LOG_FILES_CONFIG[BASELINE_LOGGER_NAME])
 
@@ -155,7 +154,7 @@ def train_and_evaluate_model(
     eval_time = eval_end - eval_start
 
     mae = mean_absolute_error(y_test, preds)
-    rmse = np.sqrt(mean_squared_error(y_test, preds))
+    rmse = root_mean_squared_error(y_test, preds)
     mape = mean_absolute_percentage_error(y_test, preds)
 
     logger.info(
@@ -225,14 +224,11 @@ def main() -> None:
     logger.info("Starting baseline evaluation...")
     results = {}
 
-    for scenario_name, train_path, test_path in TRAIN_TEST_SPECS:
+    for scenario_name, train_path, test_path in SCENARIOS_SPECS + EXTRA_SCENARIOS_SPECS:
         scenario_results = run_scenario(scenario_name, train_path, test_path)
         results[scenario_name] = scenario_results
 
     save_results(results)
-
-    logger.info("Results:")
-    logger.info(json.dumps(results, indent=2))
     logger.info("Baseline evaluation completed.")
 
 
