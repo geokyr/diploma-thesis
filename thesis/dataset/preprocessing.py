@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from thesis.common.logger import DATASET_LOGGER_NAME, LOG_FILES_CONFIG, setup_logger
+from thesis.logger import DATASET_LOGGER_NAME, LOG_FILES_CONFIG, setup_logger
 
 logger = setup_logger(name=DATASET_LOGGER_NAME, log_file=LOG_FILES_CONFIG[DATASET_LOGGER_NAME])
 

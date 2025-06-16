@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from thesis.common.logger import DATASET_LOGGER_NAME, LOG_FILES_CONFIG, setup_logger
 from thesis.dataset.config import (
     DATASET_SPECS,
     FIXED_FLOWS_FILE,
@@ -24,6 +23,7 @@ from thesis.dataset.visualization import (
     plot_average_speed_and_vehicle_count_per_second,
     plot_speed_histogram,
 )
+from thesis.logger import DATASET_LOGGER_NAME, LOG_FILES_CONFIG, setup_logger
 
 logger = setup_logger(name=DATASET_LOGGER_NAME, log_file=LOG_FILES_CONFIG[DATASET_LOGGER_NAME])
 

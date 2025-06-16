@@ -2,13 +2,13 @@ import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from thesis.common.logger import DATASET_LOGGER_NAME, LOG_FILES_CONFIG, log_subprocess_result, setup_logger
 from thesis.dataset.config import (
     DUAROUTER,
     OSM_WEB_WIZARD,
     RANDOM_TRIPS,
     XML2CSV,
 )
+from thesis.logger import DATASET_LOGGER_NAME, LOG_FILES_CONFIG, log_subprocess_result, setup_logger
 
 logger = setup_logger(name=DATASET_LOGGER_NAME, log_file=LOG_FILES_CONFIG[DATASET_LOGGER_NAME])
 

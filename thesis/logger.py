@@ -4,16 +4,18 @@ import subprocess
 import sys
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).parent.parent.parent
+PROJECT_ROOT = Path(__file__).parent.parent
 LOGS_DIR = PROJECT_ROOT / "logs"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
+BACKEND_LOGGER_NAME = "backend"
 DATASET_LOGGER_NAME = "dataset"
-BASELINE_LOGGER_NAME = "baseline"
+ETA_LOGGER_NAME = "eta"
 
 LOGGER_NAMES = [
+    BACKEND_LOGGER_NAME,
     DATASET_LOGGER_NAME,
-    BASELINE_LOGGER_NAME,
+    ETA_LOGGER_NAME,
 ]
 LOG_FILES_CONFIG = {name: LOGS_DIR / f"{name}.log" for name in LOGGER_NAMES}
 
