@@ -2,6 +2,8 @@ from pathlib import Path
 
 RANDOM_STATE = 42
 
+DEVICE = "cuda"
+
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
 BASELINE_ARTIFACTS_DIR = ARTIFACTS_DIR / "baseline"

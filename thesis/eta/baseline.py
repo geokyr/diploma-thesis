@@ -12,7 +12,7 @@ from sklearn.neural_network import MLPRegressor
 from xgboost import XGBRegressor
 
 from thesis.common.logger import BASELINE_LOGGER_NAME, LOG_FILES_CONFIG, setup_logger
-from thesis.models.config import BASELINE_ARTIFACTS_DIR, EXTRA_SCENARIOS_SPECS, RANDOM_STATE, SCENARIOS_SPECS
+from thesis.eta.config import BASELINE_ARTIFACTS_DIR, EXTRA_SCENARIOS_SPECS, RANDOM_STATE, SCENARIOS_SPECS
 
 logger = setup_logger(name=BASELINE_LOGGER_NAME, log_file=LOG_FILES_CONFIG[BASELINE_LOGGER_NAME])
 
