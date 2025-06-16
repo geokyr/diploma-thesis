@@ -11,10 +11,10 @@ from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error,
 from sklearn.neural_network import MLPRegressor
 from xgboost import XGBRegressor
 
-from thesis.common.logger import BASELINE_LOGGER_NAME, LOG_FILES_CONFIG, setup_logger
 from thesis.eta.config import BASELINE_ARTIFACTS_DIR, EXTRA_SCENARIOS_SPECS, RANDOM_STATE, SCENARIOS_SPECS
+from thesis.logger import ETA_LOGGER_NAME, LOG_FILES_CONFIG, setup_logger
 
-logger = setup_logger(name=BASELINE_LOGGER_NAME, log_file=LOG_FILES_CONFIG[BASELINE_LOGGER_NAME])
+logger = setup_logger(name=ETA_LOGGER_NAME, log_file=LOG_FILES_CONFIG[ETA_LOGGER_NAME])
 
 
 def load_and_prepare_trips(fcd_path: str) -> pd.DataFrame:
