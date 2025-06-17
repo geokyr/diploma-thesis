@@ -4,8 +4,6 @@ RANDOM_STATE = 42
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
-BASELINE_ARTIFACTS_DIR = ARTIFACTS_DIR / "baseline"
-BASELINE_ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
 DATA_DIR = PROJECT_ROOT / "data"
 
 SCENARIOS = ["base", "closure", "rain"]
