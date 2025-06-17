@@ -17,7 +17,9 @@ from thesis.logger import ETA_LOGGER_NAME, LOG_FILES_CONFIG, setup_logger
 logger = setup_logger(name=ETA_LOGGER_NAME, log_file=LOG_FILES_CONFIG[ETA_LOGGER_NAME])
 
 
-def run_scenario(scenario_name: str, train_path: str, test_path: str, experiment_name: str) -> dict:
+def run_scenario(
+    scenario_name: str, train_path: str, test_path: str, experiment_name: str
+) -> dict[str, dict[str, float]]:
     """
     Run a complete training and evaluation scenario.
 
@@ -27,7 +29,7 @@ def run_scenario(scenario_name: str, train_path: str, test_path: str, experiment
         test_path (str): Path to the test FCD data.
         experiment_name (str): The name of the experiment.
     Returns:
-        dict: Results dictionary for the scenario.
+        dict[str, dict[str, float]]: Results dictionary for the scenario.
     """
     logger.info(f"Starting scenario {scenario_name}...")
 

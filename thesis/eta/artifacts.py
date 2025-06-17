@@ -28,12 +28,12 @@ def save_model(model: BaseEstimator, model_name: str, scenario_name: str, experi
     logger.info(f"Model saved to {model_path}")
 
 
-def save_scenario_results(results: dict, scenario_name: str, experiment_name: str) -> None:
+def save_scenario_results(results: dict[str, dict[str, float]], scenario_name: str, experiment_name: str) -> None:
     """
     Save scenario results in the artifacts directory.
 
     Args:
-        results (dict): The results dictionary to save.
+        results (dict[str, dict[str, float]]): The results dictionary to save.
         scenario_name (str): The name of the scenario.
         experiment_name (str): The name of the experiment.
     """
@@ -47,12 +47,12 @@ def save_scenario_results(results: dict, scenario_name: str, experiment_name: st
     logger.info(f"Scenario results saved to {results_path}")
 
 
-def save_experiment_results(results: dict, experiment_name: str) -> None:
+def save_experiment_results(results: dict[str, dict[str, dict[str, float]]], experiment_name: str) -> None:
     """
     Save experiment results in the artifacts directory.
 
     Args:
-        results (dict): The results dictionary to save.
+        results (dict[str, dict[str, dict[str, float]]]): The results dictionary to save.
         experiment_name (str): The name of the experiment.
     """
     target_dir = ARTIFACTS_DIR / experiment_name
@@ -67,7 +67,7 @@ def save_experiment_results(results: dict, experiment_name: str) -> None:
 
 def construct_model_results_dict(
     training_time: float, evaluation_time: float, mae: float, rmse: float, mape: float
-) -> dict:
+) -> dict[str, float]:
     """
     Construct a model results dictionary.
 
@@ -79,7 +79,7 @@ def construct_model_results_dict(
         mape (float): The MAPE.
 
     Returns:
-        dict: The model results dictionary.
+        dict[str, float]: The model results dictionary.
     """
     return {
         "training": training_time,
