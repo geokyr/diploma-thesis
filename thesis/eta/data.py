@@ -56,7 +56,7 @@ def prepare_baseline_trips(df: pd.DataFrame) -> pd.DataFrame:
                 "origin_y": start["vehicle_y"],
                 "destination_x": end["vehicle_x"],
                 "destination_y": end["vehicle_y"],
-                "hour": start["timestep_time"] // 3600,
+                "hour_bin": start["timestep_time"] // 3600,
                 "distance": end["vehicle_odometer"] - start["vehicle_odometer"],
                 "duration": end["timestep_time"] - start["timestep_time"],
             }
