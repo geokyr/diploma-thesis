@@ -1,45 +1,83 @@
 import time
 
 import pandas as pd
-from sklearn.base import BaseEstimator
-from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, root_mean_squared_error
+from sklearn.base import BaseEstimator, r2_score
+from sklearn.metrics import (
+    mean_absolute_error,
+    mean_absolute_percentage_error,
+    mean_squared_error,
+    root_mean_squared_error,
+)
 
 from thesis.logger import ETA_LOGGER_NAME, LOG_FILES_CONFIG, setup_logger
 
 logger = setup_logger(name=ETA_LOGGER_NAME, log_file=LOG_FILES_CONFIG[ETA_LOGGER_NAME])
 
 
-def evaluate_model(
+def make_predictions(
     model: BaseEstimator,
     model_name: str,
     X_test: pd.DataFrame,
-    y_test: pd.Series,
-) -> tuple[float, float, float, float]:
+) -> tuple[pd.Series, dict[str, float]]:
     """
-    Evaluate a model.
+    Make predictions using a trained model.
 
     Args:
-        model (BaseEstimator): The machine learning model to evaluate.
+        model (BaseEstimator): The machine learning model to use for predictions.
         model_name (str): The name of the model.
         X_test (pd.DataFrame): A DataFrame containing the test features.
-        y_test (pd.Series): A Series containing the test target variable.
 
     Returns:
-        tuple[float, float, float, float]: A tuple that has the evaluation time, MAE, RMSE, and MAPE.
+        tuple[pd.Series, dict[str, float]]: A tuple containing the predictions and timing metrics.
     """
-    logger.info(f"Evaluating {model_name}...")
+    logger.info(f"Making predictions with {model_name}...")
+
+    prediction_start = time.perf_counter()
+    preds = model.predict(X_test)
+    prediction_end = time.perf_counter()
+    prediction_time = prediction_end - prediction_start
+
+    logger.info(f"{model_name} - Prediction: {prediction_time:.3f}s")
+
+    return pd.Series(preds), {"prediction_time": prediction_time}
+
+
+def evaluate_predictions(
+    y_true: pd.Series,
+    y_pred: pd.Series,
+    model_name: str,
+) -> dict[str, float]:
+    """
+    Evaluate predictions against true values.
+
+    Args:
+        y_true (pd.Series): A Series containing the true target values.
+        y_pred (pd.Series): A Series containing the predicted target values.
+        model_name (str): The name of the model (for logging).
+
+    Returns:
+        dict[str, float]: A dictionary containing evaluation metrics.
+    """
+    logger.info(f"Evaluating predictions for {model_name}...")
 
     evaluation_start = time.perf_counter()
-    preds = model.predict(X_test)
+    mae = mean_absolute_error(y_true, y_pred)
+    mse = mean_squared_error(y_true, y_pred)
+    rmse = root_mean_squared_error(y_true, y_pred)
+    mape = mean_absolute_percentage_error(y_true, y_pred)
+    r2 = r2_score(y_true, y_pred)
     evaluation_end = time.perf_counter()
     evaluation_time = evaluation_end - evaluation_start
 
-    mae = mean_absolute_error(y_test, preds)
-    rmse = root_mean_squared_error(y_test, preds)
-    mape = mean_absolute_percentage_error(y_test, preds)
-
     logger.info(
-        f"{model_name} - Evaluation: {evaluation_time:.3f}s, MAE: {mae:.2f}s, RMSE: {rmse:.2f}s, MAPE: {mape * 100:.2f}%"
+        f"{model_name} - Evaluation: {evaluation_time:.3f}s, MAE: {mae:.2f}s, MSE: {mse:.2f}s, RMSE: {rmse:.2f}s, MAPE: {mape * 100:.2f}%, R2: {r2:.3f}"
     )
 
-    return evaluation_time, mae, rmse, mape
+    return {
+        "evaluation_time": evaluation_time,
+        "mae": mae,
+        "mse": mse,
+        "rmse": rmse,
+        "mape": mape,
+        "r2": r2,
+    }

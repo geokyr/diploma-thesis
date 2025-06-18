@@ -63,28 +63,3 @@ def save_experiment_results(results: dict[str, dict[str, dict[str, float]]], exp
         json.dump(results, f, indent=2)
 
     logger.info(f"Experiment results saved to {results_path}")
-
-
-def construct_model_results_dict(
-    training_time: float, evaluation_time: float, mae: float, rmse: float, mape: float
-) -> dict[str, float]:
-    """
-    Construct a model results dictionary.
-
-    Args:
-        training_time (float): The training time.
-        evaluation_time (float): The evaluation time.
-        mae (float): The MAE.
-        rmse (float): The RMSE.
-        mape (float): The MAPE.
-
-    Returns:
-        dict[str, float]: The model results dictionary.
-    """
-    return {
-        "training": training_time,
-        "evaluation": evaluation_time,
-        "mae": mae,
-        "rmse": rmse,
-        "mape": mape,
-    }

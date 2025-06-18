@@ -1,14 +1,13 @@
 import os
 
 from thesis.eta.artifacts import (
-    construct_model_results_dict,
     save_experiment_results,
     save_model,
     save_scenario_results,
 )
 from thesis.eta.config import EXTRA_SCENARIOS_SPECS, SCENARIOS_SPECS
 from thesis.eta.data import load_fcd_dataset, prepare_baseline_trips
-from thesis.eta.evaluation import evaluate_model
+from thesis.eta.evaluation import evaluate_predictions, make_predictions
 from thesis.eta.features import split_features_and_target
 from thesis.eta.models import get_baseline_models
 from thesis.eta.training import train_model
@@ -46,12 +45,13 @@ def run_scenario(
 
     scenario_results = {}
     for model_name, model in models.items():
-        training_time = train_model(model, model_name, X_train, y_train)
-        evaluation_time, mae, rmse, mape = evaluate_model(model, model_name, X_test, y_test)
+        training_results = train_model(model, model_name, X_train, y_train)
+        predictions, prediction_results = make_predictions(model, model_name, X_test)
+        evaluation_results = evaluate_predictions(y_test, predictions, model_name)
+        model_results = {**training_results, **prediction_results, **evaluation_results}
 
-        save_model(model, model_name, scenario_name, experiment_name)
-        model_results = construct_model_results_dict(training_time, evaluation_time, mae, rmse, mape)
         scenario_results[model_name] = model_results
+        save_model(model, model_name, scenario_name, experiment_name)
 
     save_scenario_results(scenario_results, scenario_name, experiment_name)
     logger.info(f"Scenario {scenario_name} completed.")

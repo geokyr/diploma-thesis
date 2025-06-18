@@ -81,8 +81,8 @@ def get_baseline_models() -> dict[str, BaseEstimator]:
         dict[str, BaseEstimator]: Dictionary of baseline models.
     """
     return {
-        "lr": create_lr_model(),
-        "mlp": create_mlp_model(),
+        "linear_regression": create_lr_model(),
+        "multi_layer_perceptron": create_mlp_model(),
         "xgboost": create_xgboost_model(),
         "lightgbm": create_lightgbm_model(),
         "catboost": create_catboost_model(),

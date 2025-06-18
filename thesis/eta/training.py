@@ -13,7 +13,7 @@ def train_model(
     model_name: str,
     X_train: pd.DataFrame,
     y_train: pd.Series,
-) -> float:
+) -> dict[str, float]:
     """
     Train a model.
 
@@ -24,7 +24,7 @@ def train_model(
         y_train (pd.Series): A Series containing the training target variable.
 
     Returns:
-        float: The training time.
+        dict[str, float]: A dictionary containing training metrics.
     """
     logger.info(f"Training {model_name}...")
 
@@ -35,4 +35,4 @@ def train_model(
 
     logger.info(f"{model_name} - Training: {training_time:.3f}s")
 
-    return training_time
+    return {"training_time": training_time}
