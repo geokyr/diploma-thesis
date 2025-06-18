@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 
 from thesis.logger import ETA_LOGGER_NAME, LOG_FILES_CONFIG, setup_logger
@@ -5,12 +7,12 @@ from thesis.logger import ETA_LOGGER_NAME, LOG_FILES_CONFIG, setup_logger
 logger = setup_logger(name=ETA_LOGGER_NAME, log_file=LOG_FILES_CONFIG[ETA_LOGGER_NAME])
 
 
-def load_fcd_dataset(fcd_path: str) -> pd.DataFrame:
+def load_fcd_dataset(fcd_path: Path) -> pd.DataFrame:
     """
     Load the FCD dataset from a file.
 
     Args:
-        fcd_path (str): The path to the FCD data file.
+        fcd_path (Path): The path to the FCD data file.
 
     Returns:
         pd.DataFrame: A DataFrame containing the FCD data.
