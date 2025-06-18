@@ -1,11 +1,12 @@
 import time
 
 import pandas as pd
-from sklearn.base import BaseEstimator, r2_score
+from sklearn.base import BaseEstimator
 from sklearn.metrics import (
     mean_absolute_error,
     mean_absolute_percentage_error,
     mean_squared_error,
+    r2_score,
     root_mean_squared_error,
 )
 
@@ -39,7 +40,7 @@ def make_predictions(
 
     logger.info(f"{model_name} - Prediction: {prediction_time:.3f}s")
 
-    return pd.Series(preds), {"prediction_time": prediction_time}
+    return pd.Series(preds), {"prediction": prediction_time}
 
 
 def evaluate_predictions(
@@ -74,7 +75,7 @@ def evaluate_predictions(
     )
 
     return {
-        "evaluation_time": evaluation_time,
+        "evaluation": evaluation_time,
         "mae": mae,
         "mse": mse,
         "rmse": rmse,
