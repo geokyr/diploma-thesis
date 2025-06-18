@@ -7,10 +7,9 @@ from thesis.eta.artifacts import (
 )
 from thesis.eta.config import EXTRA_SCENARIOS_SPECS, SCENARIOS_SPECS
 from thesis.eta.data import load_fcd_dataset, prepare_baseline_trips
-from thesis.eta.evaluation import evaluate_predictions, make_predictions
 from thesis.eta.features import split_features_and_target
 from thesis.eta.models import get_baseline_models
-from thesis.eta.training import train_model
+from thesis.eta.pipeline import train_and_evaluate_model
 from thesis.logger import ETA_LOGGER_NAME, LOG_FILES_CONFIG, setup_logger
 
 logger = setup_logger(name=ETA_LOGGER_NAME, log_file=LOG_FILES_CONFIG[ETA_LOGGER_NAME])
@@ -42,14 +41,9 @@ def run_scenario(
     X_test, y_test = split_features_and_target(test_trips)
 
     models = get_baseline_models()
-
     scenario_results = {}
     for model_name, model in models.items():
-        training_results = train_model(model, model_name, X_train, y_train)
-        predictions, prediction_results = make_predictions(model, model_name, X_test)
-        evaluation_results = evaluate_predictions(y_test, predictions, model_name)
-        model_results = {**training_results, **prediction_results, **evaluation_results}
-
+        model_results = train_and_evaluate_model(model, model_name, X_train, y_train, X_test, y_test)
         scenario_results[model_name] = model_results
         save_model(model, model_name, scenario_name, experiment_name)
 
