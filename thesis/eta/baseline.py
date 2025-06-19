@@ -5,7 +5,7 @@ from thesis.eta.artifacts import (
     save_model,
     save_scenario_results,
 )
-from thesis.eta.config import EXTRA_SCENARIOS_SPECS, SCENARIOS_SPECS
+from thesis.eta.config import ALL_SCENARIOS_SPECS
 from thesis.eta.data import load_fcd_dataset, prepare_baseline_trips
 from thesis.eta.features import split_features_and_target
 from thesis.eta.models import get_baseline_models
@@ -23,7 +23,7 @@ def main() -> None:
     logger.info(f"Starting experiment {EXPERIMENT_NAME}...")
 
     experiment_results = {}
-    for scenario_name, train_path, test_path in SCENARIOS_SPECS + EXTRA_SCENARIOS_SPECS:
+    for scenario_name, train_path, test_path in ALL_SCENARIOS_SPECS:
         logger.info(f"Starting scenario {scenario_name}...")
 
         train_df = load_fcd_dataset(train_path)
