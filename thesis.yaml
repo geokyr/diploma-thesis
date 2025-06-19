@@ -28,5 +28,8 @@ dependencies:
     - eclipse-sumo==1.21.0
     # Hyperparameter tuning libraries
     - optuna==4.4.0
+    # Utility libraries
+    - requests==2.32.4
+    - tqdm==4.67.1
     # Editable install of the thesis package
     - --editable .
