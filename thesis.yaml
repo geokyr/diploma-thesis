@@ -27,6 +27,6 @@ dependencies:
     # SUMO Simulator library
     - eclipse-sumo==1.21.0
     # Hyperparameter tuning libraries
-    - hyperopt==0.2.7
+    - optuna==4.4.0
     # Editable install of the thesis package
     - --editable .
