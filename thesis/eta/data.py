@@ -6,9 +6,9 @@ import requests
 from tqdm import tqdm
 
 from thesis.eta.config import DATASET_FILES_MD5, ZENODO_BASE_URL
-from thesis.logger import ETA_LOGGER_NAME, LOG_FILES_CONFIG, setup_logger
+from thesis.logger import ETA_LOGGER_NAME, setup_logger
 
-logger = setup_logger(name=ETA_LOGGER_NAME, log_file=LOG_FILES_CONFIG[ETA_LOGGER_NAME])
+logger = setup_logger(name=ETA_LOGGER_NAME)
 
 
 def calculate_md5(file_path: Path, chunk_size: int = 8192) -> str:
@@ -163,6 +163,23 @@ def load_fcd_dataset(fcd_path: Path) -> pd.DataFrame:
 
     logger.info(f"Loaded {len(df)} rows of FCD data.")
     return df
+
+
+def clean_fcd_dataset(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Clean FCD dataset by removing null/nan values and unusable data for training/testing.
+
+    Args:
+        df (pd.DataFrame): The FCD dataset to clean
+
+    Returns:
+        pd.DataFrame: Cleaned FCD dataset
+    """
+    logger.info(f"Original dataset shape: {df.shape}")
+    df_cleaned = df.dropna()
+    logger.info(f"Removed {len(df) - len(df_cleaned)} rows total, new shape: {df_cleaned.shape}")
+
+    return df_cleaned
 
 
 def prepare_baseline_trips(df: pd.DataFrame) -> pd.DataFrame:

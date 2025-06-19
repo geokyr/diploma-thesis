@@ -10,9 +10,9 @@ from sklearn.metrics import (
     root_mean_squared_error,
 )
 
-from thesis.logger import ETA_LOGGER_NAME, LOG_FILES_CONFIG, setup_logger
+from thesis.logger import ETA_LOGGER_NAME, setup_logger
 
-logger = setup_logger(name=ETA_LOGGER_NAME, log_file=LOG_FILES_CONFIG[ETA_LOGGER_NAME])
+logger = setup_logger(name=ETA_LOGGER_NAME)
 
 
 def make_predictions(

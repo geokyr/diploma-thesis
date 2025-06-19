@@ -6,13 +6,13 @@ from thesis.eta.artifacts import (
     save_scenario_results,
 )
 from thesis.eta.config import ALL_SCENARIOS_SPECS
-from thesis.eta.data import load_fcd_dataset, prepare_baseline_trips
+from thesis.eta.data import clean_fcd_dataset, load_fcd_dataset, prepare_baseline_trips
 from thesis.eta.features import split_features_and_target
 from thesis.eta.models import get_baseline_models
 from thesis.eta.pipeline import train_and_evaluate_model
-from thesis.logger import ETA_LOGGER_NAME, LOG_FILES_CONFIG, setup_logger
+from thesis.logger import ETA_LOGGER_NAME, setup_logger
 
-logger = setup_logger(name=ETA_LOGGER_NAME, log_file=LOG_FILES_CONFIG[ETA_LOGGER_NAME])
+logger = setup_logger(name=ETA_LOGGER_NAME)
 
 
 def main() -> None:
@@ -28,6 +28,8 @@ def main() -> None:
 
         train_df = load_fcd_dataset(train_path)
         test_df = load_fcd_dataset(test_path)
+        train_df = clean_fcd_dataset(train_df)
+        test_df = clean_fcd_dataset(test_df)
         train_trips = prepare_baseline_trips(train_df)
         test_trips = prepare_baseline_trips(test_df)
         X_train, y_train = split_features_and_target(train_trips)

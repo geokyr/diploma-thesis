@@ -3,9 +3,9 @@ from sklearn.base import BaseEstimator
 
 from thesis.eta.evaluation import evaluate_predictions, make_predictions
 from thesis.eta.training import train_model
-from thesis.logger import ETA_LOGGER_NAME, LOG_FILES_CONFIG, setup_logger
+from thesis.logger import ETA_LOGGER_NAME, setup_logger
 
-logger = setup_logger(name=ETA_LOGGER_NAME, log_file=LOG_FILES_CONFIG[ETA_LOGGER_NAME])
+logger = setup_logger(name=ETA_LOGGER_NAME)
 
 
 def train_and_evaluate_model(

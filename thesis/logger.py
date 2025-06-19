@@ -12,18 +12,10 @@ BACKEND_LOGGER_NAME = "backend"
 DATASET_LOGGER_NAME = "dataset"
 ETA_LOGGER_NAME = "eta"
 
-LOGGER_NAMES = [
-    BACKEND_LOGGER_NAME,
-    DATASET_LOGGER_NAME,
-    ETA_LOGGER_NAME,
-]
-LOG_FILES_CONFIG = {name: LOGS_DIR / f"{name}.log" for name in LOGGER_NAMES}
-
 
 def setup_logger(
     name: str,
     log_level: str = "DEBUG",
-    log_file: Path | None = None,
     max_file_size: int = 10 * 1024 * 1024,
     backup_count: int = 5,
 ) -> logging.Logger:
@@ -33,7 +25,6 @@ def setup_logger(
     Args:
         name (str): Logger name.
         log_level (str): Minimum logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
-        log_file (Path | None): Path to log file (optional).
         max_file_size (int): Maximum size of log file in bytes before rotation.
         backup_count (int): Number of backup files to keep.
 
@@ -59,13 +50,13 @@ def setup_logger(
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
 
-    if log_file:
-        file_handler = logging.handlers.RotatingFileHandler(
-            log_file, maxBytes=max_file_size, backupCount=backup_count, encoding="utf-8"
-        )
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(file_formatter)
-        logger.addHandler(file_handler)
+    log_file = LOGS_DIR / f"{name}.log"
+    file_handler = logging.handlers.RotatingFileHandler(
+        log_file, maxBytes=max_file_size, backupCount=backup_count, encoding="utf-8"
+    )
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(file_formatter)
+    logger.addHandler(file_handler)
 
     return logger
 
