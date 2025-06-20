@@ -2,61 +2,52 @@ import logging
 import logging.handlers
 import subprocess
 import sys
-from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).parent.parent
-LOGS_DIR = PROJECT_ROOT / "logs"
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
-
-BACKEND_LOGGER_NAME = "backend"
-DATASET_LOGGER_NAME = "dataset"
-ETA_LOGGER_NAME = "eta"
+from thesis.eta.config import LOGS_DIR
 
 
-def setup_logger(
-    name: str,
+def setup_logging(
+    experiment_name: str,
     log_level: str = "DEBUG",
     max_file_size: int = 10 * 1024 * 1024,
     backup_count: int = 5,
 ) -> logging.Logger:
     """
-    Set up a logger with both console and file handlers.
+    Setup the root logger with console and file handlers and return a logger for the experiment.
 
     Args:
-        name (str): Logger name.
+        experiment_name (str): The name of the experiment.
         log_level (str): Minimum logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
         max_file_size (int): Maximum size of log file in bytes before rotation.
         backup_count (int): Number of backup files to keep.
 
     Returns:
-        Configured logger instance.
+        logging.Logger: A logger for the experiment.
     """
-    logger = logging.getLogger(name)
+    root_logger = logging.getLogger()
 
-    if logger.handlers:
-        return logger
-
-    logger.setLevel(getattr(logging, log_level.upper()))
+    root_logger.setLevel(getattr(logging, log_level.upper()))
 
     console_formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
     )
-    file_formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
-    )
-
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.INFO)
     console_handler.setFormatter(console_formatter)
-    logger.addHandler(console_handler)
+    root_logger.addHandler(console_handler)
 
-    log_file = LOGS_DIR / f"{name}.log"
+    log_file = LOGS_DIR / f"{experiment_name}.log"
+    file_formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+    )
     file_handler = logging.handlers.RotatingFileHandler(
         log_file, maxBytes=max_file_size, backupCount=backup_count, encoding="utf-8"
     )
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(file_formatter)
-    logger.addHandler(file_handler)
+    root_logger.addHandler(file_handler)
+
+    logger = logging.getLogger(experiment_name)
 
     return logger
 

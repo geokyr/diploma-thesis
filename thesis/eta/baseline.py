@@ -10,9 +10,7 @@ from thesis.eta.data import clean_fcd_dataset, load_fcd_dataset, prepare_baselin
 from thesis.eta.features import split_features_and_target
 from thesis.eta.models import get_baseline_models
 from thesis.eta.pipeline import train_and_evaluate_model
-from thesis.logger import ETA_LOGGER_NAME, setup_logger
-
-logger = setup_logger(name=ETA_LOGGER_NAME)
+from thesis.logger import setup_logging
 
 
 def main() -> None:
@@ -20,6 +18,8 @@ def main() -> None:
     os.environ["LOKY_MAX_CPU_COUNT"] = "12"
 
     EXPERIMENT_NAME = "baseline"
+    logger = setup_logging(EXPERIMENT_NAME)
+
     logger.info(f"Starting experiment {EXPERIMENT_NAME}...")
 
     experiment_results = {}

@@ -1,3 +1,4 @@
+import logging
 import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -8,9 +9,9 @@ from thesis.dataset.config import (
     RANDOM_TRIPS,
     XML2CSV,
 )
-from thesis.logger import DATASET_LOGGER_NAME, log_subprocess_result, setup_logger
+from thesis.logger import log_subprocess_result
 
-logger = setup_logger(name=DATASET_LOGGER_NAME)
+logger = logging.getLogger(__name__)
 
 
 def generate_network() -> None:

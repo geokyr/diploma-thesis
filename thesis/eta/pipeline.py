@@ -1,11 +1,12 @@
+import logging
+
 import pandas as pd
 from sklearn.base import BaseEstimator
 
 from thesis.eta.evaluation import evaluate_predictions, make_predictions
 from thesis.eta.training import train_model
-from thesis.logger import ETA_LOGGER_NAME, setup_logger
 
-logger = setup_logger(name=ETA_LOGGER_NAME)
+logger = logging.getLogger(__name__)
 
 
 def train_and_evaluate_model(

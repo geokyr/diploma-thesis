@@ -1,4 +1,5 @@
 import hashlib
+import logging
 from pathlib import Path
 
 import pandas as pd
@@ -6,9 +7,8 @@ import requests
 from tqdm import tqdm
 
 from thesis.eta.config import DATASET_FILES_MD5, ZENODO_BASE_URL
-from thesis.logger import ETA_LOGGER_NAME, setup_logger
 
-logger = setup_logger(name=ETA_LOGGER_NAME)
+logger = logging.getLogger(__name__)
 
 
 def calculate_md5(file_path: Path, chunk_size: int = 8192) -> str:

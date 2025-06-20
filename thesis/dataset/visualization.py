@@ -1,10 +1,11 @@
+import logging
+
 import matplotlib.pyplot as plt
 import pandas as pd
 
 from thesis.dataset.config import PLOTS_DIR
-from thesis.logger import DATASET_LOGGER_NAME, setup_logger
 
-logger = setup_logger(name=DATASET_LOGGER_NAME)
+logger = logging.getLogger(__name__)
 
 
 def plot_speed_histogram(speeds_kmh: pd.Series, dataset_id: str, bins: int = 30) -> None:

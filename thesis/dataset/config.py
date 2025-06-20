@@ -36,45 +36,40 @@ FIXED_ROUTES_ALT_FILE = SIMULATION_DIR / "fixed.rou.alt.xml"
 VEHICLE_TYPE_CAR = "car"
 VEHICLE_TYPE_CAR_RAIN = "car-rain"
 
-SCENARIOS = {
-    "base": {"vehicle_type": VEHICLE_TYPE_CAR},
-    "closure": {"vehicle_type": VEHICLE_TYPE_CAR},
-    "rain": {"vehicle_type": VEHICLE_TYPE_CAR_RAIN},
-}
-
-DEFAULT_FLAGS = {
+DEFAULT_CONFIG = {
+    "network": NETWORK,
     "gui": False,
     "convert": False,
     "delete_original": False,
 }
+SCENARIO_CONFIGS = {
+    "base": {
+        "vehicle_type": VEHICLE_TYPE_CAR,
+        **DEFAULT_CONFIG,
+    },
+    "closure": {
+        "vehicle_type": VEHICLE_TYPE_CAR,
+        **DEFAULT_CONFIG,
+    },
+    "rain": {
+        "vehicle_type": VEHICLE_TYPE_CAR_RAIN,
+        **DEFAULT_CONFIG,
+    },
+}
 
-DATASET_SPECS = [
-    {
-        "name": name,
-        "train": {
-            "dataset_id": f"{name}-train",
-            "network": NETWORK,
-            "trips_file": SIMULATION_DIR / f"{name}-train.trips.xml",
-            "traffic_generation_periods": TRAIN_TRAFFIC_GENERATION_PERIODS,
-            "seed": TRAIN_SEED,
-            "config": SIMULATION_DIR / f"{name}-train.sumocfg",
-            "fcd_output": SIMULATION_DIR / f"{name}-train-fcd.xml",
-            "fixed_routes_file": None,
-            **extra_specs,
-            **DEFAULT_FLAGS,
-        },
-        "test": {
-            "dataset_id": f"{name}-test",
-            "network": NETWORK,
-            "trips_file": SIMULATION_DIR / f"{name}-test.trips.xml",
-            "traffic_generation_periods": TEST_TRAFFIC_GENERATION_PERIODS,
-            "seed": TEST_SEED,
-            "config": SIMULATION_DIR / f"{name}-test.sumocfg",
-            "fcd_output": SIMULATION_DIR / f"{name}-test-fcd.xml",
-            "fixed_routes_file": FIXED_ROUTES_FILE,
-            **extra_specs,
-            **DEFAULT_FLAGS,
-        },
-    }
-    for name, extra_specs in SCENARIOS.items()
-]
+DATASET_SPECS = {}
+for scenario_name, scenario_config in SCENARIO_CONFIGS.items():
+    for dataset_type in ["train", "test"]:
+        dataset_key = f"{scenario_name}-{dataset_type}"
+        DATASET_SPECS[dataset_key] = {
+            "dataset_id": dataset_key,
+            "trips_file": SIMULATION_DIR / f"{dataset_key}.trips.xml",
+            "traffic_generation_periods": TRAIN_TRAFFIC_GENERATION_PERIODS
+            if dataset_type == "train"
+            else TEST_TRAFFIC_GENERATION_PERIODS,
+            "seed": TRAIN_SEED if dataset_type == "train" else TEST_SEED,
+            "config": SIMULATION_DIR / f"{dataset_key}.sumocfg",
+            "fcd_output": SIMULATION_DIR / f"{dataset_key}-fcd.xml",
+            "fixed_routes_file": None if dataset_type == "train" else FIXED_ROUTES_FILE,
+            **scenario_config,
+        }

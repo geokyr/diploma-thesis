@@ -1,3 +1,4 @@
+import logging
 import time
 
 import pandas as pd
@@ -10,9 +11,7 @@ from sklearn.metrics import (
     root_mean_squared_error,
 )
 
-from thesis.logger import ETA_LOGGER_NAME, setup_logger
-
-logger = setup_logger(name=ETA_LOGGER_NAME)
+logger = logging.getLogger(__name__)
 
 
 def make_predictions(

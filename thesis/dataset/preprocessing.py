@@ -1,11 +1,10 @@
+import logging
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import pandas as pd
 
-from thesis.logger import DATASET_LOGGER_NAME, setup_logger
-
-logger = setup_logger(name=DATASET_LOGGER_NAME)
+logger = logging.getLogger(__name__)
 
 
 def parse_fcd_output(fcd_output: Path) -> pd.DataFrame:

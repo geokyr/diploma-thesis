@@ -3,10 +3,15 @@ from pathlib import Path
 RANDOM_STATE = 42
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent
+LOGS_DIR = PROJECT_ROOT / "logs"
 ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
 DATA_DIR = PROJECT_ROOT / "data"
 DATASET_VERSION = "1.0.0"
 DATASET_DIR = DATA_DIR / DATASET_VERSION
+
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
+DATA_DIR.mkdir(parents=True, exist_ok=True)
 DATASET_DIR.mkdir(parents=True, exist_ok=True)
 
 ZENODO_BASE_URL = "https://zenodo.org/records/15402213"
@@ -32,6 +37,7 @@ DATASET_FILES_MD5 = {
 }
 
 SCENARIOS = ["base", "closure", "rain"]
+EXTRA_SCENARIOS = ["base-closure", "base-rain"]
 SCENARIOS_SPECS = [
     (
         scenario,
@@ -40,8 +46,6 @@ SCENARIOS_SPECS = [
     )
     for scenario in SCENARIOS
 ]
-
-EXTRA_SCENARIOS = ["base-closure", "base-rain"]
 EXTRA_SCENARIOS_SPECS = [
     (
         scenario,
@@ -50,5 +54,4 @@ EXTRA_SCENARIOS_SPECS = [
     )
     for scenario in EXTRA_SCENARIOS
 ]
-
 ALL_SCENARIOS_SPECS = SCENARIOS_SPECS + EXTRA_SCENARIOS_SPECS

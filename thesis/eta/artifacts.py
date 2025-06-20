@@ -1,12 +1,12 @@
 import json
+import logging
 
 import joblib
 from sklearn.base import BaseEstimator
 
 from thesis.eta.config import ARTIFACTS_DIR
-from thesis.logger import ETA_LOGGER_NAME, setup_logger
 
-logger = setup_logger(name=ETA_LOGGER_NAME)
+logger = logging.getLogger(__name__)
 
 
 def save_model(model: BaseEstimator, model_name: str, scenario_name: str, experiment_name: str) -> None:
