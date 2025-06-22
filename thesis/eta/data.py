@@ -165,53 +165,67 @@ def load_fcd_dataset(fcd_path: Path) -> pd.DataFrame:
     return df
 
 
-def clean_fcd_dataset(df: pd.DataFrame) -> pd.DataFrame:
+def preprocess_fcd_dataset(df_fcd: pd.DataFrame) -> pd.DataFrame:
     """
-    Clean FCD dataset by removing null/nan values and unusable data for training/testing.
+    Preprocess FCD dataset by removing nulls, filtering to 10 hours, and converting speed to km/h.
 
     Args:
-        df (pd.DataFrame): The FCD dataset to clean
+        df_fcd (pd.DataFrame): The FCD dataset to preprocess
 
     Returns:
-        pd.DataFrame: Cleaned FCD dataset
+        pd.DataFrame: Preprocessed FCD dataset
     """
-    logger.info(f"Original dataset shape: {df.shape}")
-    df_cleaned = df.dropna()
-    logger.info(f"Removed {len(df) - len(df_cleaned)} rows total, new shape: {df_cleaned.shape}")
+    logger.info(f"Starting FCD preprocessing. Initial shape: {df_fcd.shape}")
 
-    return df_cleaned
+    initial_rows = len(df_fcd)
+    df_fcd = df_fcd.dropna().reset_index(drop=True)
+    df_fcd = df_fcd[df_fcd["timestep_time"] < 36000]
+    df_fcd["vehicle_speed"] = df_fcd["vehicle_speed"] * 3.6
+    final_rows = len(df_fcd)
+
+    logger.info(f"FCD preprocessing is complete. Removed {initial_rows - final_rows} rows. Final shape: {df_fcd.shape}")
+
+    return df_fcd
 
 
-def prepare_baseline_trips(df: pd.DataFrame) -> pd.DataFrame:
+def prepare_baseline_trips(df_fcd: pd.DataFrame) -> pd.DataFrame:
     """
-    Prepare the baseline trips from the FCD data.
+    Prepare the baseline trips from the FCD data, filtering out short trips.
 
     Args:
-        df (pd.DataFrame): The FCD data.
+        df_fcd (pd.DataFrame): The FCD data.
 
     Returns:
         pd.DataFrame: A DataFrame containing the baseline trips.
     """
     logger.info("Preparing baseline trips...")
 
-    trips = []
-    for _, group in df.groupby("vehicle_id"):
-        start = group.iloc[0]
-        end = group.iloc[-1]
-        if end["timestep_time"] - start["timestep_time"] <= 0:
-            continue
-        trips.append(
-            {
-                "origin_x": start["vehicle_x"],
-                "origin_y": start["vehicle_y"],
-                "destination_x": end["vehicle_x"],
-                "destination_y": end["vehicle_y"],
-                "hour_bin": start["timestep_time"] // 3600,
-                "distance": end["vehicle_odometer"] - start["vehicle_odometer"],
-                "duration": end["timestep_time"] - start["timestep_time"],
-            }
-        )
-    trips_df = pd.DataFrame(trips)
+    df_sorted = df_fcd.sort_values("timestep_time")
+    grouped = df_sorted.groupby("vehicle_id").agg(
+        {
+            "vehicle_x": ["first", "last"],
+            "vehicle_y": ["first", "last"],
+            "vehicle_odometer": ["first", "last"],
+            "timestep_time": ["first", "last"],
+        }
+    )
+    grouped.columns = ["_".join(col).strip() for col in grouped.columns]
+    grouped["duration"] = grouped["timestep_time_last"] - grouped["timestep_time_first"]
+    grouped["distance"] = grouped["vehicle_odometer_last"] - grouped["vehicle_odometer_first"]
+    grouped["hour_bin"] = grouped["timestep_time_first"] // 3600
+    valid_trips = grouped[(grouped["duration"] > 60) & (grouped["distance"] > 500)]
+
+    trips_df = pd.DataFrame(
+        {
+            "origin_x": valid_trips["vehicle_x_first"],
+            "origin_y": valid_trips["vehicle_y_first"],
+            "destination_x": valid_trips["vehicle_x_last"],
+            "destination_y": valid_trips["vehicle_y_last"],
+            "hour_bin": valid_trips["hour_bin"],
+            "distance": valid_trips["distance"],
+            "duration": valid_trips["duration"],
+        }
+    )
 
     logger.info(f"Prepared {len(trips_df)} baseline trips.")
     return trips_df
