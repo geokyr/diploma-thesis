@@ -1,8 +1,5 @@
 from thesis.logger import setup_logger
-from thesis.simulation.config import (
-    DATASET_SPECS,
-    LOGS_DIR,
-)
+from thesis.simulation.config import DATASET_SPECS, LOGS_DIR
 from thesis.simulation.generation import (
     convert_xml_to_csv,
     edit_network,
@@ -12,12 +9,6 @@ from thesis.simulation.generation import (
     simulate_scenario,
     update_trip_ids,
     update_vehicle_types,
-)
-from thesis.simulation.preprocessing import aggregate_fcd, parse_fcd_output, preprocess_fcd, report_fcd_stats
-from thesis.simulation.visualization import (
-    plot_average_speed_and_traffic_generation_period_per_hour,
-    plot_average_speed_and_vehicle_count_per_second,
-    plot_speed_histogram,
 )
 
 
@@ -32,7 +23,6 @@ def main():
     for dataset_name, dataset_spec in DATASET_SPECS.items():
         logger.info(f"Generating {dataset_name} dataset")
 
-        dataset_id = dataset_spec["dataset_id"]
         trips_file = dataset_spec["trips_file"]
         traffic_generation_periods = dataset_spec["traffic_generation_periods"]
         seed = dataset_spec["seed"]
@@ -40,9 +30,6 @@ def main():
         fcd_output = dataset_spec["fcd_output"]
         fixed_routes_file = dataset_spec["fixed_routes_file"]
         vehicle_type = dataset_spec["vehicle_type"]
-        gui = dataset_spec["gui"]
-        convert = dataset_spec["convert"]
-        delete_original = dataset_spec["delete_original"]
 
         generate_random_trips(
             trips_file=trips_file,
@@ -52,30 +39,10 @@ def main():
         update_trip_ids(trips_file=trips_file)
         update_vehicle_types(trips_file=trips_file, vehicle_type=vehicle_type, fixed_routes_file=fixed_routes_file)
 
-        simulate_scenario(config=config, gui=gui)
+        simulate_scenario(config=config)
+        convert_xml_to_csv(xml_file=fcd_output)
 
-        df_fcd_raw = parse_fcd_output(fcd_output=fcd_output)
-        df_fcd = preprocess_fcd(df_fcd=df_fcd_raw)
-        report_fcd_stats(df_fcd=df_fcd)
-        df_fcd_per_second, df_fcd_per_hour = aggregate_fcd(df_fcd=df_fcd)
-        if convert:
-            convert_xml_to_csv(xml_file=fcd_output, delete_original=delete_original)
-
-        plot_speed_histogram(speeds_kmh=df_fcd["speed_kmh"], dataset_id=dataset_id)
-        plot_average_speed_and_vehicle_count_per_second(
-            seconds=df_fcd_per_second["second"],
-            average_speeds_kmh_per_second=df_fcd_per_second["average_speed_kmh"],
-            vehicle_counts_per_second=df_fcd_per_second["vehicle_count"],
-            dataset_id=dataset_id,
-        )
-        plot_average_speed_and_traffic_generation_period_per_hour(
-            hours=df_fcd_per_hour["hour"],
-            average_speeds_kmh_per_hour=df_fcd_per_hour["average_speed_kmh"],
-            traffic_generation_periods=traffic_generation_periods,
-            dataset_id=dataset_id,
-        )
-
-        logger.info(f"Completed dataset generation for {dataset_id} dataset")
+        logger.info(f"Completed dataset generation for {dataset_name} dataset")
 
     logger.info("Completed dataset generation process")
 

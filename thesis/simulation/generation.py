@@ -322,13 +322,12 @@ def simulate_scenario(config: Path, gui: bool = False) -> None:
         raise
 
 
-def convert_xml_to_csv(xml_file: Path, delete_original: bool = False) -> None:
+def convert_xml_to_csv(xml_file: Path) -> None:
     """
-    Convert an XML file to a CSV file and delete the original XML file if specified.
+    Convert an XML file to a CSV file and delete the original XML file.
 
     Args:
         xml_file (Path): Path to the XML file to be converted.
-        delete_original (bool): Flag for deleting the original XML file after conversion.
 
     Raises:
         FileNotFoundError: If the XML file does not exist.
@@ -355,11 +354,8 @@ def convert_xml_to_csv(xml_file: Path, delete_original: bool = False) -> None:
 
     csv_file = xml_file.with_suffix(".csv")
     if csv_file.exists():
-        if delete_original:
-            xml_file.unlink()
-            logger.info(f"Converted {xml_file} to {csv_file} and deleted original")
-        else:
-            logger.info(f"Converted {xml_file} to {csv_file}")
+        xml_file.unlink()
+        logger.info(f"Converted {xml_file} to {csv_file} and deleted original")
     else:
         error_msg = f"CSV file not found: {csv_file}"
         logger.error(error_msg)
