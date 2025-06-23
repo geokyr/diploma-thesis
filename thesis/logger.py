@@ -2,12 +2,12 @@ import logging
 import logging.handlers
 import subprocess
 import sys
+from pathlib import Path
 
-from thesis.eta.config import LOGS_DIR
 
-
-def setup_logging(
+def setup_logger(
     experiment_name: str,
+    logs_dir: Path,
     log_level: str = "DEBUG",
     max_file_size: int = 10 * 1024 * 1024,
     backup_count: int = 5,
@@ -17,6 +17,7 @@ def setup_logging(
 
     Args:
         experiment_name (str): The name of the experiment.
+        logs_dir (Path): The directory to save the logs.
         log_level (str): Minimum logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
         max_file_size (int): Maximum size of log file in bytes before rotation.
         backup_count (int): Number of backup files to keep.
@@ -36,7 +37,7 @@ def setup_logging(
     console_handler.setFormatter(console_formatter)
     root_logger.addHandler(console_handler)
 
-    log_file = LOGS_DIR / f"{experiment_name}.log"
+    log_file = logs_dir / f"{experiment_name}.log"
     file_formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
     )

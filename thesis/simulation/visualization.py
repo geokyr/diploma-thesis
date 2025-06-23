@@ -3,7 +3,7 @@ import logging
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from thesis.dataset.config import PLOTS_DIR
+from thesis.simulation.config import PLOTS_DIR
 
 logger = logging.getLogger(__name__)
 

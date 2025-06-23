@@ -3,13 +3,17 @@ import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from thesis.dataset.config import (
+from thesis.logger import log_subprocess_result
+from thesis.simulation.config import (
     DUAROUTER,
+    FIXED_FLOWS_FILE,
+    FIXED_ROUTES_ALT_FILE,
+    FIXED_ROUTES_FILE,
+    NETWORK,
     OSM_WEB_WIZARD,
     RANDOM_TRIPS,
     XML2CSV,
 )
-from thesis.logger import log_subprocess_result
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +25,11 @@ def generate_network() -> None:
     Raises:
         Exception: If the network generation fails.
     """
+
+    if NETWORK.exists():
+        logger.info("Network file already exists, skipping network generation")
+        return
+
     command = [
         "python",
         str(OSM_WEB_WIZARD),
@@ -49,72 +58,69 @@ def generate_network() -> None:
         raise
 
 
-def edit_network(network: Path) -> None:
+def edit_network() -> None:
     """
     Edit the network file using the SUMO netedit tool.
-
-    Args:
-        network (Path): Path to the network file to be edited.
 
     Raises:
         FileNotFoundError: If the network file does not exist.
         Exception: If the network editing fails.
     """
-    if not network.exists():
-        error_msg = f"Network file not found: {network}"
+    if FIXED_FLOWS_FILE.exists():
+        logger.info("Fixed flows file already exists, skipping network editing")
+        return
+
+    if not NETWORK.exists():
+        error_msg = f"Network file not found: {NETWORK}"
         logger.error(error_msg)
         raise FileNotFoundError(error_msg)
 
     command = [
         "netedit",
-        str(network),
+        str(NETWORK),
     ]
 
     try:
         result = subprocess.run(command, capture_output=True, check=True, text=True)
         log_subprocess_result("netedit", logger, command, result)
 
-        logger.info(f"Network editing completed: {network}")
+        logger.info(f"Network editing completed: {NETWORK}")
 
     except Exception as e:
         logger.error(f"Failed to edit network: {e}")
         raise
 
 
-def generate_fixed_routes(
-    network: Path, fixed_flows_file: Path, fixed_routes_file: Path, fixed_routes_alt_file: Path
-) -> None:
+def generate_fixed_routes() -> None:
     """
     Generate fixed routes using the SUMO duarouter tool.
-
-    Args:
-        network (Path): Path to the network file.
-        fixed_flows_file (Path): Path to the fixed flows file.
-        fixed_routes_file (Path): Path to the output fixed routes file.
-        fixed_routes_alt_file (Path): Path to the alternative output fixed routes file.
 
     Raises:
         FileNotFoundError: If the network, fixed flows, or fixed routes file does not exist.
         Exception: If the fixed routes generation fails.
     """
-    if not network.exists():
-        error_msg = f"Network file not found: {network}"
+    if FIXED_ROUTES_FILE.exists():
+        logger.info("Fixed routes file already exists, skipping generation")
+        return
+
+    if not NETWORK.exists():
+        error_msg = f"Network file not found: {NETWORK}"
         logger.error(error_msg)
         raise FileNotFoundError(error_msg)
 
-    if not fixed_flows_file.exists():
-        error_msg = f"Fixed flows file not found: {fixed_flows_file}"
+    if not FIXED_FLOWS_FILE.exists():
+        error_msg = f"Fixed flows file not found: {FIXED_FLOWS_FILE}"
         logger.error(error_msg)
         raise FileNotFoundError(error_msg)
 
     command = [
         str(DUAROUTER),
         "--net-file",
-        str(network),
+        str(NETWORK),
         "--route-files",
-        str(fixed_flows_file),
+        str(FIXED_FLOWS_FILE),
         "--output-file",
-        str(fixed_routes_file),
+        str(FIXED_ROUTES_FILE),
     ]
 
     try:
@@ -125,17 +131,16 @@ def generate_fixed_routes(
         logger.error(f"Failed to generate fixed routes: {e}")
         raise
 
-    if fixed_routes_file.exists() and fixed_routes_alt_file.exists():
-        fixed_routes_alt_file.unlink()
-        logger.info(f"Fixed routes generated successfully: {fixed_routes_file}")
+    if FIXED_ROUTES_FILE.exists() and FIXED_ROUTES_ALT_FILE.exists():
+        FIXED_ROUTES_ALT_FILE.unlink()
+        logger.info(f"Fixed routes generated successfully: {FIXED_ROUTES_FILE}")
     else:
-        error_msg = f"Fixed routes file not found: {fixed_routes_file}"
+        error_msg = f"Fixed routes file not found: {FIXED_ROUTES_FILE}"
         logger.error(error_msg)
         raise FileNotFoundError(error_msg)
 
 
 def generate_random_trips(
-    network: Path,
     trips_file: Path,
     traffic_generation_periods: list[int],
     seed: int = 42,
@@ -146,7 +151,6 @@ def generate_random_trips(
     Generate random trips using the SUMO randomTrips tool.
 
     Args:
-        network (Path): Path to the network file.
         trips_file (Path): Path to the output trips file.
         traffic_generation_periods (list[int]): List of traffic generation periods.
         seed (int): Random seed for trip generation.
@@ -157,8 +161,8 @@ def generate_random_trips(
         FileNotFoundError: If the network, or trips file does not exist.
         Exception: If the random trips generation fails.
     """
-    if not network.exists():
-        error_msg = f"Network file not found: {network}"
+    if not NETWORK.exists():
+        error_msg = f"Network file not found: {NETWORK}"
         logger.error(error_msg)
         raise FileNotFoundError(error_msg)
 
@@ -169,7 +173,7 @@ def generate_random_trips(
         "python",
         str(RANDOM_TRIPS),
         "--net-file",
-        str(network),
+        str(NETWORK),
         "--begin",
         str(start_time),
         "--end",
