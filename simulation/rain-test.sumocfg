@@ -32,10 +32,10 @@
     </gui_only>
 
     <output>
-        <netstate-dump value="rain-test-dump.xml"/>
-        <fcd-output value="rain-test-fcd.xml"/>
+        <netstate-dump value="data/rain-test-dump.xml"/>
+        <fcd-output value="data/rain-test-fcd.xml"/>
         <fcd-output.attributes value="id, x, y, speed, acceleration, odometer"/>
-        <emission-output value="rain-test-emission.xml"/>
+        <emission-output value="data/rain-test-emission.xml"/>
         <emission-output.attributes value="id, fuel, waiting"/>
         <emission-output.precision value="2"/>
     </output>

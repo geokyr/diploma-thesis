@@ -32,10 +32,10 @@
     </gui_only>
 
     <output>
-        <netstate-dump value="closure-test-dump.xml"/>
-        <fcd-output value="closure-test-fcd.xml"/>
+        <netstate-dump value="data/closure-test-dump.xml"/>
+        <fcd-output value="data/closure-test-fcd.xml"/>
         <fcd-output.attributes value="id, x, y, speed, acceleration, odometer"/>
-        <emission-output value="closure-test-emission.xml"/>
+        <emission-output value="data/closure-test-emission.xml"/>
         <emission-output.attributes value="id, fuel, waiting"/>
         <emission-output.precision value="2"/>
     </output>

@@ -32,10 +32,10 @@
     </gui_only>
 
     <output>
-        <netstate-dump value="base-train-dump.xml"/>
-        <fcd-output value="base-train-fcd.xml"/>
+        <netstate-dump value="data/base-train-dump.xml"/>
+        <fcd-output value="data/base-train-fcd.xml"/>
         <fcd-output.attributes value="id, x, y, speed, acceleration, odometer"/>
-        <emission-output value="base-train-emission.xml"/>
+        <emission-output value="data/base-train-emission.xml"/>
         <emission-output.attributes value="id, fuel, waiting"/>
         <emission-output.precision value="2"/>
     </output>
