@@ -21,7 +21,7 @@ def split_features_and_target(
     Raises:
         ValueError: If the DataFrame does not contain the target columns.
     """
-    logger.info("Splitting features and target...")
+    logger.info("Splitting features and target")
 
     missing_columns = [col for col in target_columns if col not in df.columns]
     if missing_columns:
@@ -36,5 +36,5 @@ def split_features_and_target(
 
     n_samples = len(df)
     variable_word = "variable" if n_targets == 1 else "variables"
-    logger.info(f"Split {n_samples} samples into {len(X.columns)} features and {n_targets} target {variable_word}.")
+    logger.info(f"Split {n_samples} samples into {len(X.columns)} features and {n_targets} target {variable_word}")
     return X, y

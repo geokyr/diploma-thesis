@@ -20,7 +20,7 @@ def main() -> None:
     EXPERIMENT_NAME = "baseline"
     logger = setup_logging(EXPERIMENT_NAME)
 
-    logger.info(f"Starting experiment {EXPERIMENT_NAME}...")
+    logger.info(f"Starting experiment {EXPERIMENT_NAME}")
 
     experiment_results = {}
     for scenario_name, train_path, test_path in ALL_SCENARIOS_SPECS:

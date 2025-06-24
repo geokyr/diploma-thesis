@@ -31,7 +31,7 @@ def train_and_evaluate_model(
     Returns:
         dict[str, float]: Dictionary containing all results for this model.
     """
-    logger.info(f"Training and evaluating model: {model_name}")
+    logger.info(f"Training and evaluating {model_name}")
 
     training_results = train_model(model, model_name, X_train, y_train)
     predictions, prediction_results = make_predictions(model, model_name, X_test)

@@ -25,7 +25,7 @@ def train_model(
     Returns:
         dict[str, float]: A dictionary containing training metrics.
     """
-    logger.info(f"Training {model_name}...")
+    logger.info(f"Training {model_name}")
 
     training_start = time.perf_counter()
     model.fit(X_train, y_train)

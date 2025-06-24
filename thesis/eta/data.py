@@ -59,7 +59,7 @@ def download_file_from_zenodo(filename: str, output_path: Path, chunk_size: int 
     url = f"{ZENODO_BASE_URL}/files/{filename}"
 
     try:
-        logger.info(f"Downloading {filename} from Zenodo...")
+        logger.info(f"Downloading {filename} from Zenodo")
         response = requests.get(url, stream=True, headers={"Accept-Encoding": "identity"})
         response.raise_for_status()
         total_size = int(response.headers.get("content-length", 0))
@@ -96,7 +96,7 @@ def ensure_dataset_is_available_and_valid(dataset_path: Path, max_retries: int =
     dataset_filename = dataset_path.name
 
     if dataset_filename not in DATASET_FILES_MD5:
-        raise ValueError(f"Unknown dataset file: '{dataset_filename}'")
+        raise ValueError(f"Unknown dataset file: {dataset_filename}")
 
     expected_md5 = DATASET_FILES_MD5[dataset_filename]
 
@@ -104,34 +104,34 @@ def ensure_dataset_is_available_and_valid(dataset_path: Path, max_retries: int =
         if dataset_path.exists():
             logger.info(f"Verifying integrity of existing file: {dataset_filename}")
             if verify_file_integrity(dataset_path, expected_md5):
-                logger.info(f"File {dataset_filename} is available and valid.")
+                logger.info(f"File {dataset_filename} is available and valid")
                 return
             else:
-                logger.warning(f"File {dataset_filename} exists but failed integrity check. Removing corrupted file.")
+                logger.warning(f"Removing existing file {dataset_filename} after failed integrity check")
                 dataset_path.unlink()
 
-        logger.info(f"Downloading {dataset_filename}... (attempt {attempt + 1}/{max_retries + 1})")
+        logger.info(f"Downloading {dataset_filename} (attempt {attempt + 1}/{max_retries + 1})")
         success = download_file_from_zenodo(dataset_filename, dataset_path)
 
         if not success:
             if attempt < max_retries:
-                logger.warning("Download failed, retrying...")
+                logger.warning("Retrying failed download")
                 continue
             else:
-                raise FileNotFoundError(f"Failed to download {dataset_filename} after {max_retries + 1} attempts.")
+                raise FileNotFoundError(f"Failed to download {dataset_filename} after {max_retries + 1} attempts")
 
         logger.info(f"Verifying integrity of downloaded file: {dataset_filename}")
         if verify_file_integrity(dataset_path, expected_md5):
-            logger.info(f"Downloaded file {dataset_filename} is valid.")
+            logger.info(f"Downloaded file {dataset_filename} is valid")
             return
         else:
-            logger.error(f"Downloaded file {dataset_filename} is invalid.")
+            logger.error(f"Downloaded file {dataset_filename} is invalid")
             dataset_path.unlink()
             if attempt < max_retries:
-                logger.warning("Retrying download...")
+                logger.warning("Retrying failed download")
                 continue
             else:
-                raise RuntimeError(f"Downloaded file {dataset_filename} is repeatedly invalid.")
+                raise RuntimeError(f"Downloaded file {dataset_filename} is repeatedly invalid")
 
     raise RuntimeError(f"Unexpected error while ensuring availability and validity of {dataset_filename}")
 
@@ -148,7 +148,7 @@ def load_fcd_dataset(fcd_path: Path) -> pd.DataFrame:
     """
     ensure_dataset_is_available_and_valid(fcd_path)
 
-    logger.info(f"Loading FCD data from {fcd_path}...")
+    logger.info(f"Loading FCD data from {fcd_path}")
 
     dtype = {
         "timestep_time": int,
@@ -161,7 +161,7 @@ def load_fcd_dataset(fcd_path: Path) -> pd.DataFrame:
     }
     df = pd.read_csv(fcd_path, sep=";", header=0, dtype=dtype)
 
-    logger.info(f"Loaded {len(df)} rows of FCD data.")
+    logger.info(f"Loaded {len(df)} rows of FCD data")
     return df
 
 
@@ -175,15 +175,13 @@ def preprocess_fcd_dataset(df_fcd: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Preprocessed FCD dataset
     """
-    logger.info(f"Starting FCD preprocessing. Initial shape: {df_fcd.shape}")
+    logger.info(f"Starting FCD preprocessing, with initial shape: {df_fcd.shape}")
 
-    initial_rows = len(df_fcd)
     df_fcd = df_fcd.dropna().reset_index(drop=True)
     df_fcd = df_fcd[df_fcd["timestep_time"] < 36000]
     df_fcd["vehicle_speed"] = df_fcd["vehicle_speed"] * 3.6
-    final_rows = len(df_fcd)
 
-    logger.info(f"FCD preprocessing is complete. Removed {initial_rows - final_rows} rows. Final shape: {df_fcd.shape}")
+    logger.info(f"Completed FCD preprocessing, with final shape: {df_fcd.shape}")
 
     return df_fcd
 
@@ -198,7 +196,7 @@ def prepare_baseline_trips(df_fcd: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: A DataFrame containing the baseline trips.
     """
-    logger.info("Preparing baseline trips...")
+    logger.info("Preparing baseline trips")
 
     df_sorted = df_fcd.sort_values("timestep_time")
     grouped = df_sorted.groupby("vehicle_id").agg(
@@ -227,5 +225,5 @@ def prepare_baseline_trips(df_fcd: pd.DataFrame) -> pd.DataFrame:
         }
     )
 
-    logger.info(f"Prepared {len(trips_df)} baseline trips.")
+    logger.info(f"Prepared {len(trips_df)} baseline trips")
     return trips_df

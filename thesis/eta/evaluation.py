@@ -30,7 +30,7 @@ def make_predictions(
     Returns:
         tuple[pd.Series, dict[str, float]]: A tuple containing the predictions and timing metrics.
     """
-    logger.info(f"Making predictions with {model_name}...")
+    logger.info(f"Making predictions with {model_name}")
 
     prediction_start = time.perf_counter()
     preds = model.predict(X_test)
@@ -58,7 +58,7 @@ def evaluate_predictions(
     Returns:
         dict[str, float]: A dictionary containing evaluation metrics.
     """
-    logger.info(f"Evaluating predictions for {model_name}...")
+    logger.info(f"Evaluating predictions for {model_name}")
 
     evaluation_start = time.perf_counter()
     mae = mean_absolute_error(y_true, y_pred)
