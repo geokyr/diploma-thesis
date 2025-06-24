@@ -24,7 +24,7 @@ def main() -> None:
 
     experiment_results = {}
     for scenario_name, train_path, test_path in ALL_SCENARIOS_SPECS:
-        logger.info(f"Starting scenario {scenario_name}...")
+        logger.info(f"Starting scenario {scenario_name}")
 
         train_df = load_fcd_dataset(train_path)
         test_df = load_fcd_dataset(test_path)
@@ -44,10 +44,10 @@ def main() -> None:
 
         experiment_results[scenario_name] = scenario_results
         save_scenario_results(scenario_results, scenario_name, EXPERIMENT_NAME)
-        logger.info(f"Scenario {scenario_name} completed.")
+        logger.info(f"Completed scenario {scenario_name}")
 
     save_experiment_results(experiment_results, EXPERIMENT_NAME)
-    logger.info(f"Experiment {EXPERIMENT_NAME} completed.")
+    logger.info(f"Completed experiment {EXPERIMENT_NAME}")
 
 
 if __name__ == "__main__":
