@@ -34,4 +34,4 @@ def train_model(
 
     logger.info(f"{model_name} - Training: {training_time:.3f}s")
 
-    return {"training-time": training_time}
+    return {"training": training_time}
