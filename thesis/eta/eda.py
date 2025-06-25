@@ -26,7 +26,7 @@ def report_fcd_statistics(df_fcd: pd.DataFrame, dataset_id: str) -> None:
     """
     data_shape = df_fcd.shape
     average_speed = df_fcd["vehicle_speed"].mean()
-    average_trip_distance = df_fcd.groupby("vehicle_id")["odometer"].max().mean()
+    average_trip_distance = df_fcd.groupby("vehicle_id")["vehicle_odometer"].max().mean()
     unique_vehicles_count = df_fcd["vehicle_id"].nunique()
 
     logger.info(f"FCD Statistics - {dataset_id}")
