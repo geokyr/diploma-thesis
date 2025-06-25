@@ -1,14 +1,17 @@
 import os
 from pathlib import Path
 
-import numpy as np
+from thesis.common.config import (
+    DATA_DIR,
+    SIMULATION_DIR,
+    TEST_TRAFFIC_GENERATION_PERIODS,
+    TRAIN_TRAFFIC_GENERATION_PERIODS,
+    TYPE_TEST,
+    TYPE_TRAIN,
+)
 
-np.random.seed(42)
 TRAIN_SEED = 42
 TEST_SEED = 123
-
-TRAIN_TRAFFIC_GENERATION_PERIODS = [0.45, 0.50, 0.65, 0.75, 0.80, 0.80, 0.75, 0.55, 0.50, 0.55]
-TEST_TRAFFIC_GENERATION_PERIODS = [p * np.random.uniform(0.98, 1.02) for p in TRAIN_TRAFFIC_GENERATION_PERIODS]
 
 SUMO_HOME_ENV = os.environ.get("SUMO_HOME", None)
 if SUMO_HOME_ENV is None:
@@ -22,11 +25,7 @@ RANDOM_TRIPS = SUMO_HOME / "tools" / "randomTrips.py"
 DUAROUTER = SUMO_HOME / "bin" / ("duarouter.exe" if os.name == "nt" else "duarouter")
 XML2CSV = SUMO_HOME / "tools" / "xml" / "xml2csv.py"
 
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-SIMULATION_DIR = PROJECT_ROOT / "simulation"
-DATA_DIR = SIMULATION_DIR / "data"
 LOGS_DIR = SIMULATION_DIR / "logs"
-DATA_DIR.mkdir(parents=True, exist_ok=True)
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 NETWORK = SIMULATION_DIR / "osm.net.xml.gz"
@@ -34,8 +33,6 @@ FIXED_FLOWS_FILE = SIMULATION_DIR / "fixed.flows.xml"
 FIXED_ROUTES_FILE = SIMULATION_DIR / "fixed.rou.xml"
 FIXED_ROUTES_ALT_FILE = SIMULATION_DIR / "fixed.rou.alt.xml"
 
-TYPE_TRAIN = "train"
-TYPE_TEST = "test"
 VEHICLE_TYPE_CAR = "car"
 VEHICLE_TYPE_CAR_RAIN = "car-rain"
 SCENARIO_CONFIGS = {
