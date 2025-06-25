@@ -1,18 +1,9 @@
-from pathlib import Path
+from thesis.common.config import DATA_DIR, PROJECT_ROOT
 
 RANDOM_STATE = 42
 
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-LOGS_DIR = PROJECT_ROOT / "logs"
-ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
-DATA_DIR = PROJECT_ROOT / "data"
-DATASET_VERSION = "1.0.0"
-DATASET_DIR = DATA_DIR / DATASET_VERSION
-
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
-ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
-DATA_DIR.mkdir(parents=True, exist_ok=True)
-DATASET_DIR.mkdir(parents=True, exist_ok=True)
+EXPERIMENTS_DIR = PROJECT_ROOT / "experiments"
+EXPERIMENTS_DIR.mkdir(parents=True, exist_ok=True)
 
 ZENODO_BASE_URL = "https://zenodo.org/records/15402213"
 DATASET_FILES_MD5 = {
@@ -36,22 +27,12 @@ DATASET_FILES_MD5 = {
     "rain-train-fcd.csv": "f13590799bdb80c4b05fcc0b62c40c11",
 }
 
-SCENARIOS = ["base", "closure", "rain"]
-EXTRA_SCENARIOS = ["base-closure", "base-rain"]
+SCENARIOS = ["base", "closure", "rain", "base-closure", "base-rain"]
 SCENARIOS_SPECS = [
     (
         scenario,
-        DATASET_DIR / f"{scenario}-train-fcd.csv",
-        DATASET_DIR / f"{scenario}-test-fcd.csv",
+        DATA_DIR / f"{scenario.partition('-')[0]}-train-fcd.csv",
+        DATA_DIR / f"{scenario.partition('-')[2] or scenario}-test-fcd.csv",
     )
     for scenario in SCENARIOS
 ]
-EXTRA_SCENARIOS_SPECS = [
-    (
-        scenario,
-        DATASET_DIR / f"{scenario.split('-')[0]}-train-fcd.csv",
-        DATASET_DIR / f"{scenario.split('-')[1]}-test-fcd.csv",
-    )
-    for scenario in EXTRA_SCENARIOS
-]
-ALL_SCENARIOS_SPECS = SCENARIOS_SPECS + EXTRA_SCENARIOS_SPECS

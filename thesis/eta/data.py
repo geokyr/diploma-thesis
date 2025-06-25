@@ -167,13 +167,13 @@ def load_fcd_dataset(fcd_path: Path) -> pd.DataFrame:
 
 def preprocess_fcd_dataset(df_fcd: pd.DataFrame) -> pd.DataFrame:
     """
-    Preprocess FCD dataset by removing nulls, filtering to 10 hours, and converting speed to km/h.
+    Preprocess FCD DataFrame by removing nulls, filtering to 10 hours, and converting speed to km/h.
 
     Args:
-        df_fcd (pd.DataFrame): The FCD dataset to preprocess
+        df_fcd (pd.DataFrame): The FCD DataFrame to preprocess.
 
     Returns:
-        pd.DataFrame: Preprocessed FCD dataset
+        pd.DataFrame: Preprocessed FCD DataFrame.
     """
     logger.info(f"Starting FCD preprocessing, with initial shape: {df_fcd.shape}")
 
@@ -186,12 +186,35 @@ def preprocess_fcd_dataset(df_fcd: pd.DataFrame) -> pd.DataFrame:
     return df_fcd
 
 
-def prepare_baseline_trips(df_fcd: pd.DataFrame) -> pd.DataFrame:
+def aggregate_fcd_per_hour(df_fcd: pd.DataFrame) -> pd.DataFrame:
     """
-    Prepare the baseline trips from the FCD data, filtering out short trips.
+    Aggregate an FCD DataFrame per hour, producing summaries of average speed and vehicle count.
 
     Args:
-        df_fcd (pd.DataFrame): The FCD data.
+        df_fcd (pd.DataFrame): The FCD DataFrame to aggregate.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing average speed and vehicle count per hour.
+    """
+    logger.info("Aggregating FCD data per hour")
+
+    df_with_hour = df_fcd.assign(hour=(df_fcd["timestep_time"] // 3600))
+    df_per_hour = (
+        df_with_hour.groupby("hour")
+        .agg(average_speed=("vehicle_speed", "mean"), vehicle_count=("vehicle_id", "nunique"))
+        .reset_index()
+    )
+
+    logger.info(f"Completed aggregation, with {len(df_per_hour)} hours")
+    return df_per_hour
+
+
+def prepare_baseline_trips(df_fcd: pd.DataFrame) -> pd.DataFrame:
+    """
+    Prepare the baseline trips from the FCD DataFrame, filtering out short trips.
+
+    Args:
+        df_fcd (pd.DataFrame): The FCD DataFrame to prepare baseline trips from.
 
     Returns:
         pd.DataFrame: A DataFrame containing the baseline trips.
@@ -213,7 +236,7 @@ def prepare_baseline_trips(df_fcd: pd.DataFrame) -> pd.DataFrame:
     grouped["hour_bin"] = grouped["timestep_time_first"] // 3600
     valid_trips = grouped[(grouped["duration"] > 60) & (grouped["distance"] > 500)]
 
-    trips_df = pd.DataFrame(
+    df_trips = pd.DataFrame(
         {
             "origin_x": valid_trips["vehicle_x_first"],
             "origin_y": valid_trips["vehicle_y_first"],
@@ -225,5 +248,5 @@ def prepare_baseline_trips(df_fcd: pd.DataFrame) -> pd.DataFrame:
         }
     )
 
-    logger.info(f"Prepared {len(trips_df)} baseline trips")
-    return trips_df
+    logger.info(f"Prepared {len(df_trips)} baseline trips")
+    return df_trips
