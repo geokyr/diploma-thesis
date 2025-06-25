@@ -39,7 +39,7 @@ def make_predictions(
 
     logger.info(f"{model_name} - Prediction: {prediction_time:.3f}s")
 
-    return pd.Series(preds), {"prediction": prediction_time}
+    return pd.Series(preds), {"prediction-time": prediction_time}
 
 
 def evaluate_predictions(
@@ -74,7 +74,7 @@ def evaluate_predictions(
     )
 
     return {
-        "evaluation": evaluation_time,
+        "evaluation-time": evaluation_time,
         "mae": mae,
         "mse": mse,
         "rmse": rmse,
