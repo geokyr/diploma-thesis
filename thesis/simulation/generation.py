@@ -3,7 +3,7 @@ import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from thesis.logger import log_subprocess_result
+from thesis.common.logger import log_subprocess_result
 from thesis.simulation.config import (
     DUAROUTER,
     FIXED_FLOWS_FILE,

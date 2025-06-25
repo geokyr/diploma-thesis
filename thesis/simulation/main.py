@@ -1,4 +1,4 @@
-from thesis.logger import setup_logger
+from thesis.common.logger import setup_logger
 from thesis.simulation.config import DATASET_SPECS, LOGS_DIR
 from thesis.simulation.generation import (
     convert_xml_to_csv,
