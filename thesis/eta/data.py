@@ -205,7 +205,7 @@ def aggregate_fcd_per_hour(df_fcd: pd.DataFrame) -> pd.DataFrame:
         .reset_index()
     )
 
-    logger.info(f"Completed aggregation, with {len(df_per_hour)} hours")
+    logger.info(f"Completed FCD aggregation for {len(df_per_hour)} hours")
     return df_per_hour
 
 
