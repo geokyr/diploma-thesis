@@ -147,7 +147,7 @@ def plot_trips_distances_distribution(df_trips: pd.DataFrame, dataset_id: str, p
 
     plt.figure(figsize=(10, 6))
     sns.histplot(df_trips["distance"], bins=50, alpha=0.7, edgecolor="black")
-    plt.title("Distribution of Trips Distances")
+    plt.title(f"Distribution of Trips Distances - {dataset_id}")
     plt.xlabel("Distance (meters)")
     plt.ylabel("Frequency")
     plt.axvline(
@@ -180,7 +180,7 @@ def plot_trips_durations_distribution(df_trips: pd.DataFrame, dataset_id: str, p
 
     plt.figure(figsize=(10, 6))
     sns.histplot(df_trips["duration"], bins=50, alpha=0.7, edgecolor="black")
-    plt.title("Distribution of Trips Durations")
+    plt.title(f"Distribution of Trips Durations - {dataset_id}")
     plt.xlabel("Duration (seconds)")
     plt.ylabel("Frequency")
     plt.axvline(
