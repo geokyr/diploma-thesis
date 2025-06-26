@@ -5,6 +5,12 @@ RANDOM_STATE = 42
 EXPERIMENTS_DIR = PROJECT_ROOT / "experiments"
 EXPERIMENTS_DIR.mkdir(parents=True, exist_ok=True)
 
+LR = "lr"
+MLP = "mlp"
+XGBOOST = "xgboost"
+LIGHTGBM = "lightgbm"
+CATBOOST = "catboost"
+
 ZENODO_BASE_URL = "https://zenodo.org/records/15402213"
 DATASET_FILES_MD5 = {
     "base-test-dump.csv": "d3cf8d0f7da4ea9cd451bede43d982f8",

@@ -5,7 +5,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.neural_network import MLPRegressor
 from xgboost import XGBRegressor
 
-from thesis.eta.config import RANDOM_STATE
+from thesis.eta.config import CATBOOST, LIGHTGBM, LR, MLP, RANDOM_STATE, XGBOOST
 
 
 def create_lr_model(**kwargs) -> LinearRegression:
@@ -81,9 +81,9 @@ def get_baseline_models() -> dict[str, BaseEstimator]:
         dict[str, BaseEstimator]: Dictionary of baseline models.
     """
     return {
-        "lr": create_lr_model(),
-        "mlp": create_mlp_model(),
-        "xgboost": create_xgboost_model(),
-        "lightgbm": create_lightgbm_model(),
-        "catboost": create_catboost_model(),
+        LR: create_lr_model(),
+        MLP: create_mlp_model(),
+        XGBOOST: create_xgboost_model(),
+        LIGHTGBM: create_lightgbm_model(),
+        CATBOOST: create_catboost_model(),
     }
