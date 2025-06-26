@@ -1,4 +1,9 @@
+import os
+
 from thesis.common.config import DATA_DIR, PROJECT_ROOT
+
+# Silence a WinError2 about core count
+os.environ["LOKY_MAX_CPU_COUNT"] = "10"
 
 RANDOM_STATE = 42
 
