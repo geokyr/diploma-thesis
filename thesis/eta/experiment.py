@@ -65,21 +65,3 @@ def save_scenario_results(results: dict[str, dict[str, float]], scenario_name: s
         json.dump(results, f, indent=2)
 
     logger.info(f"Scenario results saved to {results_path}")
-
-
-def save_experiment_results(
-    results: dict[str, dict[str, dict[str, float]]], experiment_name: str, results_dir: Path
-) -> None:
-    """
-    Save experiment results in the results directory.
-
-    Args:
-        results (dict[str, dict[str, dict[str, float]]]): The results dictionary to save.
-        experiment_name (str): The name of the experiment.
-        results_dir (Path): The directory to save the results to.
-    """
-    results_path = results_dir / f"{experiment_name}.json"
-    with open(results_path, "w") as f:
-        json.dump(results, f, indent=2)
-
-    logger.info(f"Experiment results saved to {results_path}")
