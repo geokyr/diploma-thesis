@@ -238,8 +238,8 @@ def prepare_baseline_trips(df_fcd: pd.DataFrame) -> pd.DataFrame:
 
     df_trips = pd.DataFrame(
         {
-            "origin_x": valid_trips["vehicle_x_first"],
-            "origin_y": valid_trips["vehicle_y_first"],
+            "source_x": valid_trips["vehicle_x_first"],
+            "source_y": valid_trips["vehicle_y_first"],
             "destination_x": valid_trips["vehicle_x_last"],
             "destination_y": valid_trips["vehicle_y_last"],
             "hour_bin": valid_trips["hour_bin"],
