@@ -51,9 +51,9 @@ def save_model(model: BaseEstimator, model_name: str, scenario_name: str, artifa
     logger.info(f"Model saved to {model_path}")
 
 
-def save_scenario_results(results: dict[str, dict[str, float]], scenario_name: str, results_dir: Path) -> None:
+def save_results(results: dict[str, dict[str, float]], scenario_name: str, results_dir: Path) -> None:
     """
-    Save scenario results in the results directory.
+    Save results in the results directory.
 
     Args:
         results (dict[str, dict[str, float]]): The results dictionary to save.
@@ -64,4 +64,4 @@ def save_scenario_results(results: dict[str, dict[str, float]], scenario_name: s
     with open(results_path, "w") as f:
         json.dump(results, f, indent=2)
 
-    logger.info(f"Scenario results saved to {results_path}")
+    logger.info(f"Results saved to {results_path}")
