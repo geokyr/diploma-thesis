@@ -108,7 +108,7 @@ def plot_average_speed_and_traffic_generation_period_per_hour(
     target_dir.mkdir(parents=True, exist_ok=True)
     target_path = target_dir / "average-speed-and-traffic-generation-period-per-hour.png"
 
-    fig, ax1 = plt.subplots(figsize=(10, 4))
+    _, ax1 = plt.subplots(figsize=(10, 4))
     ax1.plot(df_fcd_per_hour["hour"], df_fcd_per_hour["average_speed"], marker="o", label="Average Speed (km/h)")
     ax1.set_xlabel("Hour")
     ax1.set_ylabel("Average Speed (km/h)")
