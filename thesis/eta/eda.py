@@ -125,7 +125,7 @@ def plot_average_speed_and_traffic_generation_period_per_hour(
 
     lines = ax1.get_lines() + ax2.get_lines()
     labels = [line.get_label() for line in lines]
-    fig.legend(lines, labels, loc="upper right")
+    ax1.legend(lines, labels, loc="upper right")
 
     plt.title(f"Average Speed & Traffic Generation Period (Per Hour) - {dataset_id}")
     plt.savefig(target_path)
@@ -145,7 +145,7 @@ def plot_trips_distances_distribution(df_trips: pd.DataFrame, dataset_id: str, p
     target_dir.mkdir(parents=True, exist_ok=True)
     target_path = target_dir / "trips-distances-distribution.png"
 
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(6, 4))
     sns.histplot(df_trips["distance"], bins=50, alpha=0.7, edgecolor="black")
     plt.title(f"Distribution of Trips Distances - {dataset_id}")
     plt.xlabel("Distance (meters)")
@@ -178,7 +178,7 @@ def plot_trips_durations_distribution(df_trips: pd.DataFrame, dataset_id: str, p
     target_dir.mkdir(parents=True, exist_ok=True)
     target_path = target_dir / "trips-durations-distribution.png"
 
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(6, 4))
     sns.histplot(df_trips["duration"], bins=50, alpha=0.7, edgecolor="black")
     plt.title(f"Distribution of Trips Durations - {dataset_id}")
     plt.xlabel("Duration (seconds)")
