@@ -8,7 +8,7 @@ from pathlib import Path
 def setup_logger(
     experiment_name: str,
     logs_dir: Path,
-    log_level: str = "DEBUG",
+    log_level: str = "INFO",
     max_file_size: int = 10 * 1024 * 1024,
     backup_count: int = 5,
 ) -> logging.Logger:
@@ -25,15 +25,15 @@ def setup_logger(
     Returns:
         logging.Logger: A logger for the experiment.
     """
+    log_level = getattr(logging, log_level.upper())
     root_logger = logging.getLogger()
-
-    root_logger.setLevel(getattr(logging, log_level.upper()))
+    root_logger.setLevel(log_level)
 
     console_formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
     )
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
+    console_handler.setLevel(log_level)
     console_handler.setFormatter(console_formatter)
     root_logger.addHandler(console_handler)
 
@@ -44,7 +44,7 @@ def setup_logger(
     file_handler = logging.handlers.RotatingFileHandler(
         log_file, maxBytes=max_file_size, backupCount=backup_count, encoding="utf-8"
     )
-    file_handler.setLevel(logging.DEBUG)
+    file_handler.setLevel(log_level)
     file_handler.setFormatter(file_formatter)
     root_logger.addHandler(file_handler)
 
