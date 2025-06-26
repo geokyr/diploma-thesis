@@ -1,6 +1,4 @@
 *.csv
 !.vscode
-*dump*
-*emission*
-*fcd*
+simulation/data
 *egg-info
