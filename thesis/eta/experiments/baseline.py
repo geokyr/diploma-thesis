@@ -1,5 +1,3 @@
-import os
-
 from thesis.common.config import TYPE_TEST, TYPE_TRAIN
 from thesis.common.logger import setup_logger
 from thesis.eta.config import SCENARIOS_SPECS
@@ -19,9 +17,6 @@ from thesis.eta.pipeline import train_and_evaluate_model
 
 
 def main() -> None:
-    # Silence a WinError2 about core count
-    os.environ["LOKY_MAX_CPU_COUNT"] = "10"
-
     experiment_name = "baseline"
     artifacts_dir, logs_dir, plots_dir, results_dir = initialize_experiment(experiment_name)
     logger = setup_logger(experiment_name, logs_dir)

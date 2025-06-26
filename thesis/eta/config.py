@@ -11,7 +11,6 @@ EXPERIMENTS_DIR = PROJECT_ROOT / "experiments"
 EXPERIMENTS_DIR.mkdir(parents=True, exist_ok=True)
 
 LR = "lr"
-MLP = "mlp"
 XGBOOST = "xgboost"
 LIGHTGBM = "lightgbm"
 CATBOOST = "catboost"

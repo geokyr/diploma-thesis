@@ -2,10 +2,9 @@ from catboost import CatBoostRegressor
 from lightgbm import LGBMRegressor
 from sklearn.base import BaseEstimator
 from sklearn.linear_model import LinearRegression
-from sklearn.neural_network import MLPRegressor
 from xgboost import XGBRegressor
 
-from thesis.eta.config import CATBOOST, LIGHTGBM, LR, MLP, RANDOM_STATE, XGBOOST
+from thesis.eta.config import CATBOOST, LIGHTGBM, LR, RANDOM_STATE, XGBOOST
 
 
 def create_lr_model(**kwargs) -> LinearRegression:
@@ -19,19 +18,6 @@ def create_lr_model(**kwargs) -> LinearRegression:
         LinearRegression: Configured Linear Regression model.
     """
     return LinearRegression(**kwargs)
-
-
-def create_mlp_model(**kwargs) -> MLPRegressor:
-    """
-    Create a Multi-Layer Perceptron model with a default configuration.
-
-    Args:
-        **kwargs: Additional parameters to pass to the model.
-
-    Returns:
-        MLPRegressor: Configured MLP model.
-    """
-    return MLPRegressor(random_state=RANDOM_STATE, **kwargs)
 
 
 def create_xgboost_model(**kwargs) -> XGBRegressor:
@@ -82,7 +68,6 @@ def get_baseline_models() -> dict[str, BaseEstimator]:
     """
     return {
         LR: create_lr_model(),
-        MLP: create_mlp_model(),
         XGBOOST: create_xgboost_model(),
         LIGHTGBM: create_lightgbm_model(),
         CATBOOST: create_catboost_model(),
