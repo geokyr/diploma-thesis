@@ -5,14 +5,14 @@ from pathlib import Path
 import joblib
 from sklearn.base import BaseEstimator
 
-from thesis.eta.config import EXPERIMENTS_DIR
+from thesis.eta.config import OUTPUTS_DIR
 
 logger = logging.getLogger(__name__)
 
 
 def initialize_experiment(experiment_name: str) -> tuple[Path, Path, Path, Path]:
     """
-    Initialize the experiment directory and create the necessary subdirectories.
+    Initialize the experiment directory and the necessary subdirectories.
 
     Args:
         experiment_name (str): The name of the experiment.
@@ -20,7 +20,7 @@ def initialize_experiment(experiment_name: str) -> tuple[Path, Path, Path, Path]
     Returns:
         tuple[Path, Path, Path, Path]: The artifacts, logs, plots, and results directories.
     """
-    experiment_dir = EXPERIMENTS_DIR / experiment_name
+    experiment_dir = OUTPUTS_DIR / experiment_name
     artifacts_dir = experiment_dir / "artifacts"
     logs_dir = experiment_dir / "logs"
     plots_dir = experiment_dir / "plots"

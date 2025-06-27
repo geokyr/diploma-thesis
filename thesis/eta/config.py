@@ -7,8 +7,8 @@ os.environ["LOKY_MAX_CPU_COUNT"] = "10"
 
 RANDOM_STATE = 42
 
-EXPERIMENTS_DIR = PROJECT_ROOT / "experiments"
-EXPERIMENTS_DIR.mkdir(parents=True, exist_ok=True)
+OUTPUTS_DIR = PROJECT_ROOT / "outputs"
+OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
 
 LR = "lr"
 XGBOOST = "xgboost"
