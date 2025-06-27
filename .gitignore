@@ -2,3 +2,4 @@
 !.vscode
 simulation/data
 *egg-info
+outputs/
