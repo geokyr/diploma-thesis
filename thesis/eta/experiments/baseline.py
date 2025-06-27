@@ -10,10 +10,11 @@ from thesis.eta.eda import (
     report_fcd_statistics,
     report_trips_statistics,
 )
+from thesis.eta.evaluation import evaluate_predictions, make_predictions
 from thesis.eta.experiment import initialize_experiment, save_model, save_results
 from thesis.eta.features import split_features_and_target
 from thesis.eta.models import get_baseline_models
-from thesis.eta.pipeline import train_and_evaluate_model
+from thesis.eta.training import train_model
 
 
 def main() -> None:
@@ -53,9 +54,13 @@ def main() -> None:
         models = get_baseline_models()
         results = {}
         for model_name, model in models.items():
-            model_results = train_and_evaluate_model(model, model_name, X_train, y_train, X_test, y_test)
-            results[model_name] = model_results
+            training_results = train_model(model, model_name, X_train, y_train)
+            predictions, prediction_results = make_predictions(model, model_name, X_test)
+            evaluation_results = evaluate_predictions(y_test, predictions, model_name)
+
+            results[model_name] = {**training_results, **prediction_results, **evaluation_results}
             save_model(model, model_name, scenario_name, artifacts_dir)
+
         save_results(results, scenario_name, results_dir)
         logger.info(f"Completed scenario {scenario_name}")
 
