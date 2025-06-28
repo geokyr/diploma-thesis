@@ -176,7 +176,7 @@ def preprocess_fcd_dataset(df_fcd: pd.DataFrame) -> pd.DataFrame:
     df_fcd["vehicle_speed"] = df_fcd["vehicle_speed"] * 3.6
     final_shape = df_fcd.shape
 
-    logger.info(f"Completed FCD preprocessing, with initial shape: {initial_shape} and final shape: {final_shape}")
+    logger.info(f"Completed FCD preprocessing, with initial shape {initial_shape} and final shape {final_shape}")
 
     return df_fcd
 
