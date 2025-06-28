@@ -24,13 +24,11 @@ def report_fcd_statistics(df_fcd: pd.DataFrame, dataset_id: str) -> None:
         df_fcd (pd.DataFrame): The FCD DataFrame to report statistics for.
         dataset_id (str): Dataset ID to identify the dataset.
     """
-    data_shape = df_fcd.shape
     average_speed = df_fcd["vehicle_speed"].mean()
     average_trip_distance = df_fcd.groupby("vehicle_id")["vehicle_odometer"].max().mean()
     unique_vehicles_count = df_fcd["vehicle_id"].nunique()
 
     logger.info(f"FCD Statistics - {dataset_id}")
-    logger.info(f"  Data shape: {data_shape}")
     logger.info(f"  Average speed: {average_speed:.2f} km/h")
     logger.info(f"  Average trip distance: {average_trip_distance:.2f} m")
     logger.info(f"  Number of unique vehicles: {unique_vehicles_count}")
