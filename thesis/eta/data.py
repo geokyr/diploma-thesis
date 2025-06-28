@@ -59,10 +59,10 @@ def download_file_from_zenodo(filename: str, output_path: Path, chunk_size: int 
     url = f"{ZENODO_BASE_URL}/files/{filename}"
 
     try:
-        logger.info(f"Downloading {filename} from Zenodo")
         response = requests.get(url, stream=True, headers={"Accept-Encoding": "identity"})
         response.raise_for_status()
         total_size = int(response.headers.get("content-length", 0))
+        logger.info(f"Downloading {filename} from Zenodo ({total_size} bytes)")
 
         with open(output_path, "wb") as f, tqdm(total=total_size, unit="B", unit_scale=True, desc=filename) as pbar:
             for chunk in response.iter_content(chunk_size=chunk_size):
@@ -70,7 +70,6 @@ def download_file_from_zenodo(filename: str, output_path: Path, chunk_size: int 
                     f.write(chunk)
                     pbar.update(len(chunk))
 
-        logger.info(f"Successfully downloaded {filename} ({total_size} bytes)")
         return True
 
     except requests.RequestException as e:
@@ -102,7 +101,6 @@ def ensure_dataset_is_available_and_valid(dataset_path: Path, max_retries: int =
 
     for attempt in range(max_retries + 1):
         if dataset_path.exists():
-            logger.info(f"Verifying integrity of existing file: {dataset_filename}")
             if verify_file_integrity(dataset_path, expected_md5):
                 logger.info(f"File {dataset_filename} is available and valid")
                 return
@@ -120,7 +118,6 @@ def ensure_dataset_is_available_and_valid(dataset_path: Path, max_retries: int =
             else:
                 raise FileNotFoundError(f"Failed to download {dataset_filename} after {max_retries + 1} attempts")
 
-        logger.info(f"Verifying integrity of downloaded file: {dataset_filename}")
         if verify_file_integrity(dataset_path, expected_md5):
             logger.info(f"Downloaded file {dataset_filename} is valid")
             return
@@ -148,8 +145,6 @@ def load_fcd_dataset(fcd_path: Path) -> pd.DataFrame:
     """
     ensure_dataset_is_available_and_valid(fcd_path)
 
-    logger.info(f"Loading FCD data from {fcd_path}")
-
     dtype = {
         "timestep_time": int,
         "vehicle_acceleration": float,
@@ -161,7 +156,7 @@ def load_fcd_dataset(fcd_path: Path) -> pd.DataFrame:
     }
     df = pd.read_csv(fcd_path, sep=";", header=0, dtype=dtype)
 
-    logger.info(f"Loaded {len(df)} rows of FCD data")
+    logger.info(f"Loaded {len(df)} rows of FCD data from {fcd_path}")
     return df
 
 
@@ -175,13 +170,13 @@ def preprocess_fcd_dataset(df_fcd: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Preprocessed FCD DataFrame.
     """
-    logger.info(f"Starting FCD preprocessing, with initial shape: {df_fcd.shape}")
-
+    initial_shape = df_fcd.shape
     df_fcd = df_fcd.dropna().reset_index(drop=True)
     df_fcd = df_fcd[df_fcd["timestep_time"] < 36000]
     df_fcd["vehicle_speed"] = df_fcd["vehicle_speed"] * 3.6
+    final_shape = df_fcd.shape
 
-    logger.info(f"Completed FCD preprocessing, with final shape: {df_fcd.shape}")
+    logger.info(f"Completed FCD preprocessing, with initial shape: {initial_shape} and final shape: {final_shape}")
 
     return df_fcd
 
@@ -196,8 +191,6 @@ def aggregate_fcd_per_hour(df_fcd: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: A DataFrame containing average speed and vehicle count per hour.
     """
-    logger.info("Aggregating FCD data per hour")
-
     df_with_hour = df_fcd.assign(hour=(df_fcd["timestep_time"] // 3600))
     df_per_hour = (
         df_with_hour.groupby("hour")
@@ -219,8 +212,6 @@ def prepare_baseline_trips(df_fcd: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: A DataFrame containing the baseline trips.
     """
-    logger.info("Preparing baseline trips")
-
     df_sorted = df_fcd.sort_values("timestep_time")
     grouped = df_sorted.groupby("vehicle_id").agg(
         {
