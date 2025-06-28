@@ -44,19 +44,11 @@ def report_trips_statistics(df_trips: pd.DataFrame, dataset_id: str) -> None:
         df_trips (pd.DataFrame): The trips DataFrame to report statistics for.
         dataset_id (str): Dataset ID to identify the dataset.
     """
-    logger.info(f"Trips Distances Statistics - {dataset_id}")
-    logger.info(f"  Mean: {df_trips['distance'].mean():.1f} m")
-    logger.info(f"  Median: {df_trips['distance'].median():.1f} m")
-    logger.info(f"  Std: {df_trips['distance'].std():.1f} m")
-    logger.info(f"  Min: {df_trips['distance'].min():.1f} m")
-    logger.info(f"  Max: {df_trips['distance'].max():.1f} m")
-
-    logger.info(f"Trips Durations Statistics - {dataset_id}")
-    logger.info(f"  Mean: {df_trips['duration'].mean():.1f} s")
-    logger.info(f"  Median: {df_trips['duration'].median():.1f} s")
-    logger.info(f"  Std: {df_trips['duration'].std():.1f} s")
-    logger.info(f"  Min: {df_trips['duration'].min():.1f} s")
-    logger.info(f"  Max: {df_trips['duration'].max():.1f} s")
+    logger.info(f"Trips Statistics - {dataset_id}")
+    logger.info(f"  Mean distance: {df_trips['distance'].mean():.1f} m")
+    logger.info(f"  Median distance: {df_trips['distance'].median():.1f} m")
+    logger.info(f"  Mean duration: {df_trips['duration'].mean():.1f} s")
+    logger.info(f"  Median duration: {df_trips['duration'].median():.1f} s")
 
 
 def plot_speed_histogram(df_fcd: pd.DataFrame, dataset_id: str, plots_dir: Path, bins: int = 30) -> None:
