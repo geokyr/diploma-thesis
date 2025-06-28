@@ -60,8 +60,10 @@ def standard_scale_features(X_train: pd.DataFrame, X_test: pd.DataFrame) -> tupl
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
+
     X_train_scaled = pd.DataFrame(X_train_scaled, columns=X_train.columns, index=X_train.index)
     X_test_scaled = pd.DataFrame(X_test_scaled, columns=X_test.columns, index=X_test.index)
+
     logger.info(f"Standard scaled {len(X_train)} training samples and {len(X_test)} test samples")
 
     return X_train_scaled, X_test_scaled
