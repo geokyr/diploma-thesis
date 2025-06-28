@@ -4,7 +4,7 @@ from sklearn.base import BaseEstimator
 from sklearn.linear_model import LinearRegression
 from xgboost import XGBRegressor
 
-from thesis.eta.config import CATBOOST, LIGHTGBM, LR, RANDOM_STATE, XGBOOST
+from thesis.eta.config import CATBOOST, GPU_DEVICE, GPU_PLATFORM, LIGHTGBM, LR, RANDOM_STATE, USE_GPU, XGBOOST
 
 
 def create_lr_model(**kwargs) -> LinearRegression:
@@ -30,7 +30,17 @@ def create_xgboost_model(**kwargs) -> XGBRegressor:
     Returns:
         XGBRegressor: Configured XGBoost model.
     """
-    return XGBRegressor(random_state=RANDOM_STATE, **kwargs)
+    params = {"random_state": RANDOM_STATE, **kwargs}
+
+    if USE_GPU:
+        params.update(
+            {
+                "tree_method": "hist",
+                "device": f"cuda:{GPU_DEVICE}",
+            }
+        )
+
+    return XGBRegressor(**params)
 
 
 def create_lightgbm_model(**kwargs) -> LGBMRegressor:
@@ -43,7 +53,18 @@ def create_lightgbm_model(**kwargs) -> LGBMRegressor:
     Returns:
         LGBMRegressor: Configured LightGBM model.
     """
-    return LGBMRegressor(random_state=RANDOM_STATE, verbose=0, **kwargs)
+    params = {"random_state": RANDOM_STATE, "verbose": 0, **kwargs}
+
+    if USE_GPU:
+        params.update(
+            {
+                "device": "gpu",
+                "gpu_platform_id": GPU_PLATFORM,
+                "gpu_device_id": GPU_DEVICE,
+            }
+        )
+
+    return LGBMRegressor(**params)
 
 
 def create_catboost_model(**kwargs) -> CatBoostRegressor:
@@ -56,7 +77,16 @@ def create_catboost_model(**kwargs) -> CatBoostRegressor:
     Returns:
         CatBoostRegressor: Configured CatBoost model.
     """
-    return CatBoostRegressor(random_state=RANDOM_STATE, verbose=0, allow_writing_files=False, **kwargs)
+    params = {"random_state": RANDOM_STATE, "verbose": 0, "allow_writing_files": False, **kwargs}
+
+    if USE_GPU:
+        params.update(
+            {
+                "task_type": "GPU",
+                "devices": f"{GPU_DEVICE}",
+            }
+        )
+    return CatBoostRegressor(**params)
 
 
 def get_baseline_models() -> dict[str, BaseEstimator]:
