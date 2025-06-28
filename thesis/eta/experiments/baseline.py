@@ -21,13 +21,9 @@ def main() -> None:
     experiment_name = "baseline"
     artifacts_dir, logs_dir, plots_dir, results_dir = initialize_experiment(experiment_name)
     logger = setup_logger(experiment_name, logs_dir)
-    logger.info(f"Starting experiment {experiment_name}")
 
     for scenario_name, train_path, test_path in SCENARIOS_SPECS:
         logger.info(f"Starting scenario {scenario_name}")
-
-        train_dataset_id = f"{scenario_name}-{TYPE_TRAIN}"
-        test_dataset_id = f"{scenario_name}-{TYPE_TEST}"
 
         fcd_train = load_fcd_dataset(train_path)
         fcd_test = load_fcd_dataset(test_path)
@@ -36,6 +32,8 @@ def main() -> None:
         trips_train = prepare_baseline_trips(fcd_train)
         trips_test = prepare_baseline_trips(fcd_test)
 
+        train_dataset_id = f"{scenario_name}-{TYPE_TRAIN}"
+        test_dataset_id = f"{scenario_name}-{TYPE_TEST}"
         report_fcd_statistics(fcd_train, train_dataset_id)
         report_fcd_statistics(fcd_test, test_dataset_id)
         report_trips_statistics(trips_train, train_dataset_id)
@@ -63,9 +61,6 @@ def main() -> None:
             save_model(model, model_name, scenario_name, artifacts_dir)
 
         save_results(results, scenario_name, results_dir)
-        logger.info(f"Completed scenario {scenario_name}")
-
-    logger.info(f"Completed experiment {experiment_name}")
 
 
 if __name__ == "__main__":
