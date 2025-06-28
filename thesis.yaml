@@ -2,33 +2,21 @@ name: thesis
 channels:
   - conda-forge
 dependencies:
-  # Basic libraries
   - python=3.12.9
   - pip=25.0.1
   - ipykernel=6.29.5
-  # Data Science libraries
   - numpy=2.2.3
   - pandas=2.2.3
   - scipy=1.15.2
+  - scikit-learn=1.6.1
   - matplotlib=3.10.1
   - seaborn=0.13.2
-  # Machine Learning libraries
-  - scikit-learn=1.6.1
   - catboost=1.2.8
+  - cupy=13.4.1
   - pip:
-    # PyTorch and related libraries
-    - --extra-index-url https://download.pytorch.org/whl/cu126
-    - torch==2.6.0+cu126
-    - torchvision==0.21.0+cu126
-    - torchaudio==2.6.0+cu126
-    # Machine Learning libraries with GPU versions only through pip
+    - eclipse-sumo==1.21.0
     - xgboost==2.1.4
     - lightgbm==4.6.0
-    # SUMO Simulator library
-    - eclipse-sumo==1.21.0
-    # Hyperparameter tuning libraries
     - optuna==4.4.0
-    # Utility libraries
     - requests==2.32.4
-    # Editable install of the thesis package
     - --editable .
