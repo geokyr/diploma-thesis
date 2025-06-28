@@ -44,7 +44,7 @@ def main():
 
         logger.info(f"Completed dataset generation for {dataset_name} dataset")
 
-    logger.info("Completed dataset generation process")
+    logger.info("Completed simulation process")
 
 
 if __name__ == "__main__":
