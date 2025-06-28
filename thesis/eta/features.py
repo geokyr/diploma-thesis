@@ -1,8 +1,46 @@
 import logging
 
+import numpy as np
 import pandas as pd
 
 logger = logging.getLogger(__name__)
+
+
+def log_transform(
+    data: pd.DataFrame | np.ndarray | pd.Series, feature_names: list[str] = ["distance"]
+) -> pd.DataFrame | np.ndarray | pd.Series:
+    """
+    Log transform data, either a DataFrame with features or a NumPy array/pandas Series.
+
+    Args:
+        data (pd.DataFrame | np.ndarray | pd.Series): DataFrame or NumPy array/pandas Series to log transform.
+        feature_names (list[str]): List of feature names to log transform, only used when data is a DataFrame.
+
+    Returns:
+        Data with log-transformed features, same type as input.
+    """
+    if isinstance(data, pd.DataFrame):
+        data_transformed = data.copy()
+        data_transformed[feature_names] = np.log(data_transformed[feature_names])
+        logger.info(f"Applied log transformation to DataFrame features: {feature_names}")
+        return data_transformed
+    else:
+        data_transformed = np.log(data)
+        logger.info("Applied log transformation to NumPy array/pandas Series")
+        return data_transformed
+
+
+def reverse_log_transform(data: np.ndarray | pd.Series) -> np.ndarray | pd.Series:
+    """
+    Convert log-transformed data back to original scale.
+
+    Args:
+        data (np.ndarray | pd.Series): Data in log space.
+
+    Returns:
+        Data in original scale.
+    """
+    return np.exp(data)
 
 
 def split_features_and_target(

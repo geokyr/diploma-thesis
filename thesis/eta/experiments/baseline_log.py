@@ -12,13 +12,17 @@ from thesis.eta.eda import (
 )
 from thesis.eta.evaluation import evaluate_predictions, make_predictions
 from thesis.eta.experiment import initialize_experiment, save_model, save_results
-from thesis.eta.features import split_features_and_target
+from thesis.eta.features import (
+    log_transform,
+    reverse_log_transform,
+    split_features_and_target,
+)
 from thesis.eta.models import get_baseline_models
 from thesis.eta.training import train_model
 
 
 def main() -> None:
-    experiment_name = "baseline"
+    experiment_name = "baseline_log"
     artifacts_dir, logs_dir, plots_dir, results_dir = initialize_experiment(experiment_name)
     logger = setup_logger(experiment_name, logs_dir)
     logger.info(f"Starting experiment {experiment_name}")
@@ -51,12 +55,16 @@ def main() -> None:
 
         X_train, y_train = split_features_and_target(trips_train)
         X_test, y_test = split_features_and_target(trips_test)
+        X_train_log = log_transform(X_train)
+        X_test_log = log_transform(X_test)
+        y_train_log = log_transform(y_train)
 
         models = get_baseline_models()
         results = {}
         for model_name, model in models.items():
-            training_results = train_model(model, model_name, X_train, y_train)
-            predictions, prediction_results = make_predictions(model, model_name, X_test)
+            training_results = train_model(model, model_name, X_train_log, y_train_log)
+            predictions_log, prediction_results = make_predictions(model, model_name, X_test_log)
+            predictions = reverse_log_transform(predictions_log)
             evaluation_results = evaluate_predictions(y_test, predictions, model_name)
 
             results[model_name] = {**training_results, **prediction_results, **evaluation_results}
