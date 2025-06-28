@@ -7,6 +7,30 @@ from sklearn.preprocessing import StandardScaler
 logger = logging.getLogger(__name__)
 
 
+def log_transform_features(
+    X_train: pd.DataFrame, X_test: pd.DataFrame, feature_names: list[str] = ["distance"]
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Log transform features.
+
+    Args:
+        X_train (pd.DataFrame): Training features to log transform.
+        X_test (pd.DataFrame): Test features to log transform.
+        feature_names (list[str]): List of feature names to log transform.
+
+    Returns:
+        tuple[pd.DataFrame, pd.DataFrame]: Log transformed training and test features.
+    """
+    X_train_log = X_train.copy()
+    X_test_log = X_test.copy()
+
+    X_train_log[feature_names] = np.log1p(X_train[feature_names])
+    X_test_log[feature_names] = np.log1p(X_test[feature_names])
+
+    logger.info(f"Log transformed {len(X_train)} training samples and {len(X_test)} test samples")
+    return X_train_log, X_test_log
+
+
 def log_transform(
     data: pd.DataFrame | np.ndarray | pd.Series, feature_names: list[str] = ["distance"]
 ) -> pd.DataFrame | np.ndarray | pd.Series:
