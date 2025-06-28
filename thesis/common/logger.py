@@ -49,6 +49,7 @@ def setup_logger(
     root_logger.addHandler(file_handler)
 
     logger = logging.getLogger(experiment_name)
+    logger.info(f"Starting experiment {experiment_name}")
 
     return logger
 
