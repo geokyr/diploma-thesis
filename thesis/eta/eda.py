@@ -79,6 +79,7 @@ def plot_speed_histogram(df_fcd: pd.DataFrame, dataset_id: str, plots_dir: Path,
     plt.xlabel("Speed (km/h)")
     plt.ylabel("Count")
     plt.savefig(target_path)
+    plt.close()
     logger.info(f"Speed histogram saved to {target_path}")
 
 
@@ -129,6 +130,7 @@ def plot_average_speed_and_traffic_generation_period_per_hour(
 
     plt.title(f"Average Speed & Traffic Generation Period (Per Hour) - {dataset_id}")
     plt.savefig(target_path)
+    plt.close()
     logger.info(f"Average speed and traffic generation period per hour saved to {target_path}")
 
 
@@ -162,6 +164,7 @@ def plot_trips_distances_distribution(df_trips: pd.DataFrame, dataset_id: str, p
     )
     plt.legend()
     plt.savefig(target_path)
+    plt.close()
     logger.info(f"Trips distances distribution saved to {target_path}")
 
 
@@ -195,4 +198,5 @@ def plot_trips_durations_distribution(df_trips: pd.DataFrame, dataset_id: str, p
     )
     plt.legend()
     plt.savefig(target_path)
+    plt.close()
     logger.info(f"Trips durations distribution saved to {target_path}")
