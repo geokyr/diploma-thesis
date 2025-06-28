@@ -1,6 +1,7 @@
 import logging
 import time
 
+import cupy as cp
 import pandas as pd
 from sklearn.base import BaseEstimator
 from sklearn.metrics import (
@@ -10,6 +11,7 @@ from sklearn.metrics import (
     r2_score,
     root_mean_squared_error,
 )
+from xgboost import XGBRegressor
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +33,9 @@ def make_predictions(
         tuple[pd.Series, dict[str, float]]: A tuple containing the predictions and timing metrics.
     """
     logger.info(f"Making predictions with {model_name}")
+
+    if isinstance(model, XGBRegressor):
+        X_test = cp.array(X_test)
 
     prediction_start = time.perf_counter()
     preds = model.predict(X_test)
