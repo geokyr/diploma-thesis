@@ -13,6 +13,8 @@ from sklearn.metrics import (
 )
 from xgboost import XGBRegressor
 
+from thesis.eta.config import USE_GPU
+
 logger = logging.getLogger(__name__)
 
 
@@ -34,11 +36,12 @@ def make_predictions(
     """
     logger.info(f"Making predictions with {model_name}")
 
-    if isinstance(model, XGBRegressor):
-        X_test = cp.array(X_test)
-
     prediction_start = time.perf_counter()
-    preds = model.predict(X_test)
+    if USE_GPU and isinstance(model, XGBRegressor):
+        X_test_input = cp.array(X_test)
+    else:
+        X_test_input = X_test
+    preds = model.predict(X_test_input)
     prediction_end = time.perf_counter()
     prediction_time = prediction_end - prediction_start
 
