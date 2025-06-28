@@ -3,21 +3,17 @@ from thesis.eta.config import SCENARIOS_SPECS
 from thesis.eta.data import load_fcd_dataset, prepare_baseline_trips, preprocess_fcd_dataset
 from thesis.eta.evaluation import evaluate_predictions, make_predictions
 from thesis.eta.experiment import initialize_experiment, save_model, save_results
-from thesis.eta.features import (
-    log_transform,
-    reverse_log_transform,
-    split_features_and_target,
-)
+from thesis.eta.features import log_transform, reverse_log_transform, split_features_and_target
 from thesis.eta.models import get_baseline_models
 from thesis.eta.training import train_model
 
 
 def main() -> None:
-    experiment_name = "baseline_log"
-    artifacts_dir, logs_dir, plots_dir, results_dir = initialize_experiment(experiment_name)
+    experiment_name = "log"
+    artifacts_dir, logs_dir, _, results_dir = initialize_experiment(experiment_name)
     logger = setup_logger(experiment_name, logs_dir)
 
-    for scenario_name, train_path, test_path in SCENARIOS_SPECS:
+    for scenario_name, train_path, test_path in SCENARIOS_SPECS[0:1]:
         logger.info(f"Starting scenario {scenario_name}")
 
         fcd_train = load_fcd_dataset(train_path)
