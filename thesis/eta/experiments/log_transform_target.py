@@ -12,7 +12,7 @@ def main() -> None:
     artifacts_dir, logs_dir, _, results_dir = initialize_experiment(experiment_name)
     logger = setup_logger(experiment_name, logs_dir)
 
-    log_transformer = create_log_transformer()
+    transformer = create_log_transformer()
 
     for scenario_name, train_path, test_path in SCENARIOS_SPECS:
         logger.info(f"Starting scenario {scenario_name}")
@@ -31,7 +31,7 @@ def main() -> None:
         results = {}
 
         for model_name, base_model in models.items():
-            model = wrap_with_transformed_target_regressor(base_model, log_transformer)
+            model = wrap_with_transformed_target_regressor(base_model, transformer)
             training_results = train_model(model, model_name, X_train, y_train)
             predictions, prediction_results = make_predictions(model, model_name, X_test)
             evaluation_results = evaluate_predictions(y_test, predictions, model_name)
