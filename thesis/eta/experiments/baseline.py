@@ -51,6 +51,7 @@ def main() -> None:
 
         models = get_baseline_models()
         results = {}
+
         for model_name, model in models.items():
             training_results = train_model(model, model_name, X_train, y_train)
             predictions, prediction_results = make_predictions(model, model_name, X_test)
