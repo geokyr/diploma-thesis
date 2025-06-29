@@ -46,6 +46,23 @@ def train_model(
     return {"training": training_time}
 
 
+def is_xgboost_model(model: BaseEstimator) -> bool:
+    """
+    Check if the model is an XGBoost model.
+
+    Args:
+        model (BaseEstimator): The machine learning model to check.
+
+    Returns:
+        bool: True if the model is an XGBoost model, False otherwise.
+    """
+    if isinstance(model, XGBRegressor):
+        return True
+    if hasattr(model, "regressor_"):
+        return is_xgboost_model(model.regressor_)
+    return False
+
+
 def make_predictions(
     model: BaseEstimator,
     model_name: str,
@@ -63,7 +80,7 @@ def make_predictions(
         tuple[pd.Series, dict[str, float]]: A tuple containing the predictions and timing metrics.
     """
     prediction_start = time.perf_counter()
-    if USE_GPU and isinstance(model, XGBRegressor):
+    if USE_GPU and is_xgboost_model(model):
         X_test_input = cp.array(X_test)
     else:
         X_test_input = X_test
