@@ -10,11 +10,10 @@ from thesis.eta.eda import (
     report_fcd_statistics,
     report_trips_statistics,
 )
-from thesis.eta.evaluation import evaluate_predictions, make_predictions
 from thesis.eta.experiment import initialize_experiment, save_model, save_results
 from thesis.eta.features import split_features_and_target
 from thesis.eta.models import get_baseline_models
-from thesis.eta.training import train_model
+from thesis.eta.pipeline import evaluate_predictions, make_predictions, train_model
 
 
 def main() -> None:
