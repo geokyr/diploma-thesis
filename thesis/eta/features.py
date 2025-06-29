@@ -3,7 +3,9 @@ import logging
 import numpy as np
 import pandas as pd
 from sklearn.pipeline import FunctionTransformer
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import PowerTransformer, QuantileTransformer, StandardScaler
+
+from thesis.eta.config import RANDOM_STATE
 
 logger = logging.getLogger(__name__)
 
@@ -42,45 +44,24 @@ def create_log_transformer() -> FunctionTransformer:
     return FunctionTransformer(func=np.log1p, inverse_func=np.expm1, check_inverse=True)
 
 
-def analyze_target_distribution(y: pd.Series) -> dict:
+def create_quantile_normal_transformer() -> QuantileTransformer:
     """
-    Analyze target distribution to help decide on transformation.
-
-    Args:
-        y (pd.Series): Target variable to analyze.
+    Create a quantile normal transformer.
 
     Returns:
-        dict: Statistics about the target distribution.
+        QuantileTransformer: Quantile normal transformer.
     """
-    from scipy import stats
+    return QuantileTransformer(output_distribution="normal", random_state=RANDOM_STATE)
 
-    stats_dict = {
-        "mean": y.mean(),
-        "median": y.median(),
-        "std": y.std(),
-        "min": y.min(),
-        "max": y.max(),
-        "skewness": stats.skew(y),
-        "kurtosis": stats.kurtosis(y),
-        "has_zeros": (y == 0).any(),
-        "has_negative": (y < 0).any(),
-        "pct_zeros": (y == 0).sum() / len(y) * 100,
-        "pct_negative": (y < 0).sum() / len(y) * 100,
-    }
 
-    # Test for normality
-    if len(y) > 20:
-        _, p_value = stats.normaltest(y)
-        stats_dict["normality_p_value"] = p_value
-        stats_dict["is_normal"] = p_value > 0.05
+def create_box_cox_transformer() -> PowerTransformer:
+    """
+    Create a box cox transformer.
 
-    logger.info(
-        f"Target distribution - Skewness: {stats_dict['skewness']:.3f}, "
-        f"Has zeros: {stats_dict['has_zeros']}, "
-        f"Has negative: {stats_dict['has_negative']}"
-    )
-
-    return stats_dict
+    Returns:
+        PowerTransformer: Box cox transformer.
+    """
+    return PowerTransformer(method="box-cox")
 
 
 def standard_scale_features(X_train: pd.DataFrame, X_test: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
