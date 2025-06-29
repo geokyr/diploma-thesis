@@ -1,7 +1,9 @@
 from catboost import CatBoostRegressor
 from lightgbm import LGBMRegressor
 from sklearn.base import BaseEstimator
+from sklearn.compose import TransformedTargetRegressor
 from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import FunctionTransformer
 from xgboost import XGBRegressor
 
 from thesis.eta.config import CATBOOST, GPU_DEVICE, GPU_PLATFORM, LIGHTGBM, LR, RANDOM_STATE, USE_GPU, XGBOOST
@@ -87,6 +89,22 @@ def create_catboost_model(**kwargs) -> CatBoostRegressor:
             }
         )
     return CatBoostRegressor(**params)
+
+
+def wrap_with_transformed_target_regressor(
+    model: BaseEstimator, transformer: FunctionTransformer
+) -> TransformedTargetRegressor:
+    """
+    Wrap a model with TransformedTargetRegressor.
+
+    Args:
+        model (BaseEstimator): The model to wrap.
+        transformer (FunctionTransformer): The transformer to use.
+
+    Returns:
+        TransformedTargetRegressor: Wrapped model.
+    """
+    return TransformedTargetRegressor(regressor=model, transformer=transformer)
 
 
 def get_baseline_models() -> dict[str, BaseEstimator]:

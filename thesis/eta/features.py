@@ -2,6 +2,7 @@ import logging
 
 import numpy as np
 import pandas as pd
+from sklearn.pipeline import FunctionTransformer
 from sklearn.preprocessing import StandardScaler
 
 logger = logging.getLogger(__name__)
@@ -31,43 +32,85 @@ def log_transform_features(
     return X_train_log, X_test_log
 
 
-def log_transform(
-    data: pd.DataFrame | np.ndarray | pd.Series, feature_names: list[str] = ["distance"]
-) -> pd.DataFrame | np.ndarray | pd.Series:
+def log_transform_target(y_train: pd.Series) -> pd.Series:
     """
-    Log transform data, either a DataFrame with features or a NumPy array/pandas Series.
+    Log transform target.
 
     Args:
-        data (pd.DataFrame | np.ndarray | pd.Series): DataFrame or NumPy array/pandas Series to log transform.
-        feature_names (list[str]): List of feature names to log transform, only used when data is a DataFrame.
+        y_train (pd.Series): Training target to log transform.
 
     Returns:
-        Data with log-transformed features, same type as input.
+        pd.Series: Log transformed training target.
     """
-    if isinstance(data, pd.DataFrame):
-        data_transformed = data.copy()
-        data_transformed[feature_names] = np.log(data_transformed[feature_names])
-        logger.info(f"Applied log transformation to DataFrame features: {feature_names}")
-        return data_transformed
-    else:
-        data_transformed = np.log(data)
-        logger.info("Applied log transformation to NumPy array/pandas Series")
-        return data_transformed
+    y_train_log = np.log1p(y_train)
+    logger.info(f"Log transformed {len(y_train)} training target samples")
+    return y_train_log
 
 
-def reverse_log_transform(data: np.ndarray | pd.Series) -> np.ndarray | pd.Series:
+def inverse_log_transform_predictions(predictions_log: pd.Series) -> pd.Series:
     """
-    Convert log-transformed data back to original scale.
+    Inverse log transform predictions in original scale.
 
     Args:
-        data (np.ndarray | pd.Series): Data in log space.
+        predictions_log (pd.Series): Predictions in log space.
 
     Returns:
-        Data in original scale.
+        pd.Series: Inversed log transformed predictions in original scale.
     """
-    reversed_data = np.exp(data)
-    logger.info(f"Reversed log transformation on {len(reversed_data)} samples")
-    return reversed_data
+    predictions = np.expm1(predictions_log)
+    logger.info(f"Inversed log transformation on {len(predictions)} predictions")
+    return predictions
+
+
+def create_log_transformer() -> FunctionTransformer:
+    """
+    Create a log transformer with exponential inverse function.
+
+    Returns:
+        FunctionTransformer: Log transformer with exponential inverse function.
+    """
+    return FunctionTransformer(func=np.log1p, inverse_func=np.expm1, check_inverse=True)
+
+
+def analyze_target_distribution(y: pd.Series) -> dict:
+    """
+    Analyze target distribution to help decide on transformation.
+
+    Args:
+        y (pd.Series): Target variable to analyze.
+
+    Returns:
+        dict: Statistics about the target distribution.
+    """
+    from scipy import stats
+
+    stats_dict = {
+        "mean": y.mean(),
+        "median": y.median(),
+        "std": y.std(),
+        "min": y.min(),
+        "max": y.max(),
+        "skewness": stats.skew(y),
+        "kurtosis": stats.kurtosis(y),
+        "has_zeros": (y == 0).any(),
+        "has_negative": (y < 0).any(),
+        "pct_zeros": (y == 0).sum() / len(y) * 100,
+        "pct_negative": (y < 0).sum() / len(y) * 100,
+    }
+
+    # Test for normality
+    if len(y) > 20:
+        _, p_value = stats.normaltest(y)
+        stats_dict["normality_p_value"] = p_value
+        stats_dict["is_normal"] = p_value > 0.05
+
+    logger.info(
+        f"Target distribution - Skewness: {stats_dict['skewness']:.3f}, "
+        f"Has zeros: {stats_dict['has_zeros']}, "
+        f"Has negative: {stats_dict['has_negative']}"
+    )
+
+    return stats_dict
 
 
 def standard_scale_features(X_train: pd.DataFrame, X_test: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
