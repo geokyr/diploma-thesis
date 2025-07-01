@@ -2,7 +2,8 @@ from pathlib import Path
 
 import numpy as np
 
-np.random.seed(42)
+RANDOM_SEED = 42
+np.random.seed(RANDOM_SEED)
 
 TRAIN_TRAFFIC_GENERATION_PERIODS = [0.45, 0.50, 0.65, 0.75, 0.80, 0.80, 0.75, 0.55, 0.50, 0.55]
 TEST_TRAFFIC_GENERATION_PERIODS = [p * np.random.uniform(0.98, 1.02) for p in TRAIN_TRAFFIC_GENERATION_PERIODS]

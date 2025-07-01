@@ -6,7 +6,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import FunctionTransformer
 from xgboost import XGBRegressor
 
-from thesis.eta.config import CATBOOST, GPU_DEVICE, GPU_PLATFORM, LIGHTGBM, LR, RANDOM_STATE, USE_GPU, XGBOOST
+from thesis.common.config import RANDOM_SEED
+from thesis.eta.config import CATBOOST, GPU_DEVICE, GPU_PLATFORM, LIGHTGBM, LR, USE_GPU, XGBOOST
 
 
 def create_lr_model(**kwargs) -> LinearRegression:
@@ -32,7 +33,7 @@ def create_xgboost_model(**kwargs) -> XGBRegressor:
     Returns:
         XGBRegressor: Configured XGBoost model.
     """
-    params = {"random_state": RANDOM_STATE, **kwargs}
+    params = {"random_state": RANDOM_SEED, **kwargs}
 
     if USE_GPU:
         params.update(
@@ -55,7 +56,7 @@ def create_lightgbm_model(**kwargs) -> LGBMRegressor:
     Returns:
         LGBMRegressor: Configured LightGBM model.
     """
-    params = {"random_state": RANDOM_STATE, "verbose": 0, **kwargs}
+    params = {"random_state": RANDOM_SEED, "verbose": 0, **kwargs}
 
     if USE_GPU:
         params.update(
@@ -79,7 +80,7 @@ def create_catboost_model(**kwargs) -> CatBoostRegressor:
     Returns:
         CatBoostRegressor: Configured CatBoost model.
     """
-    params = {"random_state": RANDOM_STATE, "verbose": 0, "allow_writing_files": False, **kwargs}
+    params = {"random_state": RANDOM_SEED, "verbose": 0, "allow_writing_files": False, **kwargs}
 
     if USE_GPU:
         params.update(
