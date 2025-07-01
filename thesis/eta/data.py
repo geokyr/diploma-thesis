@@ -2,10 +2,12 @@ import hashlib
 import logging
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import requests
 from tqdm import tqdm
 
+from thesis.common.config import RANDOM_SEED
 from thesis.eta.config import DATASET_FILES_MD5, ZENODO_BASE_URL
 
 logger = logging.getLogger(__name__)
@@ -202,42 +204,136 @@ def aggregate_fcd_per_hour(df_fcd: pd.DataFrame) -> pd.DataFrame:
     return df_per_hour
 
 
-def prepare_baseline_trips(df_fcd: pd.DataFrame) -> pd.DataFrame:
+def generate_full_trips(df_fcd: pd.DataFrame, min_duration: int = 60, min_distance: int = 500) -> pd.DataFrame:
     """
-    Prepare the baseline trips from the FCD DataFrame, filtering out short trips.
+    Generate the full trips from the FCD DataFrame, filtering out short trips.
 
     Args:
-        df_fcd (pd.DataFrame): The FCD DataFrame to prepare baseline trips from.
+        df_fcd (pd.DataFrame): The FCD DataFrame to generate full trips from.
+        min_duration (int): Minimum trip duration in seconds.
+        min_distance (int): Minimum trip distance in meters.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the baseline trips.
+        pd.DataFrame: A DataFrame containing the full trips.
     """
     df_sorted = df_fcd.sort_values("timestep_time")
-    grouped = df_sorted.groupby("vehicle_id").agg(
-        {
-            "vehicle_x": ["first", "last"],
-            "vehicle_y": ["first", "last"],
-            "vehicle_odometer": ["first", "last"],
-            "timestep_time": ["first", "last"],
-        }
-    )
-    grouped.columns = ["_".join(col).strip() for col in grouped.columns]
-    grouped["duration"] = grouped["timestep_time_last"] - grouped["timestep_time_first"]
-    grouped["distance"] = grouped["vehicle_odometer_last"] - grouped["vehicle_odometer_first"]
-    grouped["hour_bin"] = grouped["timestep_time_first"] // 3600
-    valid_trips = grouped[(grouped["duration"] > 60) & (grouped["distance"] > 500)]
 
-    df_trips = pd.DataFrame(
-        {
-            "source_x": valid_trips["vehicle_x_first"],
-            "source_y": valid_trips["vehicle_y_first"],
-            "destination_x": valid_trips["vehicle_x_last"],
-            "destination_y": valid_trips["vehicle_y_last"],
-            "hour_bin": valid_trips["hour_bin"],
-            "distance": valid_trips["distance"],
-            "duration": valid_trips["duration"],
-        }
+    df_full_trips = (
+        df_sorted.groupby("vehicle_id")
+        .agg(
+            source_x=("vehicle_x", "first"),
+            source_y=("vehicle_y", "first"),
+            destination_x=("vehicle_x", "last"),
+            destination_y=("vehicle_y", "last"),
+            odometer_start=("vehicle_odometer", "first"),
+            odometer_end=("vehicle_odometer", "last"),
+            time_start=("timestep_time", "first"),
+            time_end=("timestep_time", "last"),
+        )
+        .assign(
+            duration=lambda d: d.time_end - d.time_start,
+            distance=lambda d: d.odometer_end - d.odometer_start,
+            hour_bin=lambda d: d.time_start // 3600,
+        )
+        .query(f"duration >= {min_duration} and distance >= {min_distance}")
+        .loc[:, ["source_x", "source_y", "destination_x", "destination_y", "hour_bin", "distance", "duration"]]
+        .reset_index(drop=True)
     )
 
-    logger.info(f"Prepared {len(df_trips)} baseline trips")
+    return df_full_trips
+
+
+def generate_sub_trips(
+    group: pd.DataFrame,
+    augmentation_rate: float,
+    min_trip_ratio: float,
+    min_duration: int,
+    min_distance: int,
+) -> pd.DataFrame:
+    """
+    Generate sub-trips from a vehicle's FCD group, filtering out short trips.
+
+    Args:
+        group (pd.DataFrame): The FCD DataFrame to generate sub-trips from.
+        augmentation_rate (float): The rate at which to augment the trips.
+        min_trip_ratio (float): The minimum ratio of the trip to be augmented.
+        min_duration (int): Minimum trip duration in seconds.
+        min_distance (int): Minimum trip distance in meters.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the sub-trips for the vehicle.
+    """
+    timesteps = group["timestep_time"].to_numpy()
+    x_positions = group["vehicle_x"].to_numpy()
+    y_positions = group["vehicle_y"].to_numpy()
+    odometer_readings = group["vehicle_odometer"].to_numpy()
+
+    n = len(group)
+    n_sub_trips = int(n * augmentation_rate)
+    minimum_length = max(2, int(n * min_trip_ratio))
+    rng = np.random.default_rng(RANDOM_SEED)
+
+    sub_trips_records = []
+    for _ in range(n_sub_trips):
+        start_idx = rng.integers(0, n - minimum_length + 1)
+        sub_trip_length = rng.integers(minimum_length, n - start_idx + 1)
+        end_idx = start_idx + sub_trip_length - 1
+
+        sub_trip_duration = timesteps[end_idx] - timesteps[start_idx]
+        sub_trip_distance = odometer_readings[end_idx] - odometer_readings[start_idx]
+        if sub_trip_duration < min_duration or sub_trip_distance < min_distance:
+            continue
+
+        sub_trips_records.append(
+            {
+                "source_x": x_positions[start_idx],
+                "source_y": y_positions[start_idx],
+                "destination_x": x_positions[end_idx],
+                "destination_y": y_positions[end_idx],
+                "hour_bin": timesteps[start_idx] // 3600,
+                "distance": sub_trip_distance,
+                "duration": sub_trip_duration,
+            }
+        )
+
+    return pd.DataFrame.from_records(sub_trips_records)
+
+
+def generate_trips(
+    df_fcd: pd.DataFrame,
+    min_duration: int = 60,
+    min_distance: int = 500,
+    augmentation_rate: float = 0.0,
+    min_trip_ratio: float = 0.5,
+) -> pd.DataFrame:
+    """
+    Generate trips with optional sub-trip augmentation.
+
+    Args:
+        df_fcd (pd.DataFrame): The FCD DataFrame to generate trips from.
+        min_duration (int): Minimum trip duration in seconds.
+        min_distance (int): Minimum trip distance in meters.
+        augmentation_rate (float): Multiplier for sub-trip augmentation based on each trip's length.
+        min_trip_ratio (float): The minimum ratio of the trip to be augmented.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the generated trips.
+    """
+    df_full_trips = generate_full_trips(df_fcd, min_duration, min_distance)
+    logger.info(f"Generated {len(df_full_trips)} full trips")
+
+    if augmentation_rate <= 0 or df_full_trips.empty:
+        return df_full_trips
+
+    sub_trips_list = []
+    for _, group in df_fcd.sort_values("timestep_time").groupby("vehicle_id"):
+        sub_trips = generate_sub_trips(group, augmentation_rate, min_trip_ratio, min_duration, min_distance)
+        sub_trips_list.append(sub_trips)
+
+    df_sub_trips = pd.concat(sub_trips_list, ignore_index=True)
+    logger.info(f"Generated {len(df_sub_trips)} sub-trips")
+
+    df_trips = pd.concat([df_full_trips, df_sub_trips], ignore_index=True)
+    logger.info(f"Generated {len(df_trips)} trips")
+
     return df_trips

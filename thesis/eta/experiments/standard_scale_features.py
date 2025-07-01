@@ -1,6 +1,6 @@
 from thesis.common.logger import setup_logger
 from thesis.eta.config import SCENARIOS_SPECS
-from thesis.eta.data import load_fcd_dataset, prepare_baseline_trips, preprocess_fcd_dataset
+from thesis.eta.data import generate_trips, load_fcd_dataset, preprocess_fcd_dataset
 from thesis.eta.experiment import initialize_experiment, save_model, save_results
 from thesis.eta.features import split_features_and_target, standard_scale_features
 from thesis.eta.models import get_baseline_models
@@ -19,8 +19,8 @@ def main() -> None:
         fcd_test = load_fcd_dataset(test_path)
         fcd_train = preprocess_fcd_dataset(fcd_train)
         fcd_test = preprocess_fcd_dataset(fcd_test)
-        trips_train = prepare_baseline_trips(fcd_train)
-        trips_test = prepare_baseline_trips(fcd_test)
+        trips_train = generate_trips(fcd_train)
+        trips_test = generate_trips(fcd_test)
 
         X_train, y_train = split_features_and_target(trips_train)
         X_test, y_test = split_features_and_target(trips_test)

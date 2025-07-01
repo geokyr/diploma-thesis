@@ -1,7 +1,7 @@
 from thesis.common.config import TYPE_TEST, TYPE_TRAIN
 from thesis.common.logger import setup_logger
 from thesis.eta.config import SCENARIOS_SPECS
-from thesis.eta.data import load_fcd_dataset, prepare_baseline_trips, preprocess_fcd_dataset
+from thesis.eta.data import generate_trips, load_fcd_dataset, preprocess_fcd_dataset
 from thesis.eta.eda import (
     plot_average_speed_and_traffic_generation_period_per_hour,
     plot_speed_histogram,
@@ -28,8 +28,8 @@ def main() -> None:
         fcd_test = load_fcd_dataset(test_path)
         fcd_train = preprocess_fcd_dataset(fcd_train)
         fcd_test = preprocess_fcd_dataset(fcd_test)
-        trips_train = prepare_baseline_trips(fcd_train)
-        trips_test = prepare_baseline_trips(fcd_test)
+        trips_train = generate_trips(fcd_train)
+        trips_test = generate_trips(fcd_test)
 
         train_dataset_id = f"{scenario_name}-{TYPE_TRAIN}"
         test_dataset_id = f"{scenario_name}-{TYPE_TEST}"
