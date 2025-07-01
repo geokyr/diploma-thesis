@@ -28,6 +28,7 @@ def setup_logger(
     log_level = getattr(logging, log_level.upper())
     root_logger = logging.getLogger()
     root_logger.setLevel(log_level)
+    root_logger.handlers.clear()
 
     console_formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
