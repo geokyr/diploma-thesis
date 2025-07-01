@@ -8,7 +8,7 @@ from thesis.eta.pipeline import evaluate_predictions, make_predictions, train_mo
 
 
 def main() -> None:
-    experiment_name = "standard_scaler"
+    experiment_name = "standard_scale_features"
     artifacts_dir, logs_dir, _, results_dir = initialize_experiment(experiment_name)
     logger = setup_logger(experiment_name, logs_dir)
 
