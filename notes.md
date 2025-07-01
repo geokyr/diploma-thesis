@@ -18,6 +18,17 @@
 - Database for storing the data and predictions, and the model weights
 
 ## Models
+- Scaling of new features
+- Log/Quantile/Box-Cox transformations of new features
+
+- Training with various sub-trip augmentation rates
+
+- One hot encode the hour bin
+- Feature engineering
+- Extra distances (euclidean, manhattan, heaversine)
+- Center and diff of lat and long coordinates
+- Clustering features like MiniKBatchMeans for start and end coordinates, PCA for all coordinates
+
 - Manage the source/destination uniqueness problem, where source X,Y are around 1k unique values, while destination X,Y are around 45k unique values, due to vehicles logging only every second, and therefore exiting the simulation area at a time where their final coordinates are not logged. This can be tackled with trip augmentation, adding noise to the source coordinates, using clustering features for the source and destination coordinates, and clustering the destination coordinates into 1k clusters, which is probably around the number of unique edges/lanes in the simulation area.
 
 ```python
@@ -223,17 +234,6 @@ if __name__ == "__main__":
     print(f"Features: {feature_cols}") 
 
 ```
-
-- Scaling of new features
-- Log/Quantile/Box-Cox transformations of new features
-
-- Training with sub-trips sampling
-
-- One hot encode the hour bin
-- Feature engineering
-- Extra distances (euclidean, manhattan, heaversine)
-- Center and diff of lat and long coordinates
-- Clustering features like MiniKBatchMeans for start and end coordinates, PCA for all coordinates
 
 - Hyperparameter tuning with optuna
 - Final model
