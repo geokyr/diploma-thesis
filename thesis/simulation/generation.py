@@ -142,7 +142,7 @@ def generate_fixed_routes() -> None:
 
 def generate_random_trips(
     trips_file: Path,
-    traffic_generation_periods: list[int],
+    traffic_generation_periods: list[float],
     seed: int = 42,
     start_time: int = 0,
     end_time: int = 36000,
@@ -152,7 +152,7 @@ def generate_random_trips(
 
     Args:
         trips_file (Path): Path to the output trips file.
-        traffic_generation_periods (list[int]): List of traffic generation periods.
+        traffic_generation_periods (list[float]): List of traffic generation periods.
         seed (int): Random seed for trip generation.
         start_time (int): Start time for trip generation in seconds.
         end_time (int): End time for trip generation in seconds.
