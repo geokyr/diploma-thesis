@@ -1,5 +1,5 @@
 from thesis.common.logger import setup_logger
-from thesis.simulation.config import DATASET_SPECS, LOGS_DIR
+from thesis.simulation.config import LOGS_DIR
 from thesis.simulation.generation import (
     convert_xml_to_csv,
     edit_network,
@@ -10,6 +10,7 @@ from thesis.simulation.generation import (
     update_trip_ids,
     update_vehicle_types,
 )
+from thesis.simulation.utils import build_dataset_specs
 
 
 def main():
@@ -20,29 +21,28 @@ def main():
     edit_network()
     generate_fixed_routes()
 
-    for dataset_name, dataset_spec in DATASET_SPECS.items():
-        logger.info(f"Generating {dataset_name} dataset")
-
-        trips_file = dataset_spec["trips_file"]
-        traffic_generation_periods = dataset_spec["traffic_generation_periods"]
-        seed = dataset_spec["seed"]
-        config = dataset_spec["config"]
-        fcd_output = dataset_spec["fcd_output"]
-        fixed_routes_file = dataset_spec["fixed_routes_file"]
-        vehicle_type = dataset_spec["vehicle_type"]
+    dataset_specs = build_dataset_specs()
+    for spec in dataset_specs.values():
+        logger.info(f"Generating {spec.dataset_name} dataset")
 
         generate_random_trips(
-            trips_file=trips_file,
-            traffic_generation_periods=traffic_generation_periods,
-            seed=seed,
+            trips_file=spec.trips_file,
+            traffic_generation_periods=spec.traffic_generation_periods,
+            seed=spec.seed,
         )
-        update_trip_ids(trips_file=trips_file)
-        update_vehicle_types(trips_file=trips_file, vehicle_type=vehicle_type, fixed_routes_file=fixed_routes_file)
+        update_trip_ids(trips_file=spec.trips_file)
+        update_vehicle_types(
+            trips_file=spec.trips_file,
+            vehicle_type=spec.vehicle_type,
+            fixed_routes_file=spec.fixed_routes_file,
+        )
 
-        simulate_scenario(config=config)
-        convert_xml_to_csv(xml_file=fcd_output)
+        simulate_scenario(config=spec.config)
 
-        logger.info(f"Completed dataset generation for {dataset_name} dataset")
+        for xml_file in spec.xml_files:
+            convert_xml_to_csv(xml_file=xml_file)
+
+        logger.info(f"Completed dataset generation for {spec.dataset_name} dataset")
 
     logger.info("Completed simulation process")
 
