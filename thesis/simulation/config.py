@@ -1,11 +1,7 @@
 import os
 from pathlib import Path
 
-from thesis.common.config import (
-    SIMULATION_DIR,
-    TYPE_TEST,
-    TYPE_TRAIN,
-)
+from thesis.common.config import SIMULATION_DIR, TYPE_TEST, TYPE_TRAIN
 
 TRAIN_SEED = 42
 TEST_SEED = 123
