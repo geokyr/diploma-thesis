@@ -1,8 +1,12 @@
 # Tracker
 
 ## Dataset
-- Same train and test seed
-- Normal distribution instead of uniform on traffic generation periods
+- np.random.uniform(0.98, 1.02) -> np.random.normal(1.0, 0.01)
+- DATA_DIR = SIMULATION_DIR / "data" -> DATA_DIR = SIMULATION_DIR / "new"
+- data.py:ensure_dataset_is_available_and_valid(fcd_path) -> Comment out
+- TRAIN_SEED = 42 -> TRAIN_SEED = RANDOM_SEED
+- TEST_SEED = 42 -> TEST_SEED = RANDOM_SEED
+- *.sumocfg:data/ -> *.sumocfg:new/
 
 ## Architecture
 - User stories review
@@ -18,6 +22,8 @@
 - Database for storing the data and predictions, and the model weights
 
 ## Models
+- Dataclass for scenario specs on experiments
+
 - Scaling of new features
 - Log/Quantile/Box-Cox transformations of new features
 
