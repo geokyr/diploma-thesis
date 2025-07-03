@@ -32,9 +32,9 @@
     </gui_only>
 
     <output>
-        <fcd-output value="data/rain-train-fcd.xml"/>
+        <fcd-output value="rain-train-fcd.xml"/>
         <fcd-output.attributes value="id, x, y, speed, lane, odometer"/>
-        <emission-output value="data/rain-train-emission.xml"/>
+        <emission-output value="rain-train-emission.xml"/>
         <emission-output.attributes value="id, fuel, waiting"/>
     </output>
 

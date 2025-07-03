@@ -3,6 +3,7 @@ import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+from thesis.common.config import DATA_DIR
 from thesis.common.logger import log_subprocess_result
 from thesis.simulation.config import (
     NETWORK,
@@ -246,16 +247,16 @@ def simulate_scenario(config: Path, gui: bool = False) -> None:
         raise
 
 
-def convert_xml_to_csv(xml_file: Path) -> None:
+def convert_xml_to_csv_and_move(xml_file: Path) -> None:
     """
-    Convert an XML file to a CSV file and delete the original XML file.
+    Convert an XML file to CSV, delete the original XML, and move the CSV to the data directory.
 
     Args:
         xml_file (Path): Path to the XML file to be converted.
 
     Raises:
-        FileNotFoundError: If the XML file does not exist.
-        Exception: If the XML to CSV conversion fails.
+        FileNotFoundError: If the XML file does not exist, or the CSV file does not exist after conversion.
+        Exception: If the conversion or moving fails.
     """
     if not xml_file.exists():
         error_msg = f"XML file not found: {xml_file}"
@@ -277,10 +278,19 @@ def convert_xml_to_csv(xml_file: Path) -> None:
         raise
 
     csv_file = xml_file.with_suffix(".csv")
-    if csv_file.exists():
-        xml_file.unlink()
-        logger.info(f"Converted {xml_file} to {csv_file} and deleted original")
-    else:
-        error_msg = f"CSV file not found: {csv_file}"
+    if not csv_file.exists():
+        error_msg = f"CSV file not found after conversion: {csv_file}"
         logger.error(error_msg)
         raise FileNotFoundError(error_msg)
+
+    xml_file.unlink()
+    logger.info(f"Converted {xml_file} to {csv_file} and deleted original")
+
+    try:
+        destination = DATA_DIR / csv_file.name
+        csv_file.rename(destination)
+        logger.info(f"Moved {csv_file} to {destination}")
+
+    except Exception as e:
+        logger.error(f"Failed to move CSV file: {e}")
+        raise

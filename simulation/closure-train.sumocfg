@@ -32,9 +32,9 @@
     </gui_only>
 
     <output>
-        <fcd-output value="data/closure-train-fcd.xml"/>
+        <fcd-output value="closure-train-fcd.xml"/>
         <fcd-output.attributes value="id, x, y, speed, lane, odometer"/>
-        <emission-output value="data/closure-train-emission.xml"/>
+        <emission-output value="closure-train-emission.xml"/>
         <emission-output.attributes value="id, fuel, waiting"/>
     </output>
 

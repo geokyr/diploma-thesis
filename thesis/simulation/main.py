@@ -1,7 +1,7 @@
 from thesis.common.logger import setup_logger
 from thesis.simulation.config import LOGS_DIR
 from thesis.simulation.generation import (
-    convert_xml_to_csv,
+    convert_xml_to_csv_and_move,
     edit_network,
     generate_network,
     generate_random_trips,
@@ -36,8 +36,8 @@ def main():
 
         simulate_scenario(config=spec.config)
 
-        for xml_file in spec.xml_files:
-            convert_xml_to_csv(xml_file=xml_file)
+        convert_xml_to_csv_and_move(xml_file=spec.fcd_output_xml)
+        convert_xml_to_csv_and_move(xml_file=spec.emission_output_xml)
 
         logger.info(f"Completed dataset generation for {spec.dataset_name} dataset")
 

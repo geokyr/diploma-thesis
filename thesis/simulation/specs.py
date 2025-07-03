@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from thesis.common.config import (
-    DATA_DIR,
     RANDOM_SEED,
     SIMULATION_DIR,
     TEST_TRAFFIC_GENERATION_PERIODS,
@@ -11,7 +10,6 @@ from thesis.common.config import (
     TYPE_TRAIN,
 )
 from thesis.simulation.config import (
-    OUTPUTS,
     SCENARIO_BASE,
     SCENARIO_CLOSURE,
     SCENARIO_RAIN,
@@ -37,7 +35,8 @@ class DatasetSpec:
         seed (int): The seed for the random number generator.
         vehicle_type (str): The type of vehicle.
         config (Path): The path to the configuration file.
-        xml_files (list[Path]): The paths to the XML files.
+        fcd_output_xml (Path): The path to the FCD output XML file.
+        emission_output_xml (Path): The path to the emission output XML file.
     """
 
     dataset_name: str
@@ -46,7 +45,8 @@ class DatasetSpec:
     seed: int
     vehicle_type: str
     config: Path
-    xml_files: list[Path]
+    fcd_output_xml: Path
+    emission_output_xml: Path
 
 
 def get_dataset_name(scenario: str, type: str) -> str:
@@ -137,17 +137,30 @@ def get_config(dataset_name: str) -> Path:
     return SIMULATION_DIR / f"{dataset_name}.sumocfg"
 
 
-def get_xml_files(dataset_name: str) -> list[Path]:
+def get_fcd_output_xml(dataset_name: str) -> Path:
     """
-    Get the XML files for a given dataset name.
+    Get the FCD output XML file for a given dataset name.
 
     Args:
         dataset_name (str): The name of the dataset.
 
     Returns:
-        list[Path]: The paths to the XML files.
+        Path: The path to the FCD output XML file.
     """
-    return [DATA_DIR / f"{dataset_name}-{output}.xml" for output in OUTPUTS]
+    return SIMULATION_DIR / f"{dataset_name}-fcd.xml"
+
+
+def get_emission_output_xml(dataset_name: str) -> Path:
+    """
+    Get the emission output XML file for a given dataset name.
+
+    Args:
+        dataset_name (str): The name of the dataset.
+
+    Returns:
+        Path: The path to the emission output XML file.
+    """
+    return SIMULATION_DIR / f"{dataset_name}-emission.xml"
 
 
 def build_dataset_specs() -> dict[str, DatasetSpec]:
@@ -170,7 +183,8 @@ def build_dataset_specs() -> dict[str, DatasetSpec]:
                 seed=get_seed(scenario),
                 vehicle_type=get_vehicle_type(scenario),
                 config=get_config(dataset_name),
-                xml_files=get_xml_files(dataset_name),
+                fcd_output_xml=get_fcd_output_xml(dataset_name),
+                emission_output_xml=get_emission_output_xml(dataset_name),
             )
 
     return specs
