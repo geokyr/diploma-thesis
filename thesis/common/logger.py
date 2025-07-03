@@ -1,6 +1,5 @@
 import logging
 import logging.handlers
-import subprocess
 import sys
 from pathlib import Path
 
@@ -53,29 +52,3 @@ def setup_logger(
     logger.info(f"Starting experiment {experiment_name}")
 
     return logger
-
-
-def log_subprocess_result(
-    operation_name: str,
-    logger: logging.Logger,
-    command: list[str],
-    result: subprocess.CompletedProcess,
-) -> None:
-    """
-    Log a subprocess execution result with consistent formatting.
-
-    Args:
-        operation_name (str): Name of the operation for error messages.
-        logger (logging.Logger): Logger instance to use.
-        command (list[str]): The command that was executed.
-        result (subprocess.CompletedProcess): The subprocess.CompletedProcess result.
-    """
-    command_str = " ".join(str(arg) for arg in command)
-    logger.info(f"Executing {operation_name}")
-    logger.info(f"Command: {command_str}")
-
-    if result.stdout:
-        logger.info(f"stdout from {operation_name}: {result.stdout}")
-
-    if result.stderr:
-        logger.warning(f"stderr from {operation_name}: {result.stderr}")

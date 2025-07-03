@@ -4,7 +4,6 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from thesis.common.config import DATA_DIR
-from thesis.common.logger import log_subprocess_result
 from thesis.simulation.config import (
     CLOSURE_ADDITIONAL_FILE,
     NETWORK,
@@ -34,11 +33,11 @@ def generate_network() -> None:
     ]
 
     try:
+        command_str = " ".join(str(arg) for arg in command)
+        logger.info(f"Executing: {command_str}")
+
         process = subprocess.Popen(command)
 
-        command_str = " ".join(str(arg) for arg in command)
-        logger.info("Executing osmWebWizard")
-        logger.info(f"Command: {command_str}")
         logger.info("Generate the network in the osmWebWizard window")
         input("When finished, close the osmWebWizard window and press Enter")
 
@@ -79,8 +78,20 @@ def edit_network() -> None:
     ]
 
     try:
-        result = subprocess.run(command, capture_output=True, check=True, text=True)
-        log_subprocess_result("netedit", logger, command, result)
+        command_str = " ".join(str(arg) for arg in command)
+        logger.info(f"Executing: {command_str}")
+
+        process = subprocess.Popen(command)
+
+        logger.info("Edit the network in the netedit window")
+        input("When finished, close the netedit window and press Enter")
+
+        if process.poll() is None:
+            try:
+                process.terminate()
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                process.kill()
 
         logger.info(f"Network editing completed: {NETWORK}")
 
@@ -108,6 +119,7 @@ def generate_random_trips(
 
     Raises:
         FileNotFoundError: If the network, or trips file does not exist.
+        subprocess.CalledProcessError: If the random trips generation returns a non-zero exit code.
         Exception: If the random trips generation fails.
     """
     if not NETWORK.exists():
@@ -137,9 +149,26 @@ def generate_random_trips(
     ]
 
     try:
-        result = subprocess.run(command, capture_output=True, check=True, text=True)
-        log_subprocess_result("randomTrips", logger, command, result)
+        command_str = " ".join(str(arg) for arg in command)
+        logger.info(f"Executing: {command_str}")
 
+        process = subprocess.Popen(
+            command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1, universal_newlines=True
+        )
+
+        for line in process.stdout:
+            line = line.rstrip()
+            if line:
+                logger.info(f"randomTrips: {line}")
+
+        return_code = process.wait()
+
+        if return_code != 0:
+            raise subprocess.CalledProcessError(return_code, command)
+
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Random trips generation failed with return code {e.returncode}")
+        raise
     except Exception as e:
         logger.error(f"Failed to generate random trips: {e}")
         raise
@@ -169,6 +198,8 @@ def update_trip_ids(trips_file: Path) -> None:
         raise FileNotFoundError(f"Trips file not found: {trips_file}")
 
     try:
+        logger.info(f"Updating trip IDs in {trips_file}")
+
         tree = ET.parse(trips_file)
         root = tree.getroot()
 
@@ -178,7 +209,7 @@ def update_trip_ids(trips_file: Path) -> None:
             trip_id += 1
 
         tree.write(trips_file)
-        logger.info(f"Updated a total of {trip_id} trip IDs in {trips_file}")
+        logger.info(f"Updated a total of {trip_id} trip IDs")
 
     except Exception as e:
         logger.error(f"Failed to update trip IDs: {e}")
@@ -202,6 +233,8 @@ def update_vehicle_types(trips_file: Path, vehicle_type: str = "car") -> None:
         raise FileNotFoundError(f"Trips file not found: {trips_file}")
 
     try:
+        logger.info(f"Updating vehicle types in {trips_file}")
+
         tree = ET.parse(trips_file)
         root = tree.getroot()
 
@@ -211,7 +244,7 @@ def update_vehicle_types(trips_file: Path, vehicle_type: str = "car") -> None:
             trip_count += 1
 
         tree.write(trips_file)
-        logger.info(f"Vehicle types set to '{vehicle_type}' for {trip_count} trips in {trips_file}")
+        logger.info(f"Vehicle types set to '{vehicle_type}' for {trip_count} trips")
 
     except Exception as e:
         logger.error(f"Failed to update vehicle types: {e}")
@@ -228,6 +261,7 @@ def simulate_scenario(config: Path, gui: bool = False) -> None:
 
     Raises:
         FileNotFoundError: If the simulation configuration file does not exist.
+        subprocess.CalledProcessError: If the simulation returns a non-zero exit code.
         Exception: If the simulation fails.
     """
     if not config.exists():
@@ -242,11 +276,33 @@ def simulate_scenario(config: Path, gui: bool = False) -> None:
     ]
 
     try:
-        result = subprocess.run(command, capture_output=True, check=True, text=True)
-        log_subprocess_result("sumo", logger, command, result)
+        command_str = " ".join(str(arg) for arg in command)
+        logger.info(f"Executing: {command_str}")
 
-        logger.info(f"Simulation completed: {config}")
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+            universal_newlines=True,
+        )
 
+        for line in process.stdout:
+            line = line.rstrip()
+            if line:
+                logger.info(f"SUMO: {line}")
+
+        return_code = process.wait()
+
+        if return_code != 0:
+            raise subprocess.CalledProcessError(return_code, command)
+
+        logger.info(f"Simulation completed successfully: {config}")
+
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Simulation failed with return code {e.returncode}")
+        raise
     except Exception as e:
         logger.error(f"Failed to simulate scenario: {e}")
         raise
@@ -261,6 +317,7 @@ def convert_xml_to_csv_and_move(xml_file: Path) -> None:
 
     Raises:
         FileNotFoundError: If the XML file does not exist, or the CSV file does not exist after conversion.
+        subprocess.CalledProcessError: If the conversion returns a non-zero exit code.
         Exception: If the conversion or moving fails.
     """
     if not xml_file.exists():
@@ -275,9 +332,26 @@ def convert_xml_to_csv_and_move(xml_file: Path) -> None:
     ]
 
     try:
-        result = subprocess.run(command, capture_output=True, check=True, text=True)
-        log_subprocess_result("xml2csv", logger, command, result)
+        command_str = " ".join(str(arg) for arg in command)
+        logger.info(f"Executing: {command_str}")
 
+        process = subprocess.Popen(
+            command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1, universal_newlines=True
+        )
+
+        for line in process.stdout:
+            line = line.rstrip()
+            if line:
+                logger.info(f"xml2csv: {line}")
+
+        return_code = process.wait()
+
+        if return_code != 0:
+            raise subprocess.CalledProcessError(return_code, command)
+
+    except subprocess.CalledProcessError as e:
+        logger.error(f"XML to CSV conversion failed with return code {e.returncode}")
+        raise
     except Exception as e:
         logger.error(f"Failed to convert XML to CSV: {e}")
         raise
