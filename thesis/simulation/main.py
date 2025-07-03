@@ -39,10 +39,6 @@ def main():
         convert_xml_to_csv_and_move(xml_file=spec.fcd_output_xml)
         convert_xml_to_csv_and_move(xml_file=spec.emission_output_xml)
 
-        logger.info(f"Completed dataset generation for {spec.dataset_name} dataset")
-
-    logger.info("Completed simulation process")
-
 
 if __name__ == "__main__":
     main()

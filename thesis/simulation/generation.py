@@ -6,6 +6,7 @@ from pathlib import Path
 from thesis.common.config import DATA_DIR
 from thesis.common.logger import log_subprocess_result
 from thesis.simulation.config import (
+    CLOSURE_ADDITIONAL_FILE,
     NETWORK,
     OSM_WEB_WIZARD,
     RANDOM_TRIPS,
@@ -63,6 +64,10 @@ def edit_network() -> None:
         FileNotFoundError: If the network file does not exist.
         Exception: If the network editing fails.
     """
+    if CLOSURE_ADDITIONAL_FILE.exists():
+        logger.info("Closure additional file already exists, skipping network editing")
+        return
+
     if not NETWORK.exists():
         error_msg = f"Network file not found: {NETWORK}"
         logger.error(error_msg)
