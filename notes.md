@@ -1,13 +1,5 @@
 # Tracker
 
-## Dataset
-- np.random.uniform(0.98, 1.02) -> np.random.normal(1.0, 0.01)
-- DATA_DIR = SIMULATION_DIR / "data" -> DATA_DIR = SIMULATION_DIR / "new"
-- data.py:ensure_dataset_is_available_and_valid(fcd_path) -> Comment out
-- TRAIN_SEED = 42 -> TRAIN_SEED = RANDOM_SEED
-- TEST_SEED = 42 -> TEST_SEED = RANDOM_SEED
-- *.sumocfg:data/ -> *.sumocfg:new/
-
 ## Architecture
 - User stories review
 - New architecture plan and diagram, and possibly sequence diagrams etc
@@ -22,6 +14,8 @@
 - Database for storing the data and predictions, and the model weights
 
 ## Models
+- Cross-validation or at least validation split from training data with stratified sampling
+
 - Dataclass for scenario specs on experiments
 
 - Scaling of new features
@@ -31,6 +25,8 @@
 
 - One hot encode the hour bin
 - Feature engineering
+- Feature selection and feature importance
+- SHAP values
 - Extra distances (euclidean, manhattan, heaversine)
 - Center and diff of lat and long coordinates
 - Clustering features like MiniKBatchMeans for start and end coordinates, PCA for all coordinates
