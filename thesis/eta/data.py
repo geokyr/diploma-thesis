@@ -107,8 +107,13 @@ def ensure_dataset_is_available_and_valid(dataset_path: Path, max_retries: int =
                 logger.info(f"File {dataset_filename} is available and valid")
                 return
             else:
-                logger.warning(f"Removing existing file {dataset_filename} after failed integrity check")
-                dataset_path.unlink()
+                backup_path = dataset_path.with_suffix(dataset_path.suffix + ".backup")
+                logger.warning(
+                    f"Existing file {dataset_filename} failed integrity check, moving to {backup_path.name} and downloading original."
+                )
+                if backup_path.exists():
+                    logger.warning(f"Backup already exists at {backup_path}, overwriting")
+                dataset_path.rename(backup_path)
 
         logger.info(f"Downloading {dataset_filename} (attempt {attempt + 1}/{max_retries + 1})")
         success = download_file_from_zenodo(dataset_filename, dataset_path)
