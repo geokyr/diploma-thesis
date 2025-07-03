@@ -7,7 +7,7 @@
 
     <input>
         <net-file value="osm.net.xml.gz"/>
-        <route-files value="closure-test.trips.xml, fixed.rou.xml"/>
+        <route-files value="closure-test.trips.xml"/>
         <additional-files value="osm.poly.xml.gz, vtypes.xml, closure.add.xml"/>
     </input>
 
@@ -32,12 +32,10 @@
     </gui_only>
 
     <output>
-        <netstate-dump value="data/closure-test-dump.xml"/>
         <fcd-output value="data/closure-test-fcd.xml"/>
-        <fcd-output.attributes value="id, x, y, speed, acceleration, odometer"/>
+        <fcd-output.attributes value="id, x, y, speed, lane, odometer"/>
         <emission-output value="data/closure-test-emission.xml"/>
         <emission-output.attributes value="id, fuel, waiting"/>
-        <emission-output.precision value="2"/>
     </output>
 
 </sumoConfiguration>

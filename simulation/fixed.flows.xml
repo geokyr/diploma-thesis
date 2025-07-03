@@ -1,6 +1,0 @@
-<routes>
-    <flow id="trip1-routeA" begin="0" period="600" number="60"
-          from="23182962" to="169130585" via="260124786#0 1209362820 299645496" />
-    <flow id="trip1-routeB" begin="0" period="600" number="60"
-          from="23182962" to="169130585" via="299506410#0 221139568 -820421378#1" />
-</routes>

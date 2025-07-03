@@ -3,14 +3,13 @@ from thesis.simulation.config import LOGS_DIR
 from thesis.simulation.generation import (
     convert_xml_to_csv,
     edit_network,
-    generate_fixed_routes,
     generate_network,
     generate_random_trips,
     simulate_scenario,
     update_trip_ids,
     update_vehicle_types,
 )
-from thesis.simulation.utils import build_dataset_specs
+from thesis.simulation.specs import build_dataset_specs
 
 
 def main():
@@ -19,7 +18,6 @@ def main():
 
     generate_network()
     edit_network()
-    generate_fixed_routes()
 
     dataset_specs = build_dataset_specs()
     for spec in dataset_specs.values():
@@ -34,7 +32,6 @@ def main():
         update_vehicle_types(
             trips_file=spec.trips_file,
             vehicle_type=spec.vehicle_type,
-            fixed_routes_file=spec.fixed_routes_file,
         )
 
         simulate_scenario(config=spec.config)

@@ -5,10 +5,6 @@ from pathlib import Path
 
 from thesis.common.logger import log_subprocess_result
 from thesis.simulation.config import (
-    DUAROUTER,
-    FIXED_FLOWS_FILE,
-    FIXED_ROUTES_ALT_FILE,
-    FIXED_ROUTES_FILE,
     NETWORK,
     OSM_WEB_WIZARD,
     RANDOM_TRIPS,
@@ -66,10 +62,6 @@ def edit_network() -> None:
         FileNotFoundError: If the network file does not exist.
         Exception: If the network editing fails.
     """
-    if FIXED_FLOWS_FILE.exists():
-        logger.info("Fixed flows file already exists, skipping network editing")
-        return
-
     if not NETWORK.exists():
         error_msg = f"Network file not found: {NETWORK}"
         logger.error(error_msg)
@@ -89,55 +81,6 @@ def edit_network() -> None:
     except Exception as e:
         logger.error(f"Failed to edit network: {e}")
         raise
-
-
-def generate_fixed_routes() -> None:
-    """
-    Generate fixed routes using the SUMO duarouter tool.
-
-    Raises:
-        FileNotFoundError: If the network, fixed flows, or fixed routes file does not exist.
-        Exception: If the fixed routes generation fails.
-    """
-    if FIXED_ROUTES_FILE.exists():
-        logger.info("Fixed routes file already exists, skipping generation")
-        return
-
-    if not NETWORK.exists():
-        error_msg = f"Network file not found: {NETWORK}"
-        logger.error(error_msg)
-        raise FileNotFoundError(error_msg)
-
-    if not FIXED_FLOWS_FILE.exists():
-        error_msg = f"Fixed flows file not found: {FIXED_FLOWS_FILE}"
-        logger.error(error_msg)
-        raise FileNotFoundError(error_msg)
-
-    command = [
-        str(DUAROUTER),
-        "--net-file",
-        str(NETWORK),
-        "--route-files",
-        str(FIXED_FLOWS_FILE),
-        "--output-file",
-        str(FIXED_ROUTES_FILE),
-    ]
-
-    try:
-        result = subprocess.run(command, capture_output=True, check=True, text=True)
-        log_subprocess_result("duarouter", logger, command, result)
-
-    except Exception as e:
-        logger.error(f"Failed to generate fixed routes: {e}")
-        raise
-
-    if FIXED_ROUTES_FILE.exists() and FIXED_ROUTES_ALT_FILE.exists():
-        FIXED_ROUTES_ALT_FILE.unlink()
-        logger.info(f"Fixed routes generated successfully: {FIXED_ROUTES_FILE}")
-    else:
-        error_msg = f"Fixed routes file not found: {FIXED_ROUTES_FILE}"
-        logger.error(error_msg)
-        raise FileNotFoundError(error_msg)
 
 
 def generate_random_trips(
@@ -236,17 +179,16 @@ def update_trip_ids(trips_file: Path) -> None:
         raise
 
 
-def update_vehicle_types(trips_file: Path, vehicle_type: str = "car", fixed_routes_file: Path | None = None) -> None:
+def update_vehicle_types(trips_file: Path, vehicle_type: str = "car") -> None:
     """
-    Update vehicle types in the given trips file and, if provided, in fixed routes file.
+    Update vehicle types in the given trips file.
 
     Args:
         trips_file (Path): Path to the trips file to be updated.
         vehicle_type (str): Vehicle type to set in the files.
-        fixed_routes_file (Path | None): Path to the fixed routes file to be updated (optional).
 
     Raises:
-        FileNotFoundError: If the trips, or fixed routes file does not exist.
+        FileNotFoundError: If the trips file does not exist.
         Exception: If the vehicle types update fails.
     """
     if not trips_file.exists():
@@ -264,24 +206,6 @@ def update_vehicle_types(trips_file: Path, vehicle_type: str = "car", fixed_rout
 
         tree.write(trips_file)
         logger.info(f"Vehicle types set to '{vehicle_type}' for {trip_count} trips in {trips_file}")
-
-        if not fixed_routes_file:
-            return
-
-        if not fixed_routes_file.exists():
-            logger.error(f"Fixed routes file not found: {fixed_routes_file}")
-            raise FileNotFoundError(f"Fixed routes file not found: {fixed_routes_file}")
-
-        tree = ET.parse(fixed_routes_file)
-        root = tree.getroot()
-
-        vehicle_count = 0
-        for vehicle in root.findall("vehicle"):
-            vehicle.set("type", vehicle_type)
-            vehicle_count += 1
-
-        tree.write(fixed_routes_file)
-        logger.info(f"Vehicle types set to '{vehicle_type}' for {vehicle_count} vehicles in {fixed_routes_file}")
 
     except Exception as e:
         logger.error(f"Failed to update vehicle types: {e}")
