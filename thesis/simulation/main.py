@@ -4,7 +4,7 @@ from thesis.simulation.generation import (
     convert_xml_to_csv_and_move,
     edit_network,
     generate_network,
-    generate_network_with_friction,
+    generate_rain_network,
     generate_random_trips,
     simulate_scenario,
     update_trip_ids,
@@ -18,7 +18,7 @@ def main():
     logger.info("Starting simulation process")
 
     generate_network()
-    generate_network_with_friction()
+    generate_rain_network()
     edit_network()
 
     dataset_specs = build_dataset_specs()
