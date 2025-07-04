@@ -15,6 +15,7 @@ dependencies:
   - cupy=13.4.1
   - pip:
     - eclipse-sumo==1.21.0
+    - traci==1.23.1
     - xgboost==2.1.4
     - lightgbm==4.6.0
     - optuna==4.4.0
