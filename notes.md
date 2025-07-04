@@ -16,7 +16,7 @@
 ## Models
 - Turn off PowerToys Awake
 
-- Add starting logs before operations on eta, so the user knows what is running
+- Add starting logs before operations on eta, so the user knows what is running at the moment
 
 - Cross-validation or at least validation split from training data with stratified sampling
 
