@@ -1,3 +1,4 @@
+import gzip
 import logging
 import subprocess
 import xml.etree.ElementTree as ET
@@ -58,18 +59,17 @@ def generate_network() -> None:
 
 def generate_rain_network(friction: float = 0.5) -> None:
     """
-    Generate a rain network file with friction values using netconvert.
+    Generate a rain network file with friction values by modifying the existing network XML.
 
     Args:
-        friction (float): Default friction value to apply to all edges. Defaults to 0.7.
+        friction (float): Friction value to apply to all edges.
 
     Raises:
         FileNotFoundError: If the base network file does not exist.
-        subprocess.CalledProcessError: If the netconvert command returns a non-zero exit code.
         Exception: If the network generation fails.
     """
     if RAIN_NETWORK.exists():
-        logger.info(f"Rain network file already exists: {RAIN_NETWORK}, skipping generation")
+        logger.info("Rain network file already exists, skipping generation")
         return
 
     if not NETWORK.exists():
@@ -77,39 +77,23 @@ def generate_rain_network(friction: float = 0.5) -> None:
         logger.error(error_msg)
         raise FileNotFoundError(error_msg)
 
-    command = [
-        "netconvert",
-        "--sumo-net-file",
-        str(NETWORK),
-        "--output-file",
-        str(RAIN_NETWORK),
-        "--default.friction",
-        str(friction),
-    ]
-
     try:
-        command_str = " ".join(str(arg) for arg in command)
-        logger.info(f"Executing: {command_str}")
+        logger.info(f"Reading network from {NETWORK}")
 
-        process = subprocess.Popen(
-            command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1, universal_newlines=True
-        )
+        with gzip.open(NETWORK, "rb") as f_in:
+            tree = ET.parse(f_in)
+            root = tree.getroot()
 
-        for line in process.stdout:
-            line = line.rstrip()
-            if line:
-                logger.info(f"netconvert: {line}")
+        lanes_updated = 0
+        for lane in root.findall(".//lane"):
+            lane.set("friction", str(friction))
+            lanes_updated += 1
 
-        return_code = process.wait()
+        with gzip.open(RAIN_NETWORK, "wb") as f_out:
+            tree.write(f_out, xml_declaration=True, encoding="UTF-8")
 
-        if return_code != 0:
-            raise subprocess.CalledProcessError(return_code, command)
+        logger.info(f"Generated rain network with {friction} friction on {lanes_updated} lanes")
 
-        logger.info(f"Rain network generated successfully with {friction} friction: {RAIN_NETWORK}")
-
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Rain network generation failed with return code {e.returncode}")
-        raise
     except Exception as e:
         logger.error(f"Failed to generate rain network: {e}")
         raise
