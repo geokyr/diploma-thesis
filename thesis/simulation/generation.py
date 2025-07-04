@@ -56,7 +56,7 @@ def generate_network() -> None:
         raise
 
 
-def generate_rain_network(friction: float = 0.7) -> None:
+def generate_rain_network(friction: float = 0.5) -> None:
     """
     Generate a rain network file with friction values using netconvert.
 
