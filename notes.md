@@ -14,9 +14,15 @@
 - Database for storing the data and predictions, and the model weights
 
 ## Models
+- Turn off PowerToys Awake
+
+- Add starting logs before operations on eta, so the user knows what is running
+
 - Cross-validation or at least validation split from training data with stratified sampling
 
 - Dataclass for scenario specs on experiments
+
+- Sklearn pipeline for preprocessing and training
 
 - Scaling of new features
 - Log/Quantile/Box-Cox transformations of new features
