@@ -7,6 +7,7 @@ from thesis.common.config import DATA_DIR
 from thesis.simulation.config import (
     CLOSURE_ADDITIONAL_FILE,
     NETWORK,
+    NETWORK_RAIN,
     OSM_WEB_WIZARD,
     RANDOM_TRIPS,
     XML2CSV,
@@ -52,6 +53,65 @@ def generate_network() -> None:
 
     except Exception as e:
         logger.error(f"Failed to generate network: {e}")
+        raise
+
+
+def generate_network_with_friction(friction: float = 0.7) -> None:
+    """
+    Generate a network file with friction values using netconvert.
+
+    Args:
+        friction (float): Default friction value to apply to all edges. Defaults to 0.7.
+
+    Raises:
+        FileNotFoundError: If the base network file does not exist.
+        subprocess.CalledProcessError: If the netconvert command returns a non-zero exit code.
+        Exception: If the network generation fails.
+    """
+    if NETWORK_RAIN.exists():
+        logger.info(f"Network with friction file already exists: {NETWORK_RAIN}, skipping generation")
+        return
+
+    if not NETWORK.exists():
+        error_msg = f"Base network file not found: {NETWORK}"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
+
+    command = [
+        "netconvert",
+        "--sumo-net-file",
+        str(NETWORK),
+        "--output-file",
+        str(NETWORK_RAIN),
+        "--default.friction",
+        str(friction),
+    ]
+
+    try:
+        command_str = " ".join(str(arg) for arg in command)
+        logger.info(f"Executing: {command_str}")
+
+        process = subprocess.Popen(
+            command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1, universal_newlines=True
+        )
+
+        for line in process.stdout:
+            line = line.rstrip()
+            if line:
+                logger.info(f"netconvert: {line}")
+
+        return_code = process.wait()
+
+        if return_code != 0:
+            raise subprocess.CalledProcessError(return_code, command)
+
+        logger.info(f"Network with friction generated successfully: {NETWORK_RAIN} (friction={friction})")
+
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Network generation with friction failed with return code {e.returncode}")
+        raise
+    except Exception as e:
+        logger.error(f"Failed to generate network with friction: {e}")
         raise
 
 

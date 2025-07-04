@@ -22,6 +22,7 @@ LOGS_DIR = SIMULATION_DIR / "logs"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 NETWORK = SIMULATION_DIR / "osm.net.xml.gz"
+NETWORK_RAIN = SIMULATION_DIR / "osm-rain.net.xml.gz"
 CLOSURE_ADDITIONAL_FILE = SIMULATION_DIR / "closure.add.xml"
 
 SCENARIO_BASE = "base"

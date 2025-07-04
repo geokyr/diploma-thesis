@@ -1,7 +1,8 @@
 <additional>
     <vTypes>
-        <!-- 10% change from defaults: accel="2.6" decel="4.0" minGap="2.5" speedFactor="1.0" sigma="0.5" tau="1" -->
-        <vType id="car-rain" vClass="passenger" length="5.00" maxSpeed="55.55" emissionClass="HBEFA3/PC_G_EU4" 
-               accel="2.3" decel="3.6" minGap="2.8" speedFactor="0.9" sigma="0.55" tau="1.1"/>
+        <vType id="car-rain" vClass="passenger" accel="2.6" decel="4.5" length="5.00"
+               minGap="2.50" maxSpeed="55.55" emissionClass="HBEFA3/PC_G_EU4">
+            <param key="has.friction.device" value="true"/>
+        </vType>
     </vTypes>
 </additional>
