@@ -105,7 +105,7 @@ def generate_rain_network(friction: float = 0.7) -> None:
         if return_code != 0:
             raise subprocess.CalledProcessError(return_code, command)
 
-        logger.info(f"Rain network generated successfully: {RAIN_NETWORK} (friction={friction})")
+        logger.info(f"Rain network generated successfully with {friction} friction: {RAIN_NETWORK}")
 
     except subprocess.CalledProcessError as e:
         logger.error(f"Rain network generation failed with return code {e.returncode}")
