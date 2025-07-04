@@ -57,7 +57,7 @@ def generate_network() -> None:
         raise
 
 
-def generate_rain_network(friction: float = 0.5) -> None:
+def generate_rain_network(friction: float = 0.4) -> None:
     """
     Generate a rain network file with friction values by modifying the existing network XML.
 
