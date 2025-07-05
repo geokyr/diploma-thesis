@@ -11,6 +11,7 @@ from thesis.simulation.config import (
     OSM_WEB_WIZARD,
     RAIN_NETWORK,
     RANDOM_TRIPS,
+    VEHICLE_CAR,
     XML2CSV,
 )
 
@@ -260,13 +261,12 @@ def update_trip_ids(trips_file: Path) -> None:
         raise
 
 
-def update_vehicle_types(trips_file: Path, vehicle_type: str = "car") -> None:
+def update_vehicle_types(trips_file: Path) -> None:
     """
     Update vehicle types in the given trips file.
 
     Args:
         trips_file (Path): Path to the trips file to be updated.
-        vehicle_type (str): Vehicle type to set in the files.
 
     Raises:
         FileNotFoundError: If the trips file does not exist.
@@ -284,11 +284,11 @@ def update_vehicle_types(trips_file: Path, vehicle_type: str = "car") -> None:
 
         trip_count = 0
         for trip in root.findall("trip"):
-            trip.set("type", vehicle_type)
+            trip.set("type", VEHICLE_CAR)
             trip_count += 1
 
         tree.write(trips_file)
-        logger.info(f"Vehicle types set to '{vehicle_type}' for {trip_count} trips")
+        logger.info(f"Vehicle types set to '{VEHICLE_CAR}' for {trip_count} trips")
 
     except Exception as e:
         logger.error(f"Failed to update vehicle types: {e}")

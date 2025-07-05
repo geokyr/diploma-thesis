@@ -18,8 +18,6 @@ from thesis.simulation.config import (
     SEED_CLOSURE,
     SEED_RAIN,
     TYPES,
-    VEHICLE_CAR,
-    VEHICLE_CAR_RAIN,
 )
 
 
@@ -33,7 +31,6 @@ class DatasetSpec:
         trips_file (Path): The path to the trips file.
         traffic_generation_periods (list[float]): The traffic generation periods.
         seed (int): The seed for the random number generator.
-        vehicle_type (str): The type of vehicle.
         config (Path): The path to the configuration file.
         fcd_output_xml (Path): The path to the FCD output XML file.
         emission_output_xml (Path): The path to the emission output XML file.
@@ -43,7 +40,6 @@ class DatasetSpec:
     trips_file: Path
     traffic_generation_periods: list[float]
     seed: int
-    vehicle_type: str
     config: Path
     fcd_output_xml: Path
     emission_output_xml: Path
@@ -108,22 +104,6 @@ def get_seed(scenario: str) -> int:
     return scenario_seeds.get(scenario, RANDOM_SEED)
 
 
-def get_vehicle_type(scenario: str) -> str:
-    """
-    Get the vehicle type for a given scenario.
-
-    Args:
-        scenario (str): The scenario name.
-
-    Returns:
-        str: The vehicle type.
-    """
-    vehicle_type_scenario = {
-        SCENARIO_RAIN: VEHICLE_CAR_RAIN,
-    }
-    return vehicle_type_scenario.get(scenario, VEHICLE_CAR)
-
-
 def get_config(dataset_name: str) -> Path:
     """
     Get the configuration file for a given dataset name.
@@ -181,7 +161,6 @@ def build_dataset_specs() -> dict[str, DatasetSpec]:
                 trips_file=get_trips_file(dataset_name),
                 traffic_generation_periods=get_traffic_generation_periods(type),
                 seed=get_seed(scenario),
-                vehicle_type=get_vehicle_type(scenario),
                 config=get_config(dataset_name),
                 fcd_output_xml=get_fcd_output_xml(dataset_name),
                 emission_output_xml=get_emission_output_xml(dataset_name),
