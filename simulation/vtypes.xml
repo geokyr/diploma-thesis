@@ -1,4 +1,6 @@
 <vTypes>
     <vType id="car" vClass="passenger" accel="2.6" decel="4.5" length="5.00"
-           minGap="2.50" maxSpeed="55.55" emissionClass="HBEFA3/PC_G_EU4"/>
+           minGap="2.50" maxSpeed="55.55" emissionClass="HBEFA3/PC_G_EU4">
+        <param key="has.friction.device" value="true"/>
+    </vType>
 </vTypes>
