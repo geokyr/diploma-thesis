@@ -33,7 +33,6 @@ def main():
         update_trip_ids(trips_file=spec.trips_file)
         update_vehicle_types(
             trips_file=spec.trips_file,
-            vehicle_type=spec.vehicle_type,
         )
 
         simulate_scenario(config=spec.config)
