@@ -1,41 +1,47 @@
 <additional>
-    <rerouter id="closure" edges="167920360#0 167920360#1 23182965#0 207979569#0 207979569#3 168914464#0 167907746#0 704293238 207891571#0 168914459#0 751068056 168914458#0 299510529#0 299644700#0 299644700#2 299644700#5 299644700#7 299644700#8 601290888#0 601290888#3 601290888#5 601290888#7 601290888#9 299514252#4 299514252#5 299514252#6 299514252#9 299514252#10 299514252#13 299514252#16 -909651170#1 -909651169 -820421378#1 -909651172 -972690317 284174992#0 52493497#0 909651168 789786774 820421378#0 909651169 909651170#0 762514801#3 741733384#0 260824573#0 260824573#3 311408820#0 311408820#5 311408820#8 168737311#0">
+    <rerouter id="closure" edges="167920360#0 167920360#1 23182965#0 207979569#0 207979569#3 168914464#0 167907746#0
+                                  168914459#0 751068056 168914458#0 299510529#0 299644700#0 299644700#2 299644700#5 299644700#7 299644700#8 298828555#0
+                                  601290888#0 601290888#3 601290888#5 601290888#7 601290888#9
+                                  299514252#4 299514252#5 299514252#6 299514252#9 299514252#10 299514252#13 299514252#16
+                                  -909651170#1 -909651169 -820421378#1 -909651172 -972690317 284174992#0
+                                  52493497#0 909651168 789786774 820421378#0 909651169 909651170#0
+                                  762514801#3 741733384#0 260824573#0 260824573#3
+                                  311408820#0 311408820#5 311408820#8 168737311#0">
+        <!-- Here we tried to remove mostly lanes that continued straight ahead and did not turn left or right -->
         <interval begin="0" end="36000">
-            <!-- Lane 0 is used in every closure, except when turning right is required -->
-            <!-- Panepistimiou from Vasilissis Sofias to Charilaou Trikoupi - 1 lane -->
+            <!-- Panepistimiou from Vasilissis Sofias to Ippokratous - 1 lane -->
             <closingLaneReroute id="167920360#0_1" disallow="all"/>
-            <closingLaneReroute id="167920360#1_0" disallow="all"/>
-            <closingLaneReroute id="23182965#0_0" disallow="all"/>
-            <closingLaneReroute id="207979569#0_0" disallow="all"/>
-            <closingLaneReroute id="207979569#3_0" disallow="all"/>
+            <closingLaneReroute id="167920360#1_1" disallow="all"/>
+            <closingLaneReroute id="23182965#0_1" disallow="all"/>
+            <closingLaneReroute id="207979569#0_1" disallow="all"/>
+            <closingLaneReroute id="207979569#3_1" disallow="all"/>
             <closingLaneReroute id="168914464#0_1" disallow="all"/>
-            <closingLaneReroute id="167907746#0_0" disallow="all"/>
-            <closingLaneReroute id="704293238_0" disallow="all"/>
-            <closingLaneReroute id="207891571#0_0" disallow="all"/>
-            <!-- Akadimias from Ippokratous to Kanari 1 lane -->
-            <closingLaneReroute id="168914459#0_0" disallow="all"/>
+            <closingLaneReroute id="167907746#0_1" disallow="all"/>
+            <!-- Akadimias from Ippokratous to Vasilissis Sofias 1 lane -->
+            <closingLaneReroute id="168914459#0_1" disallow="all"/>
             <closingLaneReroute id="751068056_1" disallow="all"/>
-            <closingLaneReroute id="168914458#0_0" disallow="all"/>
-            <closingLaneReroute id="299510529#0_0" disallow="all"/>
-            <closingLaneReroute id="299644700#0_0" disallow="all"/>
-            <closingLaneReroute id="299644700#2_0" disallow="all"/>
-            <closingLaneReroute id="299644700#5_0" disallow="all"/>
-            <closingLaneReroute id="299644700#7_0" disallow="all"/>
-            <closingLaneReroute id="299644700#8_0" disallow="all"/>
+            <closingLaneReroute id="168914458#0_1" disallow="all"/>
+            <closingLaneReroute id="299510529#0_1" disallow="all"/>
+            <closingLaneReroute id="299644700#0_1" disallow="all"/>
+            <closingLaneReroute id="299644700#2_1" disallow="all"/>
+            <closingLaneReroute id="299644700#5_1" disallow="all"/>
+            <closingLaneReroute id="299644700#7_1" disallow="all"/>
+            <closingLaneReroute id="299644700#8_1" disallow="all"/>
+            <closingLaneReroute id="298828555#0_1" disallow="all"/>
             <!-- Charilaou Trikoupi from Solonos to Kallidromiou - 1 lane-->
-            <closingLaneReroute id="601290888#0_0" disallow="all"/>
-            <closingLaneReroute id="601290888#3_0" disallow="all"/>
+            <closingLaneReroute id="601290888#0_1" disallow="all"/>
+            <closingLaneReroute id="601290888#3_1" disallow="all"/>
             <closingLaneReroute id="601290888#5_0" disallow="all"/>
-            <closingLaneReroute id="601290888#7_0" disallow="all"/>
+            <closingLaneReroute id="601290888#7_1" disallow="all"/>
             <closingLaneReroute id="601290888#9_0" disallow="all"/>
             <!-- Ippokratous from Kallidromiou to Solonos - 1 lane -->
             <closingLaneReroute id="299514252#4_0" disallow="all"/>
             <closingLaneReroute id="299514252#5_0" disallow="all"/>
-            <closingLaneReroute id="299514252#6_0" disallow="all"/>
+            <closingLaneReroute id="299514252#6_1" disallow="all"/>
             <closingLaneReroute id="299514252#9_0" disallow="all"/>
             <closingLaneReroute id="299514252#10_0" disallow="all"/>
             <closingLaneReroute id="299514252#13_0" disallow="all"/>
-            <closingLaneReroute id="299514252#16_0" disallow="all"/>
+            <closingLaneReroute id="299514252#16_1" disallow="all"/>
             <!-- Vasilissis Sofias from Koumpari to Marasli - 1 lane-->
             <closingLaneReroute id="-909651170#1_0" disallow="all"/>
             <closingLaneReroute id="-909651169_0" disallow="all"/>
@@ -51,15 +57,15 @@
             <closingLaneReroute id="909651169_0" disallow="all"/>
             <closingLaneReroute id="909651170#0_0" disallow="all"/>
             <!-- 3is Septemvriou from Veranzerou to Stournari - 1 lane -->
-            <closingLaneReroute id="762514801#3_0" disallow="all"/>
-            <closingLaneReroute id="741733384#0_0" disallow="all"/>
-            <closingLaneReroute id="260824573#0_0" disallow="all"/>
-            <closingLaneReroute id="260824573#3_0" disallow="all"/>
+            <closingLaneReroute id="762514801#3_1" disallow="all"/>
+            <closingLaneReroute id="741733384#0_1" disallow="all"/>
+            <closingLaneReroute id="260824573#0_1" disallow="all"/>
+            <closingLaneReroute id="260824573#3_1" disallow="all"/>
             <!-- Patision from Stournari to Veranzerou - 1 lane -->
-            <closingLaneReroute id="311408820#0_0" disallow="all"/>
-            <closingLaneReroute id="311408820#5_0" disallow="all"/>
-            <closingLaneReroute id="311408820#8_0" disallow="all"/>
-            <closingLaneReroute id="168737311#0_0" disallow="all"/>
+            <closingLaneReroute id="311408820#0_1" disallow="all"/>
+            <closingLaneReroute id="311408820#5_1" disallow="all"/>
+            <closingLaneReroute id="311408820#8_1" disallow="all"/>
+            <closingLaneReroute id="168737311#0_1" disallow="all"/>
         </interval>
     </rerouter>
 </additional>
