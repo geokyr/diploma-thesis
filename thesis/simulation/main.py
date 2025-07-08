@@ -2,13 +2,11 @@ from thesis.common.logger import setup_logger
 from thesis.simulation.config import LOGS_DIR
 from thesis.simulation.generation import (
     convert_xml_to_csv_and_move,
-    edit_network,
-    generate_network,
+    generate_base_network,
+    generate_closure_network,
     generate_rain_network,
     generate_random_trips,
     simulate_scenario,
-    update_trip_ids,
-    update_vehicle_types,
 )
 from thesis.simulation.specs import build_dataset_specs
 
@@ -17,9 +15,9 @@ def main():
     logger = setup_logger("simulation", LOGS_DIR)
     logger.info("Starting simulation process")
 
-    generate_network()
+    generate_base_network()
+    generate_closure_network()
     generate_rain_network()
-    edit_network()
 
     dataset_specs = build_dataset_specs()
     for spec in dataset_specs.values():
@@ -28,15 +26,10 @@ def main():
         generate_random_trips(
             trips_file=spec.trips_file,
             traffic_generation_periods=spec.traffic_generation_periods,
+            network=spec.network_file,
             seed=spec.seed,
         )
-        update_trip_ids(trips_file=spec.trips_file)
-        update_vehicle_types(
-            trips_file=spec.trips_file,
-        )
-
         simulate_scenario(config=spec.config)
-
         convert_xml_to_csv_and_move(xml_file=spec.fcd_output_xml)
         convert_xml_to_csv_and_move(xml_file=spec.emission_output_xml)
 

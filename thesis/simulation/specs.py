@@ -10,6 +10,9 @@ from thesis.common.config import (
     TYPE_TRAIN,
 )
 from thesis.simulation.config import (
+    NETWORK_BASE,
+    NETWORK_CLOSURE,
+    NETWORK_RAIN,
     SCENARIO_BASE,
     SCENARIO_CLOSURE,
     SCENARIO_RAIN,
@@ -31,6 +34,7 @@ class DatasetSpec:
         trips_file (Path): The path to the trips file.
         traffic_generation_periods (list[float]): The traffic generation periods.
         seed (int): The seed for the random number generator.
+        network_file (Path): The path to the network file.
         config (Path): The path to the configuration file.
         fcd_output_xml (Path): The path to the FCD output XML file.
         emission_output_xml (Path): The path to the emission output XML file.
@@ -40,6 +44,7 @@ class DatasetSpec:
     trips_file: Path
     traffic_generation_periods: list[float]
     seed: int
+    network_file: Path
     config: Path
     fcd_output_xml: Path
     emission_output_xml: Path
@@ -104,6 +109,24 @@ def get_seed(scenario: str) -> int:
     return scenario_seeds.get(scenario, RANDOM_SEED)
 
 
+def get_network_file(scenario: str) -> Path:
+    """
+    Get the network file for a given scenario.
+
+    Args:
+        scenario (str): The scenario name.
+
+    Returns:
+        Path: The path to the network file.
+    """
+    scenario_networks = {
+        SCENARIO_BASE: NETWORK_BASE,
+        SCENARIO_CLOSURE: NETWORK_CLOSURE,
+        SCENARIO_RAIN: NETWORK_RAIN,
+    }
+    return scenario_networks.get(scenario, NETWORK_BASE)
+
+
 def get_config(dataset_name: str) -> Path:
     """
     Get the configuration file for a given dataset name.
@@ -161,6 +184,7 @@ def build_dataset_specs() -> dict[str, DatasetSpec]:
                 trips_file=get_trips_file(dataset_name),
                 traffic_generation_periods=get_traffic_generation_periods(type),
                 seed=get_seed(scenario),
+                network_file=get_network_file(scenario),
                 config=get_config(dataset_name),
                 fcd_output_xml=get_fcd_output_xml(dataset_name),
                 emission_output_xml=get_emission_output_xml(dataset_name),
