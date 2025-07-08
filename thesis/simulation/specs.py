@@ -11,14 +11,11 @@ from thesis.common.config import (
 )
 from thesis.simulation.config import (
     NETWORK_BASE,
-    NETWORK_CLOSURE,
     NETWORK_RAIN,
     SCENARIO_BASE,
-    SCENARIO_CLOSURE,
     SCENARIO_RAIN,
     SCENARIOS,
     SEED_BASE,
-    SEED_CLOSURE,
     SEED_RAIN,
     TYPES,
 )
@@ -103,7 +100,6 @@ def get_seed(scenario: str) -> int:
     """
     scenario_seeds = {
         SCENARIO_BASE: SEED_BASE,
-        SCENARIO_CLOSURE: SEED_CLOSURE,
         SCENARIO_RAIN: SEED_RAIN,
     }
     return scenario_seeds.get(scenario, RANDOM_SEED)
@@ -121,7 +117,6 @@ def get_network_file(scenario: str) -> Path:
     """
     scenario_networks = {
         SCENARIO_BASE: NETWORK_BASE,
-        SCENARIO_CLOSURE: NETWORK_CLOSURE,
         SCENARIO_RAIN: NETWORK_RAIN,
     }
     return scenario_networks.get(scenario, NETWORK_BASE)

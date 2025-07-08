@@ -6,10 +6,8 @@ from pathlib import Path
 
 from thesis.common.config import DATA_DIR
 from thesis.simulation.config import (
-    CLOSURE_EDGES,
     DEVICE_FRICTION_PROBABILITY,
     NETWORK_BASE,
-    NETWORK_CLOSURE,
     NETWORK_RAIN,
     OSM_WEB_WIZARD,
     RANDOM_TRIPS,
@@ -55,63 +53,6 @@ def generate_base_network() -> None:
 
     except Exception as e:
         logger.error(f"Failed to generate network: {e}")
-        raise
-
-
-def generate_closure_network() -> None:
-    """
-    Generate a closure network file by deleting the specified edges.
-
-    Raises:
-        FileNotFoundError: If the base network file does not exist.
-        subprocess.CalledProcessError: If the network generation fails.
-        Exception: If the network generation fails.
-    """
-    if NETWORK_CLOSURE.exists():
-        logger.info("Closure network file already exists, skipping generation")
-        return
-
-    if not NETWORK_BASE.exists():
-        error_msg = f"Base network file not found: {NETWORK_BASE}"
-        logger.error(error_msg)
-        raise FileNotFoundError(error_msg)
-
-    try:
-        closure_edges_str = ",".join(CLOSURE_EDGES)
-
-        command = [
-            "netconvert",
-            "--sumo-net-file",
-            str(NETWORK_BASE),
-            "--remove-edges",
-            closure_edges_str,
-            "-o",
-            str(NETWORK_CLOSURE),
-        ]
-        command_str = " ".join(str(arg) for arg in command)
-        logger.info(f"Executing: {command_str}")
-
-        process = subprocess.Popen(
-            command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1, universal_newlines=True
-        )
-
-        for line in process.stdout:
-            line = line.rstrip()
-            if line:
-                logger.info(f"netconvert: {line}")
-
-        return_code = process.wait()
-
-        if return_code != 0:
-            raise subprocess.CalledProcessError(return_code, command)
-
-        logger.info(f"Generated closure network file by removing {len(CLOSURE_EDGES)} edges")
-
-    except subprocess.CalledProcessError as e:
-        logger.error(f"netconvert failed with return code {e.returncode}")
-        raise
-    except Exception as e:
-        logger.error(f"Failed to generate closure network: {e}")
         raise
 
 

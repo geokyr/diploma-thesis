@@ -3,7 +3,6 @@ from thesis.simulation.config import LOGS_DIR
 from thesis.simulation.generation import (
     convert_xml_to_csv_and_move,
     generate_base_network,
-    generate_closure_network,
     generate_rain_network,
     generate_random_trips,
     simulate_scenario,
@@ -16,7 +15,6 @@ def main():
     logger.info("Starting simulation process")
 
     generate_base_network()
-    generate_closure_network()
     generate_rain_network()
 
     dataset_specs = build_dataset_specs()
