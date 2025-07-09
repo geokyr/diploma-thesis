@@ -14,7 +14,7 @@
 - Database for storing the data and predictions, and the model weights
 
 ## Models
-- Turn off PowerToys Awake
+- Migrate to uv or something similar
 
 - Add starting logs before operations on eta, so the user knows what is running at the moment
 
