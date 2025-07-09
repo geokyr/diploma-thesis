@@ -67,10 +67,6 @@ def generate_rain_network(friction: float = 0.4) -> None:
         FileNotFoundError: If the base network file does not exist.
         Exception: If the network generation fails.
     """
-    if NETWORK_RAIN.exists():
-        logger.info("Rain network file already exists, skipping generation")
-        return
-
     if not NETWORK_BASE.exists():
         error_msg = f"Base network file not found: {NETWORK_BASE}"
         logger.error(error_msg)
