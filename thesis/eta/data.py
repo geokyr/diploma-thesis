@@ -8,45 +8,68 @@ import requests
 from tqdm import tqdm
 
 from thesis.common.config import RANDOM_SEED
-from thesis.eta.config import DATASET_FILES_MD5, ZENODO_BASE_URL
+from thesis.eta.config import ZENODO_DATASET_API_URL
 
 logger = logging.getLogger(__name__)
 
 
-def calculate_md5(file_path: Path, chunk_size: int = 8192) -> str:
-    """
-    Calculate MD5 hash of a file.
-
-    Args:
-        file_path (Path): The path to the file to calculate the MD5 hash of.
-        chunk_size (int): The size of the chunks to read from the file.
-
-    Returns:
-        str: The MD5 hash of the file.
-    """
-    hash_md5 = hashlib.md5()
-    with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(chunk_size), b""):
-            hash_md5.update(chunk)
-    return hash_md5.hexdigest()
-
-
-def verify_file_integrity(file_path: Path, expected_md5: str) -> bool:
+def verify_file_integrity(file_path: Path, expected_md5: str, chunk_size: int = 8192) -> bool:
     """
     Verify file integrity using MD5 checksum.
 
     Args:
         file_path (Path): The path to the file to verify the integrity of.
         expected_md5 (str): The expected MD5 hash of the file.
+        chunk_size (int): The size of the chunks to read from the file.
 
     Returns:
         bool: True if the file is valid, False otherwise.
     """
-    actual_md5 = calculate_md5(file_path)
-    return actual_md5 == expected_md5
+    hash_md5 = hashlib.md5()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(chunk_size), b""):
+            hash_md5.update(chunk)
+    file_md5 = hash_md5.hexdigest()
+
+    return file_md5 == expected_md5
 
 
-def download_file_from_zenodo(filename: str, output_path: Path, chunk_size: int = 8192) -> bool:
+def get_file_md5_from_zenodo(filename: str) -> str:
+    """
+    Fetch MD5 hash for a specific file from Zenodo API.
+
+    Args:
+        filename (str): The name of the file to get MD5 hash for
+
+    Returns:
+        str: The MD5 hash
+    """
+    try:
+        file_url = f"{ZENODO_DATASET_API_URL}/files/{filename}"
+        response = requests.get(file_url)
+        response.raise_for_status()
+        file_data = response.json()
+        checksum = file_data.get("checksum")
+
+        if checksum and checksum.startswith("md5:"):
+            md5_hash = checksum[4:]
+            return md5_hash
+        else:
+            error_msg = f"Unexpected checksum format for {filename}: {checksum}"
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+
+    except requests.RequestException as e:
+        error_msg = f"Failed to fetch MD5 hash for {filename}: {e}"
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+    except Exception as e:
+        error_msg = f"Unexpected error fetching MD5 hash for {filename}: {e}"
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+
+
+def download_file_from_zenodo(filename: str, output_path: Path, chunk_size: int = 8192) -> None:
     """
     Download a single file from Zenodo with progress bar.
 
@@ -55,89 +78,53 @@ def download_file_from_zenodo(filename: str, output_path: Path, chunk_size: int 
         output_path (Path): The path to save the downloaded file.
         chunk_size (int): The size of the chunks to read from the file.
 
-    Returns:
-        bool: True if the file was downloaded successfully, False otherwise.
+    Raises:
+        RuntimeError: If the file cannot be downloaded.
     """
-    url = f"{ZENODO_BASE_URL}/files/{filename}"
-
     try:
-        response = requests.get(url, stream=True, headers={"Accept-Encoding": "identity"})
+        download_url = f"{ZENODO_DATASET_API_URL}/files/{filename}/content"
+        response = requests.get(download_url, stream=True, headers={"Accept-Encoding": "identity"})
         response.raise_for_status()
-        total_size = int(response.headers.get("content-length", 0))
-        logger.info(f"Downloading {filename} from Zenodo ({total_size} bytes)")
 
-        with open(output_path, "wb") as f, tqdm(total=total_size, unit="B", unit_scale=True, desc=filename) as pbar:
+        file_size = int(response.headers.get("content-length", 0))
+        with open(output_path, "wb") as f, tqdm(total=file_size, unit="B", unit_scale=True, desc=filename) as pbar:
             for chunk in response.iter_content(chunk_size=chunk_size):
                 if chunk:
                     f.write(chunk)
                     pbar.update(len(chunk))
 
-        return True
-
     except requests.RequestException as e:
-        logger.error(f"Failed to download {filename}: {e}")
         if output_path.exists():
             output_path.unlink()
-        return False
+
+        error_msg = f"Failed to download {filename}: {e}"
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
 
 
-def ensure_dataset_is_available_and_valid(dataset_path: Path, max_retries: int = 1) -> None:
+def ensure_dataset_is_valid(dataset_path: Path) -> None:
     """
-    Ensure that a dataset file is available and valid, downloading it from Zenodo if missing.
+    Ensure that a dataset file is valid, downloading it from Zenodo if missing.
 
     Args:
         dataset_path (Path): The path where the dataset file should be located.
-        max_retries (int): Maximum number of download/verification retries.
 
     Raises:
-        ValueError: If the filename is not in the known dataset files.
-        FileNotFoundError: If the file cannot be downloaded or verified after retries.
-        RuntimeError: If file is repeatedly invalid.
+        FileNotFoundError: If the file cannot be verified.
     """
     dataset_filename = dataset_path.name
 
-    if dataset_filename not in DATASET_FILES_MD5:
-        raise ValueError(f"Unknown dataset file: {dataset_filename}")
+    if not dataset_path.exists():
+        logger.info(f"File {dataset_filename} not found, downloading from Zenodo")
+        download_file_from_zenodo(dataset_filename, dataset_path)
 
-    expected_md5 = DATASET_FILES_MD5[dataset_filename]
-
-    for attempt in range(max_retries + 1):
-        if dataset_path.exists():
-            if verify_file_integrity(dataset_path, expected_md5):
-                logger.info(f"File {dataset_filename} is available and valid")
-                return
-            else:
-                backup_path = dataset_path.with_suffix(dataset_path.suffix + ".backup")
-                logger.warning(
-                    f"Existing file {dataset_filename} failed integrity check, moving to {backup_path.name} and downloading original."
-                )
-                if backup_path.exists():
-                    logger.warning(f"Backup already exists at {backup_path}, overwriting")
-                dataset_path.rename(backup_path)
-
-        logger.info(f"Downloading {dataset_filename} (attempt {attempt + 1}/{max_retries + 1})")
-        success = download_file_from_zenodo(dataset_filename, dataset_path)
-
-        if not success:
-            if attempt < max_retries:
-                logger.warning("Retrying failed download")
-                continue
-            else:
-                raise FileNotFoundError(f"Failed to download {dataset_filename} after {max_retries + 1} attempts")
-
-        if verify_file_integrity(dataset_path, expected_md5):
-            logger.info(f"Downloaded file {dataset_filename} is valid")
-            return
-        else:
-            logger.error(f"Downloaded file {dataset_filename} is invalid")
-            dataset_path.unlink()
-            if attempt < max_retries:
-                logger.warning("Retrying failed download")
-                continue
-            else:
-                raise RuntimeError(f"Downloaded file {dataset_filename} is repeatedly invalid")
-
-    raise RuntimeError(f"Unexpected error while ensuring availability and validity of {dataset_filename}")
+    expected_md5 = get_file_md5_from_zenodo(dataset_filename)
+    if verify_file_integrity(dataset_path, expected_md5):
+        logger.info(f"File {dataset_filename} is valid")
+    else:
+        error_msg = f"File {dataset_filename} is invalid"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
 
 
 def load_fcd_dataset(fcd_path: Path) -> pd.DataFrame:
@@ -150,7 +137,7 @@ def load_fcd_dataset(fcd_path: Path) -> pd.DataFrame:
     Returns:
         pd.DataFrame: A DataFrame containing the FCD data.
     """
-    ensure_dataset_is_available_and_valid(fcd_path)
+    ensure_dataset_is_valid(fcd_path)
 
     dtype = {
         "timestep_time": int,
