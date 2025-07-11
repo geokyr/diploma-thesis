@@ -12,8 +12,12 @@
 - Concept drift detection window for data based detection, maybe introduce error based later, if model performance allows it
 - Concept drift detection and mitigation service pipeline
 - Database for storing the data and predictions, and the model weights
+- Frontend with dashboards for metrics and drift for different models
+- Frontend with A to B routing, for example a few select routes with different colors and dots for current position, which when clicked will output a box with predictions for that route and maybe progress so far
 
 ## Models
+- Document the problem with the closure drift (before: prerouted cars and no rerouter on cars, cars were blocking and not moving at green traffic lights while there was a route and space to follow, and not moving until 300 seconds passed and they teleported / after: hard to keep same traffic volume with reduced space in network due to closed edges, as sumo was also inserting vehicles at different rates based on available space, hard to find a realistic scenario of closed edges that has an effect in the network, strong enough to be detected by the drift detector while not completely destroying the traffic patterns, also closed edges based on between centrality and closing even whole roads, the output was never good enough, the results were not as expected, meaning base > drift > retrain, instead of base > retrain > drift)
+
 - Migrate to uv or something similar
 
 - Add starting logs before operations on eta, so the user knows what is running at the moment
@@ -36,6 +40,9 @@
 - Extra distances (euclidean, manhattan, heaversine)
 - Center and diff of lat and long coordinates
 - Clustering features like MiniKBatchMeans for start and end coordinates, PCA for all coordinates
+
+- Hyperparameter tuning with optuna
+- Final model
 
 - Manage the source/destination uniqueness problem, where source X,Y are around 1k unique values, while destination X,Y are around 45k unique values, due to vehicles logging only every second, and therefore exiting the simulation area at a time where their final coordinates are not logged. This can be tackled with trip augmentation, adding noise to the source coordinates, using clustering features for the source and destination coordinates, and clustering the destination coordinates into 1k clusters, which is probably around the number of unique edges/lanes in the simulation area.
 
@@ -242,6 +249,3 @@ if __name__ == "__main__":
     print(f"Features: {feature_cols}") 
 
 ```
-
-- Hyperparameter tuning with optuna
-- Final model
