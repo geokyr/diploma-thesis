@@ -61,7 +61,7 @@ def plot_speed_histogram(df_fcd: pd.DataFrame, dataset_id: str, plots_dir: Path,
     """
     target_dir = plots_dir / dataset_id
     target_dir.mkdir(parents=True, exist_ok=True)
-    target_path = target_dir / "speed-histogram.png"
+    target_path = target_dir / "speed_histogram.png"
 
     plt.figure(figsize=(6, 4))
     plt.hist(df_fcd["vehicle_speed"], bins=bins)
@@ -97,7 +97,7 @@ def plot_average_speed_and_traffic_generation_period_per_hour(
 
     target_dir = plots_dir / dataset_id
     target_dir.mkdir(parents=True, exist_ok=True)
-    target_path = target_dir / "average-speed-and-traffic-generation-period-per-hour.png"
+    target_path = target_dir / "average_speed_and_traffic_generation_period_per_hour.png"
 
     _, ax1 = plt.subplots(figsize=(10, 4))
     ax1.plot(df_fcd_per_hour["hour"], df_fcd_per_hour["average_speed"], marker="o", label="Average Speed (km/h)")
@@ -135,7 +135,7 @@ def plot_trips_distances_distribution(df_trips: pd.DataFrame, dataset_id: str, p
     """
     target_dir = plots_dir / dataset_id
     target_dir.mkdir(parents=True, exist_ok=True)
-    target_path = target_dir / "trips-distances-distribution.png"
+    target_path = target_dir / "trips_distances_distribution.png"
 
     plt.figure(figsize=(6, 4))
     sns.histplot(df_trips["distance"], bins=50, alpha=0.7, edgecolor="black")
@@ -169,7 +169,7 @@ def plot_trips_durations_distribution(df_trips: pd.DataFrame, dataset_id: str, p
     """
     target_dir = plots_dir / dataset_id
     target_dir.mkdir(parents=True, exist_ok=True)
-    target_path = target_dir / "trips-durations-distribution.png"
+    target_path = target_dir / "trips_durations_distribution.png"
 
     plt.figure(figsize=(6, 4))
     sns.histplot(df_trips["duration"], bins=50, alpha=0.7, edgecolor="black")
