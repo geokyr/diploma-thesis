@@ -18,8 +18,6 @@
 ## Models
 - Document the problem with the closure drift (before: prerouted cars and no rerouter on cars, cars were blocking and not moving at green traffic lights while there was a route and space to follow, and not moving until 300 seconds passed and they teleported / after: hard to keep same traffic volume with reduced space in network due to closed edges, as sumo was also inserting vehicles at different rates based on available space, hard to find a realistic scenario of closed edges that has an effect in the network, strong enough to be detected by the drift detector while not completely destroying the traffic patterns, also closed edges based on between centrality and closing even whole roads, the output was never good enough, the results were not as expected, meaning base > drift > retrain, instead of base > retrain > drift)
 
-- Migrate to uv or something similar
-
 - Add starting logs before operations on eta, so the user knows what is running at the moment
 
 - Cross-validation or at least validation split from training data with stratified sampling
@@ -248,4 +246,16 @@ if __name__ == "__main__":
     print(f"Selected {len(feature_cols)} robust features")
     print(f"Features: {feature_cols}") 
 
+```
+
+## Notes
+To construct the environment with uv, the following commands were used.
+
+```bash
+uv init --bare --package --python 3.12.9
+uv python pin 3.12.9
+echo "" >> pyproject.toml
+echo "[tool.hatch.build.targets.wheel]" >> pyproject.toml
+echo 'packages = ["thesis"]' >> pyproject.toml
+uv add catboost==1.2.8 eclipse-sumo==1.21.0 ipykernel==6.29.5 lightgbm==4.6.0 matplotlib==3.10.1 numpy==2.2.3 optuna==4.4.0 pandas==2.2.3 requests==2.32.4 scikit-learn==1.6.1 scipy==1.15.2 seaborn==0.13.2 xgboost==2.1.4
 ```
