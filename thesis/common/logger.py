@@ -5,24 +5,24 @@ from pathlib import Path
 
 
 def setup_logger(
-    experiment_name: str,
+    logger_name: str,
     logs_dir: Path,
     log_level: str = "INFO",
     max_file_size: int = 10 * 1024 * 1024,
     backup_count: int = 5,
 ) -> logging.Logger:
     """
-    Setup the root logger with console and file handlers and return a logger for the experiment.
+    Setup the root logger with console and file handlers and return a configured logger.
 
     Args:
-        experiment_name (str): The name of the experiment.
+        logger_name (str): The name of the logger.
         logs_dir (Path): The directory to save the logs.
         log_level (str): Minimum logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
         max_file_size (int): Maximum size of log file in bytes before rotation.
         backup_count (int): Number of backup files to keep.
 
     Returns:
-        logging.Logger: A logger for the experiment.
+        logging.Logger: A configured logger with console and file handlers.
     """
     log_level = getattr(logging, log_level.upper())
     root_logger = logging.getLogger()
@@ -37,7 +37,7 @@ def setup_logger(
     console_handler.setFormatter(console_formatter)
     root_logger.addHandler(console_handler)
 
-    log_file = logs_dir / f"{experiment_name}.log"
+    log_file = logs_dir / f"{logger_name}.log"
     file_formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
     )
@@ -48,7 +48,6 @@ def setup_logger(
     file_handler.setFormatter(file_formatter)
     root_logger.addHandler(file_handler)
 
-    logger = logging.getLogger(experiment_name)
-    logger.info(f"Starting experiment {experiment_name}")
+    logger = logging.getLogger(logger_name)
 
     return logger
