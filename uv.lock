@@ -252,6 +252,7 @@ source = { editable = "." }
 dependencies = [
     { name = "catboost" },
     { name = "eclipse-sumo" },
+    { name = "ipykernel" },
     { name = "lightgbm" },
     { name = "matplotlib" },
     { name = "numpy" },
@@ -264,15 +265,11 @@ dependencies = [
     { name = "xgboost" },
 ]
 
-[package.dev-dependencies]
-dev = [
-    { name = "ipykernel" },
-]
-
 [package.metadata]
 requires-dist = [
     { name = "catboost", specifier = "==1.2.8" },
     { name = "eclipse-sumo", specifier = "==1.21.0" },
+    { name = "ipykernel", specifier = "==6.29.5" },
     { name = "lightgbm", specifier = "==4.6.0" },
     { name = "matplotlib", specifier = "==3.10.1" },
     { name = "numpy", specifier = "==2.2.3" },
@@ -286,7 +283,7 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "ipykernel", specifier = ">=6.29.5" }]
+dev = []
 
 [[package]]
 name = "eclipse-sumo"
