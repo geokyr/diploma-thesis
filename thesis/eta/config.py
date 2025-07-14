@@ -1,4 +1,4 @@
-from thesis.common.config import DATA_DIR, PROJECT_ROOT
+from thesis.common.config import PROJECT_ROOT
 
 OUTPUTS_DIR = PROJECT_ROOT / "outputs"
 OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -10,12 +10,7 @@ CATBOOST = "catboost"
 
 ZENODO_DATASET_API_URL = "https://zenodo.org/api/records/15848647"
 
-SCENARIOS = ["base", "rain", "base-rain"]
-SCENARIOS_SPECS = [
-    (
-        scenario,
-        DATA_DIR / f"{scenario.partition('-')[0]}-train-fcd.csv",
-        DATA_DIR / f"{scenario.partition('-')[2] or scenario}-test-fcd.csv",
-    )
-    for scenario in SCENARIOS
-]
+SCENARIO_BASE = "base"
+SCENARIO_RAIN = "rain"
+SCENARIO_BASE_RAIN = "base-rain"
+SCENARIOS = [SCENARIO_BASE, SCENARIO_RAIN, SCENARIO_BASE_RAIN]
