@@ -31,20 +31,21 @@ def main() -> None:
         trips_train = generate_trips(fcd_train)
         trips_test = generate_trips(fcd_test)
 
-        train_dataset_id = f"{scenario_name}-{TYPE_TRAIN}"
-        test_dataset_id = f"{scenario_name}-{TYPE_TEST}"
-        report_fcd_statistics(fcd_train, train_dataset_id)
-        report_fcd_statistics(fcd_test, test_dataset_id)
-        report_trips_statistics(trips_train, train_dataset_id)
-        report_trips_statistics(trips_test, test_dataset_id)
-        plot_speed_histogram(fcd_train, train_dataset_id, plots_dir)
-        plot_speed_histogram(fcd_test, test_dataset_id, plots_dir)
-        plot_average_speed_and_traffic_generation_period_per_hour(fcd_train, train_dataset_id, plots_dir)
-        plot_average_speed_and_traffic_generation_period_per_hour(fcd_test, test_dataset_id, plots_dir)
-        plot_trips_distances_distribution(trips_train, train_dataset_id, plots_dir)
-        plot_trips_distances_distribution(trips_test, test_dataset_id, plots_dir)
-        plot_trips_durations_distribution(trips_train, train_dataset_id, plots_dir)
-        plot_trips_durations_distribution(trips_test, test_dataset_id, plots_dir)
+        if "-" not in scenario_name:
+            train_dataset_id = f"{scenario_name}-{TYPE_TRAIN}"
+            test_dataset_id = f"{scenario_name}-{TYPE_TEST}"
+            report_fcd_statistics(fcd_train, train_dataset_id)
+            report_fcd_statistics(fcd_test, test_dataset_id)
+            report_trips_statistics(trips_train, train_dataset_id)
+            report_trips_statistics(trips_test, test_dataset_id)
+            plot_speed_histogram(fcd_train, train_dataset_id, plots_dir)
+            plot_speed_histogram(fcd_test, test_dataset_id, plots_dir)
+            plot_average_speed_and_traffic_generation_period_per_hour(fcd_train, train_dataset_id, plots_dir)
+            plot_average_speed_and_traffic_generation_period_per_hour(fcd_test, test_dataset_id, plots_dir)
+            plot_trips_distances_distribution(trips_train, train_dataset_id, plots_dir)
+            plot_trips_distances_distribution(trips_test, test_dataset_id, plots_dir)
+            plot_trips_durations_distribution(trips_train, train_dataset_id, plots_dir)
+            plot_trips_durations_distribution(trips_test, test_dataset_id, plots_dir)
 
         X_train, y_train = split_features_and_target(trips_train)
         X_test, y_test = split_features_and_target(trips_test)
