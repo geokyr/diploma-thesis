@@ -10,7 +10,7 @@ CATBOOST = "catboost"
 
 ZENODO_DATASET_API_URL = "https://zenodo.org/api/records/15848647"
 
-SCENARIOS = ["base", "base-rain", "rain"]
+SCENARIOS = ["base", "rain", "base-rain"]
 SCENARIOS_SPECS = [
     (
         scenario,
