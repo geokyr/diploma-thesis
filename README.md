@@ -3,77 +3,52 @@
 Continuous Machine Learning, Concept Drift, MLOps, and Cooperative, Connected and Automated Mobility applications for my Diploma Thesis at ECE NTUA
 
 ## Environment Setup
-This repository contains a `thesis.yaml` file that defines the conda environment for the project. The environment includes all the necessary dependencies and packages required to run the code.
 
-[Miniconda](https://www.anaconda.com/docs/getting-started/miniconda/install) or [Anaconda](https://www.anaconda.com/docs/getting-started/anaconda/install) is required to create the environment.
+All dependencies are declared in `pyproject.toml` and managed with [uv](https://docs.astral.sh/uv/).
 
-### Installation
-
-```bash
-conda env create -f thesis.yaml
-```
-### Activation
-
-```bash
-conda activate thesis
+### Install uv
+```powershell
+# Windows
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-### Deactivation
-
 ```bash
-conda deactivate
+# Linux/MacOS
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-## SUMO Setup
+### Clone and install dependencies
+```bash
+git clone https://github.com/geokyr/diploma-thesis
+cd diploma-thesis
+uv install
+```
 
-### Installation
-SUMO is already installed on the conda environment.
+This will create a virtual environment `.venv` in the project root and install all the dependencies.
 
-### Environment Variables
-To use SUMO, you need to set the environment variable `SUMO_HOME` to the path where SUMO is installed. It is also useful to add the SUMO binaries and tools to the `PATH` environment variable. You can do this by utilizing the `activate.d` scripts provided by conda that run every time you activate the environment.
+### Run your code
+All scripts should be invoked via `uv run` so they use the right virtual environment.
+
+```bash
+uv run python scripts/simulation.py
+```
+
+Another option is to activate the virtual environment and run the scripts directly.
 
 ```powershell
-# For Windows
-Set-Content -Path "$env:CONDA_PREFIX\etc\conda\activate.d\env_vars.ps1" -Value '$env:SUMO_HOME = "$env:CONDA_PREFIX\Lib\site-packages\sumo"
-$env:PATH = "$env:PATH;$env:SUMO_HOME\bin;$env:SUMO_HOME\tools"'
+# Windows
+.venv\Scripts\activate
+python scripts/simulation.py
 ```
 
 ```bash
-# For Linux/MacOS
-echo 'export SUMO_HOME="$CONDA_PREFIX/lib/python3.12/site-packages/sumo"' >> $CONDA_PREFIX/etc/conda/activate.d/env_vars.sh
-echo 'export PATH="$PATH:$SUMO_HOME/bin:$SUMO_HOME/tools"' >> $CONDA_PREFIX/etc/conda/activate.d/env_vars.sh
+# Linux/MacOS
+source .venv/bin/activate
+python scripts/simulation.py
 ```
 
-To restart the conda environment and reset the environment variables, run the following command:
+To deactivate the virtual environment, run the following command.
 
 ```bash
-conda deactivate
-conda activate thesis
-```
-
-You can now check if the environment variables are set correctly.
-
-```powershell
-# For Windows
-echo $env:SUMO_HOME
-echo $env:PATH
-```
-
-```bash
-# For Linux/MacOS
-echo $SUMO_HOME
-echo $PATH
-```
-
-### Tools
-To take full advantage of all Python tools, you need to install the dependencies.
-
-```powershell
-# For Windows
-pip install -r $env:SUMO_HOME/tools/requirements.txt
-```
-
-```bash
-# For Linux/MacOS
-pip install -r $SUMO_HOME/tools/requirements.txt
+deactivate
 ```
