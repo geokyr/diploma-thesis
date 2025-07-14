@@ -18,6 +18,7 @@ def main():
     generate_rain_network()
 
     dataset_specs = build_dataset_specs()
+
     for spec in dataset_specs.values():
         logger.info(f"Generating {spec.dataset_name} dataset")
 

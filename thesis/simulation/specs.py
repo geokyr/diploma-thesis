@@ -47,18 +47,18 @@ class DatasetSpec:
     emission_output_xml: Path
 
 
-def get_dataset_name(scenario: str, type: str) -> str:
+def get_dataset_name(scenario_name: str, type_name: str) -> str:
     """
-    Get the dataset name for a given scenario and type of dataset.
+    Get the dataset name for a given scenario name and type name.
 
     Args:
-        scenario (str): The scenario name.
-        type (str): The type of dataset.
+        scenario_name (str): The scenario name.
+        type_name (str): The type name.
 
     Returns:
         str: The dataset name.
     """
-    return f"{scenario}-{type}"
+    return f"{scenario_name}-{type_name}"
 
 
 def get_trips_file(dataset_name: str) -> Path:
@@ -74,12 +74,12 @@ def get_trips_file(dataset_name: str) -> Path:
     return SIMULATION_DIR / f"{dataset_name}.trips.xml"
 
 
-def get_traffic_generation_periods(type: str) -> list[float]:
+def get_traffic_generation_periods(type_name: str) -> list[float]:
     """
-    Get the traffic generation periods for a given type of dataset.
+    Get the traffic generation periods for a given type name.
 
     Args:
-        type (str): The type of dataset.
+        type_name (str): The type name.
 
     Returns:
         list[float]: The traffic generation periods.
@@ -88,29 +88,29 @@ def get_traffic_generation_periods(type: str) -> list[float]:
         TYPE_TRAIN: TRAIN_TRAFFIC_GENERATION_PERIODS,
         TYPE_TEST: TEST_TRAFFIC_GENERATION_PERIODS,
     }
-    return type_traffic_generation_periods.get(type, [1.0])
+    return type_traffic_generation_periods.get(type_name, [1.0])
 
 
-def get_seed(scenario: str) -> int:
+def get_seed(scenario_name: str) -> int:
     """
-    Get the seed for a given scenario.
+    Get the seed for a given scenario name.
 
     Returns:
-        int: The seed for the scenario.
+        int: The seed for the scenario name.
     """
     scenario_seeds = {
         SCENARIO_BASE: SEED_BASE,
         SCENARIO_RAIN: SEED_RAIN,
     }
-    return scenario_seeds.get(scenario, RANDOM_SEED)
+    return scenario_seeds.get(scenario_name, RANDOM_SEED)
 
 
-def get_network_file(scenario: str) -> Path:
+def get_network_file(scenario_name: str) -> Path:
     """
-    Get the network file for a given scenario.
+    Get the network file for a given scenario name.
 
     Args:
-        scenario (str): The scenario name.
+        scenario_name (str): The scenario name.
 
     Returns:
         Path: The path to the network file.
@@ -119,7 +119,7 @@ def get_network_file(scenario: str) -> Path:
         SCENARIO_BASE: NETWORK_BASE,
         SCENARIO_RAIN: NETWORK_RAIN,
     }
-    return scenario_networks.get(scenario, NETWORK_BASE)
+    return scenario_networks.get(scenario_name, NETWORK_BASE)
 
 
 def get_config(dataset_name: str) -> Path:
@@ -170,16 +170,16 @@ def build_dataset_specs() -> dict[str, DatasetSpec]:
     """
     specs = {}
 
-    for scenario in SCENARIOS:
-        for type in TYPES:
-            dataset_name = get_dataset_name(scenario, type)
+    for scenario_name in SCENARIOS:
+        for type_name in TYPES:
+            dataset_name = get_dataset_name(scenario_name, type_name)
 
             specs[dataset_name] = DatasetSpec(
                 dataset_name=dataset_name,
                 trips_file=get_trips_file(dataset_name),
-                traffic_generation_periods=get_traffic_generation_periods(type),
-                seed=get_seed(scenario),
-                network_file=get_network_file(scenario),
+                traffic_generation_periods=get_traffic_generation_periods(type_name),
+                seed=get_seed(scenario_name),
+                network_file=get_network_file(scenario_name),
                 config=get_config(dataset_name),
                 fcd_output_xml=get_fcd_output_xml(dataset_name),
                 emission_output_xml=get_emission_output_xml(dataset_name),
