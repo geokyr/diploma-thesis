@@ -1,8 +1,5 @@
 from thesis.common.config import DATA_DIR, PROJECT_ROOT
 
-# Silence a WinError2 about core count
-# os.environ["LOKY_MAX_CPU_COUNT"] = "10"
-
 OUTPUTS_DIR = PROJECT_ROOT / "outputs"
 OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
 
