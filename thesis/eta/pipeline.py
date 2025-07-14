@@ -39,9 +39,9 @@ def train_model(
     training_end = time.perf_counter()
     training_time = training_end - training_start
 
-    logger.info(f"{model_name} - Training: {training_time:.3f}s")
+    logger.info(f"{model_name} - Training time: {training_time:.3f}s")
 
-    return {"training": training_time}
+    return {"training_time": training_time}
 
 
 def make_predictions(
@@ -67,9 +67,9 @@ def make_predictions(
     prediction_end = time.perf_counter()
     prediction_time = prediction_end - prediction_start
 
-    logger.info(f"{model_name} - Prediction: {prediction_time:.3f}s")
+    logger.info(f"{model_name} - Prediction time: {prediction_time:.3f}s")
 
-    return pd.Series(preds), {"prediction": prediction_time}
+    return pd.Series(preds), {"prediction_time": prediction_time}
 
 
 def evaluate_predictions(
@@ -100,11 +100,11 @@ def evaluate_predictions(
     evaluation_time = evaluation_end - evaluation_start
 
     logger.info(
-        f"{model_name} - Evaluation: {evaluation_time:.3f}s, MAE: {mae:.2f}s, MSE: {mse:.2f}s, RMSE: {rmse:.2f}s, MAPE: {mape * 100:.2f}%, R2: {r2:.3f}"
+        f"{model_name} - Evaluation time: {evaluation_time:.3f}s, MAE: {mae:.2f}s, MSE: {mse:.2f}s, RMSE: {rmse:.2f}s, MAPE: {mape * 100:.2f}%, R2: {r2:.3f}"
     )
 
     return {
-        "evaluation": evaluation_time,
+        "evaluation_time": evaluation_time,
         "mae": mae,
         "mse": mse,
         "rmse": rmse,
