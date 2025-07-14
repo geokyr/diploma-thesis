@@ -1,7 +1,6 @@
 import logging
 import time
 
-import cupy as cp
 import pandas as pd
 from sklearn.base import BaseEstimator
 from sklearn.metrics import (
@@ -11,9 +10,6 @@ from sklearn.metrics import (
     r2_score,
     root_mean_squared_error,
 )
-from xgboost import XGBRegressor
-
-from thesis.eta.config import USE_GPU
 
 logger = logging.getLogger(__name__)
 
@@ -46,23 +42,6 @@ def train_model(
     return {"training": training_time}
 
 
-def is_xgboost_model(model: BaseEstimator) -> bool:
-    """
-    Check if the model is an XGBoost model.
-
-    Args:
-        model (BaseEstimator): The machine learning model to check.
-
-    Returns:
-        bool: True if the model is an XGBoost model, False otherwise.
-    """
-    if isinstance(model, XGBRegressor):
-        return True
-    if hasattr(model, "regressor_"):
-        return is_xgboost_model(model.regressor_)
-    return False
-
-
 def make_predictions(
     model: BaseEstimator,
     model_name: str,
@@ -80,11 +59,7 @@ def make_predictions(
         tuple[pd.Series, dict[str, float]]: A tuple containing the predictions and timing metrics.
     """
     prediction_start = time.perf_counter()
-    if USE_GPU and is_xgboost_model(model):
-        X_test_input = cp.array(X_test)
-    else:
-        X_test_input = X_test
-    preds = model.predict(X_test_input)
+    preds = model.predict(X_test)
     prediction_end = time.perf_counter()
     prediction_time = prediction_end - prediction_start
 

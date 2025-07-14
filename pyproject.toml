@@ -7,7 +7,6 @@ authors = [
 requires-python = ">=3.12.9"
 dependencies = [
     "catboost==1.2.8",
-    "cupy-cuda12x==13.4.1",
     "eclipse-sumo==1.21.0",
     "ipykernel==6.29.5",
     "lightgbm==4.6.0",

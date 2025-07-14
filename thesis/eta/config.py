@@ -1,14 +1,7 @@
-import os
-import subprocess
-
 from thesis.common.config import DATA_DIR, PROJECT_ROOT
 
 # Silence a WinError2 about core count
-os.environ["LOKY_MAX_CPU_COUNT"] = "10"
-
-USE_GPU = bool(subprocess.check_output(["nvidia-smi", "-L"], stderr=subprocess.DEVNULL).decode().strip())
-GPU_DEVICE = 0 if USE_GPU else None
-GPU_PLATFORM = 0 if USE_GPU else None
+# os.environ["LOKY_MAX_CPU_COUNT"] = "10"
 
 OUTPUTS_DIR = PROJECT_ROOT / "outputs"
 OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
