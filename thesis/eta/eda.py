@@ -29,9 +29,9 @@ def report_fcd_statistics(df_fcd: pd.DataFrame, dataset_id: str) -> None:
     unique_vehicles_count = df_fcd["vehicle_id"].nunique()
 
     logger.info(f"FCD Statistics - {dataset_id}")
-    logger.info(f"  Average speed: {average_speed:.2f} km/h")
-    logger.info(f"  Average trip distance: {average_trip_distance:.2f} m")
-    logger.info(f"  Number of unique vehicles: {unique_vehicles_count}")
+    logger.info(f"Average speed: {average_speed:.2f} km/h")
+    logger.info(f"Average trip distance: {average_trip_distance:.2f} m")
+    logger.info(f"Number of unique vehicles: {unique_vehicles_count}")
 
 
 def report_trips_statistics(df_trips: pd.DataFrame, dataset_id: str) -> None:
@@ -43,10 +43,10 @@ def report_trips_statistics(df_trips: pd.DataFrame, dataset_id: str) -> None:
         dataset_id (str): Dataset ID to identify the dataset.
     """
     logger.info(f"Trips Statistics - {dataset_id}")
-    logger.info(f"  Mean distance: {df_trips['distance'].mean():.1f} m")
-    logger.info(f"  Median distance: {df_trips['distance'].median():.1f} m")
-    logger.info(f"  Mean duration: {df_trips['duration'].mean():.1f} s")
-    logger.info(f"  Median duration: {df_trips['duration'].median():.1f} s")
+    logger.info(f"Mean distance: {df_trips['distance'].mean():.1f} m")
+    logger.info(f"Median distance: {df_trips['distance'].median():.1f} m")
+    logger.info(f"Mean duration: {df_trips['duration'].mean():.1f} s")
+    logger.info(f"Median duration: {df_trips['duration'].median():.1f} s")
 
 
 def plot_speed_histogram(df_fcd: pd.DataFrame, dataset_id: str, plots_dir: Path, bins: int = 30) -> None:

@@ -1,3 +1,5 @@
+import logging
+
 from catboost import CatBoostRegressor
 from lightgbm import LGBMRegressor
 from sklearn.base import BaseEstimator
@@ -8,6 +10,8 @@ from xgboost import XGBRegressor
 
 from thesis.common.config import RANDOM_SEED
 from thesis.eta.config import CATBOOST, LIGHTGBM, LR, XGBOOST
+
+logger = logging.getLogger(__name__)
 
 
 def create_lr_model(**kwargs) -> LinearRegression:
@@ -103,9 +107,13 @@ def get_baseline_models() -> dict[str, BaseEstimator]:
     Returns:
         dict[str, BaseEstimator]: Dictionary of baseline models.
     """
-    return {
+    models = {
         LR: create_lr_model(),
         XGBOOST: create_xgboost_model(),
         LIGHTGBM: create_lightgbm_model(),
         CATBOOST: create_catboost_model(),
     }
+
+    logger.info(f"Created baseline models: {', '.join(list(models.keys()))}")
+
+    return models

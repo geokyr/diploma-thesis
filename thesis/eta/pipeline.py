@@ -32,6 +32,8 @@ def train_model(
     Returns:
         dict[str, float]: A dictionary containing training metrics.
     """
+    logger.info(f"Training {model_name}")
+
     training_start = time.perf_counter()
     model.fit(X_train, y_train)
     training_end = time.perf_counter()
@@ -58,6 +60,8 @@ def make_predictions(
     Returns:
         tuple[pd.Series, dict[str, float]]: A tuple containing the predictions and timing metrics.
     """
+    logger.info(f"Making predictions with {model_name}")
+
     prediction_start = time.perf_counter()
     preds = model.predict(X_test)
     prediction_end = time.perf_counter()
@@ -84,6 +88,8 @@ def evaluate_predictions(
     Returns:
         dict[str, float]: A dictionary containing evaluation metrics.
     """
+    logger.info(f"Evaluating predictions with {model_name}")
+
     evaluation_start = time.perf_counter()
     mae = mean_absolute_error(y_true, y_pred)
     mse = mean_squared_error(y_true, y_pred)

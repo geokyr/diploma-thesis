@@ -118,6 +118,7 @@ def ensure_dataset_is_valid(dataset_path: Path) -> None:
         logger.info(f"File {dataset_filename} not found, downloading from Zenodo")
         download_file_from_zenodo(dataset_filename, dataset_path)
 
+    logger.info(f"Verifying integrity of file {dataset_filename}")
     expected_md5 = get_file_md5_from_zenodo(dataset_filename)
     if verify_file_integrity(dataset_path, expected_md5):
         logger.info(f"File {dataset_filename} is valid")
@@ -139,6 +140,8 @@ def load_fcd_dataset(fcd_path: Path) -> pd.DataFrame:
     """
     ensure_dataset_is_valid(fcd_path)
 
+    logger.info(f"Loading FCD dataset from {fcd_path}")
+
     dtype = {
         "timestep_time": int,
         "vehicle_acceleration": float,
@@ -150,7 +153,7 @@ def load_fcd_dataset(fcd_path: Path) -> pd.DataFrame:
     }
     df = pd.read_csv(fcd_path, sep=";", header=0, dtype=dtype)
 
-    logger.info(f"Loaded {len(df)} rows of FCD data from {fcd_path}")
+    logger.info(f"Loaded {len(df)} rows of FCD data")
     return df
 
 
@@ -164,13 +167,12 @@ def preprocess_fcd_dataset(df_fcd: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Preprocessed FCD DataFrame.
     """
-    initial_shape = df_fcd.shape
+    logger.info(f"Preprocessing FCD dataset, initial shape {df_fcd.shape}")
     df_fcd = df_fcd.dropna().reset_index(drop=True)
     df_fcd = df_fcd[df_fcd["timestep_time"] < 36000]
     df_fcd["vehicle_speed"] = df_fcd["vehicle_speed"] * 3.6
-    final_shape = df_fcd.shape
 
-    logger.info(f"Completed FCD preprocessing, with initial shape {initial_shape} and final shape {final_shape}")
+    logger.info(f"Completed FCD preprocessing, final shape {df_fcd.shape}")
 
     return df_fcd
 
@@ -185,6 +187,7 @@ def aggregate_fcd_per_hour(df_fcd: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: A DataFrame containing average speed and vehicle count per hour.
     """
+    logger.info("Aggregating FCD per hour")
     df_with_hour = df_fcd.assign(hour=(df_fcd["timestep_time"] // 3600))
     df_per_hour = (
         df_with_hour.groupby("hour")
@@ -194,45 +197,6 @@ def aggregate_fcd_per_hour(df_fcd: pd.DataFrame) -> pd.DataFrame:
 
     logger.info(f"Completed FCD aggregation for {len(df_per_hour)} hours")
     return df_per_hour
-
-
-def generate_full_trips(df_fcd: pd.DataFrame, min_duration: int = 60, min_distance: int = 500) -> pd.DataFrame:
-    """
-    Generate the full trips from the FCD DataFrame, filtering out short trips.
-
-    Args:
-        df_fcd (pd.DataFrame): The FCD DataFrame to generate full trips from.
-        min_duration (int): Minimum trip duration in seconds.
-        min_distance (int): Minimum trip distance in meters.
-
-    Returns:
-        pd.DataFrame: A DataFrame containing the full trips.
-    """
-    df_sorted = df_fcd.sort_values("timestep_time")
-
-    df_full_trips = (
-        df_sorted.groupby("vehicle_id")
-        .agg(
-            source_x=("vehicle_x", "first"),
-            source_y=("vehicle_y", "first"),
-            destination_x=("vehicle_x", "last"),
-            destination_y=("vehicle_y", "last"),
-            odometer_start=("vehicle_odometer", "first"),
-            odometer_end=("vehicle_odometer", "last"),
-            time_start=("timestep_time", "first"),
-            time_end=("timestep_time", "last"),
-        )
-        .assign(
-            duration=lambda d: d.time_end - d.time_start,
-            distance=lambda d: d.odometer_end - d.odometer_start,
-            hour_bin=lambda d: d.time_start // 3600,
-        )
-        .query(f"duration >= {min_duration} and distance >= {min_distance}")
-        .loc[:, ["source_x", "source_y", "destination_x", "destination_y", "hour_bin", "distance", "duration"]]
-        .reset_index(drop=True)
-    )
-
-    return df_full_trips
 
 
 def generate_sub_trips(
@@ -291,6 +255,45 @@ def generate_sub_trips(
     return pd.DataFrame.from_records(sub_trips_records)
 
 
+def generate_full_trips(df_fcd: pd.DataFrame, min_duration: int = 60, min_distance: int = 500) -> pd.DataFrame:
+    """
+    Generate the full trips from the FCD DataFrame, filtering out short trips.
+
+    Args:
+        df_fcd (pd.DataFrame): The FCD DataFrame to generate full trips from.
+        min_duration (int): Minimum trip duration in seconds.
+        min_distance (int): Minimum trip distance in meters.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the full trips.
+    """
+    df_sorted = df_fcd.sort_values("timestep_time")
+
+    df_full_trips = (
+        df_sorted.groupby("vehicle_id")
+        .agg(
+            source_x=("vehicle_x", "first"),
+            source_y=("vehicle_y", "first"),
+            destination_x=("vehicle_x", "last"),
+            destination_y=("vehicle_y", "last"),
+            odometer_start=("vehicle_odometer", "first"),
+            odometer_end=("vehicle_odometer", "last"),
+            time_start=("timestep_time", "first"),
+            time_end=("timestep_time", "last"),
+        )
+        .assign(
+            duration=lambda d: d.time_end - d.time_start,
+            distance=lambda d: d.odometer_end - d.odometer_start,
+            hour_bin=lambda d: d.time_start // 3600,
+        )
+        .query(f"duration >= {min_duration} and distance >= {min_distance}")
+        .loc[:, ["source_x", "source_y", "destination_x", "destination_y", "hour_bin", "distance", "duration"]]
+        .reset_index(drop=True)
+    )
+
+    return df_full_trips
+
+
 def generate_trips(
     df_fcd: pd.DataFrame,
     min_duration: int = 60,
@@ -311,12 +314,14 @@ def generate_trips(
     Returns:
         pd.DataFrame: A DataFrame containing the generated trips.
     """
+    logger.info("Generating full trips")
     df_full_trips = generate_full_trips(df_fcd, min_duration, min_distance)
     logger.info(f"Generated {len(df_full_trips)} full trips")
 
     if augmentation_rate <= 0 or df_full_trips.empty:
         return df_full_trips
 
+    logger.info("Generating sub-trips")
     sub_trips_list = []
     for _, group in df_fcd.sort_values("timestep_time").groupby("vehicle_id"):
         sub_trips = generate_sub_trips(group, augmentation_rate, min_trip_ratio, min_duration, min_distance)
@@ -326,6 +331,6 @@ def generate_trips(
     logger.info(f"Generated {len(df_sub_trips)} sub-trips")
 
     df_trips = pd.concat([df_full_trips, df_sub_trips], ignore_index=True)
-    logger.info(f"Generated {len(df_trips)} trips")
+    logger.info(f"Generated {len(df_trips)} trips in total")
 
     return df_trips

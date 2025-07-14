@@ -20,6 +20,8 @@ def initialize_experiment(experiment_name: str) -> tuple[Path, Path, Path, Path]
     Returns:
         tuple[Path, Path, Path, Path]: The artifacts, logs, plots, and results directories.
     """
+    logger.info(f"Initializing experiment {experiment_name}")
+
     experiment_dir = OUTPUTS_DIR / experiment_name
     artifacts_dir = experiment_dir / "artifacts"
     logs_dir = experiment_dir / "logs"
