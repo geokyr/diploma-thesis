@@ -9,12 +9,12 @@ from sklearn.pipeline import FunctionTransformer
 from xgboost import XGBRegressor
 
 from thesis.common.config import RANDOM_SEED
-from thesis.eta.config import CATBOOST, LIGHTGBM, LR, XGBOOST
+from thesis.eta.config import CATBOOST, LIGHTGBM, LINEAR_REGRESSION, XGBOOST
 
 logger = logging.getLogger(__name__)
 
 
-def create_lr_model(**kwargs) -> LinearRegression:
+def create_linear_regression_model(**kwargs) -> LinearRegression:
     """
     Create a Linear Regression model with a default configuration.
 
@@ -108,7 +108,7 @@ def get_baseline_models() -> dict[str, BaseEstimator]:
         dict[str, BaseEstimator]: Dictionary of baseline models.
     """
     models = {
-        LR: create_lr_model(),
+        LINEAR_REGRESSION: create_linear_regression_model(),
         XGBOOST: create_xgboost_model(),
         LIGHTGBM: create_lightgbm_model(),
         CATBOOST: create_catboost_model(),

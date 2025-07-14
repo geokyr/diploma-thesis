@@ -3,7 +3,7 @@ from thesis.common.config import PROJECT_ROOT
 OUTPUTS_DIR = PROJECT_ROOT / "outputs"
 OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
 
-LR = "lr"
+LINEAR_REGRESSION = "linear_regression"
 XGBOOST = "xgboost"
 LIGHTGBM = "lightgbm"
 CATBOOST = "catboost"
