@@ -247,6 +247,7 @@ if __name__ == "__main__":
 ```
 
 ## Notes
+### Environment Setup
 To construct the environment with uv, the following commands were used.
 
 ```bash
@@ -258,7 +259,7 @@ echo 'packages = ["thesis"]' >> pyproject.toml
 uv add catboost==1.2.8 eclipse-sumo==1.21.0 ipykernel==6.29.5 lightgbm==4.6.0 matplotlib==3.10.1 numpy==2.2.3 optuna==4.4.0 pandas==2.2.3 requests==2.32.4 scikit-learn==1.6.1 scipy==1.15.2 seaborn==0.13.2 xgboost==2.1.4
 ```
 
-## Simulation
+### Closure Drift
 When trying out the closure drift scenario, there were a few problems with the implementation and the quality of the data generated. Two options were tried, and both of them had their own problems, leading to the conclusion that it was not possible to create a realistic closure scenario that would be strong enough to be detected by the drift detector, while also not completely messing up with the traffic patterns.
 
 Option one was to use a rerouter on some lanes that would make the act as closed. This was done by using the [closingLaneReroute](https://sumo.dlr.de/docs/Simulation/Rerouter.html#closing_a_lane) rerouter. This however meant that cars would be inserted on the network at the time they were supposed to leave based on the routes file, calculate a route and then while the car was following the route, if it had a closed lane on it, it would be blocked and not move. This could be observed on the gui, where cars would be first at green traffic lights and would not move, up until the point where 300 seconds would pass and the car would get teleported to the next lane. This was caused by the fact that cars didn't have a rerouter device on them, but adding one could possibly interfere with the whole simulation, as other cars would also change their, calculated at insertion time, routes and alter the network traffic behavior, when compared to the base scenario.
