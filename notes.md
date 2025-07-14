@@ -17,7 +17,6 @@
 
 ## Models
 - Cross-validation or at least validation split from training data with stratified sampling
-- Dataclass for scenario specs on experiments
 - Dataclass for output metrics
 - Rename models/output metrics on file system
 - Sklearn pipeline for preprocessing and training
