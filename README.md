@@ -3,7 +3,6 @@
 Continuous Machine Learning, Concept Drift, MLOps, and Cooperative, Connected and Automated Mobility applications for my Diploma Thesis at ECE NTUA
 
 ## Environment Setup
-
 All dependencies are declared in `pyproject.toml` and managed with [uv](https://docs.astral.sh/uv/).
 
 ### Install uv
@@ -52,3 +51,13 @@ To deactivate the virtual environment, run the following command.
 ```bash
 deactivate
 ```
+
+## Project Structure
+- `experiments/` - Machine learning experiments
+- `resources/` - Various documents and images about the project
+- `scripts/` - Entrypoint scripts including the simulation ones
+- `simulation/` - Simulation related files including the sumo network files
+- `thesis/` - Python code package for the project
+  - `common/` - Common modules and config
+  - `eta/` - Machine learning task
+  - `simulation/` - Simulation pipeline
