@@ -263,3 +263,129 @@ if __name__ == "__main__":
     print(f"Selected {len(feature_cols)} robust features")
     print(f"Features: {feature_cols}")
 ```
+
+### Cross Validation
+```mermaid
+graph TD
+    A[Raw Data<br/>55k train] --> B[Basic Preprocessing<br/>No CV needed]
+    B --> C{Transform Experiments<br/>Use 5-fold CV}
+    
+    C --> D[No transform<br/>CV: 15.2±1.1]
+    C --> E[Log transform<br/>CV: 12.8±0.9]
+    C --> F[Box-Cox<br/>CV: 13.1±1.2]
+    
+    E --> G[Best: Log Transform]
+    
+    G --> H{Feature Engineering<br/>Use 5-fold CV}
+    H --> I[Baseline features<br/>CV: 12.8±0.9]
+    H --> J[+Distance features<br/>CV: 11.5±0.8]
+    H --> K[+Time features<br/>CV: 10.9±0.7]
+    
+    K --> L[Best Features Selected]
+    
+    L --> M{Model Selection & Tuning<br/>Use 5-fold CV}
+    M --> N[XGBoost tuned<br/>CV: 9.8±0.6]
+    M --> O[LightGBM tuned<br/>CV: 9.5±0.5]
+    M --> P[CatBoost tuned<br/>CV: 9.7±0.7]
+    
+    O --> Q[Final: LightGBM<br/>Train on all 55k]
+    Q --> R[Test ONCE<br/>Test MAE: 10.2]
+    
+    style E fill:#99ff99
+    style K fill:#99ff99
+    style O fill:#99ff99
+    style R fill:#ff9999
+```
+
+1. Use Parallel Processing
+```python
+# Speed up CV with parallel jobs
+grid_search = GridSearchCV(
+    estimator=model,
+    param_grid=params,
+    cv=5,
+    n_jobs=-1,  # Use all CPU cores
+    scoring='neg_mean_absolute_error'
+)
+```
+
+2. Start Coarse, Then Refine
+```python
+# First pass: Wide parameter ranges
+param_grid_coarse = {
+    'n_estimators': [50, 100, 200, 500],
+    'max_depth': [3, 5, 7, 10, 15]
+}
+
+# Second pass: Narrow around best values
+param_grid_fine = {
+    'n_estimators': [180, 200, 220],
+    'max_depth': [6, 7, 8]
+}
+```
+
+3. Track Everything
+- Log CV scores for all experiments
+- Save best models after each stage
+- Document what worked and what didn't
+
+4. Early Stopping for Efficiency
+```python
+# For boosted trees, use early stopping
+lgbm_model = LGBMRegressor(
+    n_estimators=1000,
+    early_stopping_rounds=50,
+    eval_metric='mae'
+)
+
+# In CV, use validation set for early stopping
+lgbm_model.fit(
+    X_train, y_train,
+    eval_set=[(X_val, y_val)],
+    verbose=False
+)
+```
+
+5. CV Metrics
+- Performance
+  - MAE mean +- std (primary detection)
+  - MAPE mean +- std (relative error)
+  - RMSE mean +- std (outlier detection)
+  - R^2 mean +- std (variance explained)
+- Stability
+  - CV std dev (model stability)
+  - Fold-wise range (worst vs best fold)
+  - Per-fold breakdown (identify problem folds)
+- Efficiency
+  - Training time (computational cost)
+  - Prediction time (production latency)
+
+6. Checklist
+- Primary Decision Metrics
+  - MAE (mean ± std) - Your north star metric
+    - Good: < 20 seconds
+    - Acceptable: 20-30 seconds
+    - Poor: > 30 seconds
+  - MAPE (mean ± std) - For relative performance
+    - Good: < 15%
+    - Acceptable: 15-25%
+    - Poor: > 25%
+- Stability Metrics (Often Overlooked!)
+  - Coefficient of Variation (CV%) = std/mean
+    - Good: < 10% (very stable)
+    - Acceptable: 10-15%
+    - Poor: > 15% (unstable)
+  - Fold Range = max_fold_mae - min_fold_mae
+    - Identifies if one fold is problematic
+- Warning Indicators
+  - RMSE/MAE Ratio
+    - Normal: 1.2-1.4
+    - Concern: > 1.5 (outlier issues)
+  - R² Score
+    - Good: > 0.8
+    - Acceptable: 0.6-0.8
+    - Poor: < 0.6
+- Practical Constraints
+  - Prediction Time (per trip)
+    - Requirement: < 10ms for real-time
+    - Boosted trees typically: 0.1-1ms ✅
