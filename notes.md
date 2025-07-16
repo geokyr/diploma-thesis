@@ -1,4 +1,4 @@
-# Tracker
+# Notes
 
 ## Architecture
 - User stories review
@@ -16,8 +16,10 @@
 - Frontend with A to B routing, for example a few select routes with different colors and dots for current position, which when clicked will output a box with predictions for that route and maybe progress so far
 
 ## Models
-- Cross-validation or at least validation split from training data with stratified sampling
+- Add save_cv_model and save_cv_results functions, or change what is saved
 - Dataclass for output metrics
+- Use classmethod for creating the dataclass
+- Refactor ScenarioSpec and DatasetSpec to Scenario and Dataset and first property is the name
 - Sklearn pipeline for preprocessing and training
 - Scaling of new features
 - Log/Quantile/Box-Cox transformations of new features
@@ -33,9 +35,9 @@
 
 - Hyperparameter tuning with optuna
 - Final model
+- Model retraining pipeline
 
-## Notes
-### Environment Setup
+## Environment Setup
 To construct the environment with uv, the following commands were used.
 
 ```bash
@@ -47,7 +49,7 @@ echo 'packages = ["thesis"]' >> pyproject.toml
 uv add catboost==1.2.8 eclipse-sumo==1.21.0 ipykernel==6.29.5 lightgbm==4.6.0 matplotlib==3.10.1 numpy==2.2.3 optuna==4.4.0 pandas==2.2.3 requests==2.32.4 scikit-learn==1.6.1 scipy==1.15.2 seaborn==0.13.2 xgboost==2.1.4
 ```
 
-### Closure Drift
+## Closure Drift
 When trying out the closure drift scenario, there were a few problems with the implementation and the quality of the data generated. Two options were tried, and both of them had their own problems, leading to the conclusion that it was not possible to create a realistic closure scenario that would be strong enough to be detected by the drift detector, while also not completely messing up with the traffic patterns.
 
 Option one was to use a rerouter on some lanes that would make the act as closed. This was done by using the [closingLaneReroute](https://sumo.dlr.de/docs/Simulation/Rerouter.html#closing_a_lane) rerouter. This however meant that cars would be inserted on the network at the time they were supposed to leave based on the routes file, calculate a route and then while the car was following the route, if it had a closed lane on it, it would be blocked and not move. This could be observed on the gui, where cars would be first at green traffic lights and would not move, up until the point where 300 seconds would pass and the car would get teleported to the next lane. This was caused by the fact that cars didn't have a rerouter device on them, but adding one could possibly interfere with the whole simulation, as other cars would also change their, calculated at insertion time, routes and alter the network traffic behavior, when compared to the base scenario.
@@ -56,7 +58,7 @@ Option two was to generate a new network where the closed lanes or edges would b
 
 Finally, in almost every closure scenario that was simulated, the results from the models were not as expected, since frequently the drifted scenario would return better results than the scenario where we had retrained the models on the drift data. Therefore, it was decided not to include this drift scenario on this project.
 
-### Coordinates Pairs Uniqueness
+## Coordinates Pairs Uniqueness
 When studying the dataset and the coordinates pairs, it was noticed that the source X and Y coordinates only had around 1k unique values, which is close the around 1.1k edges on the network. However, the destination X and Y coordinates had around 45k unique values.
 
 This can be explained by the following facts. First of all, the way the source and destination points are selected is through the [randomTrips](https://sumo.dlr.de/docs/Tools/Trip.html) tool, which actually selects from the list of edges in the network. After selecting a source and destination edge, the simulation will convert these to coordinates (X, Y) and that's also what is written in the FCD output. Therefore, the source and destination edges that are selected from the around 1.1k edges on the network can only have a limited number of unique coordinates (X, Y).
@@ -264,7 +266,7 @@ if __name__ == "__main__":
     print(f"Features: {feature_cols}")
 ```
 
-### Cross Validation
+## Cross Validation
 ```mermaid
 graph TD
     A[Raw Data<br/>55k train] --> B[Basic Preprocessing<br/>No CV needed]
@@ -297,70 +299,19 @@ graph TD
     style R fill:#ff9999
 ```
 
-1. Use Parallel Processing
-```python
-# Speed up CV with parallel jobs
-grid_search = GridSearchCV(
-    estimator=model,
-    param_grid=params,
-    cv=5,
-    n_jobs=-1,  # Use all CPU cores
-    scoring='neg_mean_absolute_error'
-)
-```
-
-2. Start Coarse, Then Refine
-```python
-# First pass: Wide parameter ranges
-param_grid_coarse = {
-    'n_estimators': [50, 100, 200, 500],
-    'max_depth': [3, 5, 7, 10, 15]
-}
-
-# Second pass: Narrow around best values
-param_grid_fine = {
-    'n_estimators': [180, 200, 220],
-    'max_depth': [6, 7, 8]
-}
-```
-
-3. Track Everything
-- Log CV scores for all experiments
-- Save best models after each stage
-- Document what worked and what didn't
-
-4. Early Stopping for Efficiency
-```python
-# For boosted trees, use early stopping
-lgbm_model = LGBMRegressor(
-    n_estimators=1000,
-    early_stopping_rounds=50,
-    eval_metric='mae'
-)
-
-# In CV, use validation set for early stopping
-lgbm_model.fit(
-    X_train, y_train,
-    eval_set=[(X_val, y_val)],
-    verbose=False
-)
-```
-
-5. CV Metrics
-- Performance
+- Performance Metrics
   - MAE mean +- std (primary detection)
   - MAPE mean +- std (relative error)
   - RMSE mean +- std (outlier detection)
   - R^2 mean +- std (variance explained)
-- Stability
+- Stability Metrics
   - CV std dev (model stability)
   - Fold-wise range (worst vs best fold)
   - Per-fold breakdown (identify problem folds)
-- Efficiency
+- Efficiency Metrics
   - Training time (computational cost)
   - Prediction time (production latency)
 
-6. Checklist
 - Primary Decision Metrics
   - MAE (mean ± std) - Your north star metric
     - Good: < 20 seconds
@@ -377,15 +328,54 @@ lgbm_model.fit(
     - Poor: > 15% (unstable)
   - Fold Range = max_fold_mae - min_fold_mae
     - Identifies if one fold is problematic
-- Warning Indicators
-  - RMSE/MAE Ratio
-    - Normal: 1.2-1.4
-    - Concern: > 1.5 (outlier issues)
-  - R² Score
-    - Good: > 0.8
-    - Acceptable: 0.6-0.8
-    - Poor: < 0.6
-- Practical Constraints
-  - Prediction Time (per trip)
-    - Requirement: < 10ms for real-time
-    - Boosted trees typically: 0.1-1ms ✅
+
+## Model Retraining Pipeline
+
+1. Incremental Learning (Most Common)
+Train on combined historical + new data:
+```python
+# Instead of rain/rain, use base+rain/rain
+trips_combined = pd.concat([trips_base_train, trips_rain_train])
+X_combined, y_combined = split_features_and_target(trips_combined)
+# Train on combined data, test on rain
+```
+
+2. Sliding Window Approach
+Use recent historical data + new drift data:
+```python
+# Use last 20-30% of base + first 70-80% of rain for training
+base_recent = trips_base_train.iloc[-int(0.3 * len(trips_base_train)):]
+rain_initial = trips_rain_train.iloc[:int(0.7 * len(trips_rain_train)):]
+trips_window = pd.concat([base_recent, rain_initial])
+```
+
+3. Sample Weighting
+Give more importance to recent/drifted data:
+```python
+# Create sample weights that decay with age
+base_weights = np.linspace(0.3, 0.6, len(trips_base_train))
+rain_weights = np.linspace(0.8, 1.0, len(trips_rain_train))
+sample_weights = np.concatenate([base_weights, rain_weights])
+
+# For XGBoost/LightGBM/CatBoost
+model.fit(X_combined, y_combined, sample_weight=sample_weights)
+```
+
+4. Ensemble Approach
+Combine base model with drift-adapted model:
+```python
+# Keep base model, train a new model on rain data
+# Ensemble predictions with weights
+predictions = 0.3 * base_model.predict(X_test) + 0.7 * rain_model.predict(X_test)
+```
+
+5. Progressive Validation
+Simulate real-time adaptation:
+```python
+# Start with base model
+# For each batch of rain data:
+#   1. Test on batch (measure drift)
+#   2. Add batch to training set
+#   3. Retrain/update model
+#   4. Continue to next batch
+```
