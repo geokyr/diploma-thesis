@@ -205,6 +205,7 @@ def generate_sub_trips(
     min_trip_ratio: float,
     min_duration: int,
     min_distance: int,
+    random_seed: int = RANDOM_SEED,
 ) -> pd.DataFrame:
     """
     Generate sub-trips from a vehicle's FCD group, filtering out short trips.
@@ -215,6 +216,7 @@ def generate_sub_trips(
         min_trip_ratio (float): The minimum ratio of the trip to be augmented.
         min_duration (int): Minimum trip duration in seconds.
         min_distance (int): Minimum trip distance in meters.
+        random_seed (int): The random seed to use for the random number generator.
 
     Returns:
         pd.DataFrame: A DataFrame containing the sub-trips for the vehicle.
@@ -227,7 +229,7 @@ def generate_sub_trips(
     n = len(group)
     n_sub_trips = int(n * augmentation_rate)
     minimum_length = max(2, int(n * min_trip_ratio))
-    rng = np.random.default_rng(RANDOM_SEED)
+    rng = np.random.default_rng(random_seed)
 
     sub_trips_records = []
     for _ in range(n_sub_trips):

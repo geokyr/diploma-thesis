@@ -44,14 +44,17 @@ def create_log_transformer() -> FunctionTransformer:
     return FunctionTransformer(func=np.log1p, inverse_func=np.expm1, check_inverse=True)
 
 
-def create_quantile_normal_transformer() -> QuantileTransformer:
+def create_quantile_normal_transformer(random_seed: int = RANDOM_SEED) -> QuantileTransformer:
     """
     Create a quantile normal transformer.
+
+    Args:
+        random_seed (int): The random seed to use for the random number generator.
 
     Returns:
         QuantileTransformer: Quantile normal transformer.
     """
-    return QuantileTransformer(output_distribution="normal", random_state=RANDOM_SEED)
+    return QuantileTransformer(output_distribution="normal", random_state=random_seed)
 
 
 def create_box_cox_transformer() -> PowerTransformer:

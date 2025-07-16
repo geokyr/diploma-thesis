@@ -27,36 +27,38 @@ def create_linear_regression_model(**kwargs) -> LinearRegression:
     return LinearRegression(**kwargs)
 
 
-def create_xgboost_model(**kwargs) -> XGBRegressor:
+def create_xgboost_model(random_seed: int = RANDOM_SEED, **kwargs) -> XGBRegressor:
     """
     Create an XGBoost model with a default configuration.
 
     Args:
+        random_seed (int): The random seed to use for the random number generator.
         **kwargs: Additional parameters to pass to the model.
 
     Returns:
         XGBRegressor: Configured XGBoost model.
     """
     params = {
-        "random_state": RANDOM_SEED,
+        "random_state": random_seed,
         **kwargs,
     }
 
     return XGBRegressor(**params)
 
 
-def create_lightgbm_model(**kwargs) -> LGBMRegressor:
+def create_lightgbm_model(random_seed: int = RANDOM_SEED, **kwargs) -> LGBMRegressor:
     """
     Create a LightGBM model with a default configuration.
 
     Args:
+        random_seed (int): The random seed to use for the random number generator.
         **kwargs: Additional parameters to pass to the model.
 
     Returns:
         LGBMRegressor: Configured LightGBM model.
     """
     params = {
-        "random_state": RANDOM_SEED,
+        "random_state": random_seed,
         "verbose": 0,
         **kwargs,
     }
@@ -64,18 +66,19 @@ def create_lightgbm_model(**kwargs) -> LGBMRegressor:
     return LGBMRegressor(**params)
 
 
-def create_catboost_model(**kwargs) -> CatBoostRegressor:
+def create_catboost_model(random_seed: int = RANDOM_SEED, **kwargs) -> CatBoostRegressor:
     """
     Create a CatBoost model with a default configuration.
 
     Args:
+        random_seed (int): The random seed to use for the random number generator.
         **kwargs: Additional parameters to pass to the model.
 
     Returns:
         CatBoostRegressor: Configured CatBoost model.
     """
     params = {
-        "random_state": RANDOM_SEED,
+        "random_state": random_seed,
         "verbose": 0,
         "allow_writing_files": False,
         **kwargs,

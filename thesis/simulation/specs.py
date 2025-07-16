@@ -91,9 +91,13 @@ def get_traffic_generation_periods(type_name: str) -> list[float]:
     return type_traffic_generation_periods.get(type_name, [1.0])
 
 
-def get_seed(scenario_name: str) -> int:
+def get_seed(scenario_name: str, random_seed: int = RANDOM_SEED) -> int:
     """
     Get the seed for a given scenario name.
+
+    Args:
+        scenario_name (str): The scenario name.
+        random_seed (int): The random seed to use for the random number generator.
 
     Returns:
         int: The seed for the scenario name.
@@ -102,7 +106,7 @@ def get_seed(scenario_name: str) -> int:
         SCENARIO_BASE: SEED_BASE,
         SCENARIO_RAIN: SEED_RAIN,
     }
-    return scenario_seeds.get(scenario_name, RANDOM_SEED)
+    return scenario_seeds.get(scenario_name, random_seed)
 
 
 def get_network_file(scenario_name: str) -> Path:
