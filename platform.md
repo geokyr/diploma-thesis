@@ -215,6 +215,12 @@ POST /retrain
 - Short timestamped notifications like "[10:02:11] ETA drift warning", or "[10:03:30] Collecting 5k rain trips before retrain"
 - Static basemap tile (OpenStreetMap) with a bounding box and an overlay of weather icon (sun and rain), or a rain effect
 
+## Corrections
+- User human icon in diagram
+- External data store option in diagram
+- Backend as a whole unit with Model Service and Drift Service
+- Frontend visual idea from a user perspective
+
 ## Prompt
 We want to make a platform based around the concept of a drift detection and mitigation process.
 
