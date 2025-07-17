@@ -17,28 +17,27 @@
 
 ### Phase C - Mitigation
 1. Retraining triggered, automatically after Z trips.
-2. Backend samples old Base Train data + collected Rain data (optionally weighted) → launches retrain job for the model.
-3. While retraining, predictions still come from old model; errors remain high.
-4. When retrain completes, model service hot‑swaps. Notification shown.
-5. Subsequent predictions use retrained model; errors drop relative to pre‑mitigation Rain phase (but not necessarily down to Base levels).
-6. Optional: mid‑Rain second retrain after more data accumulates; show iterative improvement.
+1. Backend samples old Base Train data + collected Rain data (optionally weighted) → launches retrain job for the model.
+1. While retraining, predictions still come from old model; errors remain high.
+1. When retrain completes, model service hot‑swaps. Notification shown.
+1. Subsequent predictions use retrained model; errors drop relative to pre‑mitigation Rain phase (but not necessarily down to Base levels).
+1. Optional: mid‑Rain second retrain after more data accumulates; show iterative improvement.
 
 ## Architecture
 ### Components Diagram
 ```mermaid
 flowchart TB
 
-    subgraph Data[Offline Data Store]
+    subgraph Data[Data Store]
         direction TB
         BT[Base Train Trips]
         BTe[Base Test Trips]
         RT[Rain Test Trips]
     end
 
-    subgraph Orchestrator[Orchestrator Backend]
+    subgraph Backend[Backend]
         direction TB
         SC[Simulation Clock]
-        LB[Label Buffer]
         MB[Metrics Builder]
         DSM[Drift State Manager]
         EBus[(Event/WebSocket Hub)]
@@ -49,18 +48,13 @@ flowchart TB
         M1[ETA Model Service]
         M2[Fuel Model Service]
         M3[Stops Model Service]
+        TRW[Training Runner]
+        MR[Model Registry]
     end
 
     subgraph Drift[Drift Service]
         direction TB
-        DD[River / Custom Detectors]
-    end
-
-    subgraph Train[Retraining Worker]
-        direction TB
-        RTQ[(Train Job Queue)]
-        TRW[Training Runner]
-        MR[Model Registry]
+        DD[River Detector]
     end
 
     subgraph UI[Frontend Dashboard]
@@ -71,17 +65,16 @@ flowchart TB
         Map[Optional Map/Rain FX]
     end
 
-    Data -->|batch load| Orchestrator
-    Orchestrator -->|features batch| Models
-    Models -->|predictions| Orchestrator
-    Orchestrator -->|truth + preds| Drift
-    Drift -->|drift events| Orchestrator
-    Orchestrator -->|state updates| UI
-    Orchestrator -->|metrics stream| UI
-    Orchestrator -->|collect drifted data| Train
-    Train -->|new model version| Models
-    Train -->|model meta| Orchestrator
-    Orchestrator -->|retrain status| UI
+    Data -->|batch load| Backend
+    Backend -->|features batch| Models
+    Models -->|predictions| Backend
+    Backend -->|metrics or truth + preds| Drift
+    Drift -->|drift events| Backend
+    Backend -->|state updates| UI
+    Backend -->|metrics stream| UI
+    Backend -->|collect drifted data| Models
+    Models -->|model meta| Backend
+    Backend -->|retrain status| UI
 ```
 
 ### Sequence Diagrams
@@ -89,46 +82,45 @@ flowchart TB
 ```mermaid
 sequenceDiagram
     participant UI as Frontend
-    participant OR as Orchestrator
+    participant BE as Backend
     participant M1 as ETA Model
-    participant Drift as Drift Svc
+    participant DR as Drift Service
 
-    Note over OR: Every sim tick (~1s real == ~X min sim)
-    OR->>OR: Read next batch of trips for current sim window
-    OR->>M1: POST /predict [[batch features]]
-    M1-->>OR: preds [[ETA_hat]]
-    OR->>OR: Join preds with ground-truth labels (immediate)
-    OR->>OR: Compute error metrics (per-trip + rolling MAE/MAPE)
-    OR->>Drift: POST /ingest {trip_id, y_true, y_pred, err}
-    Drift-->>OR: (async) drift_status_update? (none|warning|confirmed)
-    OR-->>UI: ws metrics_update {...}
-    OR-->>UI: ws drift_event {...} (only on status change)
+    Note over BE: Every sim tick (~1s real == ~X min sim)
+    BE->>BE: Read next batch of trips for current sim window
+    BE->>M1: POST /predict [[batch features]]
+    M1-->>BE: preds [[ETA_hat]]
+    BE->>BE: Join preds with ground-truth labels (immediate)
+    BE->>BE: Compute error metrics (per-trip + rolling MAE/MAPE)
+    BE->>DR: POST /ingest {trip_id, y_true, y_pred, err}
+    DR-->>BE: (async) drift_status_update? (none|warning|confirmed)
+    BE-->>UI: ws metrics_update {...}
+    BE-->>UI: ws drift_event {...} (only on status change)
 ```
 
 #### Drift Confirmed → Data Collect → Retrain → Swap
 ```mermaid
 sequenceDiagram
-    participant OR as Orchestrator
-    participant Drift as Drift Svc
-    participant Train as Retrain Worker
-    participant Mx as Model Service
+    participant BE as Backend
+    participant DR as Drift Service
+    participant MO as Model Service
     participant UI as Frontend
 
-    Drift-->>OR: drift_confirmed(model=ETA)
-    OR->>UI: ws drift_confirmed_notification
-    OR->>OR: enter state=collecting(Z_remaining)
+    DR-->>BE: drift_confirmed(model=ETA)
+    BE->>UI: ws drift_confirmed_notification
+    BE->>BE: enter state=collecting(Z_remaining)
     loop Next Z trips
-        OR->>OR: buffer drifted trips to collect store
+        BE->>BE: buffer drifted trips to collect store
     end
-    OR->>Train: POST /retrain_request{model=ETA, base_sample%, rain_sample%, weight=...}
-    OR->>UI: ws retrain_started
-    Train-->>Train: fit new model
-    Train-->>OR: retrain_progress(percent)
-    OR-->>UI: ws retrain_progress
-    Train-->>OR: retrain_complete {model_uri, metrics_cv}
-    OR->>Mx: POST /load?uri=model_uri
-    Mx-->>OR: load_ack
-    OR->>UI: ws model_swapped(version++)
+    BE->>MO: POST /retrain_request{model=ETA, base_sample%, rain_sample%, weight=...}
+    BE->>UI: ws retrain_started
+    MO-->>MO: fit new model
+    MO-->>BE: retrain_progress(percent)
+    BE-->>UI: ws retrain_progress
+    MO-->>BE: retrain_complete {model_uri, metrics_cv}
+    BE->>MO: POST /load?uri=model_uri
+    MO-->>BE: load_ack
+    BE->>UI: ws model_swapped(version++)
 ```
 
 ## API
@@ -263,4 +255,3 @@ For a general orchestration, using Docker is a good idea, with various container
 Give me a good plan for this, the architecture, the components, their roles, what communications will go on, how it will be orchestrated, what tools to actually use, since I'm open to suggestions, and if its feasible to do this with the tools suggested, other ideas for changes or improvements, ideas for visuals, etc. Get technical because I need it to make sure this is possible to do, and there are tools to do it, so be detailed, without becoming too complex or over engineering it.
 
 This is an overview of a platform I wrote. I need you to read it, understand it, process it, solve any problems/questions etc, and then help me present this to my supervisors. I'd possibly like some diagrams, like a component diagram with the communications noted, some sequence diagrams, a general plan for the architecture and even written text as an overview or I dont know what. You know better. Give me what Im asking for, but keep in mind that the goal is to do something that is worth it, isn't extremely complex since we are undergraduate students doing this for our master or diploma thesis, but keeps a level of realism with some room for future improvements.
-
