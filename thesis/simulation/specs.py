@@ -1,192 +1,93 @@
-from dataclasses import dataclass
+import logging
+from dataclasses import ClassVar, dataclass
 from pathlib import Path
 
 from thesis.common.config import (
-    RANDOM_SEED,
-    SIMULATION_DIR,
+    NETWORK_BASE_FILENAME,
+    NETWORK_RAIN_FILENAME,
+    RANDOM_SEED_RAIN,
+    RANDOM_SEED_TEST,
+    RANDOM_SEED_TRAIN,
     TEST_TRAFFIC_GENERATION_PERIODS,
     TRAIN_TRAFFIC_GENERATION_PERIODS,
-    TYPE_TEST,
-    TYPE_TRAIN,
 )
-from thesis.simulation.config import (
-    NETWORK_BASE,
-    NETWORK_RAIN,
-    SCENARIO_BASE,
-    SCENARIO_RAIN,
-    SCENARIOS,
-    SEED_BASE,
-    SEED_RAIN,
-    TYPES,
-)
+from thesis.common.enums import SimulationScenario
+
+logger = logging.getLogger(__name__)
 
 
-@dataclass(frozen=True)
-class DatasetSpec:
+@dataclass(frozen=True, slots=True)
+class SimulationScenarioConfig:
     """
-    A dataset specification to be used for simulation.
+    A simulation scenario config.
 
     Attributes:
-        dataset_name (str): The name of the dataset.
-        trips_file (Path): The path to the trips file.
-        traffic_generation_periods (list[float]): The traffic generation periods.
-        seed (int): The seed for the random number generator.
-        network_file (Path): The path to the network file.
-        config (Path): The path to the configuration file.
-        fcd_output_xml (Path): The path to the FCD output XML file.
-        emission_output_xml (Path): The path to the emission output XML file.
+        scenario (SimulationScenario): Scenario.
+        simulation_dir (Path): Directory for the simulation experiment.
+
+    Properties:
+        network_path (Path): Path to the network file.
+        trips_path (Path): Path to the trips file.
+        emission_path (Path): Path to the emission file.
+        fcd_path (Path): Path to the fcd file.
+        sumocfg_path (Path): Path to the sumocfg file.
+        traffic_generation_periods (tuple[float, ...]): Traffic generation periods.
+        random_seed (int): Random seed.
     """
 
-    dataset_name: str
-    trips_file: Path
-    traffic_generation_periods: list[float]
-    seed: int
-    network_file: Path
-    config: Path
-    fcd_output_xml: Path
-    emission_output_xml: Path
+    scenario: SimulationScenario
+    simulation_dir: Path
 
-
-def get_dataset_name(scenario_name: str, type_name: str) -> str:
-    """
-    Get the dataset name for a given scenario name and type name.
-
-    Args:
-        scenario_name (str): The scenario name.
-        type_name (str): The type name.
-
-    Returns:
-        str: The dataset name.
-    """
-    return f"{scenario_name}-{type_name}"
-
-
-def get_trips_file(dataset_name: str) -> Path:
-    """
-    Get the trips file for a given dataset name.
-
-    Args:
-        dataset_name (str): The name of the dataset.
-
-    Returns:
-        Path: The path to the trips file.
-    """
-    return SIMULATION_DIR / f"{dataset_name}.trips.xml"
-
-
-def get_traffic_generation_periods(type_name: str) -> list[float]:
-    """
-    Get the traffic generation periods for a given type name.
-
-    Args:
-        type_name (str): The type name.
-
-    Returns:
-        list[float]: The traffic generation periods.
-    """
-    type_traffic_generation_periods = {
-        TYPE_TRAIN: TRAIN_TRAFFIC_GENERATION_PERIODS,
-        TYPE_TEST: TEST_TRAFFIC_GENERATION_PERIODS,
+    _NETWORK_PATHS: ClassVar[dict[SimulationScenario, Path]] = {
+        SimulationScenario.TRAIN: NETWORK_BASE_FILENAME,
+        SimulationScenario.TEST: NETWORK_BASE_FILENAME,
+        SimulationScenario.RAIN: NETWORK_RAIN_FILENAME,
     }
-    return type_traffic_generation_periods.get(type_name, [1.0])
-
-
-def get_seed(scenario_name: str, random_seed: int = RANDOM_SEED) -> int:
-    """
-    Get the seed for a given scenario name.
-
-    Args:
-        scenario_name (str): The scenario name.
-        random_seed (int): The random seed to use for the random number generator.
-
-    Returns:
-        int: The seed for the scenario name.
-    """
-    scenario_seeds = {
-        SCENARIO_BASE: SEED_BASE,
-        SCENARIO_RAIN: SEED_RAIN,
+    _TRAFFIC_GENERATION_PERIODS: ClassVar[dict[SimulationScenario, tuple[float, ...]]] = {
+        SimulationScenario.TRAIN: TRAIN_TRAFFIC_GENERATION_PERIODS,
+        SimulationScenario.TEST: TEST_TRAFFIC_GENERATION_PERIODS,
+        SimulationScenario.RAIN: TEST_TRAFFIC_GENERATION_PERIODS,
     }
-    return scenario_seeds.get(scenario_name, random_seed)
-
-
-def get_network_file(scenario_name: str) -> Path:
-    """
-    Get the network file for a given scenario name.
-
-    Args:
-        scenario_name (str): The scenario name.
-
-    Returns:
-        Path: The path to the network file.
-    """
-    scenario_networks = {
-        SCENARIO_BASE: NETWORK_BASE,
-        SCENARIO_RAIN: NETWORK_RAIN,
+    _RANDOM_SEEDS: ClassVar[dict[SimulationScenario, int]] = {
+        SimulationScenario.TRAIN: RANDOM_SEED_TRAIN,
+        SimulationScenario.TEST: RANDOM_SEED_TEST,
+        SimulationScenario.RAIN: RANDOM_SEED_RAIN,
     }
-    return scenario_networks.get(scenario_name, NETWORK_BASE)
 
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"{self.scenario=}, "
+            f"{self.simulation_dir=}, "
+            f"{self.network_path=}, "
+            f"{self.traffic_generation_periods=}, "
+            f"{self.random_seed=})"
+        )
 
-def get_config(dataset_name: str) -> Path:
-    """
-    Get the configuration file for a given dataset name.
+    @property
+    def network_path(self) -> Path:
+        return self.simulation_dir / self._NETWORK_PATHS[self.scenario]
 
-    Args:
-        dataset_name (str): The name of the dataset.
+    @property
+    def trips_path(self) -> Path:
+        return self.simulation_dir / f"{self.scenario}.trips.xml"
 
-    Returns:
-        Path: The path to the configuration file.
-    """
-    return SIMULATION_DIR / f"{dataset_name}.sumocfg"
+    @property
+    def emission_path(self) -> Path:
+        return self.simulation_dir / f"{self.scenario}-emission.xml"
 
+    @property
+    def fcd_path(self) -> Path:
+        return self.simulation_dir / f"{self.scenario}-fcd.xml"
 
-def get_fcd_output_xml(dataset_name: str) -> Path:
-    """
-    Get the FCD output XML file for a given dataset name.
+    @property
+    def sumocfg_path(self) -> Path:
+        return self.simulation_dir / f"{self.scenario}.sumocfg"
 
-    Args:
-        dataset_name (str): The name of the dataset.
+    @property
+    def traffic_generation_periods(self) -> tuple[float, ...]:
+        return self._TRAFFIC_GENERATION_PERIODS[self.scenario]
 
-    Returns:
-        Path: The path to the FCD output XML file.
-    """
-    return SIMULATION_DIR / f"{dataset_name}-fcd.xml"
-
-
-def get_emission_output_xml(dataset_name: str) -> Path:
-    """
-    Get the emission output XML file for a given dataset name.
-
-    Args:
-        dataset_name (str): The name of the dataset.
-
-    Returns:
-        Path: The path to the emission output XML file.
-    """
-    return SIMULATION_DIR / f"{dataset_name}-emission.xml"
-
-
-def build_dataset_specs() -> dict[str, DatasetSpec]:
-    """
-    Build the dataset specifications.
-
-    Returns:
-        dict[str, DatasetSpec]: The dataset specifications.
-    """
-    specs = {}
-
-    for scenario_name in SCENARIOS:
-        for type_name in TYPES:
-            dataset_name = get_dataset_name(scenario_name, type_name)
-
-            specs[dataset_name] = DatasetSpec(
-                dataset_name=dataset_name,
-                trips_file=get_trips_file(dataset_name),
-                traffic_generation_periods=get_traffic_generation_periods(type_name),
-                seed=get_seed(scenario_name),
-                network_file=get_network_file(scenario_name),
-                config=get_config(dataset_name),
-                fcd_output_xml=get_fcd_output_xml(dataset_name),
-                emission_output_xml=get_emission_output_xml(dataset_name),
-            )
-
-    return specs
+    @property
+    def random_seed(self) -> int:
+        return self._RANDOM_SEEDS[self.scenario]

@@ -1,25 +1,15 @@
 # Notes
 
-## Architecture
-- User stories review
-- New architecture plan and diagram, and possibly sequence diagrams etc
-- Data batches for prediction (raw sumo data) per minute or whatever we decide, plus a warm start for the flow prediction model, to provide some history for the lstm
-- Metrics and graphs from predictions timing (when the prediction is made or at the end of trip), this is important considering that the ground truth should not be available at the time of prediction, but we can obtain it because the data is simulated
-- 3 python dockers, one for each model, containing a python process that loads the model and weights, and a fastapi process that serves the model with a /predict endpoint or something similar, that includes preprocessing, a /retrain endpoint that retrains the model when concept drift is detected (with what exactly data is not clear yet)
-- Frontend that shows a map with the simulation area, and some graphs about the model performance, gives the user the ability to select a route to predict the eta, fuel and flow, based on the available routes that we have simulated, toggle for concept drift and two scenarios, base and closure, including an animation or something for loading and changing the data source
-- Backend that orchestrates everything
-- Concept drift toggle either rain or closure, means changing the data source from base to rain or closure and continuing from same timestep
-- Concept drift detection window for data based detection, maybe introduce error based later, if model performance allows it
-- Concept drift detection and mitigation service pipeline
-- Database for storing the data and predictions, and the model weights
-- Frontend with dashboards for metrics and drift for different models
-- Frontend with A to B routing, for example a few select routes with different colors and dots for current position, which when clicked will output a box with predictions for that route and maybe progress so far
-
-## Models
-- Add save_cv_model and save_cv_results functions, or change what is saved
+## To Do
+- New dataset with rain only 1 dataset and same seed same periods with base test
+- Run new dataset pipeline with train, test, and rain scenarios and evaluate models
+- Drop the config logic into utils and leave only statics
+- Migrate to using yaml config files
+- Create base save model and save results functions and wrap them with the scenario ones
 - Dataclass for output metrics
 - Use classmethod for creating the dataclass
 - Refactor ScenarioSpec and DatasetSpec to Scenario and Dataset and first property is the name
+
 - Sklearn pipeline for preprocessing and training
 - Scaling of new features
 - Log/Quantile/Box-Cox transformations of new features
@@ -367,15 +357,4 @@ Combine base model with drift-adapted model:
 # Keep base model, train a new model on rain data
 # Ensemble predictions with weights
 predictions = 0.3 * base_model.predict(X_test) + 0.7 * rain_model.predict(X_test)
-```
-
-5. Progressive Validation
-Simulate real-time adaptation:
-```python
-# Start with base model
-# For each batch of rain data:
-#   1. Test on batch (measure drift)
-#   2. Add batch to training set
-#   3. Retrain/update model
-#   4. Continue to next batch
 ```
