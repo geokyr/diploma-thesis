@@ -1,6 +1,7 @@
 # Notes
 
 ## To Do
+- Add ensure_dataset_is_valid separately on eta experiments
 - New dataset with rain only 1 dataset and same seed same periods with base test
 - Run new dataset pipeline with train, test, and rain scenarios and evaluate models
 - Drop the config logic into utils and leave only statics

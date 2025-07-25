@@ -225,8 +225,8 @@ def create_configuration_file(
     trips_path: Path,
     poly_path: Path,
     gui_settings_path: Path,
-    emission_path: Path,
-    fcd_path: Path,
+    emission_xml_path: Path,
+    fcd_xml_path: Path,
     sumocfg_path: Path,
     tls_actuated_jam_threshold: int = TLS_ACTUATED_JAM_THRESHOLD,
     device_rerouting_adaptation_steps: int = DEVICE_REROUTING_ADAPTATION_STEPS,
@@ -242,8 +242,8 @@ def create_configuration_file(
         trips_path (Path): Path to the trips file.
         poly_path (Path): Path to the poly file.
         gui_settings_path (Path): Path to the gui settings file.
-        emission_path (Path): Path to the emission file.
-        fcd_path (Path): Path to the fcd file.
+        emission_xml_path (Path): Path to the emission XML file.
+        fcd_xml_path (Path): Path to the fcd XML file.
         sumocfg_path (Path): Path to the sumocfg file.
         tls_actuated_jam_threshold (int): Jam threshold for actuated traffic lights.
         device_rerouting_adaptation_steps (int): Number of adaptation steps for device rerouting.
@@ -255,7 +255,6 @@ def create_configuration_file(
         FileNotFoundError: If the network, trips, poly, or gui settings file does not exist.
     """
     _validate_path(network_path, "Network file")
-    _validate_path(trips_path, "Trips file")
     _validate_path(poly_path, "Poly file")
     _validate_path(gui_settings_path, "GUI settings file")
 
@@ -276,11 +275,11 @@ def create_configuration_file(
         "--gui-settings-file",
         str(gui_settings_path),
         "--emission-output",
-        str(emission_path),
+        str(emission_xml_path),
         "--emission-output.attributes",
         emission_output_attributes,
         "--fcd-output",
-        str(fcd_path),
+        str(fcd_xml_path),
         "--fcd-output.attributes",
         fcd_output_attributes,
         "--save-configuration",

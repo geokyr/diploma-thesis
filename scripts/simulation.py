@@ -1,6 +1,7 @@
 from thesis.common.config import SIMULATION_DIR
 from thesis.common.enums import SimulationScenario
 from thesis.common.logger import setup_logger
+from thesis.common.pipeline import run_fcd_exploratory_data_analysis
 from thesis.simulation.experiment import SimulationExperiment
 from thesis.simulation.pipeline import (
     build_network,
@@ -25,16 +26,16 @@ def main():
     write_gui_settings_file(gui_settings_path=experiment.gui_settings_path)
 
     for scenario in SimulationScenario:
+        logger.info(f"Generating {scenario} scenario")
         config = SimulationScenarioConfig(scenario=scenario, simulation_dir=experiment.simulation_dir)
-        logger.info(f"Generating {config.scenario} scenario")
 
         create_configuration_file(
             network_path=config.network_path,
             trips_path=config.trips_path,
             poly_path=experiment.poly_path,
             gui_settings_path=experiment.gui_settings_path,
-            emission_path=config.emission_path,
-            fcd_path=config.fcd_path,
+            emission_xml_path=config.emission_xml_path,
+            fcd_xml_path=config.fcd_xml_path,
             sumocfg_path=config.sumocfg_path,
         )
         generate_random_trips(
@@ -44,8 +45,14 @@ def main():
             random_seed=config.random_seed,
         )
         simulate_scenario(sumocfg_path=config.sumocfg_path)
-        convert_xml_to_csv(xml_path=config.emission_path)
-        convert_xml_to_csv(xml_path=config.fcd_path)
+        convert_xml_to_csv(xml_path=config.emission_xml_path)
+        convert_xml_to_csv(xml_path=config.fcd_xml_path)
+        run_fcd_exploratory_data_analysis(
+            fcd_csv_path=config.fcd_csv_path,
+            id_df=config.scenario,
+            plots_dir=experiment.plots_dir,
+            traffic_generation_periods=config.traffic_generation_periods,
+        )
 
 
 if __name__ == "__main__":

@@ -48,6 +48,12 @@ VIEW_SETTINGS = """<viewsettings>
 </viewsettings>
 """
 
+TRIPS_SUFFIX = ".trips.xml"
+EMISSION_XML_SUFFIX = "-emission.xml"
+FCD_XML_SUFFIX = "-fcd.xml"
+SUMOCFG_SUFFIX = ".sumocfg"
+FCD_CSV_SUFFIX = "-fcd.csv"
+
 TRAIN_TRAFFIC_GENERATION_PERIODS = (0.45, 0.50, 0.65, 0.75, 0.80, 0.80, 0.75, 0.55, 0.50, 0.55)
 TEST_TRAFFIC_GENERATION_PERIODS = tuple(p * np.random.normal(1.0, 0.01) for p in TRAIN_TRAFFIC_GENERATION_PERIODS)
 RANDOM_SEED_TRAIN = 42
