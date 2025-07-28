@@ -9,7 +9,6 @@ from thesis.common.config import (
     DEVICE_FRICTION_PROBABILITY,
     DEVICE_REROUTING_ADAPTATION_INTERVAL,
     DEVICE_REROUTING_ADAPTATION_STEPS,
-    EMISSION_OUTPUT_ATTRIBUTES,
     END_TIME,
     FCD_OUTPUT_ATTRIBUTES,
     FRICTION,
@@ -225,13 +224,11 @@ def create_configuration_file(
     trips_path: Path,
     poly_path: Path,
     gui_settings_path: Path,
-    emission_xml_path: Path,
     fcd_xml_path: Path,
     sumocfg_path: Path,
     tls_actuated_jam_threshold: int = TLS_ACTUATED_JAM_THRESHOLD,
     device_rerouting_adaptation_steps: int = DEVICE_REROUTING_ADAPTATION_STEPS,
     device_rerouting_adaptation_interval: int = DEVICE_REROUTING_ADAPTATION_INTERVAL,
-    emission_output_attributes: str = EMISSION_OUTPUT_ATTRIBUTES,
     fcd_output_attributes: str = FCD_OUTPUT_ATTRIBUTES,
 ) -> None:
     """
@@ -242,13 +239,11 @@ def create_configuration_file(
         trips_path (Path): Path to the trips file.
         poly_path (Path): Path to the poly file.
         gui_settings_path (Path): Path to the gui settings file.
-        emission_xml_path (Path): Path to the emission XML file.
         fcd_xml_path (Path): Path to the fcd XML file.
         sumocfg_path (Path): Path to the sumocfg file.
         tls_actuated_jam_threshold (int): Jam threshold for actuated traffic lights.
         device_rerouting_adaptation_steps (int): Number of adaptation steps for device rerouting.
         device_rerouting_adaptation_interval (int): Interval for device rerouting adaptation.
-        emission_output_attributes (str): Attributes for the emission output.
         fcd_output_attributes (str): Attributes for the fcd output.
 
     Raises:
@@ -274,10 +269,6 @@ def create_configuration_file(
         str(device_rerouting_adaptation_interval),
         "--gui-settings-file",
         str(gui_settings_path),
-        "--emission-output",
-        str(emission_xml_path),
-        "--emission-output.attributes",
-        emission_output_attributes,
         "--fcd-output",
         str(fcd_xml_path),
         "--fcd-output.attributes",
@@ -333,6 +324,8 @@ def generate_random_trips(
         str(trips_path),
         "--seed",
         str(random_seed),
+        "--random-departpos",
+        "--random-arrivalpos",
         "--validate",
     ]
     name = "randomTrips"
@@ -348,8 +341,6 @@ def simulate_scenario(sumocfg_path: Path) -> None:
 
     Args:
         sumocfg_path (Path): Path to the sumocfg file.
-        emission_path (Path): Path to the emission file after simulation.
-        fcd_path (Path): Path to the fcd file after simulation.
 
     Raises:
         FileNotFoundError: If the sumocfg file does not exist.
@@ -367,24 +358,24 @@ def simulate_scenario(sumocfg_path: Path) -> None:
     _execute_command(command, name)
 
 
-def convert_xml_to_csv(xml_path: Path) -> None:
+def convert_fcd_xml_to_csv(fcd_xml_path: Path) -> None:
     """
-    Convert the XML file to CSV and delete the original.
+    Convert the FCD XML file to CSV and delete the original.
 
     Args:
-        xml_path (Path): Path to the XML file.
+        fcd_xml_path (Path): Path to the FCD XML file.
 
     Raises:
-        FileNotFoundError: If the XML file does not exist.
+        FileNotFoundError: If the FCD XML file does not exist.
     """
-    _validate_path(xml_path, "XML file")
+    _validate_path(fcd_xml_path, "FCD XML file")
 
     command = [
         "python",
         str(XML2CSV),
-        str(xml_path),
+        str(fcd_xml_path),
     ]
     name = "xml2csv"
     _execute_command(command, name)
 
-    xml_path.unlink(missing_ok=True)
+    fcd_xml_path.unlink(missing_ok=True)

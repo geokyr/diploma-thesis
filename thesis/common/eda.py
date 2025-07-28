@@ -32,9 +32,9 @@ def plot_average_speed_and_traffic_generation_period_per_hour(
     Plot average speed and traffic generation period on a per-hour basis.
 
     Args:
-        df_fcd_per_hour (pd.DataFrame): The FCD DataFrame aggregated per hour to plot the average speed and traffic generation period for.
+        df_fcd_per_hour (pd.DataFrame): FCD DataFrame aggregated per hour to plot the average speed and traffic generation period for.
         id_df (str): Identifier for the DataFrame.
-        plots_dir (Path): The directory to save the plot to.
+        plots_dir (Path): Directory to save the plot to.
         traffic_generation_periods (tuple[float, ...]): Traffic generation periods.
 
     Raises:

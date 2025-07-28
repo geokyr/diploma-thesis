@@ -6,14 +6,14 @@ from thesis.simulation.experiment import SimulationExperiment
 from thesis.simulation.pipeline import (
     build_network,
     build_rain_network,
-    convert_xml_to_csv,
+    convert_fcd_xml_to_csv,
     create_configuration_file,
     generate_random_trips,
     get_osm_data,
     simulate_scenario,
     write_gui_settings_file,
 )
-from thesis.simulation.specs import SimulationScenarioConfig
+from thesis.simulation.scenario import SimulationScenarioConfig
 
 
 def main():
@@ -34,7 +34,6 @@ def main():
             trips_path=config.trips_path,
             poly_path=experiment.poly_path,
             gui_settings_path=experiment.gui_settings_path,
-            emission_xml_path=config.emission_xml_path,
             fcd_xml_path=config.fcd_xml_path,
             sumocfg_path=config.sumocfg_path,
         )
@@ -45,8 +44,7 @@ def main():
             random_seed=config.random_seed,
         )
         simulate_scenario(sumocfg_path=config.sumocfg_path)
-        convert_xml_to_csv(xml_path=config.emission_xml_path)
-        convert_xml_to_csv(xml_path=config.fcd_xml_path)
+        convert_fcd_xml_to_csv(fcd_xml_path=config.fcd_xml_path)
         run_fcd_exploratory_data_analysis(
             fcd_csv_path=config.fcd_csv_path,
             id_df=config.scenario,

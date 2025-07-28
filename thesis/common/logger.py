@@ -3,26 +3,28 @@ import logging.handlers
 import sys
 from pathlib import Path
 
+from thesis.common.config import BACKUP_COUNT, MAX_FILE_SIZE
+
 
 def setup_logger(
     logger_name: str,
     logs_dir: Path,
     log_level: str = "INFO",
-    max_file_size: int = 10 * 1024 * 1024,
-    backup_count: int = 5,
+    max_file_size: int = MAX_FILE_SIZE,
+    backup_count: int = BACKUP_COUNT,
 ) -> logging.Logger:
     """
     Setup the root logger with console and file handlers and return a configured logger.
 
     Args:
-        logger_name (str): The name of the logger.
-        logs_dir (Path): The directory to save the logs.
+        logger_name (str): Name of the logger.
+        logs_dir (Path): Directory to save the logs.
         log_level (str): Minimum logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
         max_file_size (int): Maximum size of log file in bytes before rotation.
         backup_count (int): Number of backup files to keep.
 
     Returns:
-        logging.Logger: A configured logger with console and file handlers.
+        logging.Logger: Configured logger with console and file handlers.
     """
     log_level = getattr(logging, log_level.upper())
     root_logger = logging.getLogger()
