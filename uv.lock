@@ -268,7 +268,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "catboost", specifier = "==1.2.8" },
-    { name = "eclipse-sumo", specifier = "==1.21.0" },
+    { name = "eclipse-sumo", specifier = "==1.24.0" },
     { name = "ipykernel", specifier = "==6.29.5" },
     { name = "lightgbm", specifier = "==4.6.0" },
     { name = "matplotlib", specifier = "==3.10.1" },
@@ -284,16 +284,13 @@ requires-dist = [
 
 [[package]]
 name = "eclipse-sumo"
-version = "1.21.0"
+version = "1.24.0"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/db/86/24c762aaf0c7aaeffdeb55433a2b2c2b7ac8ad84df59d68a6d9d426c5d2f/eclipse_sumo-1.21.0-cp312-cp312-macosx_14_0_arm64.whl", hash = "sha256:504d7b2ff6a7387108f64a1007e96a3eddf7825408443fa793a2973e462c7e9f", size = 111707755, upload-time = "2024-10-25T15:46:03.279Z" },
-    { url = "https://files.pythonhosted.org/packages/52/ad/589ea714ac695c55c2430390b80799c59658f22632434455a3e3f7fd196c/eclipse_sumo-1.21.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c938594a55f4bd17c200d5c696bde78b994fde151fb91ae195ecbb08053c1713", size = 70202967, upload-time = "2024-10-12T07:58:37.062Z" },
-    { url = "https://files.pythonhosted.org/packages/cc/c8/157267ca75b24efc09b37a1f752610f7178dc49d0e3320009ffaa7ba8708/eclipse_sumo-1.21.0-cp313-cp313-macosx_14_0_arm64.whl", hash = "sha256:fb22e407bf9cb4a792c58eff08ba2488118d9d82a9ec3dbfba9e4909c864d09f", size = 111707801, upload-time = "2024-10-25T15:46:46.02Z" },
-    { url = "https://files.pythonhosted.org/packages/ab/4e/bae88c04ab086dcc397e58fa3a09e94703077c7a510896ec5e555fb6c495/eclipse_sumo-1.21.0-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:619fa8e6ca5dc2a82a132dd4ac81435df8a69c765acf36b62a2dab8d8fe1f6bf", size = 70203063, upload-time = "2024-10-12T07:59:05.919Z" },
-    { url = "https://files.pythonhosted.org/packages/e0/05/354b91b0e2ae6befd03a5b21db0719882f1bd924f8843d64ffc47127b072/eclipse_sumo-1.21.0-py2.py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:09d63d093458b059e96202f31c0527d68771d512b9764e91b7228fb30a50ef5d", size = 70078105, upload-time = "2024-10-12T09:07:02.807Z" },
-    { url = "https://files.pythonhosted.org/packages/fc/31/4d4bb7767afc33ae5a1d645bba927dd336ad039d4fe15262f12ed68dcbef/eclipse_sumo-1.21.0-py2.py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:919ce16c4ec1a14f85af80b87a02f49cfc153372ef23009fd96027dccb2557e2", size = 72756684, upload-time = "2024-10-09T20:40:16.804Z" },
-    { url = "https://files.pythonhosted.org/packages/5f/77/13394602f84bc026f204a1e21cbcdfc33ffba046035750c82a3a5c1a5d4a/eclipse_sumo-1.21.0-py2.py3-none-win_amd64.whl", hash = "sha256:8f2942912e8edb906d76d73ec722606a7e949dadef9607ac3d1a02f3fc37f819", size = 87201602, upload-time = "2024-10-09T20:33:28.53Z" },
+    { url = "https://files.pythonhosted.org/packages/49/b6/71b5e2cbf3989999669fee3707f39fce94c5af5ed036f6ec19d4b77a1f0d/eclipse_sumo-1.24.0-py2.py3-none-macosx_15_0_arm64.whl", hash = "sha256:52bda84d18a430ff1d3765cb8161036ec2240bc8077eb2669b18d3d90d1a29e7", size = 68037779, upload-time = "2025-07-22T15:49:08.375Z" },
+    { url = "https://files.pythonhosted.org/packages/32/5c/3a413efb45d9476cc7a87880f8451e3096a32a81a2339da0b7aa6c312636/eclipse_sumo-1.24.0-py2.py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3169b0fe93b0ccf694cf11a6a0b91916449cf1544c12e04882835390c0d4d417", size = 91473432, upload-time = "2025-07-22T15:50:48.797Z" },
+    { url = "https://files.pythonhosted.org/packages/4c/a2/963ebbcaaedf5b784cfced3e0c01e9459ad6e88f3e2d9308a17a7978d324/eclipse_sumo-1.24.0-py2.py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:bcf9fffb52e50661b0ecdce8bcbc9db25baaaf2d3935160be33c41f75abbfb6c", size = 94647963, upload-time = "2025-07-22T15:52:30.81Z" },
+    { url = "https://files.pythonhosted.org/packages/38/cc/08f44a25964ed0b881be2410c0b3ca9a07c5fdc5e5f9729c2db5ac27daef/eclipse_sumo-1.24.0-py2.py3-none-win_amd64.whl", hash = "sha256:8c0e7faf478ae8ccf1a0a1df486de8ceec8d7d5c6b4fbe58ecbd4515b159bd8b", size = 162475094, upload-time = "2025-07-22T15:55:12.667Z" },
 ]
 
 [[package]]

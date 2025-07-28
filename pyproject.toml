@@ -7,7 +7,7 @@ authors = [
 requires-python = ">=3.12.9"
 dependencies = [
     "catboost==1.2.8",
-    "eclipse-sumo==1.21.0",
+    "eclipse-sumo==1.24.0",
     "ipykernel==6.29.5",
     "lightgbm==4.6.0",
     "matplotlib==3.10.1",
