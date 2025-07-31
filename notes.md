@@ -1,11 +1,6 @@
 # Notes
 
 ## To Do
-- Design the retrain pipeline, based on test and rain data percentage or something
-- Finalize the 4 scenario runners pipelines, their inputs and outputs (results, models, etc)
-- Fix the results and models save functions, that might need a base save one and a wrapper for research or the other 3 scenarios
-- Create base save model and save results functions and wrap them with the scenario ones
-
 - Add docstrings to modules
 - Add ensure_dataset_is_valid separately on eta experiments
 
@@ -30,6 +25,7 @@
 
 - Hyperparameter tuning with optuna
 - Final model
+- Change colorscheme
 
 ```python
 # Spatial Binning/Grid Encoding
