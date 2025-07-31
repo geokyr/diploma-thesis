@@ -1,5 +1,3 @@
-from thesis.common.config import SIMULATION_DIR
-from thesis.common.enums import SimulationScenario
 from thesis.common.logger import setup_logger
 from thesis.common.pipeline import run_fcd_exploratory_data_analysis
 from thesis.simulation.experiment import SimulationExperiment
@@ -13,11 +11,11 @@ from thesis.simulation.pipeline import (
     simulate_scenario,
     write_gui_settings_file,
 )
-from thesis.simulation.scenario import SimulationScenarioConfig
+from thesis.simulation.scenario import SimulationScenario, SimulationScenarioConfig
 
 
 def main():
-    experiment = SimulationExperiment(simulation_dir=SIMULATION_DIR)
+    experiment = SimulationExperiment()
     logger = setup_logger(experiment.name, experiment.logs_dir)
 
     get_osm_data(simulation_dir=experiment.simulation_dir)
@@ -47,7 +45,7 @@ def main():
         convert_fcd_xml_to_csv(fcd_xml_path=config.fcd_xml_path)
         run_fcd_exploratory_data_analysis(
             fcd_csv_path=config.fcd_csv_path,
-            id_df=config.scenario,
+            scenario=config.scenario,
             plots_dir=experiment.plots_dir,
             traffic_generation_periods=config.traffic_generation_periods,
         )

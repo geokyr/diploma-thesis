@@ -10,6 +10,7 @@ from thesis.common.config import (
     OSM_DATA_FILENAME,
     PLOTS_DIRNAME,
     POLY_FILENAME,
+    SIMULATION_DIR,
 )
 
 
@@ -33,7 +34,7 @@ class SimulationExperiment:
         network_rain_path (Path): Path to the rain network file.
     """
 
-    simulation_dir: Path
+    simulation_dir: Path = SIMULATION_DIR
 
     def __post_init__(self) -> None:
         for dir in [self.data_dir, self.logs_dir, self.plots_dir]:
