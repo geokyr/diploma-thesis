@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from thesis.common.config import END_TIME, MIN_DISTANCE, MIN_DURATION
+from thesis.common.config import END_TIME, MIN_DISTANCE, MIN_DURATION, NUM_RETRAINING_TRIPS
 
 logger = logging.getLogger(__name__)
 
@@ -127,3 +127,42 @@ def generate_trips(
 
     logger.info(f"Generated {len(df_trips)} trips")
     return df_trips
+
+
+def get_adaptation_test_data(trips_rain: pd.DataFrame, n_rain_trips: int = NUM_RETRAINING_TRIPS) -> pd.DataFrame:
+    """
+    Get adaptation test data, by removing data that will be used for retraining.
+
+    Args:
+        trips_rain (pd.DataFrame): Dataframe with trips from rainy weather
+        n_rain_trips (int): Number of rain trips used for retraining
+
+    Returns:
+        pd.DataFrame: Dataframe with adaptation test data
+    """
+    return trips_rain.sort_values("time_start").iloc[n_rain_trips:].reset_index(drop=True)
+
+
+def get_adaptation_retrain_data(
+    trips_test: pd.DataFrame,
+    trips_rain: pd.DataFrame,
+    n_test_trips: int = NUM_RETRAINING_TRIPS,
+    n_rain_trips: int = NUM_RETRAINING_TRIPS,
+) -> pd.DataFrame:
+    """
+    Get adaptation retrain data, by combining test and rain data.
+
+    Args:
+        trips_test (pd.DataFrame): Test dataset trips
+        trips_rain (pd.DataFrame): Rain dataset trips
+        n_test_trips (int): Number of test trips used for retrain
+        n_rain_trips (int): Number of raintrips used for retrain
+
+    Returns:
+        pd.DataFrame: Dataframe with adaptation retrain data
+    """
+    retrain_test_data = trips_test.nlargest(n_test_trips, "time_start")
+    retrain_rain_data = trips_rain.nsmallest(n_rain_trips, "time_start")
+
+    retrain_data = pd.concat([retrain_test_data, retrain_rain_data], ignore_index=True)
+    return retrain_data

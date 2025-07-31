@@ -1,6 +1,7 @@
 import logging
 import time
 
+import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator
 from sklearn.metrics import (
@@ -10,85 +11,108 @@ from sklearn.metrics import (
     r2_score,
     root_mean_squared_error,
 )
+from sklearn.model_selection import StratifiedKFold
+
+from thesis.common.config import RANDOM_SEED
+from thesis.eta.models import ModelType
 
 logger = logging.getLogger(__name__)
 
 
+def get_stratified_kfold_cv(
+    y: pd.Series, n_bins: int = 10, n_splits: int = 5, random_seed: int = RANDOM_SEED
+) -> tuple[StratifiedKFold, np.ndarray]:
+    """
+    Discretize a continuous target variable into quantile bins and return a StratifiedKFold object with a key.
+
+    Args:
+        y (pd.Series): Series containing the target variable.
+        n_bins (int): Number of bins to discretize the target variable into.
+        n_splits (int): Number of splits for cross-validation.
+        random_seed (int): Random seed to use for the random number generator.
+
+    Returns:
+        tuple[StratifiedKFold, np.ndarray]: Tuple containing the StratifiedKFold object and the key.
+    """
+    target_bins = pd.qcut(y, q=n_bins, labels=False, duplicates="drop")
+    stratify_key = target_bins.astype(str)
+
+    skf = StratifiedKFold(
+        n_splits=n_splits,
+        shuffle=True,
+        random_state=random_seed,
+    )
+
+    return skf, stratify_key
+
+
 def train_model(
-    model: BaseEstimator,
-    model_name: str,
-    X_train: pd.DataFrame,
-    y_train: pd.Series,
+    model: BaseEstimator, model_type: ModelType, X_train: pd.DataFrame, y_train: pd.Series, **fit_kwargs
 ) -> dict[str, float]:
     """
     Train a model.
 
     Args:
-        model (BaseEstimator): The machine learning model to train.
-        model_name (str): The name of the model.
-        X_train (pd.DataFrame): A DataFrame containing the training features.
-        y_train (pd.Series): A Series containing the training target variable.
+        model (BaseEstimator): Machine learning model to train.
+        model_type (ModelType): Type of the model.
+        X_train (pd.DataFrame): DataFrame containing the training features.
+        y_train (pd.Series): Series containing the training target variable.
+        **fit_kwargs: Additional keyword arguments to pass to the model's fit method.
 
     Returns:
-        dict[str, float]: A dictionary containing training metrics.
+        dict[str, float]: Dictionary containing training metrics.
     """
-    logger.info(f"Training {model_name}")
+    logger.info(f"Training {model_type}")
 
     training_start = time.perf_counter()
-    model.fit(X_train, y_train)
+    model.fit(X_train, y_train, **fit_kwargs)
     training_end = time.perf_counter()
     training_time = training_end - training_start
 
-    logger.info(f"{model_name} - Training time: {training_time:.3f}s")
+    logger.info(f"{model_type} - Training time: {training_time:.3f}s")
 
     return {"training_time": training_time}
 
 
 def make_predictions(
-    model: BaseEstimator,
-    model_name: str,
-    X_test: pd.DataFrame,
+    model: BaseEstimator, model_type: ModelType, X_test: pd.DataFrame
 ) -> tuple[pd.Series, dict[str, float]]:
     """
     Make predictions using a trained model.
 
     Args:
-        model (BaseEstimator): The machine learning model to use for predictions.
-        model_name (str): The name of the model.
-        X_test (pd.DataFrame): A DataFrame containing the test features.
+        model (BaseEstimator): Machine learning model to use for predictions.
+        model_type (ModelType): Type of the model.
+        X_test (pd.DataFrame): DataFrame containing the test features.
 
     Returns:
-        tuple[pd.Series, dict[str, float]]: A tuple containing the predictions and timing metrics.
+        tuple[pd.Series, dict[str, float]]: Tuple containing the predictions and timing metrics.
     """
-    logger.info(f"Making predictions with {model_name}")
+    logger.info(f"Making predictions with {model_type}")
 
     prediction_start = time.perf_counter()
     preds = model.predict(X_test)
     prediction_end = time.perf_counter()
     prediction_time = prediction_end - prediction_start
 
-    logger.info(f"{model_name} - Prediction time: {prediction_time:.3f}s")
+    logger.info(f"{model_type} - Prediction time: {prediction_time:.3f}s")
 
     return pd.Series(preds), {"prediction_time": prediction_time}
 
 
-def evaluate_predictions(
-    y_true: pd.Series,
-    y_pred: pd.Series,
-    model_name: str,
-) -> dict[str, float]:
+def evaluate_predictions(y_true: pd.Series, y_pred: pd.Series, model_type: ModelType) -> dict[str, float]:
     """
     Evaluate predictions against true values.
 
     Args:
-        y_true (pd.Series): A Series containing the true target values.
-        y_pred (pd.Series): A Series containing the predicted target values.
-        model_name (str): The name of the model (for logging).
+        y_true (pd.Series): Series containing the true target values.
+        y_pred (pd.Series): Series containing the predicted target values.
+        model_type (ModelType): Type of the model.
 
     Returns:
-        dict[str, float]: A dictionary containing evaluation metrics.
+        dict[str, float]: Dictionary containing evaluation metrics.
     """
-    logger.info(f"Evaluating predictions with {model_name}")
+    logger.info(f"Evaluating predictions with {model_type}")
 
     evaluation_start = time.perf_counter()
     mae = mean_absolute_error(y_true, y_pred)
@@ -100,7 +124,7 @@ def evaluate_predictions(
     evaluation_time = evaluation_end - evaluation_start
 
     logger.info(
-        f"{model_name} - Evaluation time: {evaluation_time:.3f}s, MAE: {mae:.2f}s, MSE: {mse:.2f}s, RMSE: {rmse:.2f}s, MAPE: {mape * 100:.2f}%, R2: {r2:.3f}"
+        f"{model_type} - Evaluation time: {evaluation_time:.3f}s, MAE: {mae:.2f}s, MSE: {mse:.2f}s, RMSE: {rmse:.2f}s, MAPE: {mape * 100:.2f}%, R2: {r2:.3f}"
     )
 
     return {
