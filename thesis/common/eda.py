@@ -26,7 +26,7 @@ def report_fcd_statistics(df_fcd: pd.DataFrame, scenario: str) -> None:
 
 
 def plot_average_speed_and_traffic_generation_period_per_hour(
-    df_fcd_per_hour: pd.DataFrame, scenario: str, plots_dir: Path, traffic_generation_periods: tuple[float, ...]
+    df_fcd_per_hour: pd.DataFrame, scenario: str, plots_dir: Path, traffic_generation_periods: list[float]
 ) -> None:
     """
     Plot average speed and traffic generation period on a per-hour basis.
@@ -35,7 +35,7 @@ def plot_average_speed_and_traffic_generation_period_per_hour(
         df_fcd_per_hour (pd.DataFrame): FCD DataFrame aggregated per hour to plot the average speed and traffic generation period for.
         scenario (str): Scenario name.
         plots_dir (Path): Directory to save the plot to.
-        traffic_generation_periods (tuple[float, ...]): Traffic generation periods.
+        traffic_generation_periods (list[float]): Traffic generation periods.
     """
     plot_path = plots_dir / f"{scenario}_average_speed_and_traffic_generation_period_per_hour.png"
 

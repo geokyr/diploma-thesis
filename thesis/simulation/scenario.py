@@ -54,7 +54,7 @@ class SimulationScenarioConfig:
         trips_path (Path): Path to the trips file.
         fcd_xml_path (Path): Path to the fcd XML file.
         sumocfg_path (Path): Path to the sumocfg file.
-        traffic_generation_periods (tuple[float, ...]): Traffic generation periods.
+        traffic_generation_periods (list[float]): Traffic generation periods.
         random_seed (int): Random seed.
         fcd_csv_path (Path): Path to the fcd CSV file.
     """
@@ -109,8 +109,8 @@ class SimulationScenarioConfig:
         return self.simulation_dir / f"{self.scenario}{SUMOCFG_SUFFIX}"
 
     @property
-    def traffic_generation_periods(self) -> tuple[float, ...]:
-        return tuple(p * self._rng.normal(1.0, TRAFFIC_GENERATION_PERIODS_NOISE) for p in TRAFFIC_GENERATION_PERIODS)
+    def traffic_generation_periods(self) -> list[float]:
+        return [p * self._rng.normal(1.0, TRAFFIC_GENERATION_PERIODS_NOISE) for p in TRAFFIC_GENERATION_PERIODS]
 
     @property
     def random_seed(self) -> int:

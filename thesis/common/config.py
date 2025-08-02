@@ -1,13 +1,9 @@
 import os
+from dataclasses import dataclass
 from pathlib import Path
 from sysconfig import get_paths
 
-MAX_FILE_SIZE = 10 * 1024 * 1024
-BACKUP_COUNT = 5
-
-PROJECT_DIR = Path(__file__).parent.parent.parent
-SIMULATION_DIR = PROJECT_DIR / "simulation"
-OUTPUTS_DIR = PROJECT_DIR / "outputs"
+import yaml
 
 PURELIB_PATH = Path(get_paths()["purelib"])
 SUMO_HOME = PURELIB_PATH / "sumo"
@@ -22,59 +18,165 @@ OSM_GET = SUMO_TOOLS / "osmGet.py"
 OSM_BUILD = SUMO_TOOLS / "osmBuild.py"
 RANDOM_TRIPS = SUMO_TOOLS / "randomTrips.py"
 XML2CSV = SUMO_TOOLS / "xml" / "xml2csv.py"
-
-DATA_DIRNAME = "data"
-LOGS_DIRNAME = "logs"
-PLOTS_DIRNAME = "plots"
-OSM_DATA_FILENAME = "osm_bbox.osm.xml.gz"
-GUI_SETTINGS_FILENAME = "osm.view.xml"
-POLY_FILENAME = "osm.poly.xml.gz"
-NETWORK_BASE_FILENAME = "osm.net.xml.gz"
-NETWORK_RAIN_FILENAME = "osm-rain.net.xml.gz"
-
-BBOX = (23.725252771719436, 37.974745936977456, 23.752735758169127, 37.988290142332225)
-ROAD_TYPES = '{"Highway": ["motorway", "motorway_link", "trunk", "trunk_link", "primary", "primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential", "living_street", "unsurfaced", "service", "raceway", "bus_guideway", "track", "footway", "pedestrian", "path", "bridleway", "cycleway", "step", "steps", "stairs"], "Railway": ["preserved", "tram", "subway", "light_rail", "rail", "highspeed", "monorail"], "Aeroway": ["stopway", "parking_position", "taxiway", "taxilane", "runway", "highway_strip"], "Waterway": ["river", "canal"], "Aerialway": ["cable_car", "gondola"], "Route": ["ferry"]}'
-VEHICLE_CLASSES = "passenger"
 NETCONVERT_TYPEMAP = SUMO_HOME / "data" / "typemap" / "osmNetconvert.typ.xml"
 POLYCONVERT_TYPEMAP = SUMO_HOME / "data" / "typemap" / "osmPolyconvert.typ.xml"
-NETCONVERT_OPTIONS = "--geometry.remove,--roundabouts.guess,--ramps.guess,--junctions.join,--tls.guess-signals,--tls.discard-simple,--tls.join,--output.original-names,--junctions.corner-detail,5,--output.street-names,--tls.default-type,actuated"
-POLYCONVERT_OPTIONS = "--verbose,--osm.keep-full-type,--osm.merge-relations,1"
-FRICTION = 0.4
-VIEW_SETTINGS = """<viewsettings>
-    <scheme name="real world"/>
-    <delay value="20"/>
-</viewsettings>
-"""
 
-TRIPS_SUFFIX = ".trips.xml"
-FCD_XML_SUFFIX = "-fcd.xml"
-SUMOCFG_SUFFIX = ".sumocfg"
-FCD_CSV_SUFFIX = "-fcd.csv"
 
-RANDOM_SEED_DEFAULT = 42
-RANDOM_SEED_TRAIN = 13
-RANDOM_SEED_TEST = 2025
-RANDOM_SEED_RAIN = 314159
-TRAFFIC_GENERATION_PERIODS_NOISE = 0.01
-TRAFFIC_GENERATION_PERIODS = (0.50, 0.55, 0.65, 0.75, 0.80, 0.80, 0.75, 0.65, 0.65, 0.60)
+@dataclass(frozen=True, slots=True)
+class LoggingConfig:
+    max_file_size: int
+    backup_count: int
 
-TLS_ACTUATED_JAM_THRESHOLD = 30
-DEVICE_REROUTING_ADAPTATION_STEPS = 18
-DEVICE_REROUTING_ADAPTATION_INTERVAL = 10
-FCD_OUTPUT_ATTRIBUTES = "id,x,y,speed,lane,odometer,fuel,waiting"
-START_TIME = 0
-END_TIME = 36000
-ROUTES_TEMP_FILENAME = "routes.rou.xml"
-DEVICE_FRICTION_PROBABILITY = 1.0
 
-ZENODO_DATASET_API_URL = "https://zenodo.org/api/records/15916712"
+@dataclass(frozen=True, slots=True)
+class DirnameConfig:
+    simulation: str
+    outputs: str
+    data: str
+    logs: str
+    plots: str
+    models: str
+    results: str
 
-MODELS_DIRNAME = "models"
-RESULTS_DIRNAME = "results"
 
-MIN_DURATION = 30
-MIN_DISTANCE = 200
-AUGMENTATION_RATE = 0.0
-MIN_TRIP_RATIO = 0.5
+@dataclass(frozen=True, slots=True)
+class FilenameConfig:
+    osm_data: str
+    gui_settings: str
+    poly: str
+    network_base: str
+    network_rain: str
+    routes_temp: str
 
-NUM_RETRAINING_TRIPS = 10000
+
+@dataclass(frozen=True, slots=True)
+class SuffixConfig:
+    trips: str
+    fcd_xml: str
+    sumocfg: str
+    fcd_csv: str
+
+
+@dataclass(frozen=True, slots=True)
+class NetworkConfig:
+    bbox: list[float]
+    road_types: str
+    vehicle_classes: str
+    netconvert_options: str
+    polyconvert_options: str
+    friction: float
+    view_settings: str
+
+
+@dataclass(frozen=True, slots=True)
+class SeedConfig:
+    default: int
+    train: int
+    test: int
+    rain: int
+
+
+@dataclass(frozen=True, slots=True)
+class SimulationConfig:
+    traffic_generation_periods_noise: float
+    traffic_generation_periods: list[float]
+    tls_actuated_jam_threshold: int
+    device_rerouting_adaptation_steps: int
+    device_rerouting_adaptation_interval: int
+    fcd_output_attributes: str
+    start_time: int
+    end_time: int
+    device_friction_probability: float
+
+
+@dataclass(frozen=True, slots=True)
+class ExternalConfig:
+    zenodo_dataset_api_url: str
+
+
+@dataclass(frozen=True, slots=True)
+class EtaConfig:
+    min_duration: int
+    min_distance: int
+    augmentation_rate: float
+    min_trip_ratio: float
+    num_retraining_trips: int
+
+
+@dataclass(frozen=True, slots=True)
+class Config:
+    logging: LoggingConfig
+    dirname: DirnameConfig
+    filename: FilenameConfig
+    suffix: SuffixConfig
+    network: NetworkConfig
+    seed: SeedConfig
+    simulation: SimulationConfig
+    external: ExternalConfig
+    eta: EtaConfig
+
+
+def load_config(config_path: Path) -> Config:
+    with open(config_path, "r") as f:
+        data = yaml.safe_load(f)
+        return Config(**data)
+
+
+CONFIG_PATH = Path(__file__).parent / "config.yaml"
+CONFIG = load_config(CONFIG_PATH)
+
+PROJECT_DIR = Path(__file__).parent.parent.parent
+SIMULATION_DIR = PROJECT_DIR / CONFIG.dirname.simulation
+OUTPUTS_DIR = PROJECT_DIR / CONFIG.dirname.outputs
+
+MAX_FILE_SIZE = CONFIG.logging.max_file_size
+BACKUP_COUNT = CONFIG.logging.backup_count
+
+DATA_DIRNAME = CONFIG.dirname.data
+LOGS_DIRNAME = CONFIG.dirname.logs
+PLOTS_DIRNAME = CONFIG.dirname.plots
+MODELS_DIRNAME = CONFIG.dirname.models
+RESULTS_DIRNAME = CONFIG.dirname.results
+
+OSM_DATA_FILENAME = CONFIG.filename.osm_data
+GUI_SETTINGS_FILENAME = CONFIG.filename.gui_settings
+POLY_FILENAME = CONFIG.filename.poly
+NETWORK_BASE_FILENAME = CONFIG.filename.network_base
+NETWORK_RAIN_FILENAME = CONFIG.filename.network_rain
+ROUTES_TEMP_FILENAME = CONFIG.filename.routes_temp
+
+TRIPS_SUFFIX = CONFIG.suffix.trips
+FCD_XML_SUFFIX = CONFIG.suffix.fcd_xml
+SUMOCFG_SUFFIX = CONFIG.suffix.sumocfg
+FCD_CSV_SUFFIX = CONFIG.suffix.fcd_csv
+
+BBOX = CONFIG.network.bbox
+ROAD_TYPES = CONFIG.network.road_types
+VEHICLE_CLASSES = CONFIG.network.vehicle_classes
+NETCONVERT_OPTIONS = CONFIG.network.netconvert_options
+POLYCONVERT_OPTIONS = CONFIG.network.polyconvert_options
+FRICTION = CONFIG.network.friction
+VIEW_SETTINGS = CONFIG.network.view_settings
+
+RANDOM_SEED_DEFAULT = CONFIG.seed.default
+RANDOM_SEED_TRAIN = CONFIG.seed.train
+RANDOM_SEED_TEST = CONFIG.seed.test
+RANDOM_SEED_RAIN = CONFIG.seed.rain
+
+TRAFFIC_GENERATION_PERIODS_NOISE = CONFIG.simulation.traffic_generation_periods_noise
+TRAFFIC_GENERATION_PERIODS = CONFIG.simulation.traffic_generation_periods
+TLS_ACTUATED_JAM_THRESHOLD = CONFIG.simulation.tls_actuated_jam_threshold
+DEVICE_REROUTING_ADAPTATION_STEPS = CONFIG.simulation.device_rerouting_adaptation_steps
+DEVICE_REROUTING_ADAPTATION_INTERVAL = CONFIG.simulation.device_rerouting_adaptation_interval
+FCD_OUTPUT_ATTRIBUTES = CONFIG.simulation.fcd_output_attributes
+START_TIME = CONFIG.simulation.start_time
+END_TIME = CONFIG.simulation.end_time
+DEVICE_FRICTION_PROBABILITY = CONFIG.simulation.device_friction_probability
+
+ZENODO_DATASET_API_URL = CONFIG.external.zenodo_dataset_api_url
+
+MIN_DURATION = CONFIG.eta.min_duration
+MIN_DISTANCE = CONFIG.eta.min_distance
+AUGMENTATION_RATE = CONFIG.eta.augmentation_rate
+MIN_TRIP_RATIO = CONFIG.eta.min_trip_ratio
+NUM_RETRAINING_TRIPS = CONFIG.eta.num_retraining_trips

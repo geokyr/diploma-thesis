@@ -1,0 +1,74 @@
+logging:
+  max_file_size: 10485760
+  backup_count: 5
+
+dirname:
+  simulation: "simulation"
+  outputs: "outputs"
+  data: "data"
+  logs: "logs"
+  plots: "plots"
+  models: "models"
+  results: "results"
+
+filename:
+  osm_data: "osm_bbox.osm.xml.gz"
+  gui_settings: "osm.view.xml"
+  poly: "osm.poly.xml.gz"
+  network_base: "osm.net.xml.gz"
+  network_rain: "osm-rain.net.xml.gz"
+  routes_temp: "routes.rou.xml"
+
+suffix:
+  trips: ".trips.xml"
+  fcd_xml: "-fcd.xml"
+  sumocfg: ".sumocfg"
+  fcd_csv: "-fcd.csv"
+
+network:
+  bbox: [23.725252771719436, 37.974745936977456, 23.752735758169127, 37.988290142332225]
+  road_types: |
+    {
+      "Highway": ["motorway", "motorway_link", "trunk", "trunk_link", "primary", "primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential", "living_street", "unsurfaced", "service", "raceway", "bus_guideway", "track", "footway", "pedestrian", "path", "bridleway", "cycleway", "step", "steps", "stairs"],
+      "Railway": ["preserved", "tram", "subway", "light_rail", "rail", "highspeed", "monorail"],
+      "Aeroway": ["stopway", "parking_position", "taxiway", "taxilane", "runway", "highway_strip"],
+      "Waterway": ["river", "canal"],
+      "Aerialway": ["cable_car", "gondola"],
+      "Route": ["ferry"]
+    }
+  vehicle_classes: "passenger"
+  netconvert_options: "--geometry.remove,--roundabouts.guess,--ramps.guess,--junctions.join,--tls.guess-signals,--tls.discard-simple,--tls.join,--output.original-names,--junctions.corner-detail,5,--output.street-names,--tls.default-type,actuated"
+  polyconvert_options: "--verbose,--osm.keep-full-type,--osm.merge-relations,1"
+  friction: 0.4
+  view_settings: |
+    <viewsettings>
+        <scheme name="real world"/>
+        <delay value="20"/>
+    </viewsettings>
+
+seed:
+  default: 42
+  train: 13
+  test: 2025
+  rain: 314159
+
+simulation:
+  traffic_generation_periods_noise: 0.01
+  traffic_generation_periods: [0.50, 0.55, 0.65, 0.75, 0.80, 0.80, 0.75, 0.65, 0.65, 0.60]
+  tls_actuated_jam_threshold: 30
+  device_rerouting_adaptation_steps: 18
+  device_rerouting_adaptation_interval: 10
+  fcd_output_attributes: "id,x,y,speed,lane,odometer,fuel,waiting"
+  start_time: 0
+  end_time: 36000
+  device_friction_probability: 1.0
+
+external:
+  zenodo_dataset_api_url: "https://zenodo.org/api/records/15916712"
+
+eta:
+  min_duration: 30
+  min_distance: 200
+  augmentation_rate: 0.0
+  min_trip_ratio: 0.5
+  num_retraining_trips: 10000

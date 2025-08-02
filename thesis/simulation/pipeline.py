@@ -93,7 +93,7 @@ def _execute_command(command: list[str], name: str) -> None:
 
 def get_osm_data(
     simulation_dir: Path,
-    bbox: tuple[float, float, float, float] = BBOX,
+    bbox: list[float] = BBOX,
     road_types: str = ROAD_TYPES,
 ) -> None:
     """
@@ -287,7 +287,7 @@ def create_configuration_file(
 def generate_random_trips(
     network_path: Path,
     trips_path: Path,
-    traffic_generation_periods: tuple[float, ...],
+    traffic_generation_periods: list[float],
     random_seed: int,
     start_time: int = START_TIME,
     end_time: int = END_TIME,
@@ -298,7 +298,7 @@ def generate_random_trips(
     Args:
         network_path (Path): Path to the network file.
         trips_path (Path): Path to the trips file.
-        traffic_generation_periods (tuple[float, ...]): Tuple of traffic generation periods.
+        traffic_generation_periods (list[float]): List of traffic generation periods.
         random_seed (int): Random seed.
         start_time (int): Start time for trip generation in seconds.
         end_time (int): End time for trip generation in seconds.

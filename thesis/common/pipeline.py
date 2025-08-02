@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 def run_fcd_exploratory_data_analysis(
-    fcd_csv_path: Path, scenario: str, plots_dir: Path, traffic_generation_periods: tuple[float, ...]
+    fcd_csv_path: Path, scenario: str, plots_dir: Path, traffic_generation_periods: list[float]
 ) -> None:
     """
     Run Exploratory Data Analysis on an FCD dataset.
@@ -23,7 +23,7 @@ def run_fcd_exploratory_data_analysis(
         fcd_csv_path (Path): Path to the FCD CSV file.
         scenario (str): Scenario name.
         plots_dir (Path): Directory to save the generated plots.
-        traffic_generation_periods (tuple[float, ...]): Traffic generation periods.
+        traffic_generation_periods (list[float]): Traffic generation periods.
     """
     logger.info(f"Running FCD Exploratory Data Analysis for {scenario}")
 
