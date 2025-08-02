@@ -1,5 +1,6 @@
 from thesis.common.data import generate_trips, load_fcd_dataset, preprocess_fcd_dataset
 from thesis.common.logger import setup_logger
+from thesis.eta.data import ensure_dataset_is_valid
 from thesis.eta.experiment import ETAEvaluation, ETAExperiment, build_model_results, save_model, save_results
 from thesis.eta.features import split_features_and_target
 from thesis.eta.models import ModelType, create_model
@@ -12,11 +13,13 @@ def main() -> None:
 
     logger.info(f"Running {experiment.name} experiment with {experiment.evaluation} evaluation")
 
+    ensure_dataset_is_valid(experiment.train_path)
     fcd_train_raw = load_fcd_dataset(experiment.train_path)
     fcd_train = preprocess_fcd_dataset(fcd_train_raw)
     trips_train = generate_trips(fcd_train)
     X_train, y_train = split_features_and_target(trips_train)
 
+    ensure_dataset_is_valid(experiment.test_path)
     fcd_test_raw = load_fcd_dataset(experiment.test_path)
     fcd_test = preprocess_fcd_dataset(fcd_test_raw)
     trips_test = generate_trips(fcd_test)

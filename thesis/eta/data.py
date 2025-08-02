@@ -20,9 +20,6 @@ from thesis.common.data import generate_trips
 logger = logging.getLogger(__name__)
 
 
-# TODO refactor try except logic
-
-
 def _verify_file_integrity(file_path: Path, expected_md5: str, chunk_size: int = 8192) -> bool:
     """
     Verify file integrity using MD5 checksum.
@@ -53,30 +50,24 @@ def _get_file_md5_from_zenodo(filename: str) -> str:
 
     Returns:
         str: The MD5 hash
+
+    Raises:
+        requests.RequestException: If the API request fails
+        ValueError: If the checksum format is unexpected
     """
-    try:
-        file_url = f"{ZENODO_DATASET_API_URL}/files/{filename}"
-        response = requests.get(file_url)
-        response.raise_for_status()
-        file_data = response.json()
-        checksum = file_data.get("checksum")
+    file_url = f"{ZENODO_DATASET_API_URL}/files/{filename}"
+    response = requests.get(file_url)
+    response.raise_for_status()
+    file_data = response.json()
+    checksum = file_data.get("checksum")
 
-        if checksum and checksum.startswith("md5:"):
-            md5_hash = checksum[4:]
-            return md5_hash
-        else:
-            error_msg = f"Unexpected checksum format for {filename}: {checksum}"
-            logger.error(error_msg)
-            raise ValueError(error_msg)
-
-    except requests.RequestException as e:
-        error_msg = f"Failed to fetch MD5 hash for {filename}: {e}"
+    if checksum and checksum.startswith("md5:"):
+        md5_hash = checksum[4:]
+        return md5_hash
+    else:
+        error_msg = f"Unexpected checksum format for {filename}: {checksum}"
         logger.error(error_msg)
-        raise RuntimeError(error_msg)
-    except Exception as e:
-        error_msg = f"Unexpected error fetching MD5 hash for {filename}: {e}"
-        logger.error(error_msg)
-        raise RuntimeError(error_msg)
+        raise ValueError(error_msg)
 
 
 def _download_file_from_zenodo(filename: str, output_path: Path, chunk_size: int = 8192) -> None:
@@ -89,7 +80,7 @@ def _download_file_from_zenodo(filename: str, output_path: Path, chunk_size: int
         chunk_size (int): The size of the chunks to read from the file.
 
     Raises:
-        RuntimeError: If the file cannot be downloaded.
+        requests.RequestException: If the file cannot be downloaded.
     """
     try:
         download_url = f"{ZENODO_DATASET_API_URL}/files/{filename}/content"
@@ -103,12 +94,9 @@ def _download_file_from_zenodo(filename: str, output_path: Path, chunk_size: int
                     f.write(chunk)
                     pbar.update(len(chunk))
 
-    except requests.RequestException as e:
+    except requests.RequestException:
         output_path.unlink(missing_ok=True)
-
-        error_msg = f"Failed to download {filename}: {e}"
-        logger.error(error_msg)
-        raise RuntimeError(error_msg)
+        raise
 
 
 def ensure_dataset_is_valid(dataset_path: Path) -> None:
@@ -119,20 +107,36 @@ def ensure_dataset_is_valid(dataset_path: Path) -> None:
         dataset_path (Path): The path where the dataset file should be located.
 
     Raises:
-        FileNotFoundError: If the file cannot be verified.
+        FileNotFoundError: If the file doesn't exist and cannot be downloaded or verified
+        requests.RequestException: If downloading or fetching MD5 from Zenodo fails
+        ValueError: If the MD5 checksum format from Zenodo is unexpected
     """
     dataset_filename = dataset_path.name
 
     if not dataset_path.exists():
         logger.info(f"File {dataset_filename} not found, downloading from Zenodo")
-        _download_file_from_zenodo(dataset_filename, dataset_path)
+        try:
+            _download_file_from_zenodo(dataset_filename, dataset_path)
+        except requests.RequestException as e:
+            error_msg = f"Failed to download {dataset_filename}: {e}"
+            logger.error(error_msg)
+            raise FileNotFoundError(error_msg) from e
 
     logger.info(f"Verifying integrity of file {dataset_filename}")
-    expected_md5 = _get_file_md5_from_zenodo(dataset_filename)
+    try:
+        expected_md5 = _get_file_md5_from_zenodo(dataset_filename)
+    except requests.RequestException as e:
+        error_msg = f"Failed to fetch MD5 hash for {dataset_filename}: {e}"
+        logger.error(error_msg)
+        raise
+    except ValueError as e:
+        logger.error(f"Invalid MD5 format for {dataset_filename}: {e}")
+        raise
+
     if _verify_file_integrity(dataset_path, expected_md5):
         logger.info(f"File {dataset_filename} is valid")
     else:
-        error_msg = f"File {dataset_filename} is invalid"
+        error_msg = f"File {dataset_filename} failed integrity check"
         logger.error(error_msg)
         raise FileNotFoundError(error_msg)
 

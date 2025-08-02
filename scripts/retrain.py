@@ -5,7 +5,7 @@ from thesis.common.data import (
     preprocess_fcd_dataset,
 )
 from thesis.common.logger import setup_logger
-from thesis.eta.data import generate_full_trips
+from thesis.eta.data import ensure_dataset_is_valid, generate_full_trips
 from thesis.eta.experiment import (
     ETAEvaluation,
     ETAExperiment,
@@ -25,10 +25,12 @@ def main() -> None:
 
     logger.info(f"Running {experiment.name} scenario")
 
+    ensure_dataset_is_valid(experiment.test_path)
     fcd_test_raw = load_fcd_dataset(experiment.test_path)
     fcd_test = preprocess_fcd_dataset(fcd_test_raw)
     trips_test = generate_full_trips(fcd_test)
 
+    ensure_dataset_is_valid(experiment.rain_path)
     fcd_rain_raw = load_fcd_dataset(experiment.rain_path)
     fcd_rain = preprocess_fcd_dataset(fcd_rain_raw)
     trips_rain = generate_full_trips(fcd_rain)
