@@ -119,7 +119,17 @@ class Config:
 def load_config(config_path: Path) -> Config:
     with open(config_path, "r") as f:
         data = yaml.safe_load(f)
-        return Config(**data)
+        return Config(
+            logging=LoggingConfig(**data["logging"]),
+            dirname=DirnameConfig(**data["dirname"]),
+            filename=FilenameConfig(**data["filename"]),
+            suffix=SuffixConfig(**data["suffix"]),
+            network=NetworkConfig(**data["network"]),
+            seed=SeedConfig(**data["seed"]),
+            simulation=SimulationConfig(**data["simulation"]),
+            external=ExternalConfig(**data["external"]),
+            eta=EtaConfig(**data["eta"]),
+        )
 
 
 CONFIG_PATH = Path(__file__).parent / "config.yaml"
