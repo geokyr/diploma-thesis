@@ -67,7 +67,7 @@ END_TIME = 36000
 ROUTES_TEMP_FILENAME = "routes.rou.xml"
 DEVICE_FRICTION_PROBABILITY = 1.0
 
-ZENODO_DATASET_API_URL = "https://zenodo.org/api/records/15848647"
+ZENODO_DATASET_API_URL = "https://zenodo.org/api/records/15916712"
 
 MODELS_DIRNAME = "models"
 RESULTS_DIRNAME = "results"
