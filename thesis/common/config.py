@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from sysconfig import get_paths
 
-MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+MAX_FILE_SIZE = 10 * 1024 * 1024
 BACKUP_COUNT = 5
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
