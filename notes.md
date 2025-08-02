@@ -2,11 +2,6 @@
 
 ## To Do
 - Add docstrings to modules
-- Add ensure_dataset_is_valid separately on eta experiments
-
-- Drop the config logic into utils and leave only statics
-- Migrate to using yaml config files
-
 - Dataclass for output metrics
 
 - Sklearn pipeline for preprocessing and training
