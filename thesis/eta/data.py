@@ -12,7 +12,7 @@ from thesis.common.config import (
     MIN_DISTANCE,
     MIN_DURATION,
     MIN_TRIP_RATIO,
-    RANDOM_SEED,
+    RANDOM_SEED_DEFAULT,
     ZENODO_DATASET_API_URL,
 )
 from thesis.common.data import generate_trips
@@ -143,7 +143,7 @@ def _generate_sub_trips(
     min_trip_ratio: float,
     min_duration: int,
     min_distance: int,
-    random_seed: int = RANDOM_SEED,
+    random_seed: int = RANDOM_SEED_DEFAULT,
 ) -> pd.DataFrame:
     """
     Generate sub-trips from a vehicle's FCD group, filtering out short trips.

@@ -11,7 +11,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import FunctionTransformer
 from xgboost import XGBRegressor
 
-from thesis.common.config import RANDOM_SEED
+from thesis.common.config import RANDOM_SEED_DEFAULT
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +69,7 @@ def create_linear_regression_model(**kwargs) -> LinearRegression:
 
 
 @register_model(ModelType.XGBOOST_REGRESSOR)
-def create_xgboost_regressor_model(random_seed: int = RANDOM_SEED, **kwargs) -> XGBRegressor:
+def create_xgboost_regressor_model(random_seed: int = RANDOM_SEED_DEFAULT, **kwargs) -> XGBRegressor:
     """
     Create an XGBoost Regressor model with a default configuration.
 
@@ -90,7 +90,7 @@ def create_xgboost_regressor_model(random_seed: int = RANDOM_SEED, **kwargs) -> 
 
 
 @register_model(ModelType.LIGHTGBM_REGRESSOR)
-def create_lightgbm_regressor_model(random_seed: int = RANDOM_SEED, **kwargs) -> LGBMRegressor:
+def create_lightgbm_regressor_model(random_seed: int = RANDOM_SEED_DEFAULT, **kwargs) -> LGBMRegressor:
     """
     Create a LightGBM Regressor model with a default configuration.
 
@@ -112,7 +112,7 @@ def create_lightgbm_regressor_model(random_seed: int = RANDOM_SEED, **kwargs) ->
 
 
 @register_model(ModelType.CATBOOST_REGRESSOR)
-def create_catboost_regressor_model(random_seed: int = RANDOM_SEED, **kwargs) -> CatBoostRegressor:
+def create_catboost_regressor_model(random_seed: int = RANDOM_SEED_DEFAULT, **kwargs) -> CatBoostRegressor:
     """
     Create a CatBoost Regressor model with a default configuration.
 
@@ -134,7 +134,7 @@ def create_catboost_regressor_model(random_seed: int = RANDOM_SEED, **kwargs) ->
     return CatBoostRegressor(**params)
 
 
-def create_model(model_type: ModelType, random_seed: int = RANDOM_SEED, **kwargs) -> BaseEstimator:
+def create_model(model_type: ModelType, random_seed: int = RANDOM_SEED_DEFAULT, **kwargs) -> BaseEstimator:
     """
     Create a model by its type.
 

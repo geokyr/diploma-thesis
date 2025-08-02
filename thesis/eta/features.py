@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn.pipeline import FunctionTransformer
 from sklearn.preprocessing import PowerTransformer, QuantileTransformer, StandardScaler
 
-from thesis.common.config import RANDOM_SEED
+from thesis.common.config import RANDOM_SEED_DEFAULT
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ def create_log_transformer() -> FunctionTransformer:
     return FunctionTransformer(func=np.log1p, inverse_func=np.expm1, check_inverse=True)
 
 
-def create_quantile_normal_transformer(random_seed: int = RANDOM_SEED) -> QuantileTransformer:
+def create_quantile_normal_transformer(random_seed: int = RANDOM_SEED_DEFAULT) -> QuantileTransformer:
     """
     Create a quantile normal transformer.
 

@@ -13,14 +13,14 @@ from sklearn.metrics import (
 )
 from sklearn.model_selection import StratifiedKFold
 
-from thesis.common.config import RANDOM_SEED
+from thesis.common.config import RANDOM_SEED_DEFAULT
 from thesis.eta.models import ModelType
 
 logger = logging.getLogger(__name__)
 
 
 def get_stratified_kfold_cv(
-    y: pd.Series, n_bins: int = 10, n_splits: int = 5, random_seed: int = RANDOM_SEED
+    y: pd.Series, n_bins: int = 10, n_splits: int = 5, random_seed: int = RANDOM_SEED_DEFAULT
 ) -> tuple[StratifiedKFold, np.ndarray]:
     """
     Discretize a continuous target variable into quantile bins and return a StratifiedKFold object with a key.
