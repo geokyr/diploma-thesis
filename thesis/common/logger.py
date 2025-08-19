@@ -3,7 +3,7 @@ import logging.handlers
 import sys
 from pathlib import Path
 
-from thesis.common.config import BACKUP_COUNT, MAX_FILE_SIZE
+from thesis.common.config import BACKUP_COUNT, LOGS_FILENAME, MAX_FILE_SIZE
 
 
 def setup_logger(
@@ -37,7 +37,7 @@ def setup_logger(
     console_handler.setFormatter(console_formatter)
     root_logger.addHandler(console_handler)
 
-    log_file = logs_dir / f"{logger_name}.log"
+    log_file = logs_dir / LOGS_FILENAME
     file_formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
     )

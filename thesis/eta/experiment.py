@@ -15,6 +15,7 @@ from thesis.common.config import (
     MODELS_DIRNAME,
     OUTPUTS_DIR,
     RESULTS_DIRNAME,
+    RESULTS_FILENAME,
     SIMULATION_DIR,
 )
 from thesis.eta.models import ModelType
@@ -209,17 +210,16 @@ def load_model(model_type: ModelType, models_dir: Path) -> BaseEstimator:
     return model
 
 
-def save_results(results: dict[str, dict[str, float]], experiment_name: str, results_dir: Path) -> None:
+def save_results(results: dict[str, dict[str, float]], results_dir: Path) -> None:
     """
     Save results in the results directory.
 
     Args:
         results (dict[str, dict[str, float]]): Results dictionary to save.
-        experiment_name (str): Name of the experiment.
         results_dir (Path): Directory to save the results to.
     """
-    results_path = results_dir / f"{experiment_name}.json"
+    results_path = results_dir / RESULTS_FILENAME
     with open(results_path, "w") as f:
-        json.dump(results, f, indent=2)
+        json.dump(results, f, indent=4)
 
     logger.info(f"Results saved to {results_path}")

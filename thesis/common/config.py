@@ -47,6 +47,8 @@ class FilenameConfig:
     network_base: str
     network_rain: str
     routes_temp: str
+    logs: str
+    results: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -154,6 +156,8 @@ POLY_FILENAME = CONFIG.filename.poly
 NETWORK_BASE_FILENAME = CONFIG.filename.network_base
 NETWORK_RAIN_FILENAME = CONFIG.filename.network_rain
 ROUTES_TEMP_FILENAME = CONFIG.filename.routes_temp
+LOGS_FILENAME = CONFIG.filename.logs
+RESULTS_FILENAME = CONFIG.filename.results
 
 TRIPS_SUFFIX = CONFIG.suffix.trips
 FCD_XML_SUFFIX = CONFIG.suffix.fcd_xml

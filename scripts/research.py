@@ -1,7 +1,14 @@
 from thesis.common.data import generate_trips, load_fcd_dataset, preprocess_fcd_dataset
 from thesis.common.logger import setup_logger
 from thesis.eta.data import ensure_dataset_is_valid
-from thesis.eta.experiment import ETAEvaluation, ETAExperiment, build_cv_results, build_model_results, save_results
+from thesis.eta.experiment import (
+    ETAEvaluation,
+    ETAExperiment,
+    build_cv_results,
+    build_model_results,
+    save_model,
+    save_results,
+)
 from thesis.eta.features import split_features_and_target
 from thesis.eta.models import ModelType, create_model
 from thesis.eta.pipeline import evaluate_predictions, get_stratified_kfold_cv, make_predictions, train_model
@@ -40,7 +47,12 @@ def main() -> None:
 
         results[model_type] = build_cv_results(per_fold_results)
 
-    save_results(results, experiment.name, experiment.results_dir)
+        logger.info(f"Training final {model_type} model on all training data")
+        final_model = create_model(model_type)
+        train_model(final_model, model_type, X_train, y_train)
+        save_model(final_model, model_type, experiment.models_dir)
+
+    save_results(results, experiment.results_dir)
 
 
 if __name__ == "__main__":

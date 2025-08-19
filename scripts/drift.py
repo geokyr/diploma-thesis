@@ -38,7 +38,7 @@ def main() -> None:
         results[model_type] = build_model_results(training_results, prediction_results, evaluation_results)
         save_model(model, model_type, experiment.models_dir)
 
-    save_results(results, experiment.name, experiment.results_dir)
+    save_results(results, experiment.results_dir)
 
 
 if __name__ == "__main__":
