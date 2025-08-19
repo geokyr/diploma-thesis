@@ -1,3 +1,8 @@
+"""
+Simulation scenario definitions and configuration management.
+Provides simulation scenario types (train/test/rain) and configuration classes for organizing different experimental conditions with appropriate network and parameter settings.
+"""
+
 import logging
 from dataclasses import dataclass
 from enum import StrEnum

@@ -1,7 +1,6 @@
 # Notes
 
 ## To Do
-- Add docstrings to modules
 - Dataclass for output metrics
 
 - Sklearn pipeline for preprocessing and training

@@ -1,3 +1,8 @@
+"""
+Configuration management module for the project.
+Provides centralized configuration loading, dataclass definitions for all config sections, and global constants used throughout the project.
+"""
+
 import os
 from dataclasses import dataclass
 from pathlib import Path

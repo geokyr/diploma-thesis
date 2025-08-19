@@ -1,3 +1,8 @@
+"""
+Core data processing utilities for FCD (Floating Car Data) and trip generation.
+Provides functions for loading, preprocessing, and transforming simulation data into analysis-ready formats.
+"""
+
 import logging
 from pathlib import Path
 

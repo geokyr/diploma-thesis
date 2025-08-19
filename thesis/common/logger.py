@@ -1,3 +1,8 @@
+"""
+Logging configuration module for the project.
+Provides centralized logger setup with console and rotating file handlers for consistent logging across all experiments.
+"""
+
 import logging
 import logging.handlers
 import sys

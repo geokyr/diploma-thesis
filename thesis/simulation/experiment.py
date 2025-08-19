@@ -1,3 +1,8 @@
+"""
+Simulation experiment configuration and management utilities.
+Defines the SimulationExperiment dataclass for organizing SUMO simulation experiments with proper directory structure and file path management.
+"""
+
 from dataclasses import dataclass
 from pathlib import Path
 

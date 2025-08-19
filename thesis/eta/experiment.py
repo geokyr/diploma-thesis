@@ -1,3 +1,8 @@
+"""
+ETA experiment management and result handling utilities.
+Defines experiment configurations, model persistence, result aggregation, and evaluation frameworks for systematic ETA prediction research.
+"""
+
 import json
 import logging
 from dataclasses import dataclass

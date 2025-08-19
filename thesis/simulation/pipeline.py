@@ -1,3 +1,8 @@
+"""
+SUMO simulation pipeline orchestration and command execution utilities.
+Provides functions for downloading OSM data, building networks, generating trips, running simulations, and converting output data formats.
+"""
+
 import gzip
 import logging
 import subprocess

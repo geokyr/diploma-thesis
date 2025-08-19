@@ -1,3 +1,8 @@
+"""
+High-level pipeline orchestrator for FCD data analysis workflows.
+Combines data loading, preprocessing, and exploratory data analysis into streamlined pipeline functions.
+"""
+
 import logging
 from pathlib import Path
 

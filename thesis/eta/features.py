@@ -1,3 +1,8 @@
+"""
+Feature engineering and transformation utilities for ETA prediction.
+Provides functions for scaling, transforming features and targets, engineering spatial and temporal features from trip data.
+"""
+
 import logging
 
 import numpy as np
