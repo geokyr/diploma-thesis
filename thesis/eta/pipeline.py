@@ -19,6 +19,7 @@ from sklearn.metrics import (
 from sklearn.model_selection import StratifiedKFold
 
 from thesis.common.config import RANDOM_SEED_DEFAULT
+from thesis.eta.experiment import EvaluationResults, PredictionResults, TrainingResults
 from thesis.eta.models import ModelType
 
 logger = logging.getLogger(__name__)
@@ -53,7 +54,7 @@ def get_stratified_kfold_cv(
 
 def train_model(
     model: BaseEstimator, model_type: ModelType, X_train: pd.DataFrame, y_train: pd.Series, **fit_kwargs
-) -> dict[str, float]:
+) -> TrainingResults:
     """
     Train a model.
 
@@ -65,7 +66,7 @@ def train_model(
         **fit_kwargs: Additional keyword arguments to pass to the model's fit method.
 
     Returns:
-        dict[str, float]: Dictionary containing training metrics.
+        TrainingResults: Training metrics.
     """
     logger.info(f"Training {model_type}")
 
@@ -76,12 +77,12 @@ def train_model(
 
     logger.info(f"{model_type} - Training time: {training_time:.3f}s")
 
-    return {"training_time": training_time}
+    return TrainingResults(training_time=training_time)
 
 
 def make_predictions(
     model: BaseEstimator, model_type: ModelType, X_test: pd.DataFrame
-) -> tuple[pd.Series, dict[str, float]]:
+) -> tuple[pd.Series, PredictionResults]:
     """
     Make predictions using a trained model.
 
@@ -91,7 +92,7 @@ def make_predictions(
         X_test (pd.DataFrame): DataFrame containing the test features.
 
     Returns:
-        tuple[pd.Series, dict[str, float]]: Tuple containing the predictions and timing metrics.
+        tuple[pd.Series, PredictionResults]: Tuple containing the predictions and timing metrics.
     """
     logger.info(f"Making predictions with {model_type}")
 
@@ -102,10 +103,10 @@ def make_predictions(
 
     logger.info(f"{model_type} - Prediction time: {prediction_time:.3f}s")
 
-    return pd.Series(preds), {"prediction_time": prediction_time}
+    return pd.Series(preds), PredictionResults(prediction_time=prediction_time)
 
 
-def evaluate_predictions(y_true: pd.Series, y_pred: pd.Series, model_type: ModelType) -> dict[str, float]:
+def evaluate_predictions(y_true: pd.Series, y_pred: pd.Series, model_type: ModelType) -> EvaluationResults:
     """
     Evaluate predictions against true values.
 
@@ -115,7 +116,7 @@ def evaluate_predictions(y_true: pd.Series, y_pred: pd.Series, model_type: Model
         model_type (ModelType): Type of the model.
 
     Returns:
-        dict[str, float]: Dictionary containing evaluation metrics.
+        EvaluationResults: Evaluation metrics.
     """
     logger.info(f"Evaluating predictions with {model_type}")
 
@@ -132,11 +133,11 @@ def evaluate_predictions(y_true: pd.Series, y_pred: pd.Series, model_type: Model
         f"{model_type} - Evaluation time: {evaluation_time:.3f}s, MAE: {mae:.2f}s, MSE: {mse:.2f}s, RMSE: {rmse:.2f}s, MAPE: {mape * 100:.2f}%, R2: {r2:.3f}"
     )
 
-    return {
-        "evaluation_time": evaluation_time,
-        "mae": mae,
-        "mse": mse,
-        "rmse": rmse,
-        "mape": mape,
-        "r2": r2,
-    }
+    return EvaluationResults(
+        evaluation_time=evaluation_time,
+        mae=mae,
+        mse=mse,
+        rmse=rmse,
+        mape=mape,
+        r2=r2,
+    )

@@ -1,8 +1,6 @@
 # Notes
 
 ## To Do
-- Dataclass for output metrics
-
 - Sklearn pipeline for preprocessing and training
 - Scaling of new features
 - Log/Quantile/Box-Cox transformations of new features
