@@ -430,6 +430,28 @@ def save_results(results: dict[ModelType, ModelResults | CVResults], results_dir
     logger.info(f"Results saved to {results_path}")
 
 
+def load_results(experiment_path: Path) -> dict[ModelType, ModelResults | CVResults]:
+    """
+    Load results from an experiment directory.
+
+    Args:
+        experiment_path (Path): Path to the experiment directory.
+
+    Returns:
+        dict[ModelType, ModelResults | CVResults]: Dictionary containing the experiment results.
+    """
+    results_dir = experiment_path / RESULTS_DIRNAME
+    if not results_dir.is_dir():
+        return {}
+
+    json_file = results_dir / RESULTS_FILENAME
+    if not json_file.exists():
+        return {}
+
+    with open(json_file, "r") as f:
+        return json.load(f)
+
+
 def save_model(model: BaseEstimator, model_type: ModelType, models_dir: Path) -> None:
     """
     Save model in the models directory.
@@ -468,3 +490,39 @@ def load_model(model_type: ModelType, models_dir: Path) -> BaseEstimator:
     logger.info(f"Model loaded from {model_path}")
 
     return model
+
+
+def load_all_results() -> pd.DataFrame:
+    """
+    Load all experiment results and return as a clean DataFrame.
+
+    Returns:
+        pd.DataFrame: DataFrame containing all experiment results.
+    """
+    records = []
+
+    experiment_dirs = [dir for dir in OUTPUTS_DIR.iterdir() if dir.is_dir()]
+    for experiment_dir in experiment_dirs:
+        experiment_name = experiment_dir.name
+        experiment_results = load_results(experiment_dir)
+
+        if experiment_results:
+            for model, metrics in experiment_results.items():
+                row = {
+                    "experiment": experiment_name,
+                    "model": model,
+                    **metrics,
+                }
+                records.append(row)
+
+    df = pd.DataFrame(records)
+
+    if "per_fold" in df.columns:
+        df.drop(columns=["per_fold"], inplace=True)
+
+    df.sort_values(["experiment", "model"], inplace=True)
+    df.reset_index(drop=True, inplace=True)
+
+    logger.info(f"Loaded {len(df)} experiment results as DataFrame")
+
+    return df
