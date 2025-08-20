@@ -6,7 +6,6 @@
 - Sklearn pipeline for preprocessing and training
 - Scaling of new features
 - Log/Quantile/Box-Cox transformations of new features
-- Training with various sub-trip augmentation rates
 
 - One hot encode the hour bin
 - Feature engineering
