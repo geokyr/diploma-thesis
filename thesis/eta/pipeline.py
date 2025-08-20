@@ -19,8 +19,8 @@ from sklearn.metrics import (
 from sklearn.model_selection import StratifiedKFold
 
 from thesis.common.config import RANDOM_SEED_DEFAULT
-from thesis.eta.experiment import EvaluationResults, PredictionResults, TrainingResults
 from thesis.eta.models import ModelType
+from thesis.eta.results import EvaluationResults, PredictionResults, TrainingResults
 
 logger = logging.getLogger(__name__)
 

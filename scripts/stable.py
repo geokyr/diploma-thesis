@@ -1,10 +1,11 @@
 from thesis.common.data import generate_trips, load_fcd_dataset, preprocess_fcd_dataset
 from thesis.common.logger import setup_logger
 from thesis.eta.data import ensure_dataset_is_valid
-from thesis.eta.experiment import ETAEvaluation, ETAExperiment, build_model_results, save_model, save_results
+from thesis.eta.experiment import ETAEvaluation, ETAExperiment, save_model
 from thesis.eta.features import split_features_and_target
 from thesis.eta.models import ModelType, create_model
 from thesis.eta.pipeline import evaluate_predictions, make_predictions, train_model
+from thesis.eta.results import build_model_results, save_results
 
 
 def main() -> None:
