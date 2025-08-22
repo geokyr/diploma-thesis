@@ -12,15 +12,9 @@ def main() -> None:
     results_df = load_research_results()
     save_research_results(results_df, experiment.results_dir)
 
-    metrics = [
-        ("mae", "MAE", "s", 1),
-        ("mape", "MAPE", "%", 1),
-        ("rmse", "RMSE", "s", 1),
-        ("training_time", "Training Time", "s", 1),
-    ]
-
-    for metric_column, metric_name, metric_unit, decimal_places in metrics:
-        run_metric_analysis(results_df, metric_column, metric_name, metric_unit, decimal_places, experiment.results_dir)
+    run_metric_analysis(results_df, "mae", "MAE", "s", 1, experiment.results_dir)
+    run_metric_analysis(results_df, "mape", "MAPE", "%", 1, experiment.results_dir)
+    run_metric_analysis(results_df, "training_time", "Training Time", "s", 1, experiment.results_dir)
 
 
 if __name__ == "__main__":
