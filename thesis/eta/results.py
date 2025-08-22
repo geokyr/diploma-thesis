@@ -8,9 +8,12 @@ import logging
 from dataclasses import dataclass
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import pandas as pd
+import seaborn as sns
 
-from thesis.common.config import OUTPUTS_DIR, RESULTS_DIRNAME, RESULTS_FILENAME
+from thesis.common.config import OUTPUTS_DIR, RESEARCH_RESULTS_FILENAME, RESULTS_DIRNAME, RESULTS_FILENAME
+from thesis.eta.experiment import ETAEvaluation
 from thesis.eta.models import ModelType
 
 logger = logging.getLogger(__name__)
@@ -369,3 +372,189 @@ def load_all_results() -> pd.DataFrame:
     logger.info(f"Loaded {len(df)} experiment results as DataFrame")
 
     return df
+
+
+def load_research_results() -> pd.DataFrame:
+    """
+    Load only research experiment results and return as a clean DataFrame.
+
+    Returns:
+        pd.DataFrame: DataFrame containing only research experiment results.
+    """
+    df = load_all_results()
+
+    evaluations = [evaluation.value for evaluation in ETAEvaluation]
+    evaluations.remove(ETAEvaluation.RESEARCH.value)
+
+    filtered_df = df[~df["experiment"].isin(evaluations)]
+
+    logger.info(f"Filtered to {len(filtered_df)} research experiment results (excluded: {evaluations})")
+
+    return filtered_df
+
+
+def save_research_results(results_df: pd.DataFrame, results_dir: Path) -> None:
+    """
+    Save research experiment results to a CSV file.
+
+    Args:
+        results_df (pd.DataFrame): DataFrame with results.
+        results_dir (Path): Directory to save the results.
+    """
+    results_path = results_dir / RESEARCH_RESULTS_FILENAME
+    results_df.to_csv(results_path, index=False)
+    logger.info(f"Research experiment results saved to {results_path}")
+
+
+def plot_metric_by_experiment(
+    df: pd.DataFrame, metric_column: str, metric_name: str, metric_unit: str, decimal_places: int, plots_dir: Path
+) -> None:
+    """
+    Plot average metric values by experiment.
+
+    Args:
+        df (pd.DataFrame): DataFrame with results.
+        metric_column (str): Column name for the metric to analyze.
+        metric_name (str): Display name for the metric.
+        metric_unit (str): Unit of the metric.
+        decimal_places (int): Number of decimal places to show for the metric.
+        plots_dir (Path): Directory to save the plots.
+    """
+    plot_path = plots_dir / f"{metric_column}_by_experiment.png"
+
+    metric_by_exp = df.groupby("experiment")[metric_column].mean().sort_values()
+
+    plt.figure(figsize=(10, 4))
+    plt.bar(range(len(metric_by_exp)), metric_by_exp.values, color=sns.color_palette("husl", len(metric_by_exp)))
+    plt.title(f"Average {metric_name} by Experiment", fontweight="bold")
+    plt.xlabel("Experiment")
+    plt.ylabel(f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}")
+    plt.xticks(range(len(metric_by_exp)), metric_by_exp.index, rotation=60, ha="right")
+
+    max_val = max(metric_by_exp.values)
+    for i, v in enumerate(metric_by_exp.values):
+        label = f"{v:.{decimal_places}f}{metric_unit}"
+        plt.text(i, v + max_val * 0.02, label, ha="center", va="bottom", fontweight="bold")
+
+    plt.savefig(plot_path, bbox_inches="tight")
+    plt.close()
+    logger.info(f"{metric_name} by experiment plot saved to {plot_path}")
+
+
+def plot_metric_by_model(
+    df: pd.DataFrame, metric_column: str, metric_name: str, metric_unit: str, decimal_places: int, plots_dir: Path
+) -> None:
+    """
+    Plot average metric values by model.
+
+    Args:
+        df (pd.DataFrame): DataFrame with results.
+        metric_column (str): Column name for the metric to analyze.
+        metric_name (str): Display name for the metric.
+        metric_unit (str): Unit of the metric.
+        decimal_places (int): Number of decimal places to show for the metric.
+        plots_dir (Path): Directory to save the plots.
+    """
+    plot_path = plots_dir / f"{metric_column}_by_model.png"
+
+    plt.figure(figsize=(10, 4))
+    metric_by_model = df.groupby("model")[metric_column].mean().sort_values()
+    plt.bar(range(len(metric_by_model)), metric_by_model.values, color=sns.color_palette("husl", len(metric_by_model)))
+    plt.title(f"Average {metric_name} by Model", fontweight="bold")
+    plt.xlabel("Model")
+    plt.ylabel(f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}")
+    plt.xticks(range(len(metric_by_model)), metric_by_model.index, rotation=60, ha="right")
+
+    max_val = max(metric_by_model.values)
+    for i, v in enumerate(metric_by_model.values):
+        label = f"{v:.{decimal_places}f}{metric_unit}"
+        plt.text(i, v + max_val * 0.02, label, ha="center", va="bottom", fontweight="bold")
+
+    plt.savefig(plot_path, bbox_inches="tight")
+    plt.close()
+    logger.info(f"{metric_name} by model plot saved to {plot_path}")
+
+
+def plot_metric_heatmap(
+    df: pd.DataFrame, metric_column: str, metric_name: str, metric_unit: str, decimal_places: int, plots_dir: Path
+) -> None:
+    """
+    Plot metric heatmap of experiment vs model.
+
+    Args:
+        df (pd.DataFrame): DataFrame with results.
+        metric_column (str): Column name for the metric to analyze.
+        metric_name (str): Display name for the metric.
+        metric_unit (str): Unit of the metric.
+        decimal_places (int): Number of decimal places to show for the metric.
+        plots_dir (Path): Directory to save the plots.
+    """
+    plot_path = plots_dir / f"{metric_column}_heatmap.png"
+
+    plt.figure(figsize=(10, 4))
+    metric_pivot = df.pivot(index="experiment", columns="model", values=metric_column)
+    cbar_label = f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}"
+    sns.heatmap(metric_pivot, annot=True, fmt=f".{decimal_places}f", cmap="RdYlBu_r", cbar_kws={"label": cbar_label})
+    plt.title(f"{metric_name} Heatmap: Experiment vs Model", fontweight="bold")
+    plt.xlabel("Model")
+    plt.ylabel("Experiment")
+
+    plt.savefig(plot_path, bbox_inches="tight")
+    plt.close()
+    logger.info(f"{metric_name} heatmap saved to {plot_path}")
+
+
+def plot_metric_distribution(
+    df: pd.DataFrame, metric_column: str, metric_name: str, metric_unit: str, decimal_places: int, plots_dir: Path
+) -> None:
+    """
+    Plot metric distribution by experiment using boxplots.
+
+    Args:
+        df (pd.DataFrame): DataFrame with results.
+        metric_column (str): Column name for the metric to analyze.
+        metric_name (str): Display name for the metric.
+        metric_unit (str): Unit of the metric.
+        decimal_places (int): Number of decimal places to show for the metric.
+        plots_dir (Path): Directory to save the plots.
+    """
+    plot_path = plots_dir / f"{metric_column}_distribution.png"
+
+    plt.figure(figsize=(10, 4))
+    df.boxplot(column=metric_column, by="experiment")
+    plt.title(f"{metric_name} Distribution by Experiment", fontweight="bold")
+    plt.xlabel("Experiment")
+    plt.ylabel(f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}")
+    plt.xticks(rotation=60)
+    plt.suptitle("")
+
+    plt.savefig(plot_path, bbox_inches="tight")
+    plt.close()
+    logger.info(f"{metric_name} distribution plot saved to {plot_path}")
+
+
+def run_metric_analysis(
+    df: pd.DataFrame, metric_column: str, metric_name: str, metric_unit: str, decimal_places: int, plots_dir: Path
+) -> None:
+    """
+    Run a comprehensive analysis for a metric by generating multiple plots.
+
+    Args:
+        df (pd.DataFrame): DataFrame with results.
+        metric_column (str): Column name for the metric to analyze.
+        metric_name (str): Display name for the metric.
+        metric_unit (str): Unit of the metric.
+        decimal_places (int): Number of decimal places to show for the metric.
+        plots_dir (Path): Directory to save the plots.
+    """
+    logger.info(f"Running {metric_name} analysis")
+
+    if metric_unit == "%":
+        df[metric_column] = df[metric_column] * 100
+
+    plot_metric_by_experiment(df, metric_column, metric_name, metric_unit, decimal_places, plots_dir)
+    plot_metric_by_model(df, metric_column, metric_name, metric_unit, decimal_places, plots_dir)
+    plot_metric_heatmap(df, metric_column, metric_name, metric_unit, decimal_places, plots_dir)
+    plot_metric_distribution(df, metric_column, metric_name, metric_unit, decimal_places, plots_dir)
+
+    logger.info(f"Completed {metric_name} analysis")

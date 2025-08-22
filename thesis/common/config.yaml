@@ -20,6 +20,7 @@ filename:
   routes_temp: "routes.rou.xml"
   logs: "logs.log"
   results: "results.json"
+  research_results: "research_results.csv"
 
 suffix:
   trips: ".trips.xml"
