@@ -12,9 +12,9 @@ def main() -> None:
     results_df = load_research_results()
     save_research_results(results_df, experiment.results_dir)
 
-    run_metric_analysis(results_df, "mae", "MAE", "s", 1, experiment.results_dir)
-    run_metric_analysis(results_df, "mape", "MAPE", "%", 1, experiment.results_dir)
-    run_metric_analysis(results_df, "training_time", "Training Time", "s", 1, experiment.results_dir)
+    run_metric_analysis(results_df, "mae", "MAE", "s", 2, experiment.results_dir)
+    run_metric_analysis(results_df, "mape", "MAPE", "%", 2, experiment.results_dir)
+    run_metric_analysis(results_df, "training_time", "Training Time", "s", 2, experiment.results_dir)
 
 
 if __name__ == "__main__":
