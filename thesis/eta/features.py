@@ -7,6 +7,8 @@ import logging
 
 import numpy as np
 import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
 from sklearn.pipeline import FunctionTransformer
 from sklearn.preprocessing import PowerTransformer, QuantileTransformer, StandardScaler
 
@@ -137,7 +139,7 @@ def create_box_cox_transformer() -> PowerTransformer:
 
 def add_temporal_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Add temporal features from time_start column for linear time progression.
+    Add temporal features to the dataframe.
 
     Args:
         df (pd.DataFrame): DataFrame with trip data containing time_start column.
@@ -152,6 +154,9 @@ def add_temporal_features(df: pd.DataFrame) -> pd.DataFrame:
     df_temporal = df.copy()
 
     df_temporal["hour_bin"] = (df_temporal["time_start"] // 3600) % 24
+    df_temporal["hour_sin"] = np.sin(2 * np.pi * df_temporal["hour_bin"] / 24)
+    df_temporal["hour_cos"] = np.cos(2 * np.pi * df_temporal["hour_bin"] / 24)
+
     df_temporal["is_morning"] = (df_temporal["hour_bin"] <= 2).astype(int)
     df_temporal["is_noon"] = ((df_temporal["hour_bin"] >= 3) & (df_temporal["hour_bin"] <= 6)).astype(int)
     df_temporal["is_afternoon"] = (df_temporal["hour_bin"] >= 7).astype(int)
@@ -165,3 +170,115 @@ def add_temporal_features(df: pd.DataFrame) -> pd.DataFrame:
 
     return df_temporal
 
+
+def add_spatial_features(
+    df: pd.DataFrame,
+    num_freqs: int = 2,
+    coordinate_scale: float = 1000.0,
+    cell: int = 100,
+    n_clusters: int = 20,
+    random_seed: int = RANDOM_SEED_DEFAULT,
+) -> pd.DataFrame:
+    """
+    Add spatial features to the dataframe.
+
+    Args:
+        df (pd.DataFrame): DataFrame with trip data containing source_x, source_y, destination_x, destination_y, distance columns.
+        num_freqs (int): Number of frequency components to use for Fourier encoding.
+        coordinate_scale (float): Scale factor to normalize coordinates for Fourier encoding.
+        cell (int): Size of the cell in meters.
+        n_clusters (int): Number of clusters for K-means clustering on coordinates.
+        random_seed (int): Random seed for clustering and PCA.
+
+    Returns:
+        pd.DataFrame: DataFrame with added spatial features.
+    """
+    required_columns = ["source_x", "source_y", "destination_x", "destination_y", "distance"]
+    if not all(column in df.columns for column in required_columns):
+        missing_columns = [column for column in required_columns if column not in df.columns]
+        logger.warning(f"{missing_columns} not found, skipping spatial features")
+        return df
+
+    df_spatial = df.copy()
+
+    dx = df_spatial["destination_x"] - df_spatial["source_x"]
+    dy = df_spatial["destination_y"] - df_spatial["source_y"]
+
+    df_spatial["euclidean_distance"] = np.hypot(dx, dy)
+    df_spatial["manhattan_distance"] = np.abs(dx) + np.abs(dy)
+    df_spatial["route_efficiency"] = df_spatial["euclidean_distance"] / df_spatial["distance"]
+    df_spatial["route_complexity"] = df_spatial["manhattan_distance"] / df_spatial["euclidean_distance"]
+    df_spatial["detour_factor"] = df_spatial["distance"] - df_spatial["euclidean_distance"]
+
+    df_spatial["trip_bearing"] = np.arctan2(dy, dx)
+    df_spatial["trip_bearing_sin"] = np.sin(df_spatial["trip_bearing"])
+    df_spatial["trip_bearing_cos"] = np.cos(df_spatial["trip_bearing"])
+    df_spatial["x_difference"] = dx
+    df_spatial["y_difference"] = dy
+    df_spatial["x_center"] = (df_spatial["source_x"] + df_spatial["destination_x"]) / 2
+    df_spatial["y_center"] = (df_spatial["source_y"] + df_spatial["destination_y"]) / 2
+
+    distance_percentiles = np.percentile(df_spatial["distance"], [25, 50, 75])
+
+    df_spatial["is_short_distance"] = (df_spatial["distance"] <= distance_percentiles[0]).astype(int)
+    df_spatial["is_medium_distance"] = (
+        (df_spatial["distance"] > distance_percentiles[0]) & (df_spatial["distance"] <= distance_percentiles[2])
+    ).astype(int)
+    df_spatial["is_long_distance"] = (df_spatial["distance"] > distance_percentiles[2]).astype(int)
+
+    coordinate_columns = ["source_x", "source_y", "destination_x", "destination_y"]
+    for column in coordinate_columns:
+        normalized_coordinates = df_spatial[column] / coordinate_scale
+
+        freqs = np.array([2**i for i in range(num_freqs)])
+
+        for i, freq in enumerate(freqs):
+            df_spatial[f"{column}_sin_freq_{i}"] = np.sin(freq * normalized_coordinates)
+            df_spatial[f"{column}_cos_freq_{i}"] = np.cos(freq * normalized_coordinates)
+
+    df_spatial["source_cell_x"] = (df_spatial["source_x"] // cell).astype(int)
+    df_spatial["source_cell_y"] = (df_spatial["source_y"] // cell).astype(int)
+    df_spatial["destination_cell_x"] = (df_spatial["destination_x"] // cell).astype(int)
+    df_spatial["destination_cell_y"] = (df_spatial["destination_y"] // cell).astype(int)
+
+    source_coordinates = df_spatial[["source_x", "source_y"]].values
+    destination_coordinates = df_spatial[["destination_x", "destination_y"]].values
+    kmeans_source = KMeans(n_clusters=n_clusters, random_state=random_seed)
+    kmeans_destination = KMeans(n_clusters=n_clusters, random_state=random_seed)
+
+    df_spatial["source_cluster"] = kmeans_source.fit_predict(source_coordinates)
+    df_spatial["destination_cluster"] = kmeans_destination.fit_predict(destination_coordinates)
+
+    all_coordinates = np.column_stack(
+        [df_spatial["source_x"], df_spatial["source_y"], df_spatial["destination_x"], df_spatial["destination_y"]]
+    )
+
+    pca_coordinates = PCA(n_components=2, random_state=random_seed)
+    coordinates_pca = pca_coordinates.fit_transform(all_coordinates)
+
+    trip_vectors = np.column_stack([dx, dy])
+    pca_trip_vectors = PCA(n_components=2, random_state=random_seed)
+    trip_vectors_pca = pca_trip_vectors.fit_transform(trip_vectors)
+
+    df_spatial["coordinates_pca_1"] = coordinates_pca[:, 0]
+    df_spatial["coordinates_pca_2"] = coordinates_pca[:, 1]
+    df_spatial["trip_vectors_pca_1"] = trip_vectors_pca[:, 0]
+    df_spatial["trip_vectors_pca_2"] = trip_vectors_pca[:, 1]
+
+    df_spatial["distance_from_center"] = np.hypot(df_spatial["x_center"], df_spatial["y_center"])
+    df_spatial["source_distance_from_center"] = np.hypot(df_spatial["source_x"], df_spatial["source_y"])
+    df_spatial["dest_distance_from_center"] = np.hypot(df_spatial["destination_x"], df_spatial["destination_y"])
+    df_spatial["trip_towards_center"] = (
+        df_spatial["source_distance_from_center"] > df_spatial["dest_distance_from_center"]
+    ).astype(int)
+    df_spatial["trip_away_from_center"] = (
+        df_spatial["source_distance_from_center"] < df_spatial["dest_distance_from_center"]
+    ).astype(int)
+
+    num_of_initial_features = len(df.columns)
+    num_of_final_features = len(df_spatial.columns)
+    num_of_added_features = num_of_final_features - num_of_initial_features
+
+    logger.info(f"Added {num_of_added_features} spatial features, for a total of {num_of_final_features} features")
+
+    return df_spatial
