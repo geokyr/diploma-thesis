@@ -7,7 +7,6 @@
 - Feature engineering
 - Feature selection and feature importance
 - SHAP values
-- Hour bin and one hot encoding
 - Extra distances (euclidean, manhattan, heaversine)
 - Center and diff of lat and long coordinates
 - Clustering features like MiniKBatchMeans for start and end coordinates, PCA for all coordinates

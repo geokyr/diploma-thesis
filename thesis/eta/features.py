@@ -133,3 +133,35 @@ def create_box_cox_transformer() -> PowerTransformer:
         PowerTransformer: Box cox transformer.
     """
     return PowerTransformer(method="box-cox")
+
+
+def add_temporal_features(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Add temporal features from time_start column for linear time progression.
+
+    Args:
+        df (pd.DataFrame): DataFrame with trip data containing time_start column.
+
+    Returns:
+        pd.DataFrame: DataFrame with added temporal features.
+    """
+    if "time_start" not in df.columns:
+        logger.warning("time_start column not found, skipping temporal features")
+        return df
+
+    df_temporal = df.copy()
+
+    df_temporal["hour_bin"] = (df_temporal["time_start"] // 3600) % 24
+    df_temporal["is_morning"] = (df_temporal["hour_bin"] <= 2).astype(int)
+    df_temporal["is_noon"] = ((df_temporal["hour_bin"] >= 3) & (df_temporal["hour_bin"] <= 6)).astype(int)
+    df_temporal["is_afternoon"] = (df_temporal["hour_bin"] >= 7).astype(int)
+    df_temporal["is_rush_hour"] = df_temporal["hour_bin"].isin([0, 1, 8, 9]).astype(int)
+
+    num_of_initial_features = len(df.columns)
+    num_of_final_features = len(df_temporal.columns)
+    num_of_added_features = num_of_final_features - num_of_initial_features
+
+    logger.info(f"Added {num_of_added_features} temporal features, for a total of {num_of_final_features} features")
+
+    return df_temporal
+
