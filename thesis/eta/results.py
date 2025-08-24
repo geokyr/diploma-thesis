@@ -424,12 +424,16 @@ def plot_metric_by_experiment(
 
     metric_by_exp = df.groupby("experiment")[metric_column].mean().sort_values()
 
-    plt.figure(figsize=(16, 4))
+    num_experiments = len(metric_by_exp)
+    width = max(8, num_experiments * 0.8)
+    height = 4
+
+    plt.figure(figsize=(width, height))
     plt.bar(range(len(metric_by_exp)), metric_by_exp.values, color=sns.color_palette("husl", len(metric_by_exp)))
     plt.title(f"Average {metric_name} by Experiment", fontweight="bold")
     plt.xlabel("Experiment")
     plt.ylabel(f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}")
-    plt.xticks(range(len(metric_by_exp)), metric_by_exp.index, rotation=60, ha="right")
+    plt.xticks(range(len(metric_by_exp)), metric_by_exp.index, rotation=75, ha="right")
 
     max_val = max(metric_by_exp.values)
     for i, v in enumerate(metric_by_exp.values):
@@ -457,13 +461,18 @@ def plot_metric_by_model(
     """
     plot_path = plots_dir / f"{metric_column}_by_model.png"
 
-    plt.figure(figsize=(16, 4))
     metric_by_model = df.groupby("model")[metric_column].mean().sort_values()
+
+    num_models = len(metric_by_model)
+    width = max(8, num_models * 1.2)
+    height = 4
+
+    plt.figure(figsize=(width, height))
     plt.bar(range(len(metric_by_model)), metric_by_model.values, color=sns.color_palette("husl", len(metric_by_model)))
     plt.title(f"Average {metric_name} by Model", fontweight="bold")
     plt.xlabel("Model")
     plt.ylabel(f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}")
-    plt.xticks(range(len(metric_by_model)), metric_by_model.index, rotation=60, ha="right")
+    plt.xticks(range(len(metric_by_model)), metric_by_model.index, rotation=75, ha="right")
 
     max_val = max(metric_by_model.values)
     for i, v in enumerate(metric_by_model.values):
@@ -491,8 +500,14 @@ def plot_metric_heatmap(
     """
     plot_path = plots_dir / f"{metric_column}_heatmap.png"
 
-    plt.figure(figsize=(16, 4))
     metric_pivot = df.pivot(index="experiment", columns="model", values=metric_column)
+
+    num_experiments = len(metric_pivot.index)
+    num_models = len(metric_pivot.columns)
+    width = max(8, num_models * 1.2)
+    height = max(4, num_experiments * 0.5)
+
+    plt.figure(figsize=(width, height))
     cbar_label = f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}"
     sns.heatmap(metric_pivot, annot=True, fmt=f".{decimal_places}f", cmap="RdYlBu_r", cbar_kws={"label": cbar_label})
     plt.title(f"{metric_name} Heatmap: Experiment vs Model", fontweight="bold")
@@ -505,7 +520,7 @@ def plot_metric_heatmap(
 
 
 def plot_metric_distribution(
-    df: pd.DataFrame, metric_column: str, metric_name: str, metric_unit: str, decimal_places: int, plots_dir: Path
+    df: pd.DataFrame, metric_column: str, metric_name: str, metric_unit: str, plots_dir: Path
 ) -> None:
     """
     Plot metric distribution by experiment using boxplots.
@@ -515,18 +530,29 @@ def plot_metric_distribution(
         metric_column (str): Column name for the metric to analyze.
         metric_name (str): Display name for the metric.
         metric_unit (str): Unit of the metric.
-        decimal_places (int): Number of decimal places to show for the metric.
         plots_dir (Path): Directory to save the plots.
     """
     plot_path = plots_dir / f"{metric_column}_distribution.png"
 
-    plt.figure(figsize=(16, 4))
-    df.boxplot(column=metric_column, by="experiment")
+    num_experiments = df["experiment"].nunique()
+    width = max(8, num_experiments * 0.5)
+    height = 4
+
+    plt.figure(figsize=(width, height))
+    experiments = sorted(df["experiment"].unique())
+    sns.boxplot(
+        data=df,
+        x="experiment",
+        y=metric_column,
+        hue="experiment",
+        order=experiments,
+        palette=sns.color_palette("husl", len(experiments)),
+        legend=False,
+    )
     plt.title(f"{metric_name} Distribution by Experiment", fontweight="bold")
     plt.xlabel("Experiment")
     plt.ylabel(f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}")
-    plt.xticks(rotation=60)
-    plt.suptitle("")
+    plt.xticks(rotation=75)
 
     plt.savefig(plot_path, bbox_inches="tight")
     plt.close()
@@ -555,6 +581,6 @@ def run_metric_analysis(
     plot_metric_by_experiment(df, metric_column, metric_name, metric_unit, decimal_places, plots_dir)
     plot_metric_by_model(df, metric_column, metric_name, metric_unit, decimal_places, plots_dir)
     plot_metric_heatmap(df, metric_column, metric_name, metric_unit, decimal_places, plots_dir)
-    plot_metric_distribution(df, metric_column, metric_name, metric_unit, decimal_places, plots_dir)
+    plot_metric_distribution(df, metric_column, metric_name, metric_unit, plots_dir)
 
     logger.info(f"Completed {metric_name} analysis")
