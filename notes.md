@@ -1,7 +1,7 @@
 # Notes
 
 ## To Do
-- Split features into more functions
+- Split features into more experiments and functions
 - Feature selection and feature importance
 - SHAP values
 - Scaling of new features
