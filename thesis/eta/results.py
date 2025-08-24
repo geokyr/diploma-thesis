@@ -424,7 +424,7 @@ def plot_metric_by_experiment(
 
     metric_by_exp = df.groupby("experiment")[metric_column].mean().sort_values()
 
-    plt.figure(figsize=(10, 4))
+    plt.figure(figsize=(16, 4))
     plt.bar(range(len(metric_by_exp)), metric_by_exp.values, color=sns.color_palette("husl", len(metric_by_exp)))
     plt.title(f"Average {metric_name} by Experiment", fontweight="bold")
     plt.xlabel("Experiment")
@@ -457,7 +457,7 @@ def plot_metric_by_model(
     """
     plot_path = plots_dir / f"{metric_column}_by_model.png"
 
-    plt.figure(figsize=(10, 4))
+    plt.figure(figsize=(16, 4))
     metric_by_model = df.groupby("model")[metric_column].mean().sort_values()
     plt.bar(range(len(metric_by_model)), metric_by_model.values, color=sns.color_palette("husl", len(metric_by_model)))
     plt.title(f"Average {metric_name} by Model", fontweight="bold")
@@ -491,7 +491,7 @@ def plot_metric_heatmap(
     """
     plot_path = plots_dir / f"{metric_column}_heatmap.png"
 
-    plt.figure(figsize=(10, 4))
+    plt.figure(figsize=(16, 4))
     metric_pivot = df.pivot(index="experiment", columns="model", values=metric_column)
     cbar_label = f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}"
     sns.heatmap(metric_pivot, annot=True, fmt=f".{decimal_places}f", cmap="RdYlBu_r", cbar_kws={"label": cbar_label})
@@ -520,7 +520,7 @@ def plot_metric_distribution(
     """
     plot_path = plots_dir / f"{metric_column}_distribution.png"
 
-    plt.figure(figsize=(10, 4))
+    plt.figure(figsize=(16, 4))
     df.boxplot(column=metric_column, by="experiment")
     plt.title(f"{metric_name} Distribution by Experiment", fontweight="bold")
     plt.xlabel("Experiment")
