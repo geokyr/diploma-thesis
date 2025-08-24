@@ -3,8 +3,7 @@ from thesis.common.logger import setup_logger
 from thesis.eta.data import ensure_dataset_is_valid
 from thesis.eta.experiment import ETAEvaluation, ETAExperiment, save_model
 from thesis.eta.features import (
-    add_spatial_features,
-    add_temporal_features,
+    add_all_features,
     split_features_and_target,
 )
 from thesis.eta.models import ModelType, create_model
@@ -23,8 +22,7 @@ def main() -> None:
     fcd_train = preprocess_fcd_dataset(fcd_train_raw)
     trips_train = generate_trips(fcd_train)
 
-    trips_train = add_temporal_features(trips_train)
-    trips_train = add_spatial_features(trips_train)
+    trips_train = add_all_features(trips_train)
     X_train, y_train = split_features_and_target(trips_train)
 
     skf, stratify_key = get_stratified_kfold_cv(y_train)

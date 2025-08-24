@@ -537,3 +537,39 @@ def add_spatial_features(
     _log_feature_addition(df, df_spatial, "spatial")
 
     return df_spatial
+
+
+def add_all_features(
+    df: pd.DataFrame,
+    num_freqs: int = 2,
+    coordinate_scale: float = 1000.0,
+    cell: int = 100,
+    n_clusters: int = 20,
+    random_seed: int = RANDOM_SEED_DEFAULT,
+) -> pd.DataFrame:
+    """
+    Add all features to the dataframe.
+
+    Args:
+        df (pd.DataFrame): DataFrame with trip data containing source_x, source_y, destination_x, destination_y, distance columns.
+        num_freqs (int): Number of frequency components to use for Fourier encoding.
+        coordinate_scale (float): Scale factor to normalize coordinates for Fourier encoding.
+        cell (int): Size of the cell in meters.
+        n_clusters (int): Number of clusters for K-means clustering on coordinates.
+        random_seed (int): Random seed for clustering and PCA.
+
+    Returns:
+        pd.DataFrame: DataFrame with added all features.
+    """
+    required_columns = ["time_start", "source_x", "source_y", "destination_x", "destination_y", "distance"]
+    if not _check_required_columns(df, required_columns, "all"):
+        return df
+
+    df_all = df.copy()
+
+    df_all = add_temporal_features(df_all)
+    df_all = add_spatial_features(df_all, num_freqs, coordinate_scale, cell, n_clusters, random_seed)
+
+    _log_feature_addition(df, df_all, "all")
+
+    return df_all
