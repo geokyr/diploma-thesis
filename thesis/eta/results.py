@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -376,10 +377,10 @@ def load_all_results() -> pd.DataFrame:
 
 def load_research_results() -> pd.DataFrame:
     """
-    Load only research experiment results and return as a clean DataFrame.
+    Load research experiment results and return as a clean DataFrame.
 
     Returns:
-        pd.DataFrame: DataFrame containing only research experiment results.
+        pd.DataFrame: DataFrame containing research experiment results.
     """
     df = load_all_results()
 
@@ -388,7 +389,25 @@ def load_research_results() -> pd.DataFrame:
 
     filtered_df = df[~df["experiment"].isin(evaluations)]
 
-    logger.info(f"Filtered to {len(filtered_df)} research experiment results (excluded: {evaluations})")
+    logger.info(f"Filtered to {len(filtered_df)} research experiment results (excluded evaluations: {evaluations})")
+
+    return filtered_df
+
+
+def load_research_results_without_baselines() -> pd.DataFrame:
+    """
+    Load research experiment results excluding baseline models and return as a clean DataFrame.
+
+    Returns:
+        pd.DataFrame: DataFrame containing research experiment results without baseline models.
+    """
+    df = load_research_results()
+
+    filtered_df = df[df["model"] != ModelType.LINEAR_REGRESSION]
+
+    logger.info(
+        f"Filtered to {len(filtered_df)} research experiment results without baselines (excluded model: {ModelType.LINEAR_REGRESSION})"
+    )
 
     return filtered_df
 
@@ -422,23 +441,28 @@ def plot_metric_by_experiment(
     """
     plot_path = plots_dir / f"{metric_column}_by_experiment.png"
 
-    metric_by_exp = df.groupby("experiment")[metric_column].mean().sort_values()
+    metric_by_exp = df.groupby("experiment")[metric_column].mean()
 
     num_experiments = len(metric_by_exp)
-    width = max(8, num_experiments * 0.8)
-    height = 4
+    width = 8
+    height = max(6, num_experiments * 0.4)
 
     plt.figure(figsize=(width, height))
-    plt.bar(range(len(metric_by_exp)), metric_by_exp.values, color=sns.color_palette("husl", len(metric_by_exp)))
+    colors = plt.cm.viridis(np.linspace(0, 1, len(metric_by_exp)))
+    plt.barh(range(len(metric_by_exp)), metric_by_exp.values, color=colors)
     plt.title(f"Average {metric_name} by Experiment", fontweight="bold")
-    plt.xlabel("Experiment")
-    plt.ylabel(f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}")
-    plt.xticks(range(len(metric_by_exp)), metric_by_exp.index, rotation=75, ha="right")
+    plt.xlabel(f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}")
+    plt.ylabel("Experiment")
+    plt.yticks(range(len(metric_by_exp)), metric_by_exp.index)
+    plt.gca().invert_yaxis()
 
-    max_val = max(metric_by_exp.values)
+    min_val, max_val = metric_by_exp.values.min(), metric_by_exp.values.max()
+    range_val = max_val - min_val
+    plt.xlim(min_val - range_val * 0.2, max_val + range_val * 0.2)
+
     for i, v in enumerate(metric_by_exp.values):
         label = f"{v:.{decimal_places}f}{metric_unit}"
-        plt.text(i, v + max_val * 0.02, label, ha="center", va="bottom", fontweight="bold")
+        plt.text(v + range_val * 0.02, i, label, ha="left", va="center", fontweight="bold", color="black")
 
     plt.savefig(plot_path, bbox_inches="tight")
     plt.close()
@@ -461,23 +485,28 @@ def plot_metric_by_model(
     """
     plot_path = plots_dir / f"{metric_column}_by_model.png"
 
-    metric_by_model = df.groupby("model")[metric_column].mean().sort_values()
+    metric_by_model = df.groupby("model")[metric_column].mean()
 
     num_models = len(metric_by_model)
-    width = max(8, num_models * 1.2)
-    height = 4
+    width = 8
+    height = max(4, num_models * 0.4)
 
     plt.figure(figsize=(width, height))
-    plt.bar(range(len(metric_by_model)), metric_by_model.values, color=sns.color_palette("husl", len(metric_by_model)))
+    colors = plt.cm.viridis(np.linspace(0, 1, len(metric_by_model)))
+    plt.barh(range(len(metric_by_model)), metric_by_model.values, color=colors)
     plt.title(f"Average {metric_name} by Model", fontweight="bold")
-    plt.xlabel("Model")
-    plt.ylabel(f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}")
-    plt.xticks(range(len(metric_by_model)), metric_by_model.index, rotation=75, ha="right")
+    plt.xlabel(f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}")
+    plt.ylabel("Model")
+    plt.yticks(range(len(metric_by_model)), metric_by_model.index)
+    plt.gca().invert_yaxis()
 
-    max_val = max(metric_by_model.values)
+    min_val, max_val = metric_by_model.values.min(), metric_by_model.values.max()
+    range_val = max_val - min_val
+    plt.xlim(min_val - range_val * 0.2, max_val + range_val * 0.2)
+
     for i, v in enumerate(metric_by_model.values):
         label = f"{v:.{decimal_places}f}{metric_unit}"
-        plt.text(i, v + max_val * 0.02, label, ha="center", va="bottom", fontweight="bold")
+        plt.text(v + range_val * 0.02, i, label, ha="left", va="center", fontweight="bold", color="black")
 
     plt.savefig(plot_path, bbox_inches="tight")
     plt.close()
@@ -509,7 +538,13 @@ def plot_metric_heatmap(
 
     plt.figure(figsize=(width, height))
     cbar_label = f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}"
-    sns.heatmap(metric_pivot, annot=True, fmt=f".{decimal_places}f", cmap="RdYlBu_r", cbar_kws={"label": cbar_label})
+    sns.heatmap(
+        metric_pivot,
+        annot=True,
+        fmt=f".{decimal_places}f",
+        cmap="viridis",
+        cbar_kws={"label": cbar_label},
+    )
     plt.title(f"{metric_name} Heatmap: Experiment vs Model", fontweight="bold")
     plt.xlabel("Model")
     plt.ylabel("Experiment")
@@ -534,25 +569,26 @@ def plot_metric_distribution(
     """
     plot_path = plots_dir / f"{metric_column}_distribution.png"
 
-    num_experiments = df["experiment"].nunique()
-    width = max(8, num_experiments * 0.5)
-    height = 4
+    experiments = sorted(df["experiment"].unique())
+
+    num_experiments = len(experiments)
+    width = 8
+    height = max(6, num_experiments * 0.4)
 
     plt.figure(figsize=(width, height))
-    experiments = sorted(df["experiment"].unique())
     sns.boxplot(
         data=df,
-        x="experiment",
-        y=metric_column,
+        y="experiment",
+        x=metric_column,
         hue="experiment",
         order=experiments,
-        palette=sns.color_palette("husl", len(experiments)),
+        palette=[plt.cm.viridis(i / len(experiments)) for i in range(len(experiments))],
         legend=False,
+        orient="h",
     )
     plt.title(f"{metric_name} Distribution by Experiment", fontweight="bold")
-    plt.xlabel("Experiment")
-    plt.ylabel(f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}")
-    plt.xticks(rotation=75)
+    plt.xlabel(f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}")
+    plt.ylabel("Experiment")
 
     plt.savefig(plot_path, bbox_inches="tight")
     plt.close()
