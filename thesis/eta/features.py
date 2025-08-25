@@ -409,19 +409,11 @@ def add_all_features(
     Returns:
         pd.DataFrame: DataFrame with added all features.
     """
-    required_columns = ["time_start", "source_x", "source_y", "destination_x", "destination_y", "distance"]
-    if not _check_required_columns(df, required_columns, "all"):
-        return df
+    df = add_temporal_features(df)
+    df = add_spatial_features(df)
+    df = add_fourier_features(df, num_freqs, coordinate_scale)
+    df = add_cell_features(df, cell)
+    df = add_clustering_features(df, n_clusters, random_seed)
+    df = add_pca_features(df, random_seed)
 
-    df_all = df.copy()
-
-    df_all = add_temporal_features(df_all)
-    df_all = add_spatial_features(df_all)
-    df_all = add_fourier_features(df_all, num_freqs, coordinate_scale)
-    df_all = add_cell_features(df_all, cell)
-    df_all = add_clustering_features(df_all, n_clusters, random_seed)
-    df_all = add_pca_features(df_all, random_seed)
-
-    _log_feature_addition(df, df_all, "all")
-
-    return df_all
+    return df
