@@ -29,7 +29,7 @@ This will create a virtual environment `.venv` in the project root and install a
 All scripts should be invoked via `uv run` so they use the right virtual environment.
 
 ```bash
-uv run python scripts/simulation.py
+uv run scripts/simulation.py
 ```
 
 Another option is to activate the virtual environment and run the scripts directly.
