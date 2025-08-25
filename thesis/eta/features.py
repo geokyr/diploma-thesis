@@ -172,160 +172,105 @@ def create_box_cox_transformer() -> PowerTransformer:
     return PowerTransformer(method="box-cox")
 
 
-def add_hour_features(df: pd.DataFrame) -> pd.DataFrame:
+def add_temporal_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Add hour features to the dataframe.
+    Add temporal features to the dataframe.
 
     Args:
         df (pd.DataFrame): DataFrame with trip data containing time_start column.
 
     Returns:
-        pd.DataFrame: DataFrame with added hour features.
+        pd.DataFrame: DataFrame with added temporal features.
     """
     required_columns = ["time_start"]
-    if not _check_required_columns(df, required_columns, "hour"):
+    if not _check_required_columns(df, required_columns, "temporal"):
         return df
 
     df_hour = df.copy()
 
     df_hour["hour_bin"] = (df_hour["time_start"] // 3600) % 24
-    df_hour["hour_sin"] = np.sin(2 * np.pi * df_hour["hour_bin"] / 24)
-    df_hour["hour_cos"] = np.cos(2 * np.pi * df_hour["hour_bin"] / 24)
+    df_hour["is_morning"] = (df_hour["hour_bin"] <= 2).astype(int)
+    df_hour["is_noon"] = ((df_hour["hour_bin"] >= 3) & (df_hour["hour_bin"] <= 6)).astype(int)
+    df_hour["is_afternoon"] = (df_hour["hour_bin"] >= 7).astype(int)
+    df_hour["is_rush_hour"] = (df_hour["hour_bin"] in [0, 1, 8, 9]).astype(int)
 
-    _log_feature_addition(df, df_hour, "hour")
+    _log_feature_addition(df, df_hour, "temporal")
 
     return df_hour
 
 
-def add_time_period_features(df: pd.DataFrame) -> pd.DataFrame:
+def add_spatial_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Add time period features to the dataframe.
+    Add spatial features to the dataframe.
 
     Args:
-        df (pd.DataFrame): DataFrame with trip data containing hour_bin column.
+        df (pd.DataFrame): DataFrame with trip data containing source_x, source_y, destination_x, destination_y, distance columns.
 
     Returns:
-        pd.DataFrame: DataFrame with added time period features.
+        pd.DataFrame: DataFrame with added spatial features.
     """
-    required_columns = ["hour_bin"]
-    if not _check_required_columns(df, required_columns, "time period"):
+    required_columns = ["source_x", "source_y", "destination_x", "destination_y", "distance"]
+    if not _check_required_columns(df, required_columns, "spatial"):
         return df
 
-    df_time_period = df.copy()
+    df_spatial = df.copy()
 
-    df_time_period["is_morning"] = (df_time_period["hour_bin"] <= 2).astype(int)
-    df_time_period["is_noon"] = ((df_time_period["hour_bin"] >= 3) & (df_time_period["hour_bin"] <= 6)).astype(int)
-    df_time_period["is_afternoon"] = (df_time_period["hour_bin"] >= 7).astype(int)
-    df_time_period["is_rush_hour"] = df_time_period["hour_bin"].isin([0, 1, 8, 9]).astype(int)
+    df_spatial["x_center"] = (df_spatial["source_x"] + df_spatial["destination_x"]) / 2
+    df_spatial["y_center"] = (df_spatial["source_y"] + df_spatial["destination_y"]) / 2
+    df_spatial["x_difference"] = df_spatial["destination_x"] - df_spatial["source_x"]
+    df_spatial["y_difference"] = df_spatial["destination_y"] - df_spatial["source_y"]
 
-    _log_feature_addition(df, df_time_period, "time period")
+    df_spatial["euclidean_distance"] = np.hypot(df_spatial["x_difference"], df_spatial["y_difference"])
+    df_spatial["route_efficiency"] = df_spatial["euclidean_distance"] / df_spatial["distance"]
+    df_spatial["detour_length"] = df_spatial["distance"] - df_spatial["euclidean_distance"]
 
-    return df_time_period
+    df_spatial["trip_bearing"] = np.arctan2(df_spatial["y_difference"], df_spatial["x_difference"])
+    df_spatial["trip_bearing_sin"] = np.sin(df_spatial["trip_bearing"])
+    df_spatial["trip_bearing_cos"] = np.cos(df_spatial["trip_bearing"])
 
+    distance_percentiles = np.percentile(df_spatial["distance"], [25, 50, 75])
 
-def add_coordinate_features(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Add coordinate features to the dataframe.
-
-    Args:
-        df (pd.DataFrame): DataFrame with trip data containing source_x, source_y, destination_x, destination_y columns.
-
-    Returns:
-        pd.DataFrame: DataFrame with added coordinate features.
-    """
-    required_columns = ["source_x", "source_y", "destination_x", "destination_y"]
-    if not _check_required_columns(df, required_columns, "coordinate"):
-        return df
-
-    df_coordinate = df.copy()
-
-    dx = df_coordinate["destination_x"] - df_coordinate["source_x"]
-    dy = df_coordinate["destination_y"] - df_coordinate["source_y"]
-
-    df_coordinate["euclidean_distance"] = np.hypot(dx, dy)
-    df_coordinate["manhattan_distance"] = np.abs(dx) + np.abs(dy)
-
-    _log_feature_addition(df, df_coordinate, "coordinate")
-
-    return df_coordinate
-
-
-def add_distance_features(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Add distance features to the dataframe.
-
-    Args:
-        df (pd.DataFrame): DataFrame with trip data containing euclidean_distance, manhattan_distance, distance columns.
-
-    Returns:
-        pd.DataFrame: DataFrame with added distance features.
-    """
-    required_columns = ["euclidean_distance", "manhattan_distance", "distance"]
-    if not _check_required_columns(df, required_columns, "distance"):
-        return df
-
-    df_distance = df.copy()
-
-    df_distance["route_efficiency"] = df_distance["euclidean_distance"] / df_distance["distance"]
-    df_distance["route_complexity"] = df_distance["manhattan_distance"] / df_distance["euclidean_distance"]
-    df_distance["detour_factor"] = df_distance["distance"] - df_distance["euclidean_distance"]
-
-    distance_percentiles = np.percentile(df_distance["distance"], [25, 50, 75])
-
-    df_distance["is_short_distance"] = (df_distance["distance"] <= distance_percentiles[0]).astype(int)
-    df_distance["is_medium_distance"] = (
-        (df_distance["distance"] > distance_percentiles[0]) & (df_distance["distance"] <= distance_percentiles[2])
+    df_spatial["is_short_distance"] = (df_spatial["distance"] <= distance_percentiles[0]).astype(int)
+    df_spatial["is_medium_distance"] = (
+        (df_spatial["distance"] > distance_percentiles[0]) & (df_spatial["distance"] <= distance_percentiles[2])
     ).astype(int)
-    df_distance["is_long_distance"] = (df_distance["distance"] > distance_percentiles[2]).astype(int)
+    df_spatial["is_long_distance"] = (df_spatial["distance"] > distance_percentiles[2]).astype(int)
 
-    _log_feature_addition(df, df_distance, "distance")
+    city_center_x = np.mean(df_spatial["x_center"])
+    city_center_y = np.mean(df_spatial["y_center"])
 
-    return df_distance
+    df_spatial["source_distance_from_city_center"] = np.hypot(
+        df_spatial["source_x"] - city_center_x, df_spatial["source_y"] - city_center_y
+    )
+    df_spatial["dest_distance_from_city_center"] = np.hypot(
+        df_spatial["destination_x"] - city_center_x, df_spatial["destination_y"] - city_center_y
+    )
+    df_spatial["trip_centrality_change"] = (
+        df_spatial["dest_distance_from_city_center"] - df_spatial["source_distance_from_city_center"]
+    )
+    df_spatial["trip_centrality"] = np.hypot(
+        df_spatial["x_center"] - city_center_x, df_spatial["y_center"] - city_center_y
+    )
 
+    _log_feature_addition(df, df_spatial, "spatial")
 
-def add_trip_vector_features(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Add trip vector features to the dataframe.
-
-    Args:
-        df (pd.DataFrame): DataFrame with trip data containing source_x, source_y, destination_x, destination_y columns.
-
-    Returns:
-        pd.DataFrame: DataFrame with added trip vector features.
-    """
-    required_columns = ["source_x", "source_y", "destination_x", "destination_y"]
-    if not _check_required_columns(df, required_columns, "trip vector"):
-        return df
-
-    df_vector = df.copy()
-
-    df_vector["x_difference"] = df_vector["destination_x"] - df_vector["source_x"]
-    df_vector["y_difference"] = df_vector["destination_y"] - df_vector["source_y"]
-    df_vector["trip_bearing"] = np.arctan2(df_vector["y_difference"], df_vector["x_difference"])
-    df_vector["trip_bearing_sin"] = np.sin(df_vector["trip_bearing"])
-    df_vector["trip_bearing_cos"] = np.cos(df_vector["trip_bearing"])
-    df_vector["x_center"] = (df_vector["source_x"] + df_vector["destination_x"]) / 2
-    df_vector["y_center"] = (df_vector["source_y"] + df_vector["destination_y"]) / 2
-
-    _log_feature_addition(df, df_vector, "trip vector")
-
-    return df_vector
+    return df_spatial
 
 
 def add_fourier_features(df: pd.DataFrame, num_freqs: int = 2, coordinate_scale: float = 1000.0) -> pd.DataFrame:
     """
-    Add Fourier positional encoding features to the dataframe.
+    Add fourier positional encoding features to the dataframe.
 
     Args:
         df (pd.DataFrame): DataFrame with trip data containing source_x, source_y, destination_x, destination_y columns.
-        num_freqs (int): Number of frequency components to use for Fourier encoding.
-        coordinate_scale (float): Scale factor to normalize coordinates for Fourier encoding.
+        num_freqs (int): Number of frequency components to use for fourier encoding.
+        coordinate_scale (float): Scale factor to normalize coordinates for fourier encoding.
 
     Returns:
-        pd.DataFrame: DataFrame with added Fourier features.
+        pd.DataFrame: DataFrame with added fourier features.
     """
     required_columns = ["source_x", "source_y", "destination_x", "destination_y"]
-    if not _check_required_columns(df, required_columns, "Fourier"):
+    if not _check_required_columns(df, required_columns, "fourier"):
         return df
 
     df_fourier = df.copy()
@@ -337,10 +282,10 @@ def add_fourier_features(df: pd.DataFrame, num_freqs: int = 2, coordinate_scale:
         freqs = np.array([2**i for i in range(num_freqs)])
 
         for i, freq in enumerate(freqs):
-            df_fourier[f"{column}_sin_freq_{i}"] = np.sin(freq * normalized_coordinates)
-            df_fourier[f"{column}_cos_freq_{i}"] = np.cos(freq * normalized_coordinates)
+            df_fourier[f"{column}_sin_{i}"] = np.sin(freq * normalized_coordinates)
+            df_fourier[f"{column}_cos_{i}"] = np.cos(freq * normalized_coordinates)
 
-    _log_feature_addition(df, df_fourier, "Fourier")
+    _log_feature_addition(df, df_fourier, "fourier")
 
     return df_fourier
 
@@ -407,74 +352,39 @@ def add_clustering_features(
 
 def add_pca_features(df: pd.DataFrame, random_seed: int = RANDOM_SEED_DEFAULT) -> pd.DataFrame:
     """
-    Add PCA features to the dataframe.
+    Add pca features to the dataframe.
 
     Args:
         df (pd.DataFrame): DataFrame with trip data containing source_x, source_y, destination_x, destination_y columns.
-        random_seed (int): Random seed for PCA.
+        random_seed (int): Random seed for pca.
 
     Returns:
-        pd.DataFrame: DataFrame with added PCA features.
+        pd.DataFrame: DataFrame with added pca features.
     """
     required_columns = ["source_x", "source_y", "destination_x", "destination_y"]
-    if not _check_required_columns(df, required_columns, "PCA"):
+    if not _check_required_columns(df, required_columns, "pca"):
         return df
 
     df_pca = df.copy()
 
-    dx = df_pca["destination_x"] - df_pca["source_x"]
-    dy = df_pca["destination_y"] - df_pca["source_y"]
-
-    all_coordinates = np.column_stack(
-        [df_pca["source_x"], df_pca["source_y"], df_pca["destination_x"], df_pca["destination_y"]]
+    all_coordinates = np.vstack(
+        [df_pca[["source_x", "source_y"]].values, df_pca[["destination_x", "destination_y"]].values]
     )
 
     pca_coordinates = PCA(n_components=2, random_state=random_seed)
-    coordinates_pca = pca_coordinates.fit_transform(all_coordinates)
+    pca_coordinates.fit(all_coordinates)
 
-    trip_vectors = np.column_stack([dx, dy])
-    pca_trip_vectors = PCA(n_components=2, random_state=random_seed)
-    trip_vectors_pca = pca_trip_vectors.fit_transform(trip_vectors)
+    source_coords_pca = pca_coordinates.transform(df_pca[["source_x", "source_y"]].values)
+    dest_coords_pca = pca_coordinates.transform(df_pca[["destination_x", "destination_y"]].values)
 
-    df_pca["coordinates_pca_1"] = coordinates_pca[:, 0]
-    df_pca["coordinates_pca_2"] = coordinates_pca[:, 1]
-    df_pca["trip_vectors_pca_1"] = trip_vectors_pca[:, 0]
-    df_pca["trip_vectors_pca_2"] = trip_vectors_pca[:, 1]
+    df_pca["source_pca_1"] = source_coords_pca[:, 0]
+    df_pca["source_pca_2"] = source_coords_pca[:, 1]
+    df_pca["dest_pca_1"] = dest_coords_pca[:, 0]
+    df_pca["dest_pca_2"] = dest_coords_pca[:, 1]
 
-    _log_feature_addition(df, df_pca, "PCA")
+    _log_feature_addition(df, df_pca, "pca")
 
     return df_pca
-
-
-def add_center_distance_features(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Add center distance features to the dataframe.
-
-    Args:
-        df (pd.DataFrame): DataFrame with trip data containing source_x, source_y, destination_x, destination_y, x_center, y_center columns.
-
-    Returns:
-        pd.DataFrame: DataFrame with added center distance features.
-    """
-    required_columns = ["source_x", "source_y", "destination_x", "destination_y", "x_center", "y_center"]
-    if not _check_required_columns(df, required_columns, "center distance"):
-        return df
-
-    df_center = df.copy()
-
-    df_center["distance_from_center"] = np.hypot(df_center["x_center"], df_center["y_center"])
-    df_center["source_distance_from_center"] = np.hypot(df_center["source_x"], df_center["source_y"])
-    df_center["dest_distance_from_center"] = np.hypot(df_center["destination_x"], df_center["destination_y"])
-    df_center["trip_towards_center"] = (
-        df_center["source_distance_from_center"] > df_center["dest_distance_from_center"]
-    ).astype(int)
-    df_center["trip_away_from_center"] = (
-        df_center["source_distance_from_center"] < df_center["dest_distance_from_center"]
-    ).astype(int)
-
-    _log_feature_addition(df, df_center, "center distance")
-
-    return df_center
 
 
 def add_all_features(
@@ -490,11 +400,11 @@ def add_all_features(
 
     Args:
         df (pd.DataFrame): DataFrame with trip data containing source_x, source_y, destination_x, destination_y, distance columns.
-        num_freqs (int): Number of frequency components to use for Fourier encoding.
-        coordinate_scale (float): Scale factor to normalize coordinates for Fourier encoding.
+        num_freqs (int): Number of frequency components to use for fourier encoding.
+        coordinate_scale (float): Scale factor to normalize coordinates for fourier encoding.
         cell (int): Size of the cell in meters.
         n_clusters (int): Number of clusters for K-means clustering on coordinates.
-        random_seed (int): Random seed for clustering and PCA.
+        random_seed (int): Random seed for clustering and pca.
 
     Returns:
         pd.DataFrame: DataFrame with added all features.
@@ -505,61 +415,13 @@ def add_all_features(
 
     df_all = df.copy()
 
-    df_all = add_hour_features(df_all)
-    df_all = add_time_period_features(df_all)
-    df_all = add_coordinate_features(df_all)
-    df_all = add_distance_features(df_all)
-    df_all = add_trip_vector_features(df_all)
+    df_all = add_temporal_features(df_all)
+    df_all = add_spatial_features(df_all)
     df_all = add_fourier_features(df_all, num_freqs, coordinate_scale)
     df_all = add_cell_features(df_all, cell)
     df_all = add_clustering_features(df_all, n_clusters, random_seed)
     df_all = add_pca_features(df_all, random_seed)
-    df_all = add_center_distance_features(df_all)
 
     _log_feature_addition(df, df_all, "all")
 
     return df_all
-
-
-def add_selected_features(
-    df: pd.DataFrame,
-    num_freqs: int = 2,
-    coordinate_scale: float = 1000.0,
-    cell: int = 100,
-    n_clusters: int = 20,
-    random_seed: int = RANDOM_SEED_DEFAULT,
-) -> pd.DataFrame:
-    """
-    Add selected features to the dataframe.
-
-    Args:
-        df (pd.DataFrame): DataFrame with trip data containing source_x, source_y, destination_x, destination_y, distance columns.
-        num_freqs (int): Number of frequency components to use for Fourier encoding.
-        coordinate_scale (float): Scale factor to normalize coordinates for Fourier encoding.
-        cell (int): Size of the cell in meters.
-        n_clusters (int): Number of clusters for K-means clustering on coordinates.
-        random_seed (int): Random seed for clustering and PCA.
-
-    Returns:
-        pd.DataFrame: DataFrame with added selected features.
-    """
-    required_columns = ["time_start", "source_x", "source_y", "destination_x", "destination_y", "distance"]
-    if not _check_required_columns(df, required_columns, "selected"):
-        return df
-
-    df_selected = df.copy()
-
-    df_selected = add_hour_features(df_selected)
-    df_selected = add_time_period_features(df_selected)
-    df_selected = add_coordinate_features(df_selected)
-    df_selected = add_distance_features(df_selected)
-    df_selected = add_trip_vector_features(df_selected)
-    df_selected = add_fourier_features(df_selected, num_freqs, coordinate_scale)
-    df_selected = add_cell_features(df_selected, cell)
-    df_selected = add_clustering_features(df_selected, n_clusters, random_seed)
-    df_selected = add_pca_features(df_selected, random_seed)
-    df_selected = add_center_distance_features(df_selected)
-
-    _log_feature_addition(df, df_selected, "selected")
-
-    return df_selected

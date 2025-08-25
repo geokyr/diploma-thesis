@@ -2,11 +2,8 @@ from thesis.common.data import generate_trips, load_fcd_dataset, preprocess_fcd_
 from thesis.common.logger import setup_logger
 from thesis.eta.data import ensure_dataset_is_valid
 from thesis.eta.experiment import ETAEvaluation, ETAExperiment, save_model
-from thesis.eta.features import (
-    add_all_features,
-    split_features_and_target,
-)
-from thesis.eta.models import ModelType, create_model
+from thesis.eta.features import add_all_features, create_quantile_normal_transformer, split_features_and_target
+from thesis.eta.models import ModelType, create_model, wrap_with_transformed_target_regressor
 from thesis.eta.pipeline import evaluate_predictions, get_stratified_kfold_cv, make_predictions, train_model
 from thesis.eta.results import build_cv_results, build_model_results, save_results
 
@@ -21,15 +18,16 @@ def main() -> None:
     fcd_train_raw = load_fcd_dataset(experiment.train_path)
     fcd_train = preprocess_fcd_dataset(fcd_train_raw)
     trips_train = generate_trips(fcd_train)
-
     trips_train = add_all_features(trips_train)
     X_train, y_train = split_features_and_target(trips_train)
 
+    transformer = create_quantile_normal_transformer()
     skf, stratify_key = get_stratified_kfold_cv(y_train)
     results = {}
 
     for model_type in ModelType:
-        model = create_model(model_type)
+        base_model = create_model(model_type)
+        model = wrap_with_transformed_target_regressor(base_model, transformer)
 
         per_fold_results = []
 
@@ -47,7 +45,8 @@ def main() -> None:
         results[model_type] = build_cv_results(per_fold_results)
 
         logger.info(f"Training final {model_type} model on all training data")
-        final_model = create_model(model_type)
+        final_base_model = create_model(model_type)
+        final_model = wrap_with_transformed_target_regressor(final_base_model, transformer)
         train_model(final_model, model_type, X_train, y_train)
         save_model(final_model, model_type, experiment.models_dir)
 
