@@ -88,6 +88,8 @@ def create_xgboost_regressor_model(random_seed: int = RANDOM_SEED_DEFAULT, **kwa
     params = {
         "objective": "reg:absoluteerror",
         "random_state": random_seed,
+        "enable_categorical": True,
+        "max_cat_to_onehot": 2,
         **kwargs,
     }
 
@@ -133,6 +135,7 @@ def create_catboost_regressor_model(random_seed: int = RANDOM_SEED_DEFAULT, **kw
         "random_state": random_seed,
         "verbose": 0,
         "allow_writing_files": False,
+        "one_hot_max_size": 2,
         **kwargs,
     }
 
