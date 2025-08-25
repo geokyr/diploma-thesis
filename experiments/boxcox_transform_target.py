@@ -2,7 +2,7 @@ from thesis.common.data import generate_trips, load_fcd_dataset, preprocess_fcd_
 from thesis.common.logger import setup_logger
 from thesis.eta.data import ensure_dataset_is_valid
 from thesis.eta.experiment import ETAEvaluation, ETAExperiment, save_model
-from thesis.eta.features import create_box_cox_transformer, split_features_and_target
+from thesis.eta.features import create_boxcox_transformer, split_features_and_target
 from thesis.eta.models import ModelType, create_model, wrap_with_transformed_target_regressor
 from thesis.eta.pipeline import evaluate_predictions, get_stratified_kfold_cv, make_predictions, train_model
 from thesis.eta.results import build_cv_results, build_model_results, save_results
@@ -20,7 +20,7 @@ def main() -> None:
     trips_train = generate_trips(fcd_train)
     X_train, y_train = split_features_and_target(trips_train)
 
-    transformer = create_box_cox_transformer()
+    transformer = create_boxcox_transformer()
     skf, stratify_key = get_stratified_kfold_cv(y_train)
     results = {}
 

@@ -162,7 +162,7 @@ def create_quantile_normal_transformer(random_seed: int = RANDOM_SEED_DEFAULT) -
     return QuantileTransformer(output_distribution="normal", random_state=random_seed)
 
 
-def create_box_cox_transformer() -> PowerTransformer:
+def create_boxcox_transformer() -> PowerTransformer:
     """
     Create a box cox transformer.
 
