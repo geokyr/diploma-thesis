@@ -192,7 +192,7 @@ def add_temporal_features(df: pd.DataFrame) -> pd.DataFrame:
     df_hour["is_morning"] = (df_hour["hour_bin"] <= 2).astype(int)
     df_hour["is_noon"] = ((df_hour["hour_bin"] >= 3) & (df_hour["hour_bin"] <= 6)).astype(int)
     df_hour["is_afternoon"] = (df_hour["hour_bin"] >= 7).astype(int)
-    df_hour["is_rush_hour"] = (df_hour["hour_bin"] in [0, 1, 8, 9]).astype(int)
+    df_hour["is_rush_hour"] = df_hour["hour_bin"].isin([0, 1, 8, 9]).astype(int)
 
     _log_feature_addition(df, df_hour, "temporal")
 
