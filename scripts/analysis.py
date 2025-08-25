@@ -1,6 +1,10 @@
 from thesis.common.logger import setup_logger
 from thesis.eta.experiment import ETAEvaluation, ETAExperiment
-from thesis.eta.results import load_research_results, run_metric_analysis, save_research_results
+from thesis.eta.results import (
+    load_research_results_without_baselines,
+    run_metric_analysis,
+    save_research_results,
+)
 
 
 def main() -> None:
@@ -9,7 +13,7 @@ def main() -> None:
 
     logger.info(f"Running {experiment.name} experiment with {experiment.evaluation} evaluation")
 
-    results_df = load_research_results()
+    results_df = load_research_results_without_baselines()
     save_research_results(results_df, experiment.results_dir)
 
     run_metric_analysis(results_df, "mae", "MAE", "s", 2, experiment.results_dir)
