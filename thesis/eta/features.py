@@ -149,15 +149,15 @@ def create_log_transformer() -> FunctionTransformer:
     return FunctionTransformer(func=np.log1p, inverse_func=np.expm1, check_inverse=True)
 
 
-def create_quantile_normal_transformer(random_seed: int = RANDOM_SEED_DEFAULT) -> QuantileTransformer:
+def create_quantile_transformer(random_seed: int = RANDOM_SEED_DEFAULT) -> QuantileTransformer:
     """
-    Create a quantile normal transformer.
+    Create a quantile transformer.
 
     Args:
         random_seed (int): The random seed to use for the random number generator.
 
     Returns:
-        QuantileTransformer: Quantile normal transformer.
+        QuantileTransformer: Quantile transformer.
     """
     return QuantileTransformer(output_distribution="normal", random_state=random_seed)
 
