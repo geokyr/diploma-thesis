@@ -1,7 +1,7 @@
 # Notes
 
 ## To Do
-- Feature selection and feature importance
+- Feature selection
 - SHAP values
 - Scaling of new features
 - Log/Quantile/Box-Cox transformations of new features
