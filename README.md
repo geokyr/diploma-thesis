@@ -54,8 +54,9 @@ deactivate
 
 ## Project Structure
 - `experiments/` - Machine learning experiments
+- `presentation/` - Presentation files and figures
 - `resources/` - Various documents and images about the project
-- `scripts/` - Entrypoint scripts including the simulation ones
+- `scripts/` - Entrypoint scripts including the simulation one
 - `simulation/` - Simulation related files including the sumo network files
 - `thesis/` - Python code package for the project
   - `common/` - Common modules and config
