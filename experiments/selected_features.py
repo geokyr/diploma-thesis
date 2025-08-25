@@ -2,7 +2,10 @@ from thesis.common.data import generate_trips, load_fcd_dataset, preprocess_fcd_
 from thesis.common.logger import setup_logger
 from thesis.eta.data import ensure_dataset_is_valid
 from thesis.eta.experiment import ETAEvaluation, ETAExperiment, save_model
-from thesis.eta.features import add_temporal_features, split_features_and_target
+from thesis.eta.features import (
+    add_selected_features,
+    split_features_and_target,
+)
 from thesis.eta.models import ModelType, create_model
 from thesis.eta.pipeline import evaluate_predictions, get_stratified_kfold_cv, make_predictions, train_model
 from thesis.eta.results import build_cv_results, build_model_results, save_results
@@ -19,7 +22,7 @@ def main() -> None:
     fcd_train = preprocess_fcd_dataset(fcd_train_raw)
     trips_train = generate_trips(fcd_train)
 
-    trips_train = add_temporal_features(trips_train)
+    trips_train = add_selected_features(trips_train)
     X_train, y_train = split_features_and_target(trips_train)
 
     skf, stratify_key = get_stratified_kfold_cv(y_train)

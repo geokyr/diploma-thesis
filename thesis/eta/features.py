@@ -223,28 +223,6 @@ def add_time_period_features(df: pd.DataFrame) -> pd.DataFrame:
     return df_time_period
 
 
-def add_temporal_features(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Add temporal features to the dataframe.
-
-    Args:
-        df (pd.DataFrame): DataFrame with trip data containing time_start column.
-
-    Returns:
-        pd.DataFrame: DataFrame with added temporal features.
-    """
-    required_columns = ["time_start"]
-    if not _check_required_columns(df, required_columns, "temporal"):
-        return df
-
-    df_temporal = add_hour_features(df)
-    df_temporal = add_time_period_features(df_temporal)
-
-    _log_feature_addition(df, df_temporal, "temporal")
-
-    return df_temporal
-
-
 def add_coordinate_features(df: pd.DataFrame) -> pd.DataFrame:
     """
     Add coordinate features to the dataframe.
@@ -499,46 +477,6 @@ def add_center_distance_features(df: pd.DataFrame) -> pd.DataFrame:
     return df_center
 
 
-def add_spatial_features(
-    df: pd.DataFrame,
-    num_freqs: int = 2,
-    coordinate_scale: float = 1000.0,
-    cell: int = 100,
-    n_clusters: int = 20,
-    random_seed: int = RANDOM_SEED_DEFAULT,
-) -> pd.DataFrame:
-    """
-    Add spatial features to the dataframe.
-
-    Args:
-        df (pd.DataFrame): DataFrame with trip data containing source_x, source_y, destination_x, destination_y, distance columns.
-        num_freqs (int): Number of frequency components to use for Fourier encoding.
-        coordinate_scale (float): Scale factor to normalize coordinates for Fourier encoding.
-        cell (int): Size of the cell in meters.
-        n_clusters (int): Number of clusters for K-means clustering on coordinates.
-        random_seed (int): Random seed for clustering and PCA.
-
-    Returns:
-        pd.DataFrame: DataFrame with added spatial features.
-    """
-    required_columns = ["source_x", "source_y", "destination_x", "destination_y", "distance"]
-    if not _check_required_columns(df, required_columns, "spatial"):
-        return df
-
-    df_spatial = add_coordinate_features(df)
-    df_spatial = add_distance_features(df_spatial)
-    df_spatial = add_trip_vector_features(df_spatial)
-    df_spatial = add_fourier_features(df_spatial, num_freqs, coordinate_scale)
-    df_spatial = add_cell_features(df_spatial, cell)
-    df_spatial = add_clustering_features(df_spatial, n_clusters, random_seed)
-    df_spatial = add_pca_features(df_spatial, random_seed)
-    df_spatial = add_center_distance_features(df_spatial)
-
-    _log_feature_addition(df, df_spatial, "spatial")
-
-    return df_spatial
-
-
 def add_all_features(
     df: pd.DataFrame,
     num_freqs: int = 2,
@@ -567,9 +505,61 @@ def add_all_features(
 
     df_all = df.copy()
 
-    df_all = add_temporal_features(df_all)
-    df_all = add_spatial_features(df_all, num_freqs, coordinate_scale, cell, n_clusters, random_seed)
+    df_all = add_hour_features(df_all)
+    df_all = add_time_period_features(df_all)
+    df_all = add_coordinate_features(df_all)
+    df_all = add_distance_features(df_all)
+    df_all = add_trip_vector_features(df_all)
+    df_all = add_fourier_features(df_all, num_freqs, coordinate_scale)
+    df_all = add_cell_features(df_all, cell)
+    df_all = add_clustering_features(df_all, n_clusters, random_seed)
+    df_all = add_pca_features(df_all, random_seed)
+    df_all = add_center_distance_features(df_all)
 
     _log_feature_addition(df, df_all, "all")
 
     return df_all
+
+
+def add_selected_features(
+    df: pd.DataFrame,
+    num_freqs: int = 2,
+    coordinate_scale: float = 1000.0,
+    cell: int = 100,
+    n_clusters: int = 20,
+    random_seed: int = RANDOM_SEED_DEFAULT,
+) -> pd.DataFrame:
+    """
+    Add selected features to the dataframe.
+
+    Args:
+        df (pd.DataFrame): DataFrame with trip data containing source_x, source_y, destination_x, destination_y, distance columns.
+        num_freqs (int): Number of frequency components to use for Fourier encoding.
+        coordinate_scale (float): Scale factor to normalize coordinates for Fourier encoding.
+        cell (int): Size of the cell in meters.
+        n_clusters (int): Number of clusters for K-means clustering on coordinates.
+        random_seed (int): Random seed for clustering and PCA.
+
+    Returns:
+        pd.DataFrame: DataFrame with added selected features.
+    """
+    required_columns = ["time_start", "source_x", "source_y", "destination_x", "destination_y", "distance"]
+    if not _check_required_columns(df, required_columns, "selected"):
+        return df
+
+    df_selected = df.copy()
+
+    df_selected = add_hour_features(df_selected)
+    df_selected = add_time_period_features(df_selected)
+    df_selected = add_coordinate_features(df_selected)
+    df_selected = add_distance_features(df_selected)
+    df_selected = add_trip_vector_features(df_selected)
+    df_selected = add_fourier_features(df_selected, num_freqs, coordinate_scale)
+    df_selected = add_cell_features(df_selected, cell)
+    df_selected = add_clustering_features(df_selected, n_clusters, random_seed)
+    df_selected = add_pca_features(df_selected, random_seed)
+    df_selected = add_center_distance_features(df_selected)
+
+    _log_feature_addition(df, df_selected, "selected")
+
+    return df_selected
