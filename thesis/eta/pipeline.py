@@ -12,9 +12,6 @@ from sklearn.base import BaseEstimator
 from sklearn.metrics import (
     mean_absolute_error,
     mean_absolute_percentage_error,
-    mean_squared_error,
-    r2_score,
-    root_mean_squared_error,
 )
 from sklearn.model_selection import StratifiedKFold
 
@@ -68,8 +65,6 @@ def train_model(
     Returns:
         TrainingResults: Training metrics.
     """
-    logger.info(f"Training {model_type}")
-
     training_start = time.perf_counter()
     model.fit(X_train, y_train, **fit_kwargs)
     training_end = time.perf_counter()
@@ -94,8 +89,6 @@ def make_predictions(
     Returns:
         tuple[pd.Series, PredictionResults]: Tuple containing the predictions and timing metrics.
     """
-    logger.info(f"Making predictions with {model_type}")
-
     prediction_start = time.perf_counter()
     preds = model.predict(X_test)
     prediction_end = time.perf_counter()
@@ -118,26 +111,16 @@ def evaluate_predictions(y_true: pd.Series, y_pred: pd.Series, model_type: Model
     Returns:
         EvaluationResults: Evaluation metrics.
     """
-    logger.info(f"Evaluating predictions with {model_type}")
-
     evaluation_start = time.perf_counter()
     mae = mean_absolute_error(y_true, y_pred)
-    mse = mean_squared_error(y_true, y_pred)
-    rmse = root_mean_squared_error(y_true, y_pred)
     mape = mean_absolute_percentage_error(y_true, y_pred)
-    r2 = r2_score(y_true, y_pred)
     evaluation_end = time.perf_counter()
     evaluation_time = evaluation_end - evaluation_start
 
-    logger.info(
-        f"{model_type} - Evaluation time: {evaluation_time:.3f}s, MAE: {mae:.2f}s, MSE: {mse:.2f}s, RMSE: {rmse:.2f}s, MAPE: {mape * 100:.2f}%, R2: {r2:.3f}"
-    )
+    logger.info(f"{model_type} - Evaluation time: {evaluation_time:.3f}s, MAE: {mae:.2f}s, MAPE: {mape * 100:.2f}%")
 
     return EvaluationResults(
         evaluation_time=evaluation_time,
         mae=mae,
-        mse=mse,
-        rmse=rmse,
         mape=mape,
-        r2=r2,
     )

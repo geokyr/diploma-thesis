@@ -52,18 +52,12 @@ class EvaluationResults:
     Attributes:
         evaluation_time (float): Time taken to evaluate predictions in seconds.
         mae (float): Mean Absolute Error.
-        mse (float): Mean Squared Error.
-        rmse (float): Root Mean Squared Error.
         mape (float): Mean Absolute Percentage Error.
-        r2 (float): R-squared score.
     """
 
     evaluation_time: float
     mae: float
-    mse: float
-    rmse: float
     mape: float
-    r2: float
 
 
 @dataclass(frozen=True, slots=True)
@@ -93,10 +87,7 @@ class ModelResults:
             "prediction_time": self.prediction_time,
             "evaluation_time": self.evaluation_time,
             "mae": self.mae,
-            "mse": self.mse,
-            "rmse": self.rmse,
             "mape": self.mape,
-            "r2": self.r2,
         }
 
     @property
@@ -116,20 +107,8 @@ class ModelResults:
         return self.evaluation_results.mae
 
     @property
-    def mse(self) -> float:
-        return self.evaluation_results.mse
-
-    @property
-    def rmse(self) -> float:
-        return self.evaluation_results.rmse
-
-    @property
     def mape(self) -> float:
         return self.evaluation_results.mape
-
-    @property
-    def r2(self) -> float:
-        return self.evaluation_results.r2
 
     @classmethod
     def from_flat_dict(cls, data: dict[str, float]) -> "ModelResults":
@@ -148,10 +127,7 @@ class ModelResults:
             evaluation_results=EvaluationResults(
                 evaluation_time=data["evaluation_time"],
                 mae=data["mae"],
-                mse=data["mse"],
-                rmse=data["rmse"],
                 mape=data["mape"],
-                r2=data["r2"],
             ),
         )
 
@@ -205,10 +181,7 @@ class CVResults:
             "prediction_time": self.cv_mean.prediction_time,
             "evaluation_time": self.cv_mean.evaluation_time,
             "mae": self.cv_mean.mae,
-            "mse": self.cv_mean.mse,
-            "rmse": self.cv_mean.rmse,
             "mape": self.cv_mean.mape,
-            "r2": self.cv_mean.r2,
             "per_fold": [fold_result.to_flat_dict() for fold_result in self.per_fold],
         }
 
@@ -229,20 +202,8 @@ class CVResults:
         return self.cv_mean.mae
 
     @property
-    def mse(self) -> float:
-        return self.cv_mean.mse
-
-    @property
-    def rmse(self) -> float:
-        return self.cv_mean.rmse
-
-    @property
     def mape(self) -> float:
         return self.cv_mean.mape
-
-    @property
-    def r2(self) -> float:
-        return self.cv_mean.r2
 
     @classmethod
     def from_per_fold_results(cls, per_fold_results: list[ModelResults]) -> "CVResults":
