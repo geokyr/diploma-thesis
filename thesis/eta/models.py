@@ -90,6 +90,11 @@ def create_xgboost_regressor_model(random_seed: int = RANDOM_SEED_DEFAULT, **kwa
         "random_state": random_seed,
         "enable_categorical": True,
         "max_cat_to_onehot": 2,
+        "n_estimators": 100,
+        "max_depth": 7,
+        "learning_rate": 0.1,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
         **kwargs,
     }
 
@@ -112,6 +117,11 @@ def create_lightgbm_regressor_model(random_seed: int = RANDOM_SEED_DEFAULT, **kw
         "objective": "regression_l1",
         "random_state": random_seed,
         "verbose": 0,
+        "n_estimators": 100,
+        "max_depth": 7,
+        "learning_rate": 0.1,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
         **kwargs,
     }
 
@@ -136,6 +146,11 @@ def create_catboost_regressor_model(random_seed: int = RANDOM_SEED_DEFAULT, **kw
         "verbose": 0,
         "allow_writing_files": False,
         "one_hot_max_size": 2,
+        "iterations": 100,
+        "depth": 7,
+        "learning_rate": 0.1,
+        "subsample": 0.8,
+        "colsample_bylevel": 0.8,
         **kwargs,
     }
 
