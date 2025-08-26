@@ -68,7 +68,7 @@ simulation:
   device_friction_probability: 1.0
 
 external:
-  zenodo_dataset_api_url: "https://zenodo.org/api/records/15916712"
+  zenodo_dataset_api_url: "https://zenodo.org/api/records/16950674"
 
 eta:
   min_duration: 30
