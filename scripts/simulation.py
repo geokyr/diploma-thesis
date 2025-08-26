@@ -1,13 +1,13 @@
 from thesis.common.logger import setup_logger
-from thesis.common.pipeline import run_fcd_exploratory_data_analysis
 from thesis.simulation.experiment import SimulationExperiment
 from thesis.simulation.pipeline import (
     build_network,
     build_rain_network,
-    convert_fcd_xml_to_csv,
+    convert_fcd_csv_to_parquet,
     create_configuration_file,
     generate_random_trips,
     get_osm_data,
+    run_fcd_exploratory_data_analysis,
     simulate_scenario,
     write_gui_settings_file,
 )
@@ -32,7 +32,7 @@ def main():
             trips_path=config.trips_path,
             poly_path=experiment.poly_path,
             gui_settings_path=experiment.gui_settings_path,
-            fcd_xml_path=config.fcd_xml_path,
+            fcd_csv_path=config.fcd_csv_path,
             sumocfg_path=config.sumocfg_path,
         )
         generate_random_trips(
@@ -42,9 +42,9 @@ def main():
             random_seed=config.random_seed,
         )
         simulate_scenario(sumocfg_path=config.sumocfg_path)
-        convert_fcd_xml_to_csv(fcd_xml_path=config.fcd_xml_path)
+        convert_fcd_csv_to_parquet(fcd_csv_path=config.fcd_csv_path)
         run_fcd_exploratory_data_analysis(
-            fcd_csv_path=config.fcd_csv_path,
+            fcd_parquet_path=config.fcd_parquet_path,
             scenario=config.scenario,
             plots_dir=experiment.plots_dir,
             traffic_generation_periods=config.traffic_generation_periods,

@@ -13,12 +13,31 @@ from thesis.common.config import END_TIME, MIN_DISTANCE, MIN_DURATION, NUM_RETRA
 logger = logging.getLogger(__name__)
 
 
-def load_fcd_dataset(fcd_csv_path: Path) -> pd.DataFrame:
+def load_fcd_dataset(fcd_parquet_path: Path) -> pd.DataFrame:
+    """
+    Load the FCD dataset from a Parquet file.
+
+    Args:
+        fcd_parquet_path (Path): Path to the FCD Parquet data file.
+
+    Returns:
+        pd.DataFrame: DataFrame containing the raw FCD data.
+    """
+    logger.info(f"Loading FCD dataset from {fcd_parquet_path}")
+
+    df_fcd_raw = pd.read_parquet(fcd_parquet_path)
+
+    logger.info(f"Loaded {len(df_fcd_raw)} rows of FCD data")
+
+    return df_fcd_raw
+
+
+def load_fcd_dataset_csv(fcd_csv_path: Path) -> pd.DataFrame:
     """
     Load the FCD dataset from a CSV file.
 
     Args:
-        fcd_csv_path (Path): Path to the FCD data file.
+        fcd_csv_path (Path): Path to the FCD CSV data file.
 
     Returns:
         pd.DataFrame: DataFrame containing the raw FCD data.
@@ -37,6 +56,7 @@ def load_fcd_dataset(fcd_csv_path: Path) -> pd.DataFrame:
     df_fcd_raw = pd.read_csv(fcd_csv_path, sep=";", header=0, dtype=dtype)
 
     logger.info(f"Loaded {len(df_fcd_raw)} rows of FCD data")
+
     return df_fcd_raw
 
 
@@ -56,6 +76,7 @@ def preprocess_fcd_dataset(df_fcd_raw: pd.DataFrame) -> pd.DataFrame:
     df_fcd["vehicle_speed"] = df_fcd["vehicle_speed"] * 3.6
 
     logger.info(f"Completed FCD preprocessing, final shape {df_fcd.shape}")
+
     return df_fcd
 
 
@@ -78,6 +99,7 @@ def aggregate_fcd_per_hour(df_fcd: pd.DataFrame) -> pd.DataFrame:
     )
 
     logger.info(f"Completed FCD aggregation for {len(df_fcd_per_hour)} hours")
+
     return df_fcd_per_hour
 
 
@@ -131,6 +153,7 @@ def generate_trips(
     )
 
     logger.info(f"Generated {len(df_trips)} trips")
+
     return df_trips
 
 
@@ -170,4 +193,5 @@ def get_adaptation_retrain_data(
     retrain_rain_data = trips_rain.nsmallest(n_rain_trips, "time_start")
 
     retrain_data = pd.concat([retrain_test_data, retrain_rain_data], ignore_index=True)
+
     return retrain_data

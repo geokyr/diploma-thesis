@@ -14,7 +14,7 @@ import numpy as np
 from thesis.common.config import (
     DATA_DIRNAME,
     FCD_CSV_SUFFIX,
-    FCD_XML_SUFFIX,
+    FCD_PARQUET_SUFFIX,
     NETWORK_BASE_FILENAME,
     NETWORK_RAIN_FILENAME,
     RANDOM_SEED_RAIN,
@@ -57,11 +57,11 @@ class SimulationScenarioConfig:
         data_dir (Path): Path to the data directory.
         network_path (Path): Path to the network file.
         trips_path (Path): Path to the trips file.
-        fcd_xml_path (Path): Path to the fcd XML file.
+        fcd_csv_path (Path): Path to the fcd CSV file.
         sumocfg_path (Path): Path to the sumocfg file.
         traffic_generation_periods (list[float]): Traffic generation periods.
         random_seed (int): Random seed.
-        fcd_csv_path (Path): Path to the fcd CSV file.
+        fcd_parquet_path (Path): Path to the fcd Parquet file.
     """
 
     scenario: SimulationScenario
@@ -86,11 +86,11 @@ class SimulationScenarioConfig:
             f"{self.data_dir=}, "
             f"{self.network_path=}, "
             f"{self.trips_path=}, "
-            f"{self.fcd_xml_path=}, "
+            f"{self.fcd_csv_path=}, "
             f"{self.sumocfg_path=}, "
             f"{self.traffic_generation_periods=}, "
             f"{self.random_seed=}, "
-            f"{self.fcd_csv_path=})"
+            f"{self.fcd_parquet_path=})"
         )
 
     @property
@@ -106,8 +106,8 @@ class SimulationScenarioConfig:
         return self.simulation_dir / f"{self.scenario}{TRIPS_SUFFIX}"
 
     @property
-    def fcd_xml_path(self) -> Path:
-        return self.data_dir / f"{self.scenario}{FCD_XML_SUFFIX}"
+    def fcd_csv_path(self) -> Path:
+        return self.data_dir / f"{self.scenario}{FCD_CSV_SUFFIX}"
 
     @property
     def sumocfg_path(self) -> Path:
@@ -122,8 +122,8 @@ class SimulationScenarioConfig:
         return self._RANDOM_SEEDS[self.scenario]
 
     @property
-    def fcd_csv_path(self) -> Path:
-        return self.data_dir / f"{self.scenario}{FCD_CSV_SUFFIX}"
+    def fcd_parquet_path(self) -> Path:
+        return self.data_dir / f"{self.scenario}{FCD_PARQUET_SUFFIX}"
 
     @property
     def _rng(self) -> np.random.Generator:

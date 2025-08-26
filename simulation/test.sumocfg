@@ -12,7 +12,7 @@
     </input>
 
     <output>
-        <fcd-output value="C:\Users\george\Desktop\diploma-thesis\simulation\data\test-fcd.xml"/>
+        <fcd-output value="C:\Users\george\Desktop\diploma-thesis\simulation\data\test-fcd.csv"/>
         <fcd-output.attributes value="id,x,y,speed,lane,odometer,fuel,waiting"/>
     </output>
 

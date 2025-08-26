@@ -22,7 +22,6 @@ os.environ["PATH"] = os.pathsep.join(PATHS)
 OSM_GET = SUMO_TOOLS / "osmGet.py"
 OSM_BUILD = SUMO_TOOLS / "osmBuild.py"
 RANDOM_TRIPS = SUMO_TOOLS / "randomTrips.py"
-XML2CSV = SUMO_TOOLS / "xml" / "xml2csv.py"
 NETCONVERT_TYPEMAP = SUMO_HOME / "data" / "typemap" / "osmNetconvert.typ.xml"
 POLYCONVERT_TYPEMAP = SUMO_HOME / "data" / "typemap" / "osmPolyconvert.typ.xml"
 
@@ -60,9 +59,9 @@ class FilenameConfig:
 @dataclass(frozen=True, slots=True)
 class SuffixConfig:
     trips: str
-    fcd_xml: str
     sumocfg: str
     fcd_csv: str
+    fcd_parquet: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -167,9 +166,9 @@ RESULTS_FILENAME = CONFIG.filename.results
 RESEARCH_RESULTS_FILENAME = CONFIG.filename.research_results
 
 TRIPS_SUFFIX = CONFIG.suffix.trips
-FCD_XML_SUFFIX = CONFIG.suffix.fcd_xml
 SUMOCFG_SUFFIX = CONFIG.suffix.sumocfg
 FCD_CSV_SUFFIX = CONFIG.suffix.fcd_csv
+FCD_PARQUET_SUFFIX = CONFIG.suffix.fcd_parquet
 
 BBOX = CONFIG.network.bbox
 ROAD_TYPES = CONFIG.network.road_types

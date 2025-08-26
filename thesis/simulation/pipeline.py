@@ -30,7 +30,20 @@ from thesis.common.config import (
     TLS_ACTUATED_JAM_THRESHOLD,
     VEHICLE_CLASSES,
     VIEW_SETTINGS,
-    XML2CSV,
+)
+from thesis.common.data import (
+    aggregate_fcd_per_hour,
+    generate_trips,
+    load_fcd_dataset,
+    load_fcd_dataset_csv,
+    preprocess_fcd_dataset,
+)
+from thesis.common.eda import (
+    plot_average_speed_and_traffic_generation_period_per_hour,
+    plot_trip_distance_histogram,
+    plot_trip_duration_histogram,
+    report_fcd_statistics,
+    report_trips_statistics,
 )
 
 logger = logging.getLogger(__name__)
@@ -217,7 +230,7 @@ def write_gui_settings_file(gui_settings_path: Path) -> None:
     Args:
         gui_settings_path (Path): Path to the GUI settings file.
     """
-    logger.info("Writing GUI settings file")
+    logger.info(f"Writing GUI settings file: {gui_settings_path}")
 
     gui_settings_path.write_text(VIEW_SETTINGS, encoding="utf-8")
 
@@ -229,7 +242,7 @@ def create_configuration_file(
     trips_path: Path,
     poly_path: Path,
     gui_settings_path: Path,
-    fcd_xml_path: Path,
+    fcd_csv_path: Path,
     sumocfg_path: Path,
     tls_actuated_jam_threshold: int = TLS_ACTUATED_JAM_THRESHOLD,
     device_rerouting_adaptation_steps: int = DEVICE_REROUTING_ADAPTATION_STEPS,
@@ -244,7 +257,7 @@ def create_configuration_file(
         trips_path (Path): Path to the trips file.
         poly_path (Path): Path to the poly file.
         gui_settings_path (Path): Path to the gui settings file.
-        fcd_xml_path (Path): Path to the fcd XML file.
+        fcd_csv_path (Path): Path to the fcd CSV file.
         sumocfg_path (Path): Path to the sumocfg file.
         tls_actuated_jam_threshold (int): Jam threshold for actuated traffic lights.
         device_rerouting_adaptation_steps (int): Number of adaptation steps for device rerouting.
@@ -275,7 +288,7 @@ def create_configuration_file(
         "--gui-settings-file",
         str(gui_settings_path),
         "--fcd-output",
-        str(fcd_xml_path),
+        str(fcd_csv_path),
         "--fcd-output.attributes",
         fcd_output_attributes,
         "--save-configuration",
@@ -363,24 +376,60 @@ def simulate_scenario(sumocfg_path: Path) -> None:
     _execute_command(command, name)
 
 
-def convert_fcd_xml_to_csv(fcd_xml_path: Path) -> None:
+def convert_fcd_csv_to_parquet(fcd_csv_path: Path) -> None:
     """
-    Convert the FCD XML file to CSV and delete the original.
+    Convert the FCD CSV file to Parquet format.
 
     Args:
-        fcd_xml_path (Path): Path to the FCD XML file.
+        fcd_csv_path (Path): Path to the FCD CSV data file.
 
     Raises:
-        FileNotFoundError: If the FCD XML file does not exist.
+        FileNotFoundError: If the FCD CSV file does not exist.
     """
-    _validate_path(fcd_xml_path, "FCD XML file")
+    _validate_path(fcd_csv_path, "FCD CSV file")
 
-    command = [
-        "python",
-        str(XML2CSV),
-        str(fcd_xml_path),
-    ]
-    name = "xml2csv"
-    _execute_command(command, name)
+    fcd_parquet_path = fcd_csv_path.with_suffix(".parquet")
 
-    fcd_xml_path.unlink(missing_ok=True)
+    logger.info(f"Converting FCD CSV to Parquet: {fcd_csv_path} -> {fcd_parquet_path}")
+
+    df = load_fcd_dataset_csv(fcd_csv_path)
+    df.to_parquet(fcd_parquet_path, engine="pyarrow", compression="snappy")
+
+    logger.info("Successfully converted FCD CSV to Parquet")
+
+
+def run_fcd_exploratory_data_analysis(
+    fcd_parquet_path: Path, scenario: str, plots_dir: Path, traffic_generation_periods: list[float]
+) -> None:
+    """
+    Run Exploratory Data Analysis on an FCD dataset.
+
+    Args:
+        fcd_parquet_path (Path): Path to the FCD Parquet file.
+        scenario (str): Scenario name.
+        plots_dir (Path): Directory to save the generated plots.
+        traffic_generation_periods (list[float]): Traffic generation periods.
+
+    Raises:
+        FileNotFoundError: If the FCD Parquet file does not exist.
+    """
+    _validate_path(fcd_parquet_path, "FCD Parquet file")
+
+    logger.info(f"Running FCD Exploratory Data Analysis for {scenario}")
+
+    df_fcd_raw = load_fcd_dataset(fcd_parquet_path)
+    df_fcd = preprocess_fcd_dataset(df_fcd_raw)
+    df_fcd_per_hour = aggregate_fcd_per_hour(df_fcd)
+
+    report_fcd_statistics(df_fcd, scenario)
+    plot_average_speed_and_traffic_generation_period_per_hour(
+        df_fcd_per_hour, scenario, plots_dir, traffic_generation_periods
+    )
+
+    df_trips = generate_trips(df_fcd)
+
+    report_trips_statistics(df_trips, scenario)
+    plot_trip_distance_histogram(df_trips, scenario, plots_dir)
+    plot_trip_duration_histogram(df_trips, scenario, plots_dir)
+
+    logger.info(f"Completed FCD Exploratory Data Analysis for {scenario}")

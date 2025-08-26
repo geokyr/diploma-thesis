@@ -14,6 +14,7 @@ from sklearn.base import BaseEstimator
 
 from thesis.common.config import (
     DATA_DIRNAME,
+    FCD_PARQUET_SUFFIX,
     LOGS_DIRNAME,
     MODELS_DIRNAME,
     OUTPUTS_DIR,
@@ -21,6 +22,7 @@ from thesis.common.config import (
     SIMULATION_DIR,
 )
 from thesis.eta.models import ModelType
+from thesis.simulation.scenario import SimulationScenario
 
 logger = logging.getLogger(__name__)
 
@@ -57,9 +59,9 @@ class ETAExperiment:
         models_dir (Path): Subdirectory for the models.
         logs_dir (Path): Subdirectory for the logs.
         results_dir (Path): Subdirectory for the results.
-        train_path (Path): Path to the train fcd csv file.
-        test_path (Path): Path to the test fcd csv file.
-        rain_path (Path): Path to the rain fcd csv file.
+        train_path (Path): Path to the train fcd parquet file.
+        test_path (Path): Path to the test fcd parquet file.
+        rain_path (Path): Path to the rain fcd parquet file.
         trained_models_dir (Path): Directory for the trained models.
     """
 
@@ -67,9 +69,9 @@ class ETAExperiment:
     evaluation: ETAEvaluation
 
     _DATA_DIR: ClassVar[Path] = SIMULATION_DIR / DATA_DIRNAME
-    _TRAIN_PATH: ClassVar[Path] = _DATA_DIR / "train-fcd.csv"
-    _TEST_PATH: ClassVar[Path] = _DATA_DIR / "test-fcd.csv"
-    _RAIN_PATH: ClassVar[Path] = _DATA_DIR / "rain-fcd.csv"
+    _TRAIN_PATH: ClassVar[Path] = _DATA_DIR / f"{SimulationScenario.TRAIN}{FCD_PARQUET_SUFFIX}"
+    _TEST_PATH: ClassVar[Path] = _DATA_DIR / f"{SimulationScenario.TEST}{FCD_PARQUET_SUFFIX}"
+    _RAIN_PATH: ClassVar[Path] = _DATA_DIR / f"{SimulationScenario.RAIN}{FCD_PARQUET_SUFFIX}"
 
     _TRAINED_MODELS_DIR: ClassVar[Path] = OUTPUTS_DIR / ETAEvaluation.STABLE / MODELS_DIRNAME
 
