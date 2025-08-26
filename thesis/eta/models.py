@@ -126,6 +126,7 @@ def create_lightgbm_regressor_model(random_seed: int = RANDOM_SEED_DEFAULT, **kw
         "objective": "regression_l1",
         "random_state": random_seed,
         "verbose": VERBOSE,
+        "max_cat_threshold": MAX_CAT_TO_ONEHOT,
         "n_estimators": N_ESTIMATORS,
         "max_depth": MAX_DEPTH,
         "learning_rate": LEARNING_RATE,
