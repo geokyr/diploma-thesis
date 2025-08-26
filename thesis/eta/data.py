@@ -14,6 +14,7 @@ from tqdm import tqdm
 
 from thesis.common.config import (
     AUGMENTATION_RATE,
+    CHUNK_SIZE,
     MIN_DISTANCE,
     MIN_DURATION,
     MIN_TRIP_RATIO,
@@ -25,7 +26,7 @@ from thesis.common.data import generate_trips
 logger = logging.getLogger(__name__)
 
 
-def _verify_file_integrity(file_path: Path, expected_md5: str, chunk_size: int = 8192) -> bool:
+def _verify_file_integrity(file_path: Path, expected_md5: str, chunk_size: int = CHUNK_SIZE) -> bool:
     """
     Verify file integrity using MD5 checksum.
 
@@ -75,7 +76,7 @@ def _get_file_md5_from_zenodo(filename: str) -> str:
         raise ValueError(error_msg)
 
 
-def _download_file_from_zenodo(filename: str, output_path: Path, chunk_size: int = 8192) -> None:
+def _download_file_from_zenodo(filename: str, output_path: Path, chunk_size: int = CHUNK_SIZE) -> None:
     """
     Download a single file from Zenodo with progress bar.
 

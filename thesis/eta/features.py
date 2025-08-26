@@ -12,7 +12,20 @@ from sklearn.decomposition import PCA
 from sklearn.pipeline import FunctionTransformer
 from sklearn.preprocessing import PowerTransformer, QuantileTransformer, StandardScaler
 
-from thesis.common.config import RANDOM_SEED_DEFAULT
+from thesis.common.config import (
+    AFTERNOON_FLOOR,
+    CELL,
+    COORDINATE_SCALE,
+    DISTANCE_PERCENTILES,
+    MORNING_CEILING,
+    N_CLUSTERS,
+    N_COMPONENTS,
+    NOON_CEILING,
+    NOON_FLOOR,
+    NUM_FREQS,
+    RANDOM_SEED_DEFAULT,
+    RUSH_HOURS,
+)
 from thesis.eta.models import ModelType
 
 logger = logging.getLogger(__name__)
@@ -190,10 +203,10 @@ def add_temporal_features(df: pd.DataFrame) -> pd.DataFrame:
     df_hour = df.copy()
 
     df_hour["hour_bin"] = (df_hour["time_start"] // 3600) % 24
-    df_hour["is_morning"] = (df_hour["hour_bin"] <= 2).astype(int)
-    df_hour["is_noon"] = ((df_hour["hour_bin"] >= 3) & (df_hour["hour_bin"] <= 6)).astype(int)
-    df_hour["is_afternoon"] = (df_hour["hour_bin"] >= 7).astype(int)
-    df_hour["is_rush_hour"] = df_hour["hour_bin"].isin([0, 1, 8, 9]).astype(int)
+    df_hour["is_morning"] = (df_hour["hour_bin"] <= MORNING_CEILING).astype(int)
+    df_hour["is_noon"] = ((df_hour["hour_bin"] >= NOON_FLOOR) & (df_hour["hour_bin"] <= NOON_CEILING)).astype(int)
+    df_hour["is_afternoon"] = (df_hour["hour_bin"] >= AFTERNOON_FLOOR).astype(int)
+    df_hour["is_rush_hour"] = df_hour["hour_bin"].isin(RUSH_HOURS).astype(int)
 
     _log_feature_addition(df, df_hour, "temporal")
 
@@ -229,7 +242,7 @@ def add_spatial_features(df: pd.DataFrame) -> pd.DataFrame:
     df_spatial["trip_bearing_sin"] = np.sin(df_spatial["trip_bearing"])
     df_spatial["trip_bearing_cos"] = np.cos(df_spatial["trip_bearing"])
 
-    distance_percentiles = np.percentile(df_spatial["distance"], [25, 50, 75])
+    distance_percentiles = np.percentile(df_spatial["distance"], DISTANCE_PERCENTILES)
 
     df_spatial["is_short_distance"] = (df_spatial["distance"] <= distance_percentiles[0]).astype(int)
     df_spatial["is_medium_distance"] = (
@@ -258,7 +271,9 @@ def add_spatial_features(df: pd.DataFrame) -> pd.DataFrame:
     return df_spatial
 
 
-def add_fourier_features(df: pd.DataFrame, num_freqs: int = 2, coordinate_scale: float = 1000.0) -> pd.DataFrame:
+def add_fourier_features(
+    df: pd.DataFrame, num_freqs: int = NUM_FREQS, coordinate_scale: float = COORDINATE_SCALE
+) -> pd.DataFrame:
     """
     Add fourier positional encoding features to the dataframe.
 
@@ -291,7 +306,7 @@ def add_fourier_features(df: pd.DataFrame, num_freqs: int = 2, coordinate_scale:
     return df_fourier
 
 
-def add_cell_features(df: pd.DataFrame, cell: int = 100) -> pd.DataFrame:
+def add_cell_features(df: pd.DataFrame, cell: int = CELL) -> pd.DataFrame:
     """
     Add cell features to the dataframe.
 
@@ -319,7 +334,7 @@ def add_cell_features(df: pd.DataFrame, cell: int = 100) -> pd.DataFrame:
 
 
 def add_clustering_features(
-    df: pd.DataFrame, n_clusters: int = 20, random_seed: int = RANDOM_SEED_DEFAULT
+    df: pd.DataFrame, n_clusters: int = N_CLUSTERS, random_seed: int = RANDOM_SEED_DEFAULT
 ) -> pd.DataFrame:
     """
     Add clustering features to the dataframe.
@@ -372,7 +387,7 @@ def add_pca_features(df: pd.DataFrame, random_seed: int = RANDOM_SEED_DEFAULT) -
         [df_pca[["source_x", "source_y"]].values, df_pca[["destination_x", "destination_y"]].values]
     )
 
-    pca_coordinates = PCA(n_components=2, random_state=random_seed)
+    pca_coordinates = PCA(n_components=N_COMPONENTS, random_state=random_seed)
     pca_coordinates.fit(all_coordinates)
 
     source_coords_pca = pca_coordinates.transform(df_pca[["source_x", "source_y"]].values)
@@ -390,10 +405,10 @@ def add_pca_features(df: pd.DataFrame, random_seed: int = RANDOM_SEED_DEFAULT) -
 
 def add_all_features(
     df: pd.DataFrame,
-    num_freqs: int = 2,
-    coordinate_scale: float = 1000.0,
-    cell: int = 100,
-    n_clusters: int = 20,
+    num_freqs: int = NUM_FREQS,
+    coordinate_scale: float = COORDINATE_SCALE,
+    cell: int = CELL,
+    n_clusters: int = N_CLUSTERS,
     random_seed: int = RANDOM_SEED_DEFAULT,
 ) -> pd.DataFrame:
     """

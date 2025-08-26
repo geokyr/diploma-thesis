@@ -16,7 +16,16 @@ from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import FunctionTransformer
 from xgboost import XGBRegressor
 
-from thesis.common.config import RANDOM_SEED_DEFAULT
+from thesis.common.config import (
+    COLSAMPLE_BYTREE,
+    LEARNING_RATE,
+    MAX_CAT_TO_ONEHOT,
+    MAX_DEPTH,
+    N_ESTIMATORS,
+    RANDOM_SEED_DEFAULT,
+    SUBSAMPLE,
+    VERBOSE,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -89,12 +98,12 @@ def create_xgboost_regressor_model(random_seed: int = RANDOM_SEED_DEFAULT, **kwa
         "objective": "reg:absoluteerror",
         "random_state": random_seed,
         "enable_categorical": True,
-        "max_cat_to_onehot": 2,
-        "n_estimators": 100,
-        "max_depth": 7,
-        "learning_rate": 0.1,
-        "subsample": 0.8,
-        "colsample_bytree": 0.8,
+        "max_cat_to_onehot": MAX_CAT_TO_ONEHOT,
+        "n_estimators": N_ESTIMATORS,
+        "max_depth": MAX_DEPTH,
+        "learning_rate": LEARNING_RATE,
+        "subsample": SUBSAMPLE,
+        "colsample_bytree": COLSAMPLE_BYTREE,
         **kwargs,
     }
 
@@ -116,12 +125,12 @@ def create_lightgbm_regressor_model(random_seed: int = RANDOM_SEED_DEFAULT, **kw
     params = {
         "objective": "regression_l1",
         "random_state": random_seed,
-        "verbose": 0,
-        "n_estimators": 100,
-        "max_depth": 7,
-        "learning_rate": 0.1,
-        "subsample": 0.8,
-        "colsample_bytree": 0.8,
+        "verbose": VERBOSE,
+        "n_estimators": N_ESTIMATORS,
+        "max_depth": MAX_DEPTH,
+        "learning_rate": LEARNING_RATE,
+        "subsample": SUBSAMPLE,
+        "colsample_bytree": COLSAMPLE_BYTREE,
         **kwargs,
     }
 
@@ -143,14 +152,14 @@ def create_catboost_regressor_model(random_seed: int = RANDOM_SEED_DEFAULT, **kw
     params = {
         "loss_function": "MAE",
         "random_state": random_seed,
-        "verbose": 0,
+        "verbose": VERBOSE,
         "allow_writing_files": False,
-        "one_hot_max_size": 2,
-        "iterations": 100,
-        "depth": 7,
-        "learning_rate": 0.1,
-        "subsample": 0.8,
-        "colsample_bylevel": 0.8,
+        "one_hot_max_size": MAX_CAT_TO_ONEHOT,
+        "n_estimators": N_ESTIMATORS,
+        "max_depth": MAX_DEPTH,
+        "learning_rate": LEARNING_RATE,
+        "subsample": SUBSAMPLE,
+        "colsample_bylevel": COLSAMPLE_BYTREE,
         **kwargs,
     }
 

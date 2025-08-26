@@ -71,8 +71,33 @@ external:
   zenodo_dataset_api_url: "https://zenodo.org/api/records/16950674"
 
 eta:
+  chunk_size: 8192
   min_duration: 30
   min_distance: 200
   augmentation_rate: 0.0
   min_trip_ratio: 0.5
   num_retraining_trips: 10000
+  n_bins: 10
+  n_splits: 5
+
+features:
+  morning_ceiling: 2
+  noon_floor: 3
+  noon_ceiling: 6
+  afternoon_floor: 7
+  rush_hours: [0, 1, 8, 9]
+  distance_percentiles: [25, 50, 75]
+  num_freqs: 2
+  coordinate_scale: 1000.0
+  cell: 100
+  n_clusters: 20
+  n_components: 2
+
+models:
+  verbose: 0
+  max_cat_to_onehot: 2
+  n_estimators: 100
+  max_depth: 7
+  learning_rate: 0.1
+  subsample: 0.8
+  colsample_bytree: 0.8

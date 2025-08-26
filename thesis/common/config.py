@@ -104,11 +104,40 @@ class ExternalConfig:
 
 @dataclass(frozen=True, slots=True)
 class EtaConfig:
+    chunk_size: int
     min_duration: int
     min_distance: int
     augmentation_rate: float
     min_trip_ratio: float
     num_retraining_trips: int
+    n_bins: int
+    n_splits: int
+
+
+@dataclass(frozen=True, slots=True)
+class FeaturesConfig:
+    morning_ceiling: int
+    noon_floor: int
+    noon_ceiling: int
+    afternoon_floor: int
+    rush_hours: list[int]
+    distance_percentiles: list[int]
+    num_freqs: int
+    coordinate_scale: float
+    cell: int
+    n_clusters: int
+    n_components: int
+
+
+@dataclass(frozen=True, slots=True)
+class ModelsConfig:
+    verbose: int
+    max_cat_to_onehot: int
+    n_estimators: int
+    max_depth: int
+    learning_rate: float
+    subsample: float
+    colsample_bytree: float
 
 
 @dataclass(frozen=True, slots=True)
@@ -122,6 +151,8 @@ class Config:
     simulation: SimulationConfig
     external: ExternalConfig
     eta: EtaConfig
+    features: FeaturesConfig
+    models: ModelsConfig
 
 
 def load_config(config_path: Path) -> Config:
@@ -137,6 +168,8 @@ def load_config(config_path: Path) -> Config:
             simulation=SimulationConfig(**data["simulation"]),
             external=ExternalConfig(**data["external"]),
             eta=EtaConfig(**data["eta"]),
+            features=FeaturesConfig(**data["features"]),
+            models=ModelsConfig(**data["models"]),
         )
 
 
@@ -197,8 +230,31 @@ DEVICE_FRICTION_PROBABILITY = CONFIG.simulation.device_friction_probability
 
 ZENODO_DATASET_API_URL = CONFIG.external.zenodo_dataset_api_url
 
+CHUNK_SIZE = CONFIG.eta.chunk_size
 MIN_DURATION = CONFIG.eta.min_duration
 MIN_DISTANCE = CONFIG.eta.min_distance
 AUGMENTATION_RATE = CONFIG.eta.augmentation_rate
 MIN_TRIP_RATIO = CONFIG.eta.min_trip_ratio
 NUM_RETRAINING_TRIPS = CONFIG.eta.num_retraining_trips
+N_BINS = CONFIG.eta.n_bins
+N_SPLITS = CONFIG.eta.n_splits
+
+MORNING_CEILING = CONFIG.features.morning_ceiling
+NOON_FLOOR = CONFIG.features.noon_floor
+NOON_CEILING = CONFIG.features.noon_ceiling
+AFTERNOON_FLOOR = CONFIG.features.afternoon_floor
+RUSH_HOURS = CONFIG.features.rush_hours
+DISTANCE_PERCENTILES = CONFIG.features.distance_percentiles
+NUM_FREQS = CONFIG.features.num_freqs
+COORDINATE_SCALE = CONFIG.features.coordinate_scale
+CELL = CONFIG.features.cell
+N_CLUSTERS = CONFIG.features.n_clusters
+N_COMPONENTS = CONFIG.features.n_components
+
+VERBOSE = CONFIG.models.verbose
+MAX_CAT_TO_ONEHOT = CONFIG.models.max_cat_to_onehot
+N_ESTIMATORS = CONFIG.models.n_estimators
+MAX_DEPTH = CONFIG.models.max_depth
+LEARNING_RATE = CONFIG.models.learning_rate
+SUBSAMPLE = CONFIG.models.subsample
+COLSAMPLE_BYTREE = CONFIG.models.colsample_bytree
