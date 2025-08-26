@@ -2,7 +2,7 @@ from thesis.common.data import generate_trips, load_fcd_dataset, preprocess_fcd_
 from thesis.common.logger import setup_logger
 from thesis.eta.data import ensure_dataset_is_valid
 from thesis.eta.experiment import ETAEvaluation, ETAExperiment, save_model
-from thesis.eta.features import add_all_features, split_features_and_target
+from thesis.eta.features import add_all_features, optimize_features_for_model, split_features_and_target
 from thesis.eta.models import ModelType, create_model
 from thesis.eta.pipeline import evaluate_predictions, get_stratified_kfold_cv, make_predictions, train_model
 from thesis.eta.results import build_cv_results, build_model_results, save_results
@@ -25,15 +25,16 @@ def main() -> None:
     results = {}
 
     for model_type in ModelType:
+        X_train_opt, fit_kwargs = optimize_features_for_model(X_train, model_type)
         model = create_model(model_type)
 
         per_fold_results = []
 
-        for train_index, val_index in skf.split(X_train, stratify_key):
-            X_train_fold, X_val_fold = X_train.iloc[train_index], X_train.iloc[val_index]
+        for train_index, val_index in skf.split(X_train_opt, stratify_key):
+            X_train_fold, X_val_fold = X_train_opt.iloc[train_index], X_train_opt.iloc[val_index]
             y_train_fold, y_val_fold = y_train.iloc[train_index], y_train.iloc[val_index]
 
-            training_results = train_model(model, model_type, X_train_fold, y_train_fold)
+            training_results = train_model(model, model_type, X_train_fold, y_train_fold, **fit_kwargs)
             predictions, prediction_results = make_predictions(model, model_type, X_val_fold)
             evaluation_results = evaluate_predictions(y_val_fold, predictions, model_type)
 
@@ -44,7 +45,7 @@ def main() -> None:
 
         logger.info(f"Training final {model_type} model on all training data")
         final_model = create_model(model_type)
-        train_model(final_model, model_type, X_train, y_train)
+        train_model(final_model, model_type, X_train_opt, y_train, **fit_kwargs)
         save_model(final_model, model_type, experiment.models_dir)
 
     save_results(results, experiment.results_dir)
