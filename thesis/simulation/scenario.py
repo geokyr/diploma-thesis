@@ -22,7 +22,8 @@ from thesis.common.config import (
     RANDOM_SEED_TRAIN,
     SUMOCFG_SUFFIX,
     TRAFFIC_GENERATION_PERIODS,
-    TRAFFIC_GENERATION_PERIODS_NOISE,
+    TRAFFIC_GENERATION_PERIODS_MEAN,
+    TRAFFIC_GENERATION_PERIODS_STD,
     TRIPS_SUFFIX,
 )
 
@@ -115,7 +116,10 @@ class SimulationScenarioConfig:
 
     @property
     def traffic_generation_periods(self) -> list[float]:
-        return [p * self._rng.normal(1.0, TRAFFIC_GENERATION_PERIODS_NOISE) for p in TRAFFIC_GENERATION_PERIODS]
+        return [
+            p * self._rng.normal(TRAFFIC_GENERATION_PERIODS_MEAN, TRAFFIC_GENERATION_PERIODS_STD)
+            for p in TRAFFIC_GENERATION_PERIODS
+        ]
 
     @property
     def random_seed(self) -> int:

@@ -85,7 +85,8 @@ class SeedConfig:
 
 @dataclass(frozen=True, slots=True)
 class SimulationConfig:
-    traffic_generation_periods_noise: float
+    traffic_generation_periods_mean: float
+    traffic_generation_periods_std: float
     traffic_generation_periods: list[float]
     tls_actuated_jam_threshold: int
     device_rerouting_adaptation_steps: int
@@ -183,7 +184,8 @@ RANDOM_SEED_TRAIN = CONFIG.seed.train
 RANDOM_SEED_TEST = CONFIG.seed.test
 RANDOM_SEED_RAIN = CONFIG.seed.rain
 
-TRAFFIC_GENERATION_PERIODS_NOISE = CONFIG.simulation.traffic_generation_periods_noise
+TRAFFIC_GENERATION_PERIODS_MEAN = CONFIG.simulation.traffic_generation_periods_mean
+TRAFFIC_GENERATION_PERIODS_STD = CONFIG.simulation.traffic_generation_periods_std
 TRAFFIC_GENERATION_PERIODS = CONFIG.simulation.traffic_generation_periods
 TLS_ACTUATED_JAM_THRESHOLD = CONFIG.simulation.tls_actuated_jam_threshold
 DEVICE_REROUTING_ADAPTATION_STEPS = CONFIG.simulation.device_rerouting_adaptation_steps

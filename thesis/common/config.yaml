@@ -56,7 +56,8 @@ seed:
   rain: 314159
 
 simulation:
-  traffic_generation_periods_noise: 0.01
+  traffic_generation_periods_mean: 1.0
+  traffic_generation_periods_std: 0.01
   traffic_generation_periods: [0.50, 0.55, 0.65, 0.75, 0.80, 0.80, 0.75, 0.65, 0.65, 0.60]
   tls_actuated_jam_threshold: 30
   device_rerouting_adaptation_steps: 18
