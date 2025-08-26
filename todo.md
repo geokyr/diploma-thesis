@@ -2,4 +2,3 @@
 
 - Hyperparameter tuning with optuna
 - Final model
-- Parquet files
