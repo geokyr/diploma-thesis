@@ -44,7 +44,7 @@ def setup_logger(
 
     log_file = logs_dir / LOGS_FILENAME
     file_formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+        "%(asctime)s - %(name)s - %(funcName)s:%(lineno)d - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
     )
     file_handler = logging.handlers.RotatingFileHandler(
         log_file, maxBytes=max_file_size, backupCount=backup_count, encoding="utf-8"
