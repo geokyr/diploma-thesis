@@ -146,6 +146,7 @@ class ModelsConfig:
     subsample: float
     colsample_bytree: float
     n_trials: int
+    direction: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -274,3 +275,4 @@ LEARNING_RATE = CONFIG.models.learning_rate
 SUBSAMPLE = CONFIG.models.subsample
 COLSAMPLE_BYTREE = CONFIG.models.colsample_bytree
 N_TRIALS = CONFIG.models.n_trials
+DIRECTION = CONFIG.models.direction

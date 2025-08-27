@@ -11,7 +11,7 @@ import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 from sklearn.pipeline import FunctionTransformer
 
-from thesis.common.config import N_TRIALS, RANDOM_SEED_DEFAULT
+from thesis.common.config import DIRECTION, N_TRIALS, RANDOM_SEED_DEFAULT
 from thesis.eta.models import ModelType, create_model, wrap_with_transformed_target_regressor
 from thesis.eta.pipeline import evaluate_predictions, make_predictions, train_model
 from thesis.eta.results import build_cv_results, build_model_results
@@ -27,10 +27,12 @@ class BaseModelTuner(ABC):
         model_type (ModelType): Type of model to tune.
         n_trials (int): Number of optimization trials.
         random_seed (int): Random seed for reproducibility.
+        direction (str): Optimization direction ("minimize" or "maximize").
         X_train (pd.DataFrame | None): Training features.
         y_train (pd.Series | None): Training targets.
         skf (StratifiedKFold | None): StratifiedKFold object for cross-validation.
         stratify_key (pd.Series | None): Key for stratified cross-validation.
+        study_name (str | None): Name for the study.
         transformer (FunctionTransformer | None): Target transformer.
         fit_kwargs (dict): Additional fitting arguments.
     """
@@ -40,15 +42,18 @@ class BaseModelTuner(ABC):
         model_type: ModelType,
         n_trials: int = N_TRIALS,
         random_seed: int = RANDOM_SEED_DEFAULT,
+        direction: str = DIRECTION,
     ) -> None:
         self.model_type = model_type
         self.n_trials = n_trials
         self.random_seed = random_seed
+        self.direction = direction
 
         self.X_train = None
         self.y_train = None
         self.skf = None
         self.stratify_key = None
+        self.study_name = None
         self.transformer = None
         self.fit_kwargs = {}
 
@@ -58,6 +63,7 @@ class BaseModelTuner(ABC):
         y_train: pd.Series,
         skf: StratifiedKFold,
         stratify_key: pd.Series,
+        study_name: str,
         transformer: FunctionTransformer | None = None,
         **fit_kwargs,
     ) -> None:
@@ -69,6 +75,7 @@ class BaseModelTuner(ABC):
             y_train (pd.Series): Training targets.
             skf (StratifiedKFold): StratifiedKFold object for cross-validation.
             stratify_key (pd.Series): Key for stratified cross-validation.
+            study_name (str): Name for the study.
             transformer (FunctionTransformer | None): Target transformer (e.g., quantile transformer).
             **fit_kwargs: Additional fitting arguments.
         """
@@ -76,6 +83,7 @@ class BaseModelTuner(ABC):
         self.y_train = y_train
         self.skf = skf
         self.stratify_key = stratify_key
+        self.study_name = study_name
         self.transformer = transformer
         self.fit_kwargs = fit_kwargs
 
@@ -141,12 +149,9 @@ class BaseModelTuner(ABC):
 
         return cv_results.mae
 
-    def optimize(self, direction: str = "minimize") -> optuna.Study:
+    def optimize(self) -> optuna.Study:
         """
         Run hyperparameter optimization.
-
-        Args:
-            direction (str): Optimization direction ("minimize" or "maximize").
 
         Returns:
             optuna.Study: Completed Optuna study.
@@ -157,8 +162,8 @@ class BaseModelTuner(ABC):
         logger.info(f"Starting {self.model_type} hyperparameter tuning with {self.n_trials} trials")
 
         study = optuna.create_study(
-            direction=direction,
-            study_name=self.model_type,
+            direction=self.direction,
+            study_name=self.study_name,
             sampler=optuna.samplers.TPESampler(seed=self.random_seed),
         )
 
@@ -208,6 +213,28 @@ class XGBoostTuner(BaseModelTuner):
         }
 
 
+class XGBoostTunerFocused(BaseModelTuner):
+    """XGBoost class for focused model hyperparameter tuning using Optuna."""
+
+    def __init__(self, **kwargs):
+        super().__init__(ModelType.XGBOOST_REGRESSOR, **kwargs)
+
+    def suggest_hyperparameters(self, trial: optuna.Trial) -> dict[str, int | float]:
+        """Suggest XGBoost hyperparameters for the current trial."""
+        return {
+            "n_estimators": trial.suggest_int("n_estimators", 900, 1400, step=50),
+            "max_depth": trial.suggest_int("max_depth", 6, 9),
+            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.05, log=True),
+            "subsample": trial.suggest_float("subsample", 0.55, 0.75),
+            "colsample_bytree": trial.suggest_float("colsample_bytree", 0.6, 1.0),
+            "colsample_bynode": trial.suggest_float("colsample_bynode", 0.6, 0.9),
+            "min_child_weight": trial.suggest_int("min_child_weight", 5, 14),
+            "gamma": trial.suggest_float("gamma", 1e-8, 1.0, log=True),
+            "reg_alpha": trial.suggest_float("reg_alpha", 1e-8, 1.0, log=True),
+            "reg_lambda": trial.suggest_float("reg_lambda", 1e-8, 1.0, log=True),
+        }
+
+
 class LightGBMTuner(BaseModelTuner):
     """LightGBM class for model hyperparameter tuning using Optuna."""
 
@@ -233,6 +260,31 @@ class LightGBMTuner(BaseModelTuner):
         }
 
 
+class LightGBMTunerFocused(BaseModelTuner):
+    """LightGBM class for focused model hyperparameter tuning using Optuna."""
+
+    def __init__(self, **kwargs):
+        super().__init__(ModelType.LIGHTGBM_REGRESSOR, **kwargs)
+
+    def suggest_hyperparameters(self, trial: optuna.Trial) -> dict[str, int | float]:
+        """Suggest LightGBM hyperparameters for the current trial."""
+        max_depth = trial.suggest_int("max_depth", 10, 14)
+        max_leaves = max(70, min(200, 2**max_depth))
+
+        return {
+            "n_estimators": trial.suggest_int("n_estimators", 900, 1400, step=50),
+            "max_depth": max_depth,
+            "num_leaves": trial.suggest_int("num_leaves", 70, max_leaves),
+            "learning_rate": trial.suggest_float("learning_rate", 0.02, 0.07, log=True),
+            "subsample": trial.suggest_float("subsample", 0.60, 0.85),
+            "colsample_bytree": trial.suggest_float("colsample_bytree", 0.8, 1.0),
+            "min_child_samples": trial.suggest_int("min_child_samples", 20, 55),
+            "min_split_gain": trial.suggest_float("min_split_gain", 1e-8, 0.1, log=True),
+            "reg_alpha": 0.0,
+            "reg_lambda": trial.suggest_float("reg_lambda", 1e-8, 0.1, log=True),
+        }
+
+
 class CatBoostTuner(BaseModelTuner):
     """CatBoost class for model hyperparameter tuning using Optuna."""
 
@@ -255,12 +307,35 @@ class CatBoostTuner(BaseModelTuner):
         }
 
 
+class CatBoostTunerFocused(BaseModelTuner):
+    """CatBoost class for focused model hyperparameter tuning using Optuna."""
+
+    def __init__(self, **kwargs):
+        super().__init__(ModelType.CATBOOST_REGRESSOR, **kwargs)
+
+    def suggest_hyperparameters(self, trial: optuna.Trial) -> dict[str, int | float]:
+        """Suggest CatBoost hyperparameters for the current trial."""
+        return {
+            "n_estimators": trial.suggest_int("n_estimators", 900, 1400, step=50),
+            "max_depth": trial.suggest_int("max_depth", 6, 10),
+            "learning_rate": trial.suggest_float("learning_rate", 0.02, 0.1, log=True),
+            "subsample": trial.suggest_float("subsample", 0.65, 1.0),
+            "colsample_bylevel": trial.suggest_float("colsample_bylevel", 0.75, 1.0),
+            "l2_leaf_reg": trial.suggest_float("l2_leaf_reg", 1e-3, 10.0, log=True),
+            "random_strength": trial.suggest_float("random_strength", 0.0, 2.0),
+            "bagging_temperature": trial.suggest_float("bagging_temperature", 0.5, 4.5),
+            "border_count": 255,
+            "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 20, 50),
+        }
+
+
 def run_hyperparameter_tuning(
     tuner: BaseModelTuner,
     X_train: pd.DataFrame,
     y_train: pd.Series,
     skf: StratifiedKFold,
     stratify_key: pd.Series,
+    study_name: str,
     transformer: FunctionTransformer | None = None,
 ) -> optuna.Study:
     """
@@ -272,12 +347,13 @@ def run_hyperparameter_tuning(
         y_train (pd.Series): Training targets.
         skf (StratifiedKFold): StratifiedKFold object for cross-validation.
         stratify_key (pd.Series): Key for stratified cross-validation.
+        study_name (str): Name for the study.
         transformer (FunctionTransformer | None): Target transformer (e.g., quantile transformer).
 
     Returns:
         optuna.Study: Completed Optuna study.
     """
-    tuner.setup_data(X_train, y_train, skf, stratify_key, transformer)
+    tuner.setup_data(X_train, y_train, skf, stratify_key, study_name, transformer)
     study = tuner.optimize()
     log_parameter_importance(study)
 

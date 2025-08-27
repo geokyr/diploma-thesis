@@ -6,7 +6,7 @@ from thesis.eta.features import add_all_features, create_quantile_transformer, s
 from thesis.eta.models import ModelType, create_model, wrap_with_transformed_target_regressor
 from thesis.eta.pipeline import get_stratified_kfold_cv, train_model
 from thesis.eta.results import build_tuning_results, save_tuning_results
-from thesis.eta.tuning import LightGBMTuner, run_hyperparameter_tuning
+from thesis.eta.tuning import LightGBMTunerFocused, run_hyperparameter_tuning
 
 
 def main() -> None:
@@ -25,7 +25,7 @@ def main() -> None:
     transformer = create_quantile_transformer()
     skf, stratify_key = get_stratified_kfold_cv(y_train)
 
-    tuner = LightGBMTuner()
+    tuner = LightGBMTunerFocused()
     study = run_hyperparameter_tuning(tuner, X_train, y_train, skf, stratify_key, experiment.name, transformer)
     results = build_tuning_results(study)
     save_tuning_results(results, experiment.results_dir)

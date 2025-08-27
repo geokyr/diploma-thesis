@@ -26,7 +26,7 @@ def main() -> None:
     skf, stratify_key = get_stratified_kfold_cv(y_train)
 
     tuner = XGBoostTuner()
-    study = run_hyperparameter_tuning(tuner, X_train, y_train, skf, stratify_key, transformer)
+    study = run_hyperparameter_tuning(tuner, X_train, y_train, skf, stratify_key, experiment.name, transformer)
     results = build_tuning_results(study)
     save_tuning_results(results, experiment.results_dir)
 
