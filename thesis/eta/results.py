@@ -14,7 +14,13 @@ import optuna
 import pandas as pd
 import seaborn as sns
 
-from thesis.common.config import OUTPUTS_DIR, RESEARCH_RESULTS_FILENAME, RESULTS_DIRNAME, RESULTS_FILENAME
+from thesis.common.config import (
+    OUTPUTS_DIR,
+    RESEARCH_RESULTS_FILENAME,
+    RESULTS_DIRNAME,
+    RESULTS_FILENAME,
+    TUNING_RESULTS_FILENAME,
+)
 from thesis.eta.experiment import ETAEvaluation
 from thesis.eta.models import ModelType
 
@@ -626,18 +632,13 @@ def save_tuning_results(
     results_dir: Path,
 ) -> None:
     """
-    Save tuning results to JSON file with retry logic for naming conflicts.
+    Save tuning results to JSON file.
 
     Args:
         results (dict[str, float | str | dict[str, float] | list[dict[str, float | str | dict[str, float]]]]): Tuning results dictionary.
         results_dir (Path): Directory to save results to.
     """
-    results_path = results_dir / RESULTS_FILENAME
-    counter = 1
-    while results_path.exists():
-        results_path = results_dir / f"{RESULTS_FILENAME}.{counter}"
-        counter += 1
-
+    results_path = results_dir / TUNING_RESULTS_FILENAME
     with open(results_path, "w") as f:
         json.dump(results, f, indent=4)
 

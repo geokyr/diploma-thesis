@@ -54,6 +54,7 @@ class FilenameConfig:
     logs: str
     results: str
     research_results: str
+    tuning_results: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -205,6 +206,7 @@ ROUTES_TEMP_FILENAME = CONFIG.filename.routes_temp
 LOGS_FILENAME = CONFIG.filename.logs
 RESULTS_FILENAME = CONFIG.filename.results
 RESEARCH_RESULTS_FILENAME = CONFIG.filename.research_results
+TUNING_RESULTS_FILENAME = CONFIG.filename.tuning_results
 
 TRIPS_SUFFIX = CONFIG.suffix.trips
 SUMOCFG_SUFFIX = CONFIG.suffix.sumocfg

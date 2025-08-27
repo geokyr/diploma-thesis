@@ -21,6 +21,7 @@ filename:
   logs: "logs.log"
   results: "results.json"
   research_results: "research_results.csv"
+  tuning_results: "tuning_results.json"
 
 suffix:
   trips: ".trips.xml"
