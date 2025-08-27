@@ -94,7 +94,7 @@ features:
   n_components: 2
 
 models:
-  objective_xgboost: "reg:squarederror"
+  objective_xgboost: "reg:absoluteerror"
   objective_lightgbm: "regression_l1"
   loss_function_catboost: "MAE"
   verbose_lightgbm: -1
