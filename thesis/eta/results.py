@@ -10,6 +10,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+import optuna
 import pandas as pd
 import seaborn as sns
 
@@ -581,3 +582,63 @@ def run_metric_analysis(
     plot_metric_distribution(df, metric_column, metric_name, metric_unit, plots_dir)
 
     logger.info(f"Completed {metric_name} analysis")
+
+
+def build_tuning_results(
+    study: optuna.Study,
+) -> dict[str, float | str | dict[str, float] | list[dict[str, float | str | dict[str, float]]]]:
+    """
+    Build tuning results dictionary from Optuna study.
+
+    Args:
+        study (optuna.Study): Completed Optuna study.
+
+    Returns:
+        dict[str, float | str | dict[str, float] | list[dict[str, float | str | dict[str, float]]]]: Dictionary containing study results and trial data.
+    """
+    results = {
+        "best_trial": study.best_trial.number,
+        "best_value": study.best_value,
+        "best_params": study.best_params,
+        "best_user_attrs": study.best_trial.user_attrs,
+        "n_trials": len(study.trials),
+        "study_name": study.study_name,
+    }
+
+    trials_data = []
+    for trial in study.trials:
+        trial_data = {
+            "number": trial.number,
+            "value": trial.value,
+            "params": trial.params,
+            "state": trial.state.name,
+            "user_attrs": trial.user_attrs,
+        }
+        trials_data.append(trial_data)
+
+    results["trials"] = trials_data
+
+    return results
+
+
+def save_tuning_results(
+    results: dict[str, float | str | dict[str, float] | list[dict[str, float | str | dict[str, float]]]],
+    results_dir: Path,
+) -> None:
+    """
+    Save tuning results to JSON file with retry logic for naming conflicts.
+
+    Args:
+        results (dict[str, float | str | dict[str, float] | list[dict[str, float | str | dict[str, float]]]]): Tuning results dictionary.
+        results_dir (Path): Directory to save results to.
+    """
+    results_path = results_dir / RESULTS_FILENAME
+    counter = 1
+    while results_path.exists():
+        results_path = results_dir / f"{RESULTS_FILENAME}.{counter}"
+        counter += 1
+
+    with open(results_path, "w") as f:
+        json.dump(results, f, indent=4)
+
+    logger.info(f"Results saved to {results_path}")
