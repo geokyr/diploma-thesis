@@ -17,14 +17,20 @@ from sklearn.pipeline import FunctionTransformer
 from xgboost import XGBRegressor
 
 from thesis.common.config import (
+    ALLOW_WRITING_FILES,
     COLSAMPLE_BYTREE,
+    ENABLE_CATEGORICAL,
     LEARNING_RATE,
+    LOSS_FUNCTION_CATBOOST,
     MAX_CAT_TO_ONEHOT,
     MAX_DEPTH,
     N_ESTIMATORS,
+    OBJECTIVE_LIGHTGBM,
+    OBJECTIVE_XGBOOST,
     RANDOM_SEED_DEFAULT,
     SUBSAMPLE,
-    VERBOSE,
+    VERBOSE_CATBOOST,
+    VERBOSE_LIGHTGBM,
 )
 
 logger = logging.getLogger(__name__)
@@ -95,9 +101,9 @@ def create_xgboost_regressor_model(random_seed: int = RANDOM_SEED_DEFAULT, **kwa
         XGBRegressor: Configured XGBoost Regressor model.
     """
     params = {
-        "objective": "reg:absoluteerror",
+        "objective": OBJECTIVE_XGBOOST,
         "random_state": random_seed,
-        "enable_categorical": True,
+        "enable_categorical": ENABLE_CATEGORICAL,
         "max_cat_to_onehot": MAX_CAT_TO_ONEHOT,
         "n_estimators": N_ESTIMATORS,
         "max_depth": MAX_DEPTH,
@@ -123,9 +129,9 @@ def create_lightgbm_regressor_model(random_seed: int = RANDOM_SEED_DEFAULT, **kw
         LGBMRegressor: Configured LightGBM Regressor model.
     """
     params = {
-        "objective": "regression_l1",
+        "objective": OBJECTIVE_LIGHTGBM,
         "random_state": random_seed,
-        "verbose": VERBOSE,
+        "verbose": VERBOSE_LIGHTGBM,
         "max_cat_threshold": MAX_CAT_TO_ONEHOT,
         "n_estimators": N_ESTIMATORS,
         "max_depth": MAX_DEPTH,
@@ -151,10 +157,10 @@ def create_catboost_regressor_model(random_seed: int = RANDOM_SEED_DEFAULT, **kw
         CatBoostRegressor: Configured CatBoost Regressor model.
     """
     params = {
-        "loss_function": "MAE",
+        "loss_function": LOSS_FUNCTION_CATBOOST,
         "random_state": random_seed,
-        "verbose": VERBOSE,
-        "allow_writing_files": False,
+        "verbose": VERBOSE_CATBOOST,
+        "allow_writing_files": ALLOW_WRITING_FILES,
         "one_hot_max_size": MAX_CAT_TO_ONEHOT,
         "n_estimators": N_ESTIMATORS,
         "max_depth": MAX_DEPTH,

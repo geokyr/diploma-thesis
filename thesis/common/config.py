@@ -131,13 +131,20 @@ class FeaturesConfig:
 
 @dataclass(frozen=True, slots=True)
 class ModelsConfig:
-    verbose: int
+    objective_xgboost: str
+    objective_lightgbm: str
+    loss_function_catboost: str
+    verbose_lightgbm: int
+    verbose_catboost: int
+    enable_categorical: bool
+    allow_writing_files: bool
     max_cat_to_onehot: int
     n_estimators: int
     max_depth: int
     learning_rate: float
     subsample: float
     colsample_bytree: float
+    n_trials: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -251,10 +258,17 @@ CELL = CONFIG.features.cell
 N_CLUSTERS = CONFIG.features.n_clusters
 N_COMPONENTS = CONFIG.features.n_components
 
-VERBOSE = CONFIG.models.verbose
+OBJECTIVE_XGBOOST = CONFIG.models.objective_xgboost
+OBJECTIVE_LIGHTGBM = CONFIG.models.objective_lightgbm
+LOSS_FUNCTION_CATBOOST = CONFIG.models.loss_function_catboost
+VERBOSE_LIGHTGBM = CONFIG.models.verbose_lightgbm
+VERBOSE_CATBOOST = CONFIG.models.verbose_catboost
+ENABLE_CATEGORICAL = CONFIG.models.enable_categorical
+ALLOW_WRITING_FILES = CONFIG.models.allow_writing_files
 MAX_CAT_TO_ONEHOT = CONFIG.models.max_cat_to_onehot
 N_ESTIMATORS = CONFIG.models.n_estimators
 MAX_DEPTH = CONFIG.models.max_depth
 LEARNING_RATE = CONFIG.models.learning_rate
 SUBSAMPLE = CONFIG.models.subsample
 COLSAMPLE_BYTREE = CONFIG.models.colsample_bytree
+N_TRIALS = CONFIG.models.n_trials

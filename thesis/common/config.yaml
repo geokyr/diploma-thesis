@@ -94,10 +94,17 @@ features:
   n_components: 2
 
 models:
-  verbose: 0
+  objective_xgboost: "reg:squarederror"
+  objective_lightgbm: "regression_l1"
+  loss_function_catboost: "MAE"
+  verbose_lightgbm: -1
+  verbose_catboost: 0
+  enable_categorical: true
+  allow_writing_files: false
   max_cat_to_onehot: 2
   n_estimators: 100
   max_depth: 7
   learning_rate: 0.1
   subsample: 0.8
   colsample_bytree: 0.8
+  n_trials: 100
