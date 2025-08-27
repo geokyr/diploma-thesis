@@ -255,33 +255,8 @@ class CatBoostTuner(BaseModelTuner):
         }
 
 
-def create_tuner(
-    model_type: ModelType,
-) -> BaseModelTuner:
-    """
-    Create the appropriate tuner based on model type.
-
-    Args:
-        model_type (ModelType): Type of model to tune.
-
-    Returns:
-        BaseModelTuner: The appropriate model tuner instance.
-
-    Raises:
-        ValueError: If the model type is not supported for tuning.
-    """
-    if model_type == ModelType.XGBOOST_REGRESSOR:
-        return XGBoostTuner()
-    elif model_type == ModelType.LIGHTGBM_REGRESSOR:
-        return LightGBMTuner()
-    elif model_type == ModelType.CATBOOST_REGRESSOR:
-        return CatBoostTuner()
-    else:
-        raise ValueError(f"Unsupported model type for tuning: {model_type}")
-
-
 def run_hyperparameter_tuning(
-    model_type: ModelType,
+    tuner: BaseModelTuner,
     X_train: pd.DataFrame,
     y_train: pd.Series,
     skf: StratifiedKFold,
@@ -289,10 +264,10 @@ def run_hyperparameter_tuning(
     transformer: FunctionTransformer | None = None,
 ) -> optuna.Study:
     """
-    Run hyperparameter tuning for the specified model type.
+    Run hyperparameter tuning with the provided tuner.
 
     Args:
-        model_type (ModelType): Type of model to tune.
+        tuner (BaseModelTuner): The tuner instance to use.
         X_train (pd.DataFrame): Training features.
         y_train (pd.Series): Training targets.
         skf (StratifiedKFold): StratifiedKFold object for cross-validation.
@@ -302,9 +277,9 @@ def run_hyperparameter_tuning(
     Returns:
         optuna.Study: Completed Optuna study.
     """
-    tuner = create_tuner(model_type)
     tuner.setup_data(X_train, y_train, skf, stratify_key, transformer)
     study = tuner.optimize()
+    log_parameter_importance(study)
 
     return study
 
