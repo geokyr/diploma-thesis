@@ -1,0 +1,2326 @@
+{
+    "best_trial": 43,
+    "best_value": 26.678446760217298,
+    "best_params": {
+        "n_estimators": 1400,
+        "max_depth": 10,
+        "learning_rate": 0.025347226438749645,
+        "subsample": 0.7914420270077684,
+        "colsample_bylevel": 0.8780092655440341,
+        "l2_leaf_reg": 9.686385972818426,
+        "random_strength": 0.12109306207231453,
+        "bagging_temperature": 1.7070606903680519,
+        "min_data_in_leaf": 37
+    },
+    "best_user_attrs": {
+        "mae": 26.678446760217298,
+        "mape": 0.127185509073378,
+        "training_time": 50.68685048000043,
+        "prediction_time": 0.015728400000080002,
+        "evaluation_time": 0.0007050199994409923
+    },
+    "n_trials": 100,
+    "study_name": "catboost_tuning_focused",
+    "trials": [
+        {
+            "number": 0,
+            "value": 26.844353657081324,
+            "params": {
+                "n_estimators": 1100,
+                "max_depth": 10,
+                "learning_rate": 0.06496385739540578,
+                "subsample": 0.8595304694689628,
+                "colsample_bylevel": 0.7890046601106091,
+                "l2_leaf_reg": 0.004207053950287938,
+                "random_strength": 0.11616722433639892,
+                "bagging_temperature": 3.9647045830997407,
+                "min_data_in_leaf": 38
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.844353657081324,
+                "mape": 0.12875200362622263,
+                "training_time": 32.227599180000105,
+                "prediction_time": 0.028149520000442862,
+                "evaluation_time": 0.0007716399995842949
+            }
+        },
+        {
+            "number": 1,
+            "value": 26.819586268147027,
+            "params": {
+                "n_estimators": 1250,
+                "max_depth": 6,
+                "learning_rate": 0.09527257190058894,
+                "subsample": 0.9413549242801476,
+                "colsample_bylevel": 0.8030847776695691,
+                "l2_leaf_reg": 0.005337032762603957,
+                "random_strength": 0.36680901970686763,
+                "bagging_temperature": 1.716968971838151,
+                "min_data_in_leaf": 36
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.819586268147027,
+                "mape": 0.12790434122748373,
+                "training_time": 7.695384520000152,
+                "prediction_time": 0.007560480000756797,
+                "evaluation_time": 0.0007825799999409355
+            }
+        },
+        {
+            "number": 2,
+            "value": 26.805641017261895,
+            "params": {
+                "n_estimators": 1100,
+                "max_depth": 7,
+                "learning_rate": 0.053542274484291816,
+                "subsample": 0.6988228512282146,
+                "colsample_bylevel": 0.8230361621338045,
+                "l2_leaf_reg": 0.029204338471814112,
+                "random_strength": 0.9121399684340719,
+                "bagging_temperature": 3.6407038455720544,
+                "min_data_in_leaf": 26
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.805641017261895,
+                "mape": 0.12770345006080883,
+                "training_time": 9.125353800000449,
+                "prediction_time": 0.0066947600000276,
+                "evaluation_time": 0.0007192599998234073
+            }
+        },
+        {
+            "number": 3,
+            "value": 26.972617976175478,
+            "params": {
+                "n_estimators": 1150,
+                "max_depth": 8,
+                "learning_rate": 0.02155248943349772,
+                "subsample": 0.8626406981655035,
+                "colsample_bylevel": 0.7926310309218229,
+                "l2_leaf_reg": 0.0018205657658407262,
+                "random_strength": 1.8977710745066665,
+                "bagging_temperature": 4.362528132298237,
+                "min_data_in_leaf": 45
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.972617976175478,
+                "mape": 0.12838672579033578,
+                "training_time": 13.984892319999926,
+                "prediction_time": 0.007398380000449833,
+                "evaluation_time": 0.0007836000000679633
+            }
+        },
+        {
+            "number": 4,
+            "value": 26.859380052736412,
+            "params": {
+                "n_estimators": 1050,
+                "max_depth": 6,
+                "learning_rate": 0.06015730295052912,
+                "subsample": 0.8040533728088605,
+                "colsample_bylevel": 0.7805095587111948,
+                "l2_leaf_reg": 0.09565499215943825,
+                "random_strength": 0.06877704223043679,
+                "bagging_temperature": 4.137281608315128,
+                "min_data_in_leaf": 28
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.859380052736412,
+                "mape": 0.12793599038356138,
+                "training_time": 6.363404000000446,
+                "prediction_time": 0.006816880000042147,
+                "evaluation_time": 0.0006748999996489147
+            }
+        },
+        {
+            "number": 5,
+            "value": 26.790767284433336,
+            "params": {
+                "n_estimators": 1250,
+                "max_depth": 7,
+                "learning_rate": 0.04618935978515323,
+                "subsample": 0.8413485977701479,
+                "colsample_bylevel": 0.7962136138813818,
+                "l2_leaf_reg": 7.556810141274429,
+                "random_strength": 1.550265646722229,
+                "bagging_temperature": 4.257995766256757,
+                "min_data_in_leaf": 47
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.790767284433336,
+                "mape": 0.12756620757483222,
+                "training_time": 10.606250000000363,
+                "prediction_time": 0.0066903200000524524,
+                "evaluation_time": 0.0006744400001480244
+            }
+        },
+        {
+            "number": 6,
+            "value": 26.804459866203764,
+            "params": {
+                "n_estimators": 1200,
+                "max_depth": 10,
+                "learning_rate": 0.02306129016195514,
+                "subsample": 0.7185940018467009,
+                "colsample_bylevel": 0.7613068222276345,
+                "l2_leaf_reg": 0.02001342062287998,
+                "random_strength": 0.777354579378964,
+                "bagging_temperature": 1.5853961270955836,
+                "min_data_in_leaf": 45
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.804459866203764,
+                "mape": 0.12769993824898165,
+                "training_time": 35.73121596000019,
+                "prediction_time": 0.014140380000389996,
+                "evaluation_time": 0.0006743199995980831
+            }
+        },
+        {
+            "number": 7,
+            "value": 26.86112210173612,
+            "params": {
+                "n_estimators": 1050,
+                "max_depth": 7,
+                "learning_rate": 0.04790251099825471,
+                "subsample": 0.699323478741167,
+                "colsample_bylevel": 0.9505492451885099,
+                "l2_leaf_reg": 0.0019870215385428634,
+                "random_strength": 1.9737738732010346,
+                "bagging_temperature": 3.5889790771866297,
+                "min_data_in_leaf": 26
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.86112210173612,
+                "mape": 0.12787642334385899,
+                "training_time": 7.746505780000371,
+                "prediction_time": 0.007249120000051334,
+                "evaluation_time": 0.0007562200004031183
+            }
+        },
+        {
+            "number": 8,
+            "value": 26.82419872972859,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 10,
+                "learning_rate": 0.06238814550366145,
+                "subsample": 0.9051525088143455,
+                "colsample_bylevel": 0.9428175866714864,
+                "l2_leaf_reg": 0.0019777828512462727,
+                "random_strength": 0.7169314570885452,
+                "bagging_temperature": 0.9634762381005189,
+                "min_data_in_leaf": 46
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.82419872972859,
+                "mape": 0.12832021898380444,
+                "training_time": 33.6219802399999,
+                "prediction_time": 0.01213811999950849,
+                "evaluation_time": 0.0007377600002655526
+            }
+        },
+        {
+            "number": 9,
+            "value": 27.054839040033215,
+            "params": {
+                "n_estimators": 1200,
+                "max_depth": 7,
+                "learning_rate": 0.022154164495419692,
+                "subsample": 0.7588438126004817,
+                "colsample_bylevel": 0.8312958305066868,
+                "l2_leaf_reg": 0.8287522363768158,
+                "random_strength": 1.2751149427104262,
+                "bagging_temperature": 4.048850970305306,
+                "min_data_in_leaf": 34
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.054839040033215,
+                "mape": 0.1287467535512009,
+                "training_time": 10.427810080000564,
+                "prediction_time": 0.007294380000166712,
+                "evaluation_time": 0.0007581399997434346
+            }
+        },
+        {
+            "number": 10,
+            "value": 26.71437298935562,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 8,
+                "learning_rate": 0.03364231150496662,
+                "subsample": 0.9763016196691255,
+                "colsample_bylevel": 0.8820429460601519,
+                "l2_leaf_reg": 4.2722748162268,
+                "random_strength": 1.4607337904140194,
+                "bagging_temperature": 2.9251561132062713,
+                "min_data_in_leaf": 50
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.71437298935562,
+                "mape": 0.12724942937089917,
+                "training_time": 18.073126900000354,
+                "prediction_time": 0.008180999999967752,
+                "evaluation_time": 0.0007255799999256851
+            }
+        },
+        {
+            "number": 11,
+            "value": 26.695455715456074,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 8,
+                "learning_rate": 0.033939979427999624,
+                "subsample": 0.9848442637037383,
+                "colsample_bylevel": 0.8839060660088724,
+                "l2_leaf_reg": 9.685201972048755,
+                "random_strength": 1.409731905865492,
+                "bagging_temperature": 2.8376178659191647,
+                "min_data_in_leaf": 50
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.695455715456074,
+                "mape": 0.12710006103307983,
+                "training_time": 17.99892538000022,
+                "prediction_time": 0.00803440000017872,
+                "evaluation_time": 0.0007161199999245582
+            }
+        },
+        {
+            "number": 12,
+            "value": 26.67910414459496,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 9,
+                "learning_rate": 0.031290727122029405,
+                "subsample": 0.999566457560259,
+                "colsample_bylevel": 0.8989047302604303,
+                "l2_leaf_reg": 6.779977968138522,
+                "random_strength": 1.4023251907875198,
+                "bagging_temperature": 2.617793055089952,
+                "min_data_in_leaf": 50
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.67910414459496,
+                "mape": 0.1271728189339374,
+                "training_time": 29.967206740000258,
+                "prediction_time": 0.014371140000002924,
+                "evaluation_time": 0.0007402800001727883
+            }
+        },
+        {
+            "number": 13,
+            "value": 26.71774971726858,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 9,
+                "learning_rate": 0.03311071685471964,
+                "subsample": 0.9997768535245428,
+                "colsample_bylevel": 0.8933512427378649,
+                "l2_leaf_reg": 1.163438321920113,
+                "random_strength": 1.2750346501795606,
+                "bagging_temperature": 2.6637976567489186,
+                "min_data_in_leaf": 41
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.71774971726858,
+                "mape": 0.12738584224720736,
+                "training_time": 30.23383098000013,
+                "prediction_time": 0.014011079999545473,
+                "evaluation_time": 0.0007617799998115516
+            }
+        },
+        {
+            "number": 14,
+            "value": 26.733623545860297,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 9,
+                "learning_rate": 0.029136692821012562,
+                "subsample": 0.9248427038585965,
+                "colsample_bylevel": 0.9991114053919189,
+                "l2_leaf_reg": 1.4865853901367199,
+                "random_strength": 1.6878760380977353,
+                "bagging_temperature": 2.0999227975348598,
+                "min_data_in_leaf": 49
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.733623545860297,
+                "mape": 0.12745403869673533,
+                "training_time": 21.585628720000024,
+                "prediction_time": 0.013741340000342462,
+                "evaluation_time": 0.0006866799998533679
+            }
+        },
+        {
+            "number": 15,
+            "value": 26.755627800813482,
+            "params": {
+                "n_estimators": 1300,
+                "max_depth": 9,
+                "learning_rate": 0.036994429064648574,
+                "subsample": 0.963639897241213,
+                "colsample_bylevel": 0.9116852024720861,
+                "l2_leaf_reg": 0.25432824036030677,
+                "random_strength": 1.1928198310159464,
+                "bagging_temperature": 3.077340696579074,
+                "min_data_in_leaf": 41
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.755627800813482,
+                "mape": 0.12762252228425455,
+                "training_time": 26.75665450000015,
+                "prediction_time": 0.01338132000018959,
+                "evaluation_time": 0.0006890599994221702
+            }
+        },
+        {
+            "number": 16,
+            "value": 26.69692648570767,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 9,
+                "learning_rate": 0.02749108585218348,
+                "subsample": 0.897946692205017,
+                "colsample_bylevel": 0.8513186460953908,
+                "l2_leaf_reg": 8.553173473256757,
+                "random_strength": 1.102879198546984,
+                "bagging_temperature": 2.311601963252416,
+                "min_data_in_leaf": 20
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.69692648570767,
+                "mape": 0.12716139623076717,
+                "training_time": 29.3769171800006,
+                "prediction_time": 0.014351900000110617,
+                "evaluation_time": 0.0009064599998964695
+            }
+        },
+        {
+            "number": 17,
+            "value": 26.829657379844416,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 8,
+                "learning_rate": 0.03907259406598197,
+                "subsample": 0.9877177390298991,
+                "colsample_bylevel": 0.9224186063029418,
+                "l2_leaf_reg": 2.1568325215833566,
+                "random_strength": 1.6284318653287944,
+                "bagging_temperature": 3.230955013662825,
+                "min_data_in_leaf": 43
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.829657379844416,
+                "mape": 0.12777417594241397,
+                "training_time": 10.809331060000114,
+                "prediction_time": 0.00712967999970715,
+                "evaluation_time": 0.0007156600000598701
+            }
+        },
+        {
+            "number": 18,
+            "value": 26.811551097522123,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 9,
+                "learning_rate": 0.02686302653124077,
+                "subsample": 0.651210995915539,
+                "colsample_bylevel": 0.858926927204256,
+                "l2_leaf_reg": 0.42089652261525795,
+                "random_strength": 1.4161408806329523,
+                "bagging_temperature": 0.860696211789711,
+                "min_data_in_leaf": 50
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.811551097522123,
+                "mape": 0.12761616751029142,
+                "training_time": 28.938320119999844,
+                "prediction_time": 0.01335817999970459,
+                "evaluation_time": 0.0007162999998399755
+            }
+        },
+        {
+            "number": 19,
+            "value": 26.7534357277351,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 8,
+                "learning_rate": 0.04064782969259428,
+                "subsample": 0.8011502250998869,
+                "colsample_bylevel": 0.9844884314930896,
+                "l2_leaf_reg": 4.243416548505483,
+                "random_strength": 1.742349225078069,
+                "bagging_temperature": 2.5509890362411984,
+                "min_data_in_leaf": 31
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.7534357277351,
+                "mape": 0.12745762217324513,
+                "training_time": 14.587533639999673,
+                "prediction_time": 0.007980239999960758,
+                "evaluation_time": 0.0008065599999099504
+            }
+        },
+        {
+            "number": 20,
+            "value": 26.83868680769786,
+            "params": {
+                "n_estimators": 1300,
+                "max_depth": 9,
+                "learning_rate": 0.07973536885308578,
+                "subsample": 0.9493650636576468,
+                "colsample_bylevel": 0.9075639031457952,
+                "l2_leaf_reg": 0.22678925529546823,
+                "random_strength": 0.5199484603371547,
+                "bagging_temperature": 1.8991531711858662,
+                "min_data_in_leaf": 40
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.83868680769786,
+                "mape": 0.12855981869959193,
+                "training_time": 27.05286490000035,
+                "prediction_time": 0.013425040000220179,
+                "evaluation_time": 0.0006442999994760612
+            }
+        },
+        {
+            "number": 21,
+            "value": 26.706584566390053,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 9,
+                "learning_rate": 0.02714847367986474,
+                "subsample": 0.9077025807960128,
+                "colsample_bylevel": 0.8574936397290889,
+                "l2_leaf_reg": 9.281606616695173,
+                "random_strength": 1.0985428144120657,
+                "bagging_temperature": 2.293799624462061,
+                "min_data_in_leaf": 20
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.706584566390053,
+                "mape": 0.12722846280917566,
+                "training_time": 29.559705519999625,
+                "prediction_time": 0.013844919999974082,
+                "evaluation_time": 0.0007593999998789513
+            }
+        },
+        {
+            "number": 22,
+            "value": 26.760317634406398,
+            "params": {
+                "n_estimators": 1300,
+                "max_depth": 8,
+                "learning_rate": 0.03014350624058386,
+                "subsample": 0.892403867952641,
+                "colsample_bylevel": 0.8557667594530913,
+                "l2_leaf_reg": 2.9019458449555438,
+                "random_strength": 1.0201359851782206,
+                "bagging_temperature": 1.322469761721421,
+                "min_data_in_leaf": 22
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.760317634406398,
+                "mape": 0.1273384420944954,
+                "training_time": 17.072518380000112,
+                "prediction_time": 0.007635620000291965,
+                "evaluation_time": 0.0006997200005571357
+            }
+        },
+        {
+            "number": 23,
+            "value": 26.704650027674642,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.024372674166886654,
+                "subsample": 0.9997527169793203,
+                "colsample_bylevel": 0.8732114969277021,
+                "l2_leaf_reg": 9.892880005985504,
+                "random_strength": 1.2867389722473772,
+                "bagging_temperature": 2.7453357618736662,
+                "min_data_in_leaf": 32
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.704650027674642,
+                "mape": 0.1272340905582731,
+                "training_time": 49.65838245999985,
+                "prediction_time": 0.01588338000001386,
+                "evaluation_time": 0.0006838599998445716
+            }
+        },
+        {
+            "number": 24,
+            "value": 26.760287948208248,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 8,
+                "learning_rate": 0.03137032833708849,
+                "subsample": 0.9508957815345913,
+                "colsample_bylevel": 0.8274581460833618,
+                "l2_leaf_reg": 0.7327102327965215,
+                "random_strength": 0.9532789973575382,
+                "bagging_temperature": 2.333993167459401,
+                "min_data_in_leaf": 48
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.760287948208248,
+                "mape": 0.12745642359732967,
+                "training_time": 17.676836379999806,
+                "prediction_time": 0.007864539999718544,
+                "evaluation_time": 0.000748399999429239
+            }
+        },
+        {
+            "number": 25,
+            "value": 26.736080580966537,
+            "params": {
+                "n_estimators": 1250,
+                "max_depth": 9,
+                "learning_rate": 0.03562692717261857,
+                "subsample": 0.8877239043996623,
+                "colsample_bylevel": 0.9294957270818975,
+                "l2_leaf_reg": 3.3611164574552963,
+                "random_strength": 1.420245290442648,
+                "bagging_temperature": 3.367969702114342,
+                "min_data_in_leaf": 43
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.736080580966537,
+                "mape": 0.12748552714429273,
+                "training_time": 24.493022620000193,
+                "prediction_time": 0.013216580000153045,
+                "evaluation_time": 0.0006391999995685183
+            }
+        },
+        {
+            "number": 26,
+            "value": 26.72640288283791,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 9,
+                "learning_rate": 0.02704661459345283,
+                "subsample": 0.9352887367929644,
+                "colsample_bylevel": 0.8906304777366897,
+                "l2_leaf_reg": 5.5974522730416245,
+                "random_strength": 1.7913815246170588,
+                "bagging_temperature": 2.2016783021322595,
+                "min_data_in_leaf": 24
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.72640288283791,
+                "mape": 0.12729209823571513,
+                "training_time": 30.558370400000058,
+                "prediction_time": 0.013324680000005173,
+                "evaluation_time": 0.0006889199994475348
+            }
+        },
+        {
+            "number": 27,
+            "value": 26.802668829511788,
+            "params": {
+                "n_estimators": 1300,
+                "max_depth": 10,
+                "learning_rate": 0.02027756433699258,
+                "subsample": 0.9226614912991982,
+                "colsample_bylevel": 0.843038826142324,
+                "l2_leaf_reg": 2.073228275768919,
+                "random_strength": 1.1255660375575731,
+                "bagging_temperature": 2.8939149312413233,
+                "min_data_in_leaf": 38
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.802668829511788,
+                "mape": 0.12767941617992778,
+                "training_time": 44.534261100000734,
+                "prediction_time": 0.014792879999731667,
+                "evaluation_time": 0.000749240000732243
+            }
+        },
+        {
+            "number": 28,
+            "value": 26.732914705639775,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 9,
+                "learning_rate": 0.04179809015599813,
+                "subsample": 0.966167010915849,
+                "colsample_bylevel": 0.9579420139981885,
+                "l2_leaf_reg": 0.08427441235293687,
+                "random_strength": 0.7532369999464767,
+                "bagging_temperature": 1.4114422935968882,
+                "min_data_in_leaf": 30
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.732914705639775,
+                "mape": 0.12756973868178378,
+                "training_time": 26.246559519999938,
+                "prediction_time": 0.013913780000075348,
+                "evaluation_time": 0.0007010800003627082
+            }
+        },
+        {
+            "number": 29,
+            "value": 26.841999444304815,
+            "params": {
+                "n_estimators": 1200,
+                "max_depth": 8,
+                "learning_rate": 0.027051445990313068,
+                "subsample": 0.8752697986088509,
+                "colsample_bylevel": 0.8727739279284622,
+                "l2_leaf_reg": 0.4570217347568773,
+                "random_strength": 1.5451244041529815,
+                "bagging_temperature": 0.5413937558763853,
+                "min_data_in_leaf": 35
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.841999444304815,
+                "mape": 0.12772600527230682,
+                "training_time": 15.766648020000503,
+                "prediction_time": 0.00771734000009019,
+                "evaluation_time": 0.0006746200000634417
+            }
+        },
+        {
+            "number": 30,
+            "value": 26.701930326255678,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.024969990717127747,
+                "subsample": 0.8400204892580917,
+                "colsample_bylevel": 0.9023392943999274,
+                "l2_leaf_reg": 5.752146915009,
+                "random_strength": 0.24621868350413556,
+                "bagging_temperature": 1.9878013732505124,
+                "min_data_in_leaf": 38
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.701930326255678,
+                "mape": 0.12731866548447224,
+                "training_time": 50.94462360000034,
+                "prediction_time": 0.01508934000012232,
+                "evaluation_time": 0.0008074999997916166
+            }
+        },
+        {
+            "number": 31,
+            "value": 26.699968559963498,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.023459680319923636,
+                "subsample": 0.8100359999929386,
+                "colsample_bylevel": 0.9035868232801259,
+                "l2_leaf_reg": 4.951018129333017,
+                "random_strength": 0.2792177090051668,
+                "bagging_temperature": 1.9481724657145105,
+                "min_data_in_leaf": 43
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.699968559963498,
+                "mape": 0.12722353727399388,
+                "training_time": 50.78399943999939,
+                "prediction_time": 0.016016560000571188,
+                "evaluation_time": 0.0007589999997435371
+            }
+        },
+        {
+            "number": 32,
+            "value": 26.69441373475915,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 10,
+                "learning_rate": 0.031725050698103135,
+                "subsample": 0.7819249195362901,
+                "colsample_bylevel": 0.9270396832529635,
+                "l2_leaf_reg": 9.73574560538372,
+                "random_strength": 0.4845888873769625,
+                "bagging_temperature": 2.495510771257088,
+                "min_data_in_leaf": 43
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.69441373475915,
+                "mape": 0.1273398608790434,
+                "training_time": 50.4611336199996,
+                "prediction_time": 0.015447680000215768,
+                "evaluation_time": 0.0007813199998054187
+            }
+        },
+        {
+            "number": 33,
+            "value": 26.741176952842032,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 10,
+                "learning_rate": 0.0352089596788072,
+                "subsample": 0.7464593659295704,
+                "colsample_bylevel": 0.9268470144965227,
+                "l2_leaf_reg": 2.1551731765752096,
+                "random_strength": 0.5235752440844668,
+                "bagging_temperature": 2.448353115687549,
+                "min_data_in_leaf": 48
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.741176952842032,
+                "mape": 0.12759806889053377,
+                "training_time": 50.14333740000002,
+                "prediction_time": 0.014746820000436856,
+                "evaluation_time": 0.0007346800000959774
+            }
+        },
+        {
+            "number": 34,
+            "value": 26.705848747554274,
+            "params": {
+                "n_estimators": 1300,
+                "max_depth": 9,
+                "learning_rate": 0.030659246910177324,
+                "subsample": 0.7766841291380541,
+                "colsample_bylevel": 0.9660404129327314,
+                "l2_leaf_reg": 9.28593974889499,
+                "random_strength": 0.8747065634136386,
+                "bagging_temperature": 3.572988320968841,
+                "min_data_in_leaf": 45
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.705848747554274,
+                "mape": 0.12719330618244656,
+                "training_time": 24.174623180000346,
+                "prediction_time": 0.013286599999992177,
+                "evaluation_time": 0.0006657399993855506
+            }
+        },
+        {
+            "number": 35,
+            "value": 26.7505689640008,
+            "params": {
+                "n_estimators": 1250,
+                "max_depth": 8,
+                "learning_rate": 0.0380885188430901,
+                "subsample": 0.8483102195036054,
+                "colsample_bylevel": 0.8091487030698815,
+                "l2_leaf_reg": 0.013327732255904813,
+                "random_strength": 0.5402786780757046,
+                "bagging_temperature": 2.7851212151849634,
+                "min_data_in_leaf": 47
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.7505689640008,
+                "mape": 0.12740516145467543,
+                "training_time": 15.704181280000194,
+                "prediction_time": 0.007684059999519377,
+                "evaluation_time": 0.0006559800003742566
+            }
+        },
+        {
+            "number": 36,
+            "value": 26.853736554723206,
+            "params": {
+                "n_estimators": 950,
+                "max_depth": 7,
+                "learning_rate": 0.042969206054957944,
+                "subsample": 0.7808226726548587,
+                "colsample_bylevel": 0.9372758215872904,
+                "l2_leaf_reg": 1.2423769115709995,
+                "random_strength": 0.008538383263414273,
+                "bagging_temperature": 3.0983840994649205,
+                "min_data_in_leaf": 50
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.853736554723206,
+                "mape": 0.12786938365762268,
+                "training_time": 7.278547139999864,
+                "prediction_time": 0.007065619999775663,
+                "evaluation_time": 0.0007024400001682807
+            }
+        },
+        {
+            "number": 37,
+            "value": 26.908351570237663,
+            "params": {
+                "n_estimators": 1100,
+                "max_depth": 6,
+                "learning_rate": 0.04664796183456395,
+                "subsample": 0.9750788228953275,
+                "colsample_bylevel": 0.8861058915007999,
+                "l2_leaf_reg": 0.04757848066708895,
+                "random_strength": 1.3512878816243215,
+                "bagging_temperature": 1.7635673356173824,
+                "min_data_in_leaf": 44
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.908351570237663,
+                "mape": 0.12818428361716586,
+                "training_time": 6.7196581399999555,
+                "prediction_time": 0.006658020000395481,
+                "evaluation_time": 0.0007868999993661419
+            }
+        },
+        {
+            "number": 38,
+            "value": 26.855128733157994,
+            "params": {
+                "n_estimators": 1250,
+                "max_depth": 10,
+                "learning_rate": 0.05312584153596889,
+                "subsample": 0.8244007275080614,
+                "colsample_bylevel": 0.8445943972891897,
+                "l2_leaf_reg": 0.0069655067372203375,
+                "random_strength": 1.0672084885430626,
+                "bagging_temperature": 2.4905002210567657,
+                "min_data_in_leaf": 40
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.855128733157994,
+                "mape": 0.12853862766342677,
+                "training_time": 43.12937122000003,
+                "prediction_time": 0.015075239999714541,
+                "evaluation_time": 0.0007842800005164463
+            }
+        },
+        {
+            "number": 39,
+            "value": 26.75427647781749,
+            "params": {
+                "n_estimators": 1150,
+                "max_depth": 9,
+                "learning_rate": 0.03301162244782351,
+                "subsample": 0.871193809382145,
+                "colsample_bylevel": 0.8130808368268924,
+                "l2_leaf_reg": 3.176381745243229,
+                "random_strength": 1.2068723780113269,
+                "bagging_temperature": 3.8281610534832544,
+                "min_data_in_leaf": 28
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.75427647781749,
+                "mape": 0.12742693837394797,
+                "training_time": 23.773818739999477,
+                "prediction_time": 0.012774660000650329,
+                "evaluation_time": 0.0006984199997532414
+            }
+        },
+        {
+            "number": 40,
+            "value": 27.220505769948147,
+            "params": {
+                "n_estimators": 1050,
+                "max_depth": 10,
+                "learning_rate": 0.09958979514015807,
+                "subsample": 0.735271261843211,
+                "colsample_bylevel": 0.7795286501003975,
+                "l2_leaf_reg": 7.120941135856425,
+                "random_strength": 0.850238403778204,
+                "bagging_temperature": 2.623613404907781,
+                "min_data_in_leaf": 47
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.220505769948147,
+                "mape": 0.13087060376885187,
+                "training_time": 33.483460360000024,
+                "prediction_time": 0.013799859999562614,
+                "evaluation_time": 0.0007269600006111432
+            }
+        },
+        {
+            "number": 41,
+            "value": 26.696320687584194,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.02485607403838371,
+                "subsample": 0.8101744268012512,
+                "colsample_bylevel": 0.9019104564507726,
+                "l2_leaf_reg": 5.433943693332918,
+                "random_strength": 0.2265815819129204,
+                "bagging_temperature": 2.085174093297055,
+                "min_data_in_leaf": 37
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.696320687584194,
+                "mape": 0.1273130960594558,
+                "training_time": 51.36342884000042,
+                "prediction_time": 0.015364180000324268,
+                "evaluation_time": 0.0007281600010173861
+            }
+        },
+        {
+            "number": 42,
+            "value": 26.70707008056708,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 10,
+                "learning_rate": 0.02894719887972329,
+                "subsample": 0.772689933827583,
+                "colsample_bylevel": 0.9165034213988416,
+                "l2_leaf_reg": 5.97647045464,
+                "random_strength": 0.3901606768703519,
+                "bagging_temperature": 2.3387576173851574,
+                "min_data_in_leaf": 33
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.70707008056708,
+                "mape": 0.12746114775370287,
+                "training_time": 50.3670411600011,
+                "prediction_time": 0.01534481999988202,
+                "evaluation_time": 0.0007060600008117035
+            }
+        },
+        {
+            "number": 43,
+            "value": 26.678446760217298,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.025347226438749645,
+                "subsample": 0.7914420270077684,
+                "colsample_bylevel": 0.8780092655440341,
+                "l2_leaf_reg": 9.686385972818426,
+                "random_strength": 0.12109306207231453,
+                "bagging_temperature": 1.7070606903680519,
+                "min_data_in_leaf": 37
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.678446760217298,
+                "mape": 0.127185509073378,
+                "training_time": 50.68685048000043,
+                "prediction_time": 0.015728400000080002,
+                "evaluation_time": 0.0007050199994409923
+            }
+        },
+        {
+            "number": 44,
+            "value": 26.726240258982507,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.02104670429200508,
+                "subsample": 0.795520201510592,
+                "colsample_bylevel": 0.8682294598952778,
+                "l2_leaf_reg": 3.5065338151492775,
+                "random_strength": 0.09517726994135342,
+                "bagging_temperature": 1.6325282030495765,
+                "min_data_in_leaf": 35
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.726240258982507,
+                "mape": 0.1274459209574828,
+                "training_time": 50.167555900000295,
+                "prediction_time": 0.015988539999671047,
+                "evaluation_time": 0.0007568599990918301
+            }
+        },
+        {
+            "number": 45,
+            "value": 26.72939910551936,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.02273801641371555,
+                "subsample": 0.7175966771682727,
+                "colsample_bylevel": 0.8960877347202185,
+                "l2_leaf_reg": 1.776755262257317,
+                "random_strength": 0.21712526365801732,
+                "bagging_temperature": 1.1999322438032256,
+                "min_data_in_leaf": 37
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.72939910551936,
+                "mape": 0.12739800583749078,
+                "training_time": 51.324157279999056,
+                "prediction_time": 0.016030739999405342,
+                "evaluation_time": 0.000746479999361327
+            }
+        },
+        {
+            "number": 46,
+            "value": 26.689807538429363,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.024687250870796196,
+                "subsample": 0.8203325546842964,
+                "colsample_bylevel": 0.9388485993720304,
+                "l2_leaf_reg": 5.830433748959219,
+                "random_strength": 0.16399075260788565,
+                "bagging_temperature": 2.139867590481885,
+                "min_data_in_leaf": 39
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.689807538429363,
+                "mape": 0.12726435171366787,
+                "training_time": 53.54646821999995,
+                "prediction_time": 0.015914220000558997,
+                "evaluation_time": 0.0007474600002751686
+            }
+        },
+        {
+            "number": 47,
+            "value": 26.742712476825375,
+            "params": {
+                "n_estimators": 1300,
+                "max_depth": 10,
+                "learning_rate": 0.03262121525719431,
+                "subsample": 0.8310095739347626,
+                "colsample_bylevel": 0.9383647058919978,
+                "l2_leaf_reg": 0.8169238441158735,
+                "random_strength": 0.34665661062227304,
+                "bagging_temperature": 1.764964817769365,
+                "min_data_in_leaf": 41
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.742712476825375,
+                "mape": 0.1276402499836938,
+                "training_time": 49.811770019998946,
+                "prediction_time": 0.015076099998987047,
+                "evaluation_time": 0.00082106000118074
+            }
+        },
+        {
+            "number": 48,
+            "value": 26.75083060084513,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 10,
+                "learning_rate": 0.025672391071803462,
+                "subsample": 0.7611913575323035,
+                "colsample_bylevel": 0.9540857501454887,
+                "l2_leaf_reg": 3.025343520233287,
+                "random_strength": 0.6232729169957192,
+                "bagging_temperature": 2.8399802890376744,
+                "min_data_in_leaf": 39
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.75083060084513,
+                "mape": 0.12761475097892952,
+                "training_time": 52.02641523999991,
+                "prediction_time": 0.016144899999926566,
+                "evaluation_time": 0.0008266999997431412
+            }
+        },
+        {
+            "number": 49,
+            "value": 27.087641027388816,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 6,
+                "learning_rate": 0.0290194350680303,
+                "subsample": 0.854520573254687,
+                "colsample_bylevel": 0.8835558452411924,
+                "l2_leaf_reg": 7.130049652016104,
+                "random_strength": 0.15226856795775434,
+                "bagging_temperature": 3.013590310800049,
+                "min_data_in_leaf": 46
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.087641027388816,
+                "mape": 0.12891214603284895,
+                "training_time": 6.075978380000015,
+                "prediction_time": 0.0068937800002458974,
+                "evaluation_time": 0.0008176999988791067
+            }
+        },
+        {
+            "number": 50,
+            "value": 26.935782915590767,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 7,
+                "learning_rate": 0.022073757778425965,
+                "subsample": 0.7871714410879099,
+                "colsample_bylevel": 0.915914558150165,
+                "l2_leaf_reg": 4.470026346888299,
+                "random_strength": 0.00967838252011105,
+                "bagging_temperature": 3.3502103341421208,
+                "min_data_in_leaf": 42
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.935782915590767,
+                "mape": 0.12821055758208194,
+                "training_time": 10.832165800000803,
+                "prediction_time": 0.0073098199995001775,
+                "evaluation_time": 0.0007136200008972082
+            }
+        },
+        {
+            "number": 51,
+            "value": 26.69271301457041,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.024166076747071934,
+                "subsample": 0.8221616440213481,
+                "colsample_bylevel": 0.8945314010905252,
+                "l2_leaf_reg": 6.161127226958406,
+                "random_strength": 0.40261441766264344,
+                "bagging_temperature": 2.0683179650405092,
+                "min_data_in_leaf": 36
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.69271301457041,
+                "mape": 0.12721011290232576,
+                "training_time": 51.458531019998915,
+                "prediction_time": 0.015579400000569876,
+                "evaluation_time": 0.0007578400000056718
+            }
+        },
+        {
+            "number": 52,
+            "value": 26.717152655487133,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 10,
+                "learning_rate": 0.03474290258338646,
+                "subsample": 0.8222645227570476,
+                "colsample_bylevel": 0.8799060301313602,
+                "l2_leaf_reg": 9.669772873537543,
+                "random_strength": 0.4008923687429903,
+                "bagging_temperature": 2.118404792153247,
+                "min_data_in_leaf": 34
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.717152655487133,
+                "mape": 0.12763981287099618,
+                "training_time": 52.62668791999895,
+                "prediction_time": 0.0173514600006456,
+                "evaluation_time": 0.0011204600006749388
+            }
+        },
+        {
+            "number": 53,
+            "value": 26.741886043214066,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.02352603596681502,
+                "subsample": 0.7630204982074663,
+                "colsample_bylevel": 0.9737081657443887,
+                "l2_leaf_reg": 2.7982435404801156,
+                "random_strength": 0.4576431361766503,
+                "bagging_temperature": 2.4765834283667987,
+                "min_data_in_leaf": 36
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.741886043214066,
+                "mape": 0.12747243121415147,
+                "training_time": 55.21011336000011,
+                "prediction_time": 0.014452860000892543,
+                "evaluation_time": 0.0007816800003638491
+            }
+        },
+        {
+            "number": 54,
+            "value": 26.687685722670913,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 9,
+                "learning_rate": 0.028614260470520944,
+                "subsample": 0.7955351282678144,
+                "colsample_bylevel": 0.864984566858056,
+                "l2_leaf_reg": 6.7961144033443865,
+                "random_strength": 0.6459854650394411,
+                "bagging_temperature": 1.8919305405458249,
+                "min_data_in_leaf": 39
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.687685722670913,
+                "mape": 0.12714083242575808,
+                "training_time": 30.30929471999989,
+                "prediction_time": 0.013765460001013707,
+                "evaluation_time": 0.000771879999228986
+            }
+        },
+        {
+            "number": 55,
+            "value": 26.96274042959463,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 10,
+                "learning_rate": 0.0771323511963449,
+                "subsample": 0.7937304400538508,
+                "colsample_bylevel": 0.8647675532727486,
+                "l2_leaf_reg": 4.50064552183124,
+                "random_strength": 0.14505132639465668,
+                "bagging_temperature": 1.5706709661263076,
+                "min_data_in_leaf": 38
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.96274042959463,
+                "mape": 0.1294011444183435,
+                "training_time": 48.318119239999945,
+                "prediction_time": 0.014452960000926395,
+                "evaluation_time": 0.0007111400002031587
+            }
+        },
+        {
+            "number": 56,
+            "value": 26.707580092161255,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 9,
+                "learning_rate": 0.028781133228781466,
+                "subsample": 0.8153346851166356,
+                "colsample_bylevel": 0.9318138135246531,
+                "l2_leaf_reg": 1.5747177835470734,
+                "random_strength": 0.31997331246272714,
+                "bagging_temperature": 1.8572852416034544,
+                "min_data_in_leaf": 40
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.707580092161255,
+                "mape": 0.12725841039941066,
+                "training_time": 26.260245179999764,
+                "prediction_time": 0.013368439999612746,
+                "evaluation_time": 0.000769140000193147
+            }
+        },
+        {
+            "number": 57,
+            "value": 26.779867806821706,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 9,
+                "learning_rate": 0.020129810153747908,
+                "subsample": 0.836244060746772,
+                "colsample_bylevel": 0.9203965681563795,
+                "l2_leaf_reg": 0.0011388592526884959,
+                "random_strength": 0.6106021829549111,
+                "bagging_temperature": 1.4754056767336134,
+                "min_data_in_leaf": 37
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.779867806821706,
+                "mape": 0.12746886441877717,
+                "training_time": 27.678267339999728,
+                "prediction_time": 0.012598120000620838,
+                "evaluation_time": 0.0007358000002568588
+            }
+        },
+        {
+            "number": 58,
+            "value": 26.7353905485132,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.025512893385602805,
+                "subsample": 0.7447150635891313,
+                "colsample_bylevel": 0.9489475937933542,
+                "l2_leaf_reg": 7.065440911549273,
+                "random_strength": 0.644589798242632,
+                "bagging_temperature": 1.2268845724443174,
+                "min_data_in_leaf": 39
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.7353905485132,
+                "mape": 0.12749639068474355,
+                "training_time": 53.5706829200004,
+                "prediction_time": 0.014912279999407474,
+                "evaluation_time": 0.00076067999980296
+            }
+        },
+        {
+            "number": 59,
+            "value": 26.753156402571477,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 9,
+                "learning_rate": 0.02145023789151466,
+                "subsample": 0.8653879447701592,
+                "colsample_bylevel": 0.9096739547178797,
+                "l2_leaf_reg": 1.028593109749207,
+                "random_strength": 0.1389858073092426,
+                "bagging_temperature": 2.1450365239885825,
+                "min_data_in_leaf": 33
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.753156402571477,
+                "mape": 0.12738420719374274,
+                "training_time": 27.568762439997954,
+                "prediction_time": 0.013184440000622999,
+                "evaluation_time": 0.0008863600000040605
+            }
+        },
+        {
+            "number": 60,
+            "value": 26.765348164776213,
+            "params": {
+                "n_estimators": 1300,
+                "max_depth": 10,
+                "learning_rate": 0.03214570798955739,
+                "subsample": 0.6670763602703389,
+                "colsample_bylevel": 0.8937784226967846,
+                "l2_leaf_reg": 4.171610264440845,
+                "random_strength": 0.40940332427498366,
+                "bagging_temperature": 1.9687056188839824,
+                "min_data_in_leaf": 36
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.765348164776213,
+                "mape": 0.12774764618838808,
+                "training_time": 47.212532399999326,
+                "prediction_time": 0.013896780000504805,
+                "evaluation_time": 0.0007330400003411341
+            }
+        },
+        {
+            "number": 61,
+            "value": 26.734657126787702,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 8,
+                "learning_rate": 0.029897463587113617,
+                "subsample": 0.9862982171936193,
+                "colsample_bylevel": 0.8375032301505122,
+                "l2_leaf_reg": 6.988434907513278,
+                "random_strength": 1.4956008818746636,
+                "bagging_temperature": 2.647360715098642,
+                "min_data_in_leaf": 49
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.734657126787702,
+                "mape": 0.12736790221235145,
+                "training_time": 18.44414289999986,
+                "prediction_time": 0.007631279999623075,
+                "evaluation_time": 0.0007091600004059728
+            }
+        },
+        {
+            "number": 62,
+            "value": 26.78296921128853,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 8,
+                "learning_rate": 0.02621442744652195,
+                "subsample": 0.8014911781384407,
+                "colsample_bylevel": 0.8708589412051282,
+                "l2_leaf_reg": 2.305053172778355,
+                "random_strength": 0.454274113384456,
+                "bagging_temperature": 2.276815017273705,
+                "min_data_in_leaf": 42
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.78296921128853,
+                "mape": 0.12747177794040024,
+                "training_time": 17.738136920000397,
+                "prediction_time": 0.007297280000057071,
+                "evaluation_time": 0.0006772200002160389
+            }
+        },
+        {
+            "number": 63,
+            "value": 26.720099855021534,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 8,
+                "learning_rate": 0.027751438116731454,
+                "subsample": 0.8208388016668074,
+                "colsample_bylevel": 0.8805757312356274,
+                "l2_leaf_reg": 9.202198999156105,
+                "random_strength": 0.3149953306533891,
+                "bagging_temperature": 1.6665938449577986,
+                "min_data_in_leaf": 49
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.720099855021534,
+                "mape": 0.1271561859136207,
+                "training_time": 17.190446160000285,
+                "prediction_time": 0.008028799999738111,
+                "evaluation_time": 0.0008922599998186342
+            }
+        },
+        {
+            "number": 64,
+            "value": 26.74857859634979,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 9,
+                "learning_rate": 0.02411982970943173,
+                "subsample": 0.7879538433514202,
+                "colsample_bylevel": 0.861426553633689,
+                "l2_leaf_reg": 6.006615620787346,
+                "random_strength": 1.61526189870102,
+                "bagging_temperature": 2.40697102269659,
+                "min_data_in_leaf": 45
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.74857859634979,
+                "mape": 0.12742671330203098,
+                "training_time": 30.13281522000034,
+                "prediction_time": 0.013827199999650475,
+                "evaluation_time": 0.0006889200005389285
+            }
+        },
+        {
+            "number": 65,
+            "value": 26.701774111629607,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 9,
+                "learning_rate": 0.036771900016385764,
+                "subsample": 0.7673815868693707,
+                "colsample_bylevel": 0.8982245532947036,
+                "l2_leaf_reg": 3.9783941789274984,
+                "random_strength": 0.19518130518056015,
+                "bagging_temperature": 2.7230538597804843,
+                "min_data_in_leaf": 42
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.701774111629607,
+                "mape": 0.12736675408477913,
+                "training_time": 28.12716459999865,
+                "prediction_time": 0.013140899999416433,
+                "evaluation_time": 0.0006910800002515316
+            }
+        },
+        {
+            "number": 66,
+            "value": 26.756355822631065,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.030878150489089148,
+                "subsample": 0.9923103085857227,
+                "colsample_bylevel": 0.8883827012572102,
+                "l2_leaf_reg": 2.4595990663097433,
+                "random_strength": 1.8790748641189765,
+                "bagging_temperature": 1.8055977478265284,
+                "min_data_in_leaf": 39
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.756355822631065,
+                "mape": 0.12772560938849548,
+                "training_time": 51.904435180001016,
+                "prediction_time": 0.014885059999505757,
+                "evaluation_time": 0.0007068599996273405
+            }
+        },
+        {
+            "number": 67,
+            "value": 26.69190130520679,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 8,
+                "learning_rate": 0.03972229038223089,
+                "subsample": 0.8502104784039561,
+                "colsample_bylevel": 0.9437140400881018,
+                "l2_leaf_reg": 9.931730679294985,
+                "random_strength": 0.7250712902718625,
+                "bagging_temperature": 2.248130377806087,
+                "min_data_in_leaf": 48
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.69190130520679,
+                "mape": 0.12721212782710423,
+                "training_time": 16.42777724000043,
+                "prediction_time": 0.0070614399992336985,
+                "evaluation_time": 0.0007010800007265061
+            }
+        },
+        {
+            "number": 68,
+            "value": 26.78494870764601,
+            "params": {
+                "n_estimators": 1300,
+                "max_depth": 10,
+                "learning_rate": 0.04964074716140647,
+                "subsample": 0.8489406721265611,
+                "colsample_bylevel": 0.9483415814961194,
+                "l2_leaf_reg": 7.413444378900705,
+                "random_strength": 0.6910165710217828,
+                "bagging_temperature": 2.046257817275315,
+                "min_data_in_leaf": 46
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.78494870764601,
+                "mape": 0.12809497278760335,
+                "training_time": 50.471376800000144,
+                "prediction_time": 0.013950759999715956,
+                "evaluation_time": 0.000876780000544386
+            }
+        },
+        {
+            "number": 69,
+            "value": 26.701148781571153,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 8,
+                "learning_rate": 0.03956676296476211,
+                "subsample": 0.7837506316426779,
+                "colsample_bylevel": 0.971780685630169,
+                "l2_leaf_reg": 5.556019334681973,
+                "random_strength": 0.48423878447607166,
+                "bagging_temperature": 2.2321751317485647,
+                "min_data_in_leaf": 44
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.701148781571153,
+                "mape": 0.12721763998107477,
+                "training_time": 15.390537680000852,
+                "prediction_time": 0.007816760000423528,
+                "evaluation_time": 0.0007062200005748309
+            }
+        },
+        {
+            "number": 70,
+            "value": 26.748522593426923,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 10,
+                "learning_rate": 0.02757277402118484,
+                "subsample": 0.7507344000011852,
+                "colsample_bylevel": 0.9620998986955653,
+                "l2_leaf_reg": 3.6943447867478745,
+                "random_strength": 0.8113463595068316,
+                "bagging_temperature": 1.5169852217697022,
+                "min_data_in_leaf": 48
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.748522593426923,
+                "mape": 0.12754014583211778,
+                "training_time": 52.660376339999495,
+                "prediction_time": 0.014689240000006976,
+                "evaluation_time": 0.0007320199998503085
+            }
+        },
+        {
+            "number": 71,
+            "value": 26.758048779227227,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 7,
+                "learning_rate": 0.034554418185491306,
+                "subsample": 0.9577230702179657,
+                "colsample_bylevel": 0.9386833093049889,
+                "l2_leaf_reg": 9.446831671336858,
+                "random_strength": 0.5682807956725154,
+                "bagging_temperature": 2.5803396251710025,
+                "min_data_in_leaf": 49
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.758048779227227,
+                "mape": 0.12736404618482106,
+                "training_time": 11.086220999999933,
+                "prediction_time": 0.007742120000330033,
+                "evaluation_time": 0.0007420199995976873
+            }
+        },
+        {
+            "number": 72,
+            "value": 26.718827727838107,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 8,
+                "learning_rate": 0.03694571193255138,
+                "subsample": 0.9360512839340955,
+                "colsample_bylevel": 0.8523516608180595,
+                "l2_leaf_reg": 0.15254480830169007,
+                "random_strength": 0.9541559115782977,
+                "bagging_temperature": 2.9701174336656635,
+                "min_data_in_leaf": 50
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.718827727838107,
+                "mape": 0.12723904886461262,
+                "training_time": 18.517157779999252,
+                "prediction_time": 0.008032620000449242,
+                "evaluation_time": 0.0007270399990375153
+            }
+        },
+        {
+            "number": 73,
+            "value": 26.77433777220181,
+            "params": {
+                "n_estimators": 1200,
+                "max_depth": 8,
+                "learning_rate": 0.03157319264970279,
+                "subsample": 0.8051824536725626,
+                "colsample_bylevel": 0.9252742349740963,
+                "l2_leaf_reg": 7.282653080408921,
+                "random_strength": 0.7119860041237632,
+                "bagging_temperature": 3.159809856624655,
+                "min_data_in_leaf": 47
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.77433777220181,
+                "mape": 0.12745904001215544,
+                "training_time": 14.018964580000466,
+                "prediction_time": 0.007658640000590822,
+                "evaluation_time": 0.0008403000014368444
+            }
+        },
+        {
+            "number": 74,
+            "value": 26.72284167813474,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 8,
+                "learning_rate": 0.03374928818538395,
+                "subsample": 0.8796685153837429,
+                "colsample_bylevel": 0.9065270985721197,
+                "l2_leaf_reg": 5.082162163689098,
+                "random_strength": 1.340461930607386,
+                "bagging_temperature": 2.192246695528962,
+                "min_data_in_leaf": 50
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.72284167813474,
+                "mape": 0.1272914249959645,
+                "training_time": 16.875643800000397,
+                "prediction_time": 0.007247939999069785,
+                "evaluation_time": 0.000696579999930691
+            }
+        },
+        {
+            "number": 75,
+            "value": 26.736150258838073,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 8,
+                "learning_rate": 0.028574543780849747,
+                "subsample": 0.9105268669281903,
+                "colsample_bylevel": 0.8764521657963283,
+                "l2_leaf_reg": 9.474748216649207,
+                "random_strength": 0.0589182669478188,
+                "bagging_temperature": 2.370183998747341,
+                "min_data_in_leaf": 36
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.736150258838073,
+                "mape": 0.12723041131165497,
+                "training_time": 17.320339899999816,
+                "prediction_time": 0.007676759999594651,
+                "evaluation_time": 0.0007061199998133816
+            }
+        },
+        {
+            "number": 76,
+            "value": 26.721389039609384,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 9,
+                "learning_rate": 0.044617109204406986,
+                "subsample": 0.9783114442385288,
+                "colsample_bylevel": 0.9141639065980846,
+                "l2_leaf_reg": 0.5817942594710356,
+                "random_strength": 0.77103091489658,
+                "bagging_temperature": 1.9095813364397753,
+                "min_data_in_leaf": 48
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.721389039609384,
+                "mape": 0.1275409318764932,
+                "training_time": 28.399135559999557,
+                "prediction_time": 0.01362951999908546,
+                "evaluation_time": 0.000688879999506753
+            }
+        },
+        {
+            "number": 77,
+            "value": 26.812119617303637,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 10,
+                "learning_rate": 0.041615524785356926,
+                "subsample": 0.8143304648520852,
+                "colsample_bylevel": 0.8905426243427744,
+                "l2_leaf_reg": 6.790788366636337,
+                "random_strength": 1.2244525216459972,
+                "bagging_temperature": 2.548537341752613,
+                "min_data_in_leaf": 44
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.812119617303637,
+                "mape": 0.12816003453101885,
+                "training_time": 49.6361846000007,
+                "prediction_time": 0.014264720000210219,
+                "evaluation_time": 0.0008570199999667239
+            }
+        },
+        {
+            "number": 78,
+            "value": 26.879612916646217,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 7,
+                "learning_rate": 0.024190590532123333,
+                "subsample": 0.7317165984316717,
+                "colsample_bylevel": 0.9324634649949436,
+                "l2_leaf_reg": 4.763099998505934,
+                "random_strength": 0.2874987709116997,
+                "bagging_temperature": 2.035631073910058,
+                "min_data_in_leaf": 46
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.879612916646217,
+                "mape": 0.12787593154357482,
+                "training_time": 10.615076119999866,
+                "prediction_time": 0.0072159799987275616,
+                "evaluation_time": 0.0007134599996788893
+            }
+        },
+        {
+            "number": 79,
+            "value": 26.780330407286833,
+            "params": {
+                "n_estimators": 1300,
+                "max_depth": 8,
+                "learning_rate": 0.026238676135725156,
+                "subsample": 0.8309987157884404,
+                "colsample_bylevel": 0.9922297270932285,
+                "l2_leaf_reg": 3.39109271397496,
+                "random_strength": 0.5685732412404851,
+                "bagging_temperature": 2.827740335532148,
+                "min_data_in_leaf": 34
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.780330407286833,
+                "mape": 0.12748921691721807,
+                "training_time": 13.181361239999386,
+                "prediction_time": 0.008635819999472005,
+                "evaluation_time": 0.0007035799993900582
+            }
+        },
+        {
+            "number": 80,
+            "value": 26.79602109069837,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 10,
+                "learning_rate": 0.02999734147244843,
+                "subsample": 0.79482044661171,
+                "colsample_bylevel": 0.8663237650036972,
+                "l2_leaf_reg": 1.946160076198394,
+                "random_strength": 1.417549977690698,
+                "bagging_temperature": 1.6765494191693822,
+                "min_data_in_leaf": 40
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.79602109069837,
+                "mape": 0.12786437282305635,
+                "training_time": 49.02173127999995,
+                "prediction_time": 0.015011079999385401,
+                "evaluation_time": 0.0007650600004126318
+            }
+        },
+        {
+            "number": 81,
+            "value": 26.71012194909294,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.02510916467360638,
+                "subsample": 0.8091413207038509,
+                "colsample_bylevel": 0.9033067990372554,
+                "l2_leaf_reg": 5.23340760671151,
+                "random_strength": 0.23675282680500195,
+                "bagging_temperature": 4.467704888724043,
+                "min_data_in_leaf": 37
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.71012194909294,
+                "mape": 0.12730544563601084,
+                "training_time": 53.0182229799997,
+                "prediction_time": 0.0150543399999151,
+                "evaluation_time": 0.0008085799992841203
+            }
+        },
+        {
+            "number": 82,
+            "value": 26.69688023344448,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.023011591925854977,
+                "subsample": 0.7750331261000049,
+                "colsample_bylevel": 0.8973618573803287,
+                "l2_leaf_reg": 8.282790956072967,
+                "random_strength": 0.17914954516815165,
+                "bagging_temperature": 2.106256562035073,
+                "min_data_in_leaf": 37
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.69688023344448,
+                "mape": 0.12716165672884885,
+                "training_time": 52.6655797600004,
+                "prediction_time": 0.014587860001483932,
+                "evaluation_time": 0.000705720000405563
+            }
+        },
+        {
+            "number": 83,
+            "value": 26.68948994926083,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.022259602534568827,
+                "subsample": 0.8007296282046874,
+                "colsample_bylevel": 0.9215401664102201,
+                "l2_leaf_reg": 5.519519061985427,
+                "random_strength": 0.07702474093570877,
+                "bagging_temperature": 1.8428017848671157,
+                "min_data_in_leaf": 38
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.68948994926083,
+                "mape": 0.1271905882209872,
+                "training_time": 53.81577433999919,
+                "prediction_time": 0.014531960000749678,
+                "evaluation_time": 0.0007759400010399986
+            }
+        },
+        {
+            "number": 84,
+            "value": 26.714431931328686,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.022077445087681193,
+                "subsample": 0.8313952482118531,
+                "colsample_bylevel": 0.9451835620252843,
+                "l2_leaf_reg": 2.830640943473045,
+                "random_strength": 0.022454116559367132,
+                "bagging_temperature": 1.8989324473393663,
+                "min_data_in_leaf": 41
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.714431931328686,
+                "mape": 0.12741187095933726,
+                "training_time": 55.10563681999993,
+                "prediction_time": 0.014724459999706596,
+                "evaluation_time": 0.0007398000008834061
+            }
+        },
+        {
+            "number": 85,
+            "value": 26.702122562148823,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 10,
+                "learning_rate": 0.020908780916580917,
+                "subsample": 0.8428434295450047,
+                "colsample_bylevel": 0.9101515775389465,
+                "l2_leaf_reg": 5.954023942545119,
+                "random_strength": 0.08160715283587963,
+                "bagging_temperature": 1.3575891570873373,
+                "min_data_in_leaf": 39
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.702122562148823,
+                "mape": 0.12729904403215467,
+                "training_time": 51.56154582000018,
+                "prediction_time": 0.014239019999513403,
+                "evaluation_time": 0.0007477400002244394
+            }
+        },
+        {
+            "number": 86,
+            "value": 26.703119778330283,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.028209809944147454,
+                "subsample": 0.7984731199629107,
+                "colsample_bylevel": 0.9420196109979597,
+                "l2_leaf_reg": 9.921136938244421,
+                "random_strength": 0.35738496256755414,
+                "bagging_temperature": 1.7602079454885002,
+                "min_data_in_leaf": 35
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.703119778330283,
+                "mape": 0.1273193558022839,
+                "training_time": 54.87684441999882,
+                "prediction_time": 0.014698299999872688,
+                "evaluation_time": 0.000730360001034569
+            }
+        },
+        {
+            "number": 87,
+            "value": 26.703907359712286,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 9,
+                "learning_rate": 0.026441997007799378,
+                "subsample": 0.998690035622026,
+                "colsample_bylevel": 0.9209936000044908,
+                "l2_leaf_reg": 3.9971669120594457,
+                "random_strength": 0.6532131416341449,
+                "bagging_temperature": 2.6889415867241193,
+                "min_data_in_leaf": 38
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.703907359712286,
+                "mape": 0.12725078410852803,
+                "training_time": 27.145482239999545,
+                "prediction_time": 0.01329270000132965,
+                "evaluation_time": 0.0008223400000133552
+            }
+        },
+        {
+            "number": 88,
+            "value": 26.741989318775683,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 9,
+                "learning_rate": 0.022636921878904228,
+                "subsample": 0.859196705772635,
+                "colsample_bylevel": 0.8760668679433151,
+                "l2_leaf_reg": 0.03343752060505777,
+                "random_strength": 0.26161853125660145,
+                "bagging_temperature": 2.2497564816631113,
+                "min_data_in_leaf": 49
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.741989318775683,
+                "mape": 0.1273763415021047,
+                "training_time": 30.491036200000234,
+                "prediction_time": 0.013537340000038967,
+                "evaluation_time": 0.0007871000001614447
+            }
+        },
+        {
+            "number": 89,
+            "value": 26.724782789836347,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.023891121188493816,
+                "subsample": 0.755010322239875,
+                "colsample_bylevel": 0.9555242016774553,
+                "l2_leaf_reg": 7.799101455625144,
+                "random_strength": 0.4748450301707503,
+                "bagging_temperature": 2.427820878330501,
+                "min_data_in_leaf": 38
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.724782789836347,
+                "mape": 0.12732248476363014,
+                "training_time": 54.311825160000446,
+                "prediction_time": 0.014854320000449662,
+                "evaluation_time": 0.0007533000003604684
+            }
+        },
+        {
+            "number": 90,
+            "value": 26.769967295624543,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 10,
+                "learning_rate": 0.03582325510799321,
+                "subsample": 0.8185799931371649,
+                "colsample_bylevel": 0.9295561633903402,
+                "l2_leaf_reg": 6.131699618888418,
+                "random_strength": 1.1400853378045208,
+                "bagging_temperature": 2.005559223816192,
+                "min_data_in_leaf": 31
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.769967295624543,
+                "mape": 0.12775711036717383,
+                "training_time": 52.36897181999957,
+                "prediction_time": 0.014497420000407147,
+                "evaluation_time": 0.0007033799985947554
+            }
+        },
+        {
+            "number": 91,
+            "value": 26.699286229422217,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.0257313364665562,
+                "subsample": 0.807376773473892,
+                "colsample_bylevel": 0.8989939364598751,
+                "l2_leaf_reg": 5.042416063647706,
+                "random_strength": 0.1087809198946873,
+                "bagging_temperature": 2.141956846019645,
+                "min_data_in_leaf": 36
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.699286229422217,
+                "mape": 0.12734197440173994,
+                "training_time": 53.00724036000029,
+                "prediction_time": 0.014729919999808772,
+                "evaluation_time": 0.0006985400003031827
+            }
+        },
+        {
+            "number": 92,
+            "value": 26.709138298597015,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.02479486551209053,
+                "subsample": 0.7910556120668719,
+                "colsample_bylevel": 0.8880667613259026,
+                "l2_leaf_reg": 7.9436389633600095,
+                "random_strength": 0.20198641832818345,
+                "bagging_temperature": 1.8515273053311532,
+                "min_data_in_leaf": 40
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.709138298597015,
+                "mape": 0.12736870273011927,
+                "training_time": 52.61704406000062,
+                "prediction_time": 0.014470979999896372,
+                "evaluation_time": 0.0007436599989887327
+            }
+        },
+        {
+            "number": 93,
+            "value": 26.761432162578057,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.02981935025785,
+                "subsample": 0.7690091333547706,
+                "colsample_bylevel": 0.9172469171180464,
+                "l2_leaf_reg": 2.6425214713935943,
+                "random_strength": 0.43756756665594804,
+                "bagging_temperature": 2.31745679892752,
+                "min_data_in_leaf": 37
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.761432162578057,
+                "mape": 0.12775311093504277,
+                "training_time": 53.80017156000031,
+                "prediction_time": 0.014714560000720666,
+                "evaluation_time": 0.0007045999998808838
+            }
+        },
+        {
+            "number": 94,
+            "value": 26.75261080822218,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.03352734175719048,
+                "subsample": 0.7796869213329624,
+                "colsample_bylevel": 0.8839183283578245,
+                "l2_leaf_reg": 3.461953882657208,
+                "random_strength": 0.07171411488275604,
+                "bagging_temperature": 2.062245125584442,
+                "min_data_in_leaf": 35
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.75261080822218,
+                "mape": 0.12776535686745513,
+                "training_time": 52.17060824000073,
+                "prediction_time": 0.014511059999495046,
+                "evaluation_time": 0.0007873800001107156
+            }
+        },
+        {
+            "number": 95,
+            "value": 26.723550042126135,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 10,
+                "learning_rate": 0.03909526770424333,
+                "subsample": 0.8248585262800038,
+                "colsample_bylevel": 0.9339085592783939,
+                "l2_leaf_reg": 5.750675699842997,
+                "random_strength": 0.3028372551243458,
+                "bagging_temperature": 2.531594691759247,
+                "min_data_in_leaf": 39
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.723550042126135,
+                "mape": 0.12758855903733754,
+                "training_time": 38.71712699999989,
+                "prediction_time": 0.012672139998903731,
+                "evaluation_time": 0.0007196200000180397
+            }
+        },
+        {
+            "number": 96,
+            "value": 26.77166520757662,
+            "params": {
+                "n_estimators": 1150,
+                "max_depth": 9,
+                "learning_rate": 0.02746061724557683,
+                "subsample": 0.8127663977498489,
+                "colsample_bylevel": 0.9039362540788881,
+                "l2_leaf_reg": 4.536133386829202,
+                "random_strength": 1.4761730103058652,
+                "bagging_temperature": 1.7162954491875793,
+                "min_data_in_leaf": 48
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.77166520757662,
+                "mape": 0.1274609247651823,
+                "training_time": 24.06213901999945,
+                "prediction_time": 0.012568720000126632,
+                "evaluation_time": 0.0006841200010967441
+            }
+        },
+        {
+            "number": 97,
+            "value": 26.746162875167236,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 10,
+                "learning_rate": 0.032041414536521304,
+                "subsample": 0.7836087859281158,
+                "colsample_bylevel": 0.9250448740553568,
+                "l2_leaf_reg": 1.3727384594156822,
+                "random_strength": 0.5162259363879802,
+                "bagging_temperature": 1.9349160117843038,
+                "min_data_in_leaf": 37
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.746162875167236,
+                "mape": 0.1277523393582018,
+                "training_time": 51.15147350000043,
+                "prediction_time": 0.014812000000529225,
+                "evaluation_time": 0.0007184799993410707
+            }
+        },
+        {
+            "number": 98,
+            "value": 26.789154040493393,
+            "params": {
+                "n_estimators": 1350,
+                "max_depth": 8,
+                "learning_rate": 0.021781814120745372,
+                "subsample": 0.9701515443009546,
+                "colsample_bylevel": 0.9106149761041462,
+                "l2_leaf_reg": 8.45959402333358,
+                "random_strength": 0.3686077029032833,
+                "bagging_temperature": 1.58315660206365,
+                "min_data_in_leaf": 41
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.789154040493393,
+                "mape": 0.1274085409883791,
+                "training_time": 16.57021920000043,
+                "prediction_time": 0.0073962199989182405,
+                "evaluation_time": 0.0007804200002283323
+            }
+        },
+        {
+            "number": 99,
+            "value": 26.743794561811644,
+            "params": {
+                "n_estimators": 1400,
+                "max_depth": 10,
+                "learning_rate": 0.02320271597516127,
+                "subsample": 0.801673036629259,
+                "colsample_bylevel": 0.7550566913752043,
+                "l2_leaf_reg": 6.505242646416387,
+                "random_strength": 1.3617077732081901,
+                "bagging_temperature": 2.215316956741096,
+                "min_data_in_leaf": 33
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.743794561811644,
+                "mape": 0.12743885986581507,
+                "training_time": 45.39644168000159,
+                "prediction_time": 0.014899639999202918,
+                "evaluation_time": 0.000717620000068564
+            }
+        }
+    ]
+}

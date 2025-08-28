@@ -1,0 +1,2427 @@
+{
+    "best_trial": 62,
+    "best_value": 26.749467885006784,
+    "best_params": {
+        "n_estimators": 1000,
+        "max_depth": 7,
+        "learning_rate": 0.0667882335036934,
+        "subsample": 0.7820868851482802,
+        "colsample_bylevel": 0.8038617233270315,
+        "l2_leaf_reg": 5.542460862643922,
+        "random_strength": 0.5425460070822284,
+        "bagging_temperature": 1.8235800749176,
+        "border_count": 255,
+        "min_data_in_leaf": 26
+    },
+    "best_user_attrs": {
+        "mae": 26.749467885006784,
+        "mape": 0.12747115271669732,
+        "training_time": 8.18658854000023,
+        "prediction_time": 0.007066520000807941,
+        "evaluation_time": 0.0006623799999943003
+    },
+    "n_trials": 100,
+    "study_name": "CatBoostRegressor",
+    "trials": [
+        {
+            "number": 0,
+            "value": 27.561920129610222,
+            "params": {
+                "n_estimators": 400,
+                "max_depth": 12,
+                "learning_rate": 0.1205712628744377,
+                "subsample": 0.8394633936788146,
+                "colsample_bylevel": 0.6624074561769746,
+                "l2_leaf_reg": 0.004207053950287938,
+                "random_strength": 0.5808361216819946,
+                "bagging_temperature": 8.661761457749352,
+                "border_count": 255,
+                "min_data_in_leaf": 42
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.561920129610222,
+                "mape": 0.13310191733769272,
+                "training_time": 32.52600897999946,
+                "prediction_time": 0.01077390000136802,
+                "evaluation_time": 0.0006823000003350899
+            }
+        },
+        {
+            "number": 1,
+            "value": 30.099225857068433,
+            "params": {
+                "n_estimators": 300,
+                "max_depth": 4,
+                "learning_rate": 0.018659959624904916,
+                "subsample": 0.7216968971838151,
+                "colsample_bylevel": 0.8099025726528951,
+                "l2_leaf_reg": 0.05342937261279776,
+                "random_strength": 2.9122914019804194,
+                "bagging_temperature": 6.118528947223795,
+                "border_count": 255,
+                "min_data_in_leaf": 40
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 30.099225857068433,
+                "mape": 0.14703163414074488,
+                "training_time": 1.1531877399989754,
+                "prediction_time": 0.006025539999973262,
+                "evaluation_time": 0.0006727199994202238
+            }
+        },
+        {
+            "number": 2,
+            "value": 27.478499002445425,
+            "params": {
+                "n_estimators": 200,
+                "max_depth": 8,
+                "learning_rate": 0.07500118950416987,
+                "subsample": 0.6185801650879991,
+                "colsample_bylevel": 0.8430179407605753,
+                "l2_leaf_reg": 0.004809461967501573,
+                "random_strength": 0.6505159298527952,
+                "bagging_temperature": 9.488855372533333,
+                "border_count": 32,
+                "min_data_in_leaf": 35
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.478499002445425,
+                "mape": 0.1313522752433054,
+                "training_time": 1.2379527999990387,
+                "prediction_time": 0.005522539999947185,
+                "evaluation_time": 0.0006615999991481658
+            }
+        },
+        {
+            "number": 3,
+            "value": 27.96338329423049,
+            "params": {
+                "n_estimators": 500,
+                "max_depth": 4,
+                "learning_rate": 0.05388108577817234,
+                "subsample": 0.6137554084460873,
+                "colsample_bylevel": 0.9637281608315128,
+                "l2_leaf_reg": 0.010842262717330166,
+                "random_strength": 6.62522284353982,
+                "bagging_temperature": 3.1171107608941098,
+                "border_count": 255,
+                "min_data_in_leaf": 39
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.96338329423049,
+                "mape": 0.13373796336860116,
+                "training_time": 1.7137302800001635,
+                "prediction_time": 0.006980159998784074,
+                "evaluation_time": 0.0007278400000359398
+            }
+        },
+        {
+            "number": 4,
+            "value": 27.08947432896892,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 11,
+                "learning_rate": 0.0764136186923332,
+                "subsample": 0.9687496940092467,
+                "colsample_bylevel": 0.6353970008207678,
+                "l2_leaf_reg": 0.006080390190296602,
+                "random_strength": 0.45227288910538066,
+                "bagging_temperature": 3.2533033076326436,
+                "border_count": 128,
+                "min_data_in_leaf": 15
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.08947432896892,
+                "mape": 0.13043748550485593,
+                "training_time": 25.939313160000165,
+                "prediction_time": 0.014714319999620784,
+                "evaluation_time": 0.0007975399996212218
+            }
+        },
+        {
+            "number": 5,
+            "value": 27.319091469065864,
+            "params": {
+                "n_estimators": 600,
+                "max_depth": 4,
+                "learning_rate": 0.1530883741573138,
+                "subsample": 0.6298202574719083,
+                "colsample_bylevel": 0.9947547746402069,
+                "l2_leaf_reg": 1.2273800987852967,
+                "random_strength": 1.987156815341724,
+                "bagging_temperature": 0.05522117123602399,
+                "border_count": 32,
+                "min_data_in_leaf": 4
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.319091469065864,
+                "mape": 0.13063465667065044,
+                "training_time": 1.7902775200003815,
+                "prediction_time": 0.006086140000115847,
+                "evaluation_time": 0.0006789800005208235
+            }
+        },
+        {
+            "number": 6,
+            "value": 27.292476390333547,
+            "params": {
+                "n_estimators": 400,
+                "max_depth": 4,
+                "learning_rate": 0.18832519048593593,
+                "subsample": 0.8493192507310232,
+                "colsample_bylevel": 0.7323592099410596,
+                "l2_leaf_reg": 0.0017956984225677636,
+                "random_strength": 3.109823217156622,
+                "bagging_temperature": 3.2518332202674705,
+                "border_count": 128,
+                "min_data_in_leaf": 6
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.292476390333547,
+                "mape": 0.13016273051356414,
+                "training_time": 1.4803207199991448,
+                "prediction_time": 0.00628670000078273,
+                "evaluation_time": 0.0006863000002340413
+            }
+        },
+        {
+            "number": 7,
+            "value": 27.007326090587906,
+            "params": {
+                "n_estimators": 800,
+                "max_depth": 10,
+                "learning_rate": 0.06746437142284309,
+                "subsample": 0.9083868719818244,
+                "colsample_bylevel": 0.7975182385457563,
+                "l2_leaf_reg": 0.12329098365270515,
+                "random_strength": 4.275410183585496,
+                "bagging_temperature": 0.2541912674409519,
+                "border_count": 128,
+                "min_data_in_leaf": 26
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.007326090587906,
+                "mape": 0.1293193328481355,
+                "training_time": 15.932148940000479,
+                "prediction_time": 0.012103039999783505,
+                "evaluation_time": 0.0010450800000398885
+            }
+        },
+        {
+            "number": 8,
+            "value": 27.275342077565206,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 5,
+                "learning_rate": 0.040381768820718394,
+                "subsample": 0.9022204554172195,
+                "colsample_bylevel": 0.6915192661966489,
+                "l2_leaf_reg": 0.0020319809838424984,
+                "random_strength": 2.8975145291376805,
+                "bagging_temperature": 1.6122128725400442,
+                "border_count": 32,
+                "min_data_in_leaf": 41
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.275342077565206,
+                "mape": 0.13026036385377446,
+                "training_time": 4.245912179999868,
+                "prediction_time": 0.006961120000778464,
+                "evaluation_time": 0.0007184199996117969
+            }
+        },
+        {
+            "number": 9,
+            "value": 27.22941306623327,
+            "params": {
+                "n_estimators": 200,
+                "max_depth": 11,
+                "learning_rate": 0.06261435181296006,
+                "subsample": 0.922976062065625,
+                "colsample_bylevel": 0.9584365199693973,
+                "l2_leaf_reg": 0.018707420137660268,
+                "random_strength": 1.1005192452767676,
+                "bagging_temperature": 2.279351625419417,
+                "border_count": 128,
+                "min_data_in_leaf": 26
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.22941306623327,
+                "mape": 0.12993371499402984,
+                "training_time": 7.323218920000363,
+                "prediction_time": 0.007912060000671772,
+                "evaluation_time": 0.000653759999840986
+            }
+        },
+        {
+            "number": 10,
+            "value": 28.7079041318343,
+            "params": {
+                "n_estimators": 800,
+                "max_depth": 8,
+                "learning_rate": 0.010260022325256595,
+                "subsample": 0.746697621215042,
+                "colsample_bylevel": 0.886067844878718,
+                "l2_leaf_reg": 0.5767509177705765,
+                "random_strength": 9.597707459454202,
+                "bagging_temperature": 5.99945070550957,
+                "border_count": 64,
+                "min_data_in_leaf": 25
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 28.7079041318343,
+                "mape": 0.13846881549885132,
+                "training_time": 5.584041059999436,
+                "prediction_time": 0.007185300000128336,
+                "evaluation_time": 0.0006826400007412303
+            }
+        },
+        {
+            "number": 11,
+            "value": 26.883157567402172,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 10,
+                "learning_rate": 0.030996003951218695,
+                "subsample": 0.9977977909214745,
+                "colsample_bylevel": 0.6271281071050484,
+                "l2_leaf_reg": 0.2339569776493165,
+                "random_strength": 5.421005384063923,
+                "bagging_temperature": 0.05263984964719512,
+                "border_count": 128,
+                "min_data_in_leaf": 15
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.883157567402172,
+                "mape": 0.12822239059601612,
+                "training_time": 17.43639325999975,
+                "prediction_time": 0.013493819999712286,
+                "evaluation_time": 0.0007707400007348042
+            }
+        },
+        {
+            "number": 12,
+            "value": 26.96182734307684,
+            "params": {
+                "n_estimators": 800,
+                "max_depth": 9,
+                "learning_rate": 0.02903677374376258,
+                "subsample": 0.9830229713128368,
+                "colsample_bylevel": 0.7454663614570831,
+                "l2_leaf_reg": 7.437031163695102,
+                "random_strength": 5.553557160065972,
+                "bagging_temperature": 0.097656133421515,
+                "border_count": 128,
+                "min_data_in_leaf": 17
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.96182734307684,
+                "mape": 0.12827779135144618,
+                "training_time": 10.24850779999979,
+                "prediction_time": 0.010925439999846276,
+                "evaluation_time": 0.000762360000226181
+            }
+        },
+        {
+            "number": 13,
+            "value": 27.088275288633646,
+            "params": {
+                "n_estimators": 800,
+                "max_depth": 9,
+                "learning_rate": 0.026300838231072442,
+                "subsample": 0.9992524969160435,
+                "colsample_bylevel": 0.6143691879047292,
+                "l2_leaf_reg": 9.84907802295007,
+                "random_strength": 7.20249899583716,
+                "bagging_temperature": 1.2623449918600675,
+                "border_count": 128,
+                "min_data_in_leaf": 15
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.088275288633646,
+                "mape": 0.1290067776118228,
+                "training_time": 9.654860120000375,
+                "prediction_time": 0.010706740000023274,
+                "evaluation_time": 0.0006935400007932913
+            }
+        },
+        {
+            "number": 14,
+            "value": 27.296635727879938,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 6,
+                "learning_rate": 0.030131202693414832,
+                "subsample": 0.960109309177847,
+                "colsample_bylevel": 0.7283400714479269,
+                "l2_leaf_reg": 7.563946886203248,
+                "random_strength": 5.957440821150985,
+                "bagging_temperature": 0.017542585225104393,
+                "border_count": 64,
+                "min_data_in_leaf": 15
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.296635727879938,
+                "mape": 0.13022064467851918,
+                "training_time": 4.5456579200013945,
+                "prediction_time": 0.00748061999984202,
+                "evaluation_time": 0.0008251399995060638
+            }
+        },
+        {
+            "number": 15,
+            "value": 28.55842831544941,
+            "params": {
+                "n_estimators": 700,
+                "max_depth": 7,
+                "learning_rate": 0.01559645715127775,
+                "subsample": 0.9909065862380313,
+                "colsample_bylevel": 0.7374998858014523,
+                "l2_leaf_reg": 1.9573357375422622,
+                "random_strength": 8.395392694827276,
+                "bagging_temperature": 4.47704291130379,
+                "border_count": 128,
+                "min_data_in_leaf": 10
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 28.55842831544941,
+                "mape": 0.13718729001619753,
+                "training_time": 4.84306377999892,
+                "prediction_time": 0.007272540000121808,
+                "evaluation_time": 0.000817780000215862
+            }
+        },
+        {
+            "number": 16,
+            "value": 26.955633252561125,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 9,
+                "learning_rate": 0.02699445382161811,
+                "subsample": 0.8679083694332411,
+                "colsample_bylevel": 0.6044903765579541,
+                "l2_leaf_reg": 0.23743693139324723,
+                "random_strength": 5.030067096806224,
+                "bagging_temperature": 1.3850153541361065,
+                "border_count": 128,
+                "min_data_in_leaf": 20
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.955633252561125,
+                "mape": 0.1283466595877569,
+                "training_time": 11.744573460000538,
+                "prediction_time": 0.01215310000043246,
+                "evaluation_time": 0.0007664200013095979
+            }
+        },
+        {
+            "number": 17,
+            "value": 27.237168938287056,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 10,
+                "learning_rate": 0.015461219260523337,
+                "subsample": 0.7746991448724811,
+                "colsample_bylevel": 0.616385914127519,
+                "l2_leaf_reg": 0.19307397576298738,
+                "random_strength": 4.412914452378879,
+                "bagging_temperature": 4.72122575176048,
+                "border_count": 128,
+                "min_data_in_leaf": 31
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.237168938287056,
+                "mape": 0.12963934223691673,
+                "training_time": 17.36314335999996,
+                "prediction_time": 0.013590379999368452,
+                "evaluation_time": 0.0008359200008271727
+            }
+        },
+        {
+            "number": 18,
+            "value": 27.139022165938286,
+            "params": {
+                "n_estimators": 600,
+                "max_depth": 12,
+                "learning_rate": 0.040538132913712784,
+                "subsample": 0.8530064244856169,
+                "colsample_bylevel": 0.677675451827061,
+                "l2_leaf_reg": 0.3142254800815907,
+                "random_strength": 7.460506202634639,
+                "bagging_temperature": 1.873645048936374,
+                "border_count": 64,
+                "min_data_in_leaf": 21
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.139022165938286,
+                "mape": 0.12989327258937539,
+                "training_time": 18.868311260001065,
+                "prediction_time": 0.011533100000815467,
+                "evaluation_time": 0.0006649200011452194
+            }
+        },
+        {
+            "number": 19,
+            "value": 27.69730272288202,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 7,
+                "learning_rate": 0.29617315369159336,
+                "subsample": 0.7075496061281158,
+                "colsample_bylevel": 0.6060084846502749,
+                "l2_leaf_reg": 0.04325180977713673,
+                "random_strength": 4.656250810117752,
+                "bagging_temperature": 1.2166909152215548,
+                "border_count": 128,
+                "min_data_in_leaf": 1
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.69730272288202,
+                "mape": 0.13369578998961534,
+                "training_time": 5.6424127999998746,
+                "prediction_time": 0.007316799999534851,
+                "evaluation_time": 0.0007338200004596729
+            }
+        },
+        {
+            "number": 20,
+            "value": 27.183599333751307,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 9,
+                "learning_rate": 0.019699403056593623,
+                "subsample": 0.8096183749033754,
+                "colsample_bylevel": 0.6736211310884114,
+                "l2_leaf_reg": 0.817349925383153,
+                "random_strength": 3.755791609366325,
+                "bagging_temperature": 7.611983209859815,
+                "border_count": 128,
+                "min_data_in_leaf": 49
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.183599333751307,
+                "mape": 0.12939689667861837,
+                "training_time": 10.691472619999695,
+                "prediction_time": 0.011683600000105798,
+                "evaluation_time": 0.0006924400004209019
+            }
+        },
+        {
+            "number": 21,
+            "value": 26.907510676411913,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 9,
+                "learning_rate": 0.02829881451621438,
+                "subsample": 0.9404052868155786,
+                "colsample_bylevel": 0.7643147877507945,
+                "l2_leaf_reg": 2.812093130507328,
+                "random_strength": 5.854732300374272,
+                "bagging_temperature": 0.7841905461722879,
+                "border_count": 128,
+                "min_data_in_leaf": 19
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.907510676411913,
+                "mape": 0.12815479042935346,
+                "training_time": 12.810709499999211,
+                "prediction_time": 0.011824440000054892,
+                "evaluation_time": 0.000810399998590583
+            }
+        },
+        {
+            "number": 22,
+            "value": 26.878523604574507,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 10,
+                "learning_rate": 0.03988135623741592,
+                "subsample": 0.9461261570543174,
+                "colsample_bylevel": 0.784470702307805,
+                "l2_leaf_reg": 2.7408426692987007,
+                "random_strength": 5.496565423371969,
+                "bagging_temperature": 2.3591419232974347,
+                "border_count": 128,
+                "min_data_in_leaf": 20
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.878523604574507,
+                "mape": 0.12843676611238478,
+                "training_time": 20.610294799999973,
+                "prediction_time": 0.014016439999249997,
+                "evaluation_time": 0.0008585200004745275
+            }
+        },
+        {
+            "number": 23,
+            "value": 26.885199021639284,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 10,
+                "learning_rate": 0.039275106603152914,
+                "subsample": 0.9338750711938224,
+                "colsample_bylevel": 0.7818042674363238,
+                "l2_leaf_reg": 3.020186598080528,
+                "random_strength": 6.106903149593874,
+                "bagging_temperature": 2.6215224086848288,
+                "border_count": 128,
+                "min_data_in_leaf": 8
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.885199021639284,
+                "mape": 0.1283735632900637,
+                "training_time": 19.2591545999996,
+                "prediction_time": 0.013263080000615445,
+                "evaluation_time": 0.0008534199994755908
+            }
+        },
+        {
+            "number": 24,
+            "value": 27.063110602600744,
+            "params": {
+                "n_estimators": 700,
+                "max_depth": 11,
+                "learning_rate": 0.04166199718960283,
+                "subsample": 0.8961686604843476,
+                "colsample_bylevel": 0.8782947246006406,
+                "l2_leaf_reg": 3.7622244328317183,
+                "random_strength": 8.2843390582043,
+                "bagging_temperature": 2.7674668366486546,
+                "border_count": 128,
+                "min_data_in_leaf": 10
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.063110602600744,
+                "mape": 0.12923265979714604,
+                "training_time": 25.308244939998986,
+                "prediction_time": 0.012168259999452858,
+                "evaluation_time": 0.0006788199993025046
+            }
+        },
+        {
+            "number": 25,
+            "value": 27.153387563159434,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 10,
+                "learning_rate": 0.0926900518361431,
+                "subsample": 0.9435549615695876,
+                "colsample_bylevel": 0.7846780493863432,
+                "l2_leaf_reg": 0.6683001710739441,
+                "random_strength": 6.740854860588483,
+                "bagging_temperature": 4.011191691511031,
+                "border_count": 128,
+                "min_data_in_leaf": 10
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.153387563159434,
+                "mape": 0.130546239241599,
+                "training_time": 19.511021980000077,
+                "prediction_time": 0.013328860000910936,
+                "evaluation_time": 0.000856220000423491
+            }
+        },
+        {
+            "number": 26,
+            "value": 27.150544397077702,
+            "params": {
+                "n_estimators": 700,
+                "max_depth": 11,
+                "learning_rate": 0.03602238612993263,
+                "subsample": 0.8795454619923123,
+                "colsample_bylevel": 0.8497953894458139,
+                "l2_leaf_reg": 1.6613674864993606,
+                "random_strength": 5.216765591133935,
+                "bagging_temperature": 2.494395625240777,
+                "border_count": 32,
+                "min_data_in_leaf": 11
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.150544397077702,
+                "mape": 0.1298899746726405,
+                "training_time": 13.769465540000237,
+                "prediction_time": 0.012340120000590104,
+                "evaluation_time": 0.0007300200013560243
+            }
+        },
+        {
+            "number": 27,
+            "value": 27.04182250289483,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 10,
+                "learning_rate": 0.05117621802727334,
+                "subsample": 0.9389730743684296,
+                "colsample_bylevel": 0.7062109117611008,
+                "l2_leaf_reg": 0.3985549223024239,
+                "random_strength": 6.230771385912595,
+                "bagging_temperature": 5.695746176243411,
+                "border_count": 64,
+                "min_data_in_leaf": 6
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.04182250289483,
+                "mape": 0.12948770664735543,
+                "training_time": 13.864320540000335,
+                "prediction_time": 0.013110500000038883,
+                "evaluation_time": 0.0007384999997157137
+            }
+        },
+        {
+            "number": 28,
+            "value": 32.551153861161616,
+            "params": {
+                "n_estimators": 100,
+                "max_depth": 12,
+                "learning_rate": 0.021293772512829424,
+                "subsample": 0.8177238862478323,
+                "colsample_bylevel": 0.8285484931124334,
+                "l2_leaf_reg": 4.311275564693884,
+                "random_strength": 8.012776070522309,
+                "bagging_temperature": 3.899119055802057,
+                "border_count": 255,
+                "min_data_in_leaf": 23
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 32.551153861161616,
+                "mape": 0.17791847179859893,
+                "training_time": 10.180101479999575,
+                "prediction_time": 0.006769619999977295,
+                "evaluation_time": 0.0006734799986588769
+            }
+        },
+        {
+            "number": 29,
+            "value": 27.446324810923322,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 11,
+                "learning_rate": 0.10408160670291446,
+                "subsample": 0.9665580406429221,
+                "colsample_bylevel": 0.6475678242484665,
+                "l2_leaf_reg": 0.07056037663162269,
+                "random_strength": 9.313601622231836,
+                "bagging_temperature": 7.285146928910763,
+                "border_count": 255,
+                "min_data_in_leaf": 13
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.446324810923322,
+                "mape": 0.13263126180800303,
+                "training_time": 46.91968171999979,
+                "prediction_time": 0.014440179998928215,
+                "evaluation_time": 0.0007564799998363014
+            }
+        },
+        {
+            "number": 30,
+            "value": 26.82366324661905,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 8,
+                "learning_rate": 0.049913358488366456,
+                "subsample": 0.9264714627838079,
+                "colsample_bylevel": 0.8958157212496952,
+                "l2_leaf_reg": 1.1523098523537172,
+                "random_strength": 3.927030925327493,
+                "bagging_temperature": 2.0479106167125907,
+                "border_count": 128,
+                "min_data_in_leaf": 31
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.82366324661905,
+                "mape": 0.12789923678406553,
+                "training_time": 7.822865559999627,
+                "prediction_time": 0.007347879999724682,
+                "evaluation_time": 0.0007142199996451381
+            }
+        },
+        {
+            "number": 31,
+            "value": 26.81521588696869,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 8,
+                "learning_rate": 0.04755955330464149,
+                "subsample": 0.9239133697224404,
+                "colsample_bylevel": 0.9104363006848943,
+                "l2_leaf_reg": 0.9541948212865463,
+                "random_strength": 3.72192699532279,
+                "bagging_temperature": 1.9805448087081905,
+                "border_count": 128,
+                "min_data_in_leaf": 31
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.81521588696869,
+                "mape": 0.12781581064464895,
+                "training_time": 7.67103874000095,
+                "prediction_time": 0.007296880000649253,
+                "evaluation_time": 0.0007198200000857469
+            }
+        },
+        {
+            "number": 32,
+            "value": 26.906207426051715,
+            "params": {
+                "n_estimators": 800,
+                "max_depth": 8,
+                "learning_rate": 0.04829062701487786,
+                "subsample": 0.8814394108294455,
+                "colsample_bylevel": 0.9189605720725083,
+                "l2_leaf_reg": 1.1421449409248547,
+                "random_strength": 3.5407378382280266,
+                "bagging_temperature": 0.8218999995960125,
+                "border_count": 128,
+                "min_data_in_leaf": 30
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.906207426051715,
+                "mape": 0.12817181908362735,
+                "training_time": 6.664220240000577,
+                "prediction_time": 0.007192520000535297,
+                "evaluation_time": 0.0006597400002647192
+            }
+        },
+        {
+            "number": 33,
+            "value": 26.89280323465145,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 6,
+                "learning_rate": 0.06119462426833592,
+                "subsample": 0.9638738737462048,
+                "colsample_bylevel": 0.9025302932470044,
+                "l2_leaf_reg": 0.13150946762202975,
+                "random_strength": 3.5708813536321644,
+                "bagging_temperature": 2.1003661422028235,
+                "border_count": 128,
+                "min_data_in_leaf": 32
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.89280323465145,
+                "mape": 0.1283167974651453,
+                "training_time": 5.373464120000426,
+                "prediction_time": 0.007674140000744956,
+                "evaluation_time": 0.0007345000005443581
+            }
+        },
+        {
+            "number": 34,
+            "value": 26.825722932418,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 8,
+                "learning_rate": 0.08735820787821848,
+                "subsample": 0.9994040894746989,
+                "colsample_bylevel": 0.9217868434498284,
+                "l2_leaf_reg": 0.5982476199030201,
+                "random_strength": 2.4031456448594515,
+                "bagging_temperature": 0.7236662678893597,
+                "border_count": 255,
+                "min_data_in_leaf": 37
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.825722932418,
+                "mape": 0.12817317268857606,
+                "training_time": 10.564875400000165,
+                "prediction_time": 0.007284519999666372,
+                "evaluation_time": 0.0006945200009795371
+            }
+        },
+        {
+            "number": 35,
+            "value": 26.852186162828257,
+            "params": {
+                "n_estimators": 700,
+                "max_depth": 7,
+                "learning_rate": 0.07796844737918933,
+                "subsample": 0.9162083709140018,
+                "colsample_bylevel": 0.9310390998133661,
+                "l2_leaf_reg": 0.5610125621884561,
+                "random_strength": 2.0892114236560424,
+                "bagging_temperature": 3.7692196067109034,
+                "border_count": 255,
+                "min_data_in_leaf": 37
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.852186162828257,
+                "mape": 0.12792907850911858,
+                "training_time": 5.501839219999965,
+                "prediction_time": 0.007406019999325508,
+                "evaluation_time": 0.0007186999995610676
+            }
+        },
+        {
+            "number": 36,
+            "value": 26.963669593901578,
+            "params": {
+                "n_estimators": 500,
+                "max_depth": 7,
+                "learning_rate": 0.08357841709267645,
+                "subsample": 0.8312691042536913,
+                "colsample_bylevel": 0.9373887929362741,
+                "l2_leaf_reg": 0.9317781998760142,
+                "random_strength": 1.9856031915654775,
+                "bagging_temperature": 3.939840610375608,
+                "border_count": 255,
+                "min_data_in_leaf": 37
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.963669593901578,
+                "mape": 0.12856431947749644,
+                "training_time": 3.8769740799994907,
+                "prediction_time": 0.006531899997935397,
+                "evaluation_time": 0.0006810399994719773
+            }
+        },
+        {
+            "number": 37,
+            "value": 26.891219630757224,
+            "params": {
+                "n_estimators": 700,
+                "max_depth": 6,
+                "learning_rate": 0.13552363759583316,
+                "subsample": 0.9212110505145836,
+                "colsample_bylevel": 0.998518375216396,
+                "l2_leaf_reg": 0.4700169291637318,
+                "random_strength": 1.9513818535107161,
+                "bagging_temperature": 3.1782094029455408,
+                "border_count": 255,
+                "min_data_in_leaf": 45
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.891219630757224,
+                "mape": 0.12839832739002205,
+                "training_time": 3.6032242799999947,
+                "prediction_time": 0.007330199999705656,
+                "evaluation_time": 0.0007809599999745842
+            }
+        },
+        {
+            "number": 38,
+            "value": 27.051115162909618,
+            "params": {
+                "n_estimators": 600,
+                "max_depth": 8,
+                "learning_rate": 0.1227785221782985,
+                "subsample": 0.6465255811631712,
+                "colsample_bylevel": 0.9712358148722435,
+                "l2_leaf_reg": 1.965390366629548,
+                "random_strength": 2.567693283774134,
+                "bagging_temperature": 5.270335368065929,
+                "border_count": 255,
+                "min_data_in_leaf": 35
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.051115162909618,
+                "mape": 0.12940117505765425,
+                "training_time": 6.376803639999707,
+                "prediction_time": 0.006772760001331335,
+                "evaluation_time": 0.0006820199982030317
+            }
+        },
+        {
+            "number": 39,
+            "value": 27.017041534042676,
+            "params": {
+                "n_estimators": 800,
+                "max_depth": 7,
+                "learning_rate": 0.17938159481040564,
+                "subsample": 0.8967130138232088,
+                "colsample_bylevel": 0.8681775678854825,
+                "l2_leaf_reg": 1.2309973328685915,
+                "random_strength": 1.035947169887228,
+                "bagging_temperature": 0.9099935840245894,
+                "border_count": 255,
+                "min_data_in_leaf": 44
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.017041534042676,
+                "mape": 0.1294355732053189,
+                "training_time": 6.5553955800001855,
+                "prediction_time": 0.007174360000499291,
+                "evaluation_time": 0.0007450400007655844
+            }
+        },
+        {
+            "number": 40,
+            "value": 28.190282298900875,
+            "params": {
+                "n_estimators": 400,
+                "max_depth": 3,
+                "learning_rate": 0.07619095398990967,
+                "subsample": 0.9786847149680321,
+                "colsample_bylevel": 0.9406386796486577,
+                "l2_leaf_reg": 0.03743187731861571,
+                "random_strength": 2.50907843700902,
+                "bagging_temperature": 9.21248306671165,
+                "border_count": 255,
+                "min_data_in_leaf": 38
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 28.190282298900875,
+                "mape": 0.1349838476103258,
+                "training_time": 1.3332902600013767,
+                "prediction_time": 0.006459239999821875,
+                "evaluation_time": 0.0006992599999648518
+            }
+        },
+        {
+            "number": 41,
+            "value": 26.810228265198003,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 8,
+                "learning_rate": 0.05062927401998111,
+                "subsample": 0.9565370185777007,
+                "colsample_bylevel": 0.9144086690053235,
+                "l2_leaf_reg": 0.4974273914343692,
+                "random_strength": 4.010339216870133,
+                "bagging_temperature": 1.971480173088953,
+                "border_count": 255,
+                "min_data_in_leaf": 29
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.810228265198003,
+                "mape": 0.12784828396092182,
+                "training_time": 10.659617499999877,
+                "prediction_time": 0.007349719999911031,
+                "evaluation_time": 0.0007341599994106218
+            }
+        },
+        {
+            "number": 42,
+            "value": 26.92994551170933,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 8,
+                "learning_rate": 0.10064985815808893,
+                "subsample": 0.9158593455593267,
+                "colsample_bylevel": 0.9125003539274095,
+                "l2_leaf_reg": 0.5168456974853542,
+                "random_strength": 4.04161606987184,
+                "bagging_temperature": 1.777524524837442,
+                "border_count": 255,
+                "min_data_in_leaf": 29
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.92994551170933,
+                "mape": 0.1286206688793149,
+                "training_time": 10.57183675999986,
+                "prediction_time": 0.007337980000011157,
+                "evaluation_time": 0.0007356000009167474
+            }
+        },
+        {
+            "number": 43,
+            "value": 26.827306391325425,
+            "params": {
+                "n_estimators": 800,
+                "max_depth": 7,
+                "learning_rate": 0.05970699450919782,
+                "subsample": 0.9575268040615571,
+                "colsample_bylevel": 0.8969008580519209,
+                "l2_leaf_reg": 0.34200906559354866,
+                "random_strength": 1.4754246062745346,
+                "bagging_temperature": 3.592453903707102,
+                "border_count": 255,
+                "min_data_in_leaf": 34
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.827306391325425,
+                "mape": 0.127767558735971,
+                "training_time": 6.476891859999887,
+                "prediction_time": 0.007265759999427246,
+                "evaluation_time": 0.0007216000005428214
+            }
+        },
+        {
+            "number": 44,
+            "value": 26.88848732436344,
+            "params": {
+                "n_estimators": 800,
+                "max_depth": 6,
+                "learning_rate": 0.06302600451870831,
+                "subsample": 0.9708379002213829,
+                "colsample_bylevel": 0.8966550915666721,
+                "l2_leaf_reg": 0.3277857883387563,
+                "random_strength": 0.10375109651922787,
+                "bagging_temperature": 2.8958532204831657,
+                "border_count": 255,
+                "min_data_in_leaf": 34
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.88848732436344,
+                "mape": 0.12808434179186512,
+                "training_time": 4.945835620000435,
+                "prediction_time": 0.00720424000028288,
+                "evaluation_time": 0.0007232600015413482
+            }
+        },
+        {
+            "number": 45,
+            "value": 26.95822753229941,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 8,
+                "learning_rate": 0.04783302212254468,
+                "subsample": 0.9585445592592667,
+                "colsample_bylevel": 0.8622187118198225,
+                "l2_leaf_reg": 0.16174103086653585,
+                "random_strength": 1.436434753413785,
+                "bagging_temperature": 3.4642047573213115,
+                "border_count": 32,
+                "min_data_in_leaf": 28
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.95822753229941,
+                "mape": 0.12873538851898786,
+                "training_time": 6.109394400000747,
+                "prediction_time": 0.007151719999819761,
+                "evaluation_time": 0.0007616199996846263
+            }
+        },
+        {
+            "number": 46,
+            "value": 27.09590747437941,
+            "params": {
+                "n_estimators": 800,
+                "max_depth": 5,
+                "learning_rate": 0.05766404608927027,
+                "subsample": 0.9532407017999427,
+                "colsample_bylevel": 0.9770231704787801,
+                "l2_leaf_reg": 0.09491809314257689,
+                "random_strength": 3.295683333870966,
+                "bagging_temperature": 0.67797627172526,
+                "border_count": 255,
+                "min_data_in_leaf": 33
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.09590747437941,
+                "mape": 0.12914692269465558,
+                "training_time": 3.626151080001,
+                "prediction_time": 0.006806039999355562,
+                "evaluation_time": 0.0007091599996783771
+            }
+        },
+        {
+            "number": 47,
+            "value": 26.848172067642658,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 8,
+                "learning_rate": 0.0713489476783606,
+                "subsample": 0.982038686797405,
+                "colsample_bylevel": 0.9533114791316909,
+                "l2_leaf_reg": 1.5085717702756287,
+                "random_strength": 3.079153730004043,
+                "bagging_temperature": 1.6828491423286094,
+                "border_count": 255,
+                "min_data_in_leaf": 27
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.848172067642658,
+                "mape": 0.12811736535567467,
+                "training_time": 10.405596140000124,
+                "prediction_time": 0.007145900000614347,
+                "evaluation_time": 0.0006678400008240714
+            }
+        },
+        {
+            "number": 48,
+            "value": 26.799035665416163,
+            "params": {
+                "n_estimators": 800,
+                "max_depth": 9,
+                "learning_rate": 0.05473835680629177,
+                "subsample": 0.9976810658097827,
+                "colsample_bylevel": 0.8238801519253923,
+                "l2_leaf_reg": 0.7950429876767698,
+                "random_strength": 1.4412211191792403,
+                "bagging_temperature": 2.084936839828602,
+                "border_count": 255,
+                "min_data_in_leaf": 40
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.799035665416163,
+                "mape": 0.12788192069194243,
+                "training_time": 16.191820579998602,
+                "prediction_time": 0.011770480000996031,
+                "evaluation_time": 0.0007881599995016586
+            }
+        },
+        {
+            "number": 49,
+            "value": 27.013513524678416,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 9,
+                "learning_rate": 0.047726075107881585,
+                "subsample": 0.995598789459975,
+                "colsample_bylevel": 0.8542316077045033,
+                "l2_leaf_reg": 0.8880537528983892,
+                "random_strength": 4.713663742318312,
+                "bagging_temperature": 0.36889560482677164,
+                "border_count": 32,
+                "min_data_in_leaf": 40
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.013513524678416,
+                "mape": 0.1292858228538639,
+                "training_time": 7.685631219999777,
+                "prediction_time": 0.01130975999913062,
+                "evaluation_time": 0.0006847399999969639
+            }
+        },
+        {
+            "number": 50,
+            "value": 26.941538774685313,
+            "params": {
+                "n_estimators": 800,
+                "max_depth": 9,
+                "learning_rate": 0.08792902925864028,
+                "subsample": 0.9746861659443593,
+                "colsample_bylevel": 0.8302413948612212,
+                "l2_leaf_reg": 0.24147847387452795,
+                "random_strength": 2.7668733049083745,
+                "bagging_temperature": 2.062146307562968,
+                "border_count": 255,
+                "min_data_in_leaf": 43
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.941538774685313,
+                "mape": 0.1290219110119431,
+                "training_time": 16.25309472000081,
+                "prediction_time": 0.011467480000283104,
+                "evaluation_time": 0.0007450200006132946
+            }
+        },
+        {
+            "number": 51,
+            "value": 26.82537028424913,
+            "params": {
+                "n_estimators": 800,
+                "max_depth": 8,
+                "learning_rate": 0.0546455577788769,
+                "subsample": 0.9289597537340792,
+                "colsample_bylevel": 0.8887836345128889,
+                "l2_leaf_reg": 0.3645578258013606,
+                "random_strength": 1.480720753723019,
+                "bagging_temperature": 1.2657867089087418,
+                "border_count": 255,
+                "min_data_in_leaf": 36
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.82537028424913,
+                "mape": 0.1278738503651222,
+                "training_time": 9.846889920000104,
+                "prediction_time": 0.006976020000001882,
+                "evaluation_time": 0.0006866999989142642
+            }
+        },
+        {
+            "number": 52,
+            "value": 26.88679998765,
+            "params": {
+                "n_estimators": 700,
+                "max_depth": 8,
+                "learning_rate": 0.03559692595874362,
+                "subsample": 0.9859745812445561,
+                "colsample_bylevel": 0.8827063636606512,
+                "l2_leaf_reg": 0.712418083927945,
+                "random_strength": 0.7860055152339418,
+                "bagging_temperature": 1.1407735214361434,
+                "border_count": 255,
+                "min_data_in_leaf": 36
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.88679998765,
+                "mape": 0.12803601484298763,
+                "training_time": 8.744621479999477,
+                "prediction_time": 0.007061259998590685,
+                "evaluation_time": 0.0007252400006109383
+            }
+        },
+        {
+            "number": 53,
+            "value": 26.85090283986317,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 9,
+                "learning_rate": 0.05323119882294459,
+                "subsample": 0.9308719099480248,
+                "colsample_bylevel": 0.8181326675219661,
+                "l2_leaf_reg": 1.0918471551906455,
+                "random_strength": 4.159364582954788,
+                "bagging_temperature": 1.5169361426700667,
+                "border_count": 255,
+                "min_data_in_leaf": 24
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.85090283986317,
+                "mape": 0.12830110909015757,
+                "training_time": 17.923166860000492,
+                "prediction_time": 0.01161973999987822,
+                "evaluation_time": 0.0006641000007221009
+            }
+        },
+        {
+            "number": 54,
+            "value": 26.944238924260304,
+            "params": {
+                "n_estimators": 800,
+                "max_depth": 8,
+                "learning_rate": 0.03351874484243969,
+                "subsample": 0.9053800576341631,
+                "colsample_bylevel": 0.9185829707592503,
+                "l2_leaf_reg": 0.42801042652642873,
+                "random_strength": 1.6562875773469372,
+                "bagging_temperature": 0.5861332776172519,
+                "border_count": 64,
+                "min_data_in_leaf": 41
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.944238924260304,
+                "mape": 0.1284218716356227,
+                "training_time": 5.521803139999247,
+                "prediction_time": 0.0071852800007036425,
+                "evaluation_time": 0.0008292799990158528
+            }
+        },
+        {
+            "number": 55,
+            "value": 26.93386330330686,
+            "params": {
+                "n_estimators": 600,
+                "max_depth": 7,
+                "learning_rate": 0.0689299258865153,
+                "subsample": 0.9988366715516523,
+                "colsample_bylevel": 0.8718401532558061,
+                "l2_leaf_reg": 0.23333993576439696,
+                "random_strength": 2.4113029686702094,
+                "bagging_temperature": 1.2660695273170952,
+                "border_count": 255,
+                "min_data_in_leaf": 46
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.93386330330686,
+                "mape": 0.1283147968386662,
+                "training_time": 4.985260080000444,
+                "prediction_time": 0.007530760001100134,
+                "evaluation_time": 0.0007108199999493082
+            }
+        },
+        {
+            "number": 56,
+            "value": 26.85571146535104,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 9,
+                "learning_rate": 0.043086605757568015,
+                "subsample": 0.8581007385897589,
+                "colsample_bylevel": 0.9463636909008436,
+                "l2_leaf_reg": 0.0012567011120835606,
+                "random_strength": 3.911188320098167,
+                "bagging_temperature": 2.1064279936283214,
+                "border_count": 255,
+                "min_data_in_leaf": 39
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.85571146535104,
+                "mape": 0.12806258107720137,
+                "training_time": 19.0704708799989,
+                "prediction_time": 0.012523780000628903,
+                "evaluation_time": 0.000848779999796534
+            }
+        },
+        {
+            "number": 57,
+            "value": 26.781308274835983,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 8,
+                "learning_rate": 0.05435168434654052,
+                "subsample": 0.7707536869818989,
+                "colsample_bylevel": 0.9241216164053876,
+                "l2_leaf_reg": 1.8694504016513178,
+                "random_strength": 0.5320637407886242,
+                "bagging_temperature": 2.8347115862550076,
+                "border_count": 255,
+                "min_data_in_leaf": 32
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.781308274835983,
+                "mape": 0.1275816819003072,
+                "training_time": 10.16438737999997,
+                "prediction_time": 0.007318079999095062,
+                "evaluation_time": 0.000709239998832345
+            }
+        },
+        {
+            "number": 58,
+            "value": 27.01996409683329,
+            "params": {
+                "n_estimators": 800,
+                "max_depth": 8,
+                "learning_rate": 0.044488722690894766,
+                "subsample": 0.7740708721188134,
+                "colsample_bylevel": 0.8934397526110629,
+                "l2_leaf_reg": 4.458087947586168,
+                "random_strength": 0.008776568740606283,
+                "bagging_temperature": 3.0425829301022813,
+                "border_count": 32,
+                "min_data_in_leaf": 31
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.01996409683329,
+                "mape": 0.12910619511692,
+                "training_time": 5.136516439999104,
+                "prediction_time": 0.007146080000529765,
+                "evaluation_time": 0.0006947800000489223
+            }
+        },
+        {
+            "number": 59,
+            "value": 27.820362734426006,
+            "params": {
+                "n_estimators": 300,
+                "max_depth": 9,
+                "learning_rate": 0.024523349393149808,
+                "subsample": 0.7379433631391432,
+                "colsample_bylevel": 0.837803975488893,
+                "l2_leaf_reg": 2.0845631156268385,
+                "random_strength": 0.6380096258167705,
+                "bagging_temperature": 2.5415413544861076,
+                "border_count": 64,
+                "min_data_in_leaf": 29
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.820362734426006,
+                "mape": 0.13306860822318417,
+                "training_time": 2.817958179998823,
+                "prediction_time": 0.008593619999737711,
+                "evaluation_time": 0.0007415399995807093
+            }
+        },
+        {
+            "number": 60,
+            "value": 26.809070273367986,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 7,
+                "learning_rate": 0.05445210761706473,
+                "subsample": 0.7792107816678031,
+                "colsample_bylevel": 0.8057951819579718,
+                "l2_leaf_reg": 5.745133725079745,
+                "random_strength": 0.5012762407399015,
+                "bagging_temperature": 1.7250290915500506,
+                "border_count": 255,
+                "min_data_in_leaf": 32
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.809070273367986,
+                "mape": 0.1276911046307289,
+                "training_time": 8.234132340001088,
+                "prediction_time": 0.007306640000751941,
+                "evaluation_time": 0.0006943399996089284
+            }
+        },
+        {
+            "number": 61,
+            "value": 26.771838887465996,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 7,
+                "learning_rate": 0.05411435594322399,
+                "subsample": 0.7864246652353788,
+                "colsample_bylevel": 0.8063389679394343,
+                "l2_leaf_reg": 6.033969882876128,
+                "random_strength": 0.27910640444556045,
+                "bagging_temperature": 1.6916843983883099,
+                "border_count": 255,
+                "min_data_in_leaf": 32
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.771838887465996,
+                "mape": 0.12750537520129873,
+                "training_time": 8.181970999999612,
+                "prediction_time": 0.00674799999978859,
+                "evaluation_time": 0.000656419999722857
+            }
+        },
+        {
+            "number": 62,
+            "value": 26.749467885006784,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 7,
+                "learning_rate": 0.0667882335036934,
+                "subsample": 0.7820868851482802,
+                "colsample_bylevel": 0.8038617233270315,
+                "l2_leaf_reg": 5.542460862643922,
+                "random_strength": 0.5425460070822284,
+                "bagging_temperature": 1.8235800749176,
+                "border_count": 255,
+                "min_data_in_leaf": 26
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.749467885006784,
+                "mape": 0.12747115271669732,
+                "training_time": 8.18658854000023,
+                "prediction_time": 0.007066520000807941,
+                "evaluation_time": 0.0006623799999943003
+            }
+        },
+        {
+            "number": 63,
+            "value": 26.98533262342436,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 5,
+                "learning_rate": 0.0642948049212608,
+                "subsample": 0.7858821753168428,
+                "colsample_bylevel": 0.8036681269228487,
+                "l2_leaf_reg": 5.498315366947708,
+                "random_strength": 0.35703438998729387,
+                "bagging_temperature": 1.8051005861122524,
+                "border_count": 255,
+                "min_data_in_leaf": 26
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.98533262342436,
+                "mape": 0.1284907771200468,
+                "training_time": 4.779992300000595,
+                "prediction_time": 0.007869100000243634,
+                "evaluation_time": 0.0007300600002054126
+            }
+        },
+        {
+            "number": 64,
+            "value": 26.895918190072386,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 6,
+                "learning_rate": 0.05518883108513676,
+                "subsample": 0.761029591654614,
+                "colsample_bylevel": 0.7608894125668656,
+                "l2_leaf_reg": 6.206242926517579,
+                "random_strength": 0.45022169302169185,
+                "bagging_temperature": 2.3301890222529873,
+                "border_count": 255,
+                "min_data_in_leaf": 25
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.895918190072386,
+                "mape": 0.12799616076808168,
+                "training_time": 6.0911164599994665,
+                "prediction_time": 0.006876940000074683,
+                "evaluation_time": 0.000718540000525536
+            }
+        },
+        {
+            "number": 65,
+            "value": 26.760526050705504,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 7,
+                "learning_rate": 0.06956311306653085,
+                "subsample": 0.7941247235391139,
+                "colsample_bylevel": 0.8072592293901922,
+                "l2_leaf_reg": 9.843880372749087,
+                "random_strength": 1.021248496722356,
+                "bagging_temperature": 2.7136479103421145,
+                "border_count": 255,
+                "min_data_in_leaf": 22
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.760526050705504,
+                "mape": 0.1275457195000319,
+                "training_time": 8.204231080000318,
+                "prediction_time": 0.007327980000263778,
+                "evaluation_time": 0.000783620000584051
+            }
+        },
+        {
+            "number": 66,
+            "value": 26.826232119789545,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 7,
+                "learning_rate": 0.10126097508996151,
+                "subsample": 0.7992800814614456,
+                "colsample_bylevel": 0.7965137243574767,
+                "l2_leaf_reg": 7.458458523863824,
+                "random_strength": 1.0924391954979369,
+                "bagging_temperature": 2.862763983297234,
+                "border_count": 255,
+                "min_data_in_leaf": 22
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.826232119789545,
+                "mape": 0.12820561073219605,
+                "training_time": 8.246715740000946,
+                "prediction_time": 0.006780299999809359,
+                "evaluation_time": 0.0006558399996720255
+            }
+        },
+        {
+            "number": 67,
+            "value": 26.79986577105991,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 7,
+                "learning_rate": 0.06863866629907059,
+                "subsample": 0.6956442879840697,
+                "colsample_bylevel": 0.7676637842289943,
+                "l2_leaf_reg": 3.119119168519944,
+                "random_strength": 0.8168738323934297,
+                "bagging_temperature": 4.188878467051107,
+                "border_count": 255,
+                "min_data_in_leaf": 27
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.79986577105991,
+                "mape": 0.12759122125664463,
+                "training_time": 8.054761380000855,
+                "prediction_time": 0.007212719999370165,
+                "evaluation_time": 0.0006784000011975877
+            }
+        },
+        {
+            "number": 68,
+            "value": 26.867140657999897,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 6,
+                "learning_rate": 0.07007900531669817,
+                "subsample": 0.695792075912778,
+                "colsample_bylevel": 0.763408057747901,
+                "l2_leaf_reg": 9.341924590343627,
+                "random_strength": 0.9393813877096429,
+                "bagging_temperature": 4.152095675653323,
+                "border_count": 255,
+                "min_data_in_leaf": 18
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.867140657999897,
+                "mape": 0.12793539708650142,
+                "training_time": 5.983254659999512,
+                "prediction_time": 0.006986999999935506,
+                "evaluation_time": 0.0007539400008681696
+            }
+        },
+        {
+            "number": 69,
+            "value": 26.813668853522636,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 7,
+                "learning_rate": 0.07932430924908573,
+                "subsample": 0.6797794251113874,
+                "colsample_bylevel": 0.7216129854182116,
+                "l2_leaf_reg": 3.4408617666246104,
+                "random_strength": 0.27521700982541164,
+                "bagging_temperature": 4.48142758807382,
+                "border_count": 255,
+                "min_data_in_leaf": 23
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.813668853522636,
+                "mape": 0.12781726376398606,
+                "training_time": 7.910674380001001,
+                "prediction_time": 0.007117359998665052,
+                "evaluation_time": 0.0006444000006013084
+            }
+        },
+        {
+            "number": 70,
+            "value": 26.89485397446283,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 6,
+                "learning_rate": 0.06739701401213365,
+                "subsample": 0.7357846387140299,
+                "colsample_bylevel": 0.8151687142487287,
+                "l2_leaf_reg": 5.372405081942647,
+                "random_strength": 0.6546255542014361,
+                "bagging_temperature": 3.40540047032889,
+                "border_count": 255,
+                "min_data_in_leaf": 27
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.89485397446283,
+                "mape": 0.12801331619732684,
+                "training_time": 5.929271819999849,
+                "prediction_time": 0.006812800000625429,
+                "evaluation_time": 0.0008191200002329424
+            }
+        },
+        {
+            "number": 71,
+            "value": 26.81475547859501,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 7,
+                "learning_rate": 0.05782062387957874,
+                "subsample": 0.7957343989811029,
+                "colsample_bylevel": 0.7752464078879983,
+                "l2_leaf_reg": 2.6576581667029004,
+                "random_strength": 1.3278486890632097,
+                "bagging_temperature": 2.6326887806394517,
+                "border_count": 255,
+                "min_data_in_leaf": 28
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.81475547859501,
+                "mape": 0.12768222235081722,
+                "training_time": 8.194159000000946,
+                "prediction_time": 0.006920100000570528,
+                "evaluation_time": 0.0006533999992825556
+            }
+        },
+        {
+            "number": 72,
+            "value": 26.851718060155612,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 7,
+                "learning_rate": 0.03773686491975784,
+                "subsample": 0.8230836996687712,
+                "colsample_bylevel": 0.7503712489734485,
+                "l2_leaf_reg": 9.723001931478255,
+                "random_strength": 0.8367626326259441,
+                "bagging_temperature": 1.5618865661722043,
+                "border_count": 255,
+                "min_data_in_leaf": 33
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.851718060155612,
+                "mape": 0.1278388906192342,
+                "training_time": 8.21643894000008,
+                "prediction_time": 0.007028019999415847,
+                "evaluation_time": 0.000672419999318663
+            }
+        },
+        {
+            "number": 73,
+            "value": 26.94428662040293,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 6,
+                "learning_rate": 0.05240787946874354,
+                "subsample": 0.7508400435091921,
+                "colsample_bylevel": 0.7959024176489058,
+                "l2_leaf_reg": 4.488079749549248,
+                "random_strength": 1.2736300779729417,
+                "bagging_temperature": 6.5899328296671955,
+                "border_count": 255,
+                "min_data_in_leaf": 24
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.94428662040293,
+                "mape": 0.12830295476816528,
+                "training_time": 5.405956359999254,
+                "prediction_time": 0.006851639999513282,
+                "evaluation_time": 0.0007588199994643218
+            }
+        },
+        {
+            "number": 74,
+            "value": 26.841062196503657,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 7,
+                "learning_rate": 0.04391027271747381,
+                "subsample": 0.7702763101096872,
+                "colsample_bylevel": 0.8237719701224113,
+                "l2_leaf_reg": 2.392014852839508,
+                "random_strength": 0.3314644039614787,
+                "bagging_temperature": 5.301599426699763,
+                "border_count": 255,
+                "min_data_in_leaf": 21
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.841062196503657,
+                "mape": 0.12774235738110382,
+                "training_time": 8.180189940000128,
+                "prediction_time": 0.007041620000381954,
+                "evaluation_time": 0.0006556599990290124
+            }
+        },
+        {
+            "number": 75,
+            "value": 26.776227798663275,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 7,
+                "learning_rate": 0.07339569473711215,
+                "subsample": 0.8415138829888571,
+                "colsample_bylevel": 0.8061918429890345,
+                "l2_leaf_reg": 6.866430765654849,
+                "random_strength": 0.6328776778004644,
+                "bagging_temperature": 2.3003159211374458,
+                "border_count": 255,
+                "min_data_in_leaf": 50
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.776227798663275,
+                "mape": 0.12764706825432243,
+                "training_time": 7.475985899999796,
+                "prediction_time": 0.0068314799995278005,
+                "evaluation_time": 0.0006570799996552523
+            }
+        },
+        {
+            "number": 76,
+            "value": 26.824973576317426,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 7,
+                "learning_rate": 0.09159392519222688,
+                "subsample": 0.7854364840786187,
+                "colsample_bylevel": 0.7747407748072569,
+                "l2_leaf_reg": 6.566569248565917,
+                "random_strength": 1.6994991891033755,
+                "bagging_temperature": 3.094585593489197,
+                "border_count": 255,
+                "min_data_in_leaf": 49
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.824973576317426,
+                "mape": 0.12788927296220512,
+                "training_time": 8.154191199999332,
+                "prediction_time": 0.007420060000004014,
+                "evaluation_time": 0.0006559400004334748
+            }
+        },
+        {
+            "number": 77,
+            "value": 26.83514047920972,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 6,
+                "learning_rate": 0.08020602947732201,
+                "subsample": 0.8128590776853288,
+                "colsample_bylevel": 0.8409540388507819,
+                "l2_leaf_reg": 3.3722584486902223,
+                "random_strength": 0.016334911254602402,
+                "bagging_temperature": 2.302667099735553,
+                "border_count": 255,
+                "min_data_in_leaf": 46
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.83514047920972,
+                "mape": 0.12780899130802578,
+                "training_time": 5.390292959999352,
+                "prediction_time": 0.006711719999293564,
+                "evaluation_time": 0.0006697199998598081
+            }
+        },
+        {
+            "number": 78,
+            "value": 26.863958244009552,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 7,
+                "learning_rate": 0.10768388242879781,
+                "subsample": 0.7214984341548909,
+                "colsample_bylevel": 0.8099008949363236,
+                "l2_leaf_reg": 7.989543361421289,
+                "random_strength": 1.1258867207279495,
+                "bagging_temperature": 2.7072546271990507,
+                "border_count": 255,
+                "min_data_in_leaf": 16
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.863958244009552,
+                "mape": 0.12825300124479705,
+                "training_time": 8.137047719999828,
+                "prediction_time": 0.007555079999292502,
+                "evaluation_time": 0.0007594800008519087
+            }
+        },
+        {
+            "number": 79,
+            "value": 26.94190323140943,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 6,
+                "learning_rate": 0.07204880180890379,
+                "subsample": 0.6031170913318744,
+                "colsample_bylevel": 0.7895624788769048,
+                "l2_leaf_reg": 4.892905943975787,
+                "random_strength": 0.6708676542175188,
+                "bagging_temperature": 2.2902944286978593,
+                "border_count": 255,
+                "min_data_in_leaf": 32
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.94190323140943,
+                "mape": 0.12825434745618536,
+                "training_time": 5.301158559999749,
+                "prediction_time": 0.006821859999763547,
+                "evaluation_time": 0.0006770600011805072
+            }
+        },
+        {
+            "number": 80,
+            "value": 27.01722783471026,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 5,
+                "learning_rate": 0.06415428733052772,
+                "subsample": 0.7868595837625308,
+                "colsample_bylevel": 0.7537514110526983,
+                "l2_leaf_reg": 1.490562998785473,
+                "random_strength": 0.45968944919248134,
+                "bagging_temperature": 3.3376453675400657,
+                "border_count": 64,
+                "min_data_in_leaf": 27
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.01722783471026,
+                "mape": 0.128837264540912,
+                "training_time": 4.074182560000918,
+                "prediction_time": 0.00743877999993856,
+                "evaluation_time": 0.0008075599995208904
+            }
+        },
+        {
+            "number": 81,
+            "value": 26.810364487120644,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 7,
+                "learning_rate": 0.05896842524163745,
+                "subsample": 0.8361358907509745,
+                "colsample_bylevel": 0.8053969685503841,
+                "l2_leaf_reg": 3.666013672017108,
+                "random_strength": 1.7391949748744078,
+                "bagging_temperature": 1.0593293264934538,
+                "border_count": 255,
+                "min_data_in_leaf": 50
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.810364487120644,
+                "mape": 0.12776138787304606,
+                "training_time": 7.467339599999832,
+                "prediction_time": 0.006897419999586418,
+                "evaluation_time": 0.0006962400002521463
+            }
+        },
+        {
+            "number": 82,
+            "value": 26.813716654584066,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 8,
+                "learning_rate": 0.07475497406623463,
+                "subsample": 0.7634628673414775,
+                "colsample_bylevel": 0.7757852487473598,
+                "l2_leaf_reg": 6.638122012301435,
+                "random_strength": 0.9906659124381825,
+                "bagging_temperature": 1.4892964722218482,
+                "border_count": 255,
+                "min_data_in_leaf": 30
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.813716654584066,
+                "mape": 0.12798736395664728,
+                "training_time": 10.545201100000122,
+                "prediction_time": 0.007436899998720037,
+                "evaluation_time": 0.0006362599997373763
+            }
+        },
+        {
+            "number": 83,
+            "value": 26.92007259259618,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 7,
+                "learning_rate": 0.05254550414504187,
+                "subsample": 0.6498953047034678,
+                "colsample_bylevel": 0.8323712503565988,
+                "l2_leaf_reg": 0.008112069998974798,
+                "random_strength": 2.170897756762625,
+                "bagging_temperature": 1.7946748139746527,
+                "border_count": 255,
+                "min_data_in_leaf": 30
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.92007259259618,
+                "mape": 0.12818479464538393,
+                "training_time": 7.18444540000055,
+                "prediction_time": 0.006950620000861818,
+                "evaluation_time": 0.0006677599994873162
+            }
+        },
+        {
+            "number": 84,
+            "value": 26.805421617953435,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 7,
+                "learning_rate": 0.06432842295240208,
+                "subsample": 0.7533459441277849,
+                "colsample_bylevel": 0.8472575475279611,
+                "l2_leaf_reg": 0.00358212859223146,
+                "random_strength": 0.21845544043236348,
+                "bagging_temperature": 2.5280702498714502,
+                "border_count": 255,
+                "min_data_in_leaf": 28
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.805421617953435,
+                "mape": 0.12777031305221942,
+                "training_time": 8.085007000001497,
+                "prediction_time": 0.006989999998768326,
+                "evaluation_time": 0.0006773599998268764
+            }
+        },
+        {
+            "number": 85,
+            "value": 27.64001878572862,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 7,
+                "learning_rate": 0.011278862777678799,
+                "subsample": 0.7530297986109145,
+                "colsample_bylevel": 0.8498044643318228,
+                "l2_leaf_reg": 0.003579826550632639,
+                "random_strength": 0.20253059753625285,
+                "bagging_temperature": 2.9240945491316297,
+                "border_count": 255,
+                "min_data_in_leaf": 25
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.64001878572862,
+                "mape": 0.13187934158232797,
+                "training_time": 8.074652059999789,
+                "prediction_time": 0.006603339999128366,
+                "evaluation_time": 0.0007386599994788412
+            }
+        },
+        {
+            "number": 86,
+            "value": 26.869112725110618,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 6,
+                "learning_rate": 0.0662449940291807,
+                "subsample": 0.7210955735364712,
+                "colsample_bylevel": 0.8185845190176817,
+                "l2_leaf_reg": 8.36298753694449,
+                "random_strength": 0.4995534240036987,
+                "bagging_temperature": 2.340622744275123,
+                "border_count": 255,
+                "min_data_in_leaf": 33
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.869112725110618,
+                "mape": 0.1278917215629428,
+                "training_time": 5.93654205999992,
+                "prediction_time": 0.006751999999687541,
+                "evaluation_time": 0.0006639999999606516
+            }
+        },
+        {
+            "number": 87,
+            "value": 26.871645255182266,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 7,
+                "learning_rate": 0.08418825120744376,
+                "subsample": 0.7320828390017675,
+                "colsample_bylevel": 0.7896642439056911,
+                "l2_leaf_reg": 0.027832259106909656,
+                "random_strength": 0.7986691405283097,
+                "bagging_temperature": 3.6086817742106954,
+                "border_count": 255,
+                "min_data_in_leaf": 20
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.871645255182266,
+                "mape": 0.1281523983886768,
+                "training_time": 8.09855524000086,
+                "prediction_time": 0.00733890000046813,
+                "evaluation_time": 0.0006907399998453912
+            }
+        },
+        {
+            "number": 88,
+            "value": 26.97836213315416,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 7,
+                "learning_rate": 0.060908518153439575,
+                "subsample": 0.8019213663524902,
+                "colsample_bylevel": 0.8121390202704688,
+                "l2_leaf_reg": 2.522494648316787,
+                "random_strength": 0.2605601674017755,
+                "bagging_temperature": 2.5758486703805703,
+                "border_count": 32,
+                "min_data_in_leaf": 28
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.97836213315416,
+                "mape": 0.1288067934536935,
+                "training_time": 5.425903100000141,
+                "prediction_time": 0.007327440000517526,
+                "evaluation_time": 0.000669940000079805
+            }
+        },
+        {
+            "number": 89,
+            "value": 26.950501116873454,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 8,
+                "learning_rate": 0.1124541273575192,
+                "subsample": 0.6779670961908497,
+                "colsample_bylevel": 0.7376395634429519,
+                "l2_leaf_reg": 4.357212906333338,
+                "random_strength": 1.1912831592044983,
+                "bagging_temperature": 3.2289063351273573,
+                "border_count": 255,
+                "min_data_in_leaf": 23
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.950501116873454,
+                "mape": 0.12896100763964669,
+                "training_time": 10.2502524800002,
+                "prediction_time": 0.006620379999367288,
+                "evaluation_time": 0.0006174800000735559
+            }
+        },
+        {
+            "number": 90,
+            "value": 26.822584910681616,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 6,
+                "learning_rate": 0.09285919792011423,
+                "subsample": 0.7799480025569863,
+                "colsample_bylevel": 0.8586597859554689,
+                "l2_leaf_reg": 5.757080697290613,
+                "random_strength": 0.6494761998145413,
+                "bagging_temperature": 4.221507564958654,
+                "border_count": 255,
+                "min_data_in_leaf": 34
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.822584910681616,
+                "mape": 0.12782718131972617,
+                "training_time": 5.8991365599998975,
+                "prediction_time": 0.006649579999793787,
+                "evaluation_time": 0.0006807599987951107
+            }
+        },
+        {
+            "number": 91,
+            "value": 26.827944521496914,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 8,
+                "learning_rate": 0.0468536227357328,
+                "subsample": 0.82248129794187,
+                "colsample_bylevel": 0.7961681911701534,
+                "l2_leaf_reg": 1.7307106899504046,
+                "random_strength": 0.89462526026335,
+                "bagging_temperature": 2.0117599258066,
+                "border_count": 255,
+                "min_data_in_leaf": 29
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.827944521496914,
+                "mape": 0.12775982055737156,
+                "training_time": 10.789234839998972,
+                "prediction_time": 0.007263320000492968,
+                "evaluation_time": 0.0006654599994362798
+            }
+        },
+        {
+            "number": 92,
+            "value": 26.829109133714717,
+            "params": {
+                "n_estimators": 900,
+                "max_depth": 7,
+                "learning_rate": 0.05639349460258045,
+                "subsample": 0.8063219503891211,
+                "colsample_bylevel": 0.8247403630143272,
+                "l2_leaf_reg": 3.0874088921200347,
+                "random_strength": 0.46040661745982403,
+                "bagging_temperature": 1.6807646671972465,
+                "border_count": 255,
+                "min_data_in_leaf": 26
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.829109133714717,
+                "mape": 0.127703184281105,
+                "training_time": 7.412073019999662,
+                "prediction_time": 0.006825199999002507,
+                "evaluation_time": 0.0006639200008066836
+            }
+        },
+        {
+            "number": 93,
+            "value": 26.7727370870831,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 8,
+                "learning_rate": 0.0499606895790047,
+                "subsample": 0.7606274039081454,
+                "colsample_bylevel": 0.9869382078240295,
+                "l2_leaf_reg": 0.011250872412232637,
+                "random_strength": 0.10638981194124086,
+                "bagging_temperature": 2.1595187676576124,
+                "border_count": 255,
+                "min_data_in_leaf": 30
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.7727370870831,
+                "mape": 0.12755585635362826,
+                "training_time": 10.209244040001067,
+                "prediction_time": 0.0075873600006161725,
+                "evaluation_time": 0.000640380000550067
+            }
+        },
+        {
+            "number": 94,
+            "value": 26.79765077753857,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 7,
+                "learning_rate": 0.062303329662333984,
+                "subsample": 0.7580924407332759,
+                "colsample_bylevel": 0.7814073145902205,
+                "l2_leaf_reg": 0.0045797356605545535,
+                "random_strength": 0.13519301187291033,
+                "bagging_temperature": 1.008815007161728,
+                "border_count": 255,
+                "min_data_in_leaf": 32
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.79765077753857,
+                "mape": 0.1276788797021985,
+                "training_time": 8.10015796000007,
+                "prediction_time": 0.006949339999846415,
+                "evaluation_time": 0.0006560799985891208
+            }
+        },
+        {
+            "number": 95,
+            "value": 27.738013207950967,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 8,
+                "learning_rate": 0.2749332473771441,
+                "subsample": 0.7614791999105011,
+                "colsample_bylevel": 0.9875388006874111,
+                "l2_leaf_reg": 0.0034665335903704495,
+                "random_strength": 0.01381486330777365,
+                "bagging_temperature": 0.35319021338122425,
+                "border_count": 255,
+                "min_data_in_leaf": 35
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 27.738013207950967,
+                "mape": 0.13412006209721597,
+                "training_time": 10.1097463399994,
+                "prediction_time": 0.007611099999485305,
+                "evaluation_time": 0.0006620000000111759
+            }
+        },
+        {
+            "number": 96,
+            "value": 26.84504606770608,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 9,
+                "learning_rate": 0.07481496699535198,
+                "subsample": 0.7024816867684988,
+                "colsample_bylevel": 0.7687170339957332,
+                "l2_leaf_reg": 0.014184774652411206,
+                "random_strength": 0.2504587914916453,
+                "bagging_temperature": 1.053743990454132,
+                "border_count": 255,
+                "min_data_in_leaf": 42
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.84504606770608,
+                "mape": 0.12834028546915052,
+                "training_time": 18.712575939998352,
+                "prediction_time": 0.012500540002656635,
+                "evaluation_time": 0.0006871399978990667
+            }
+        },
+        {
+            "number": 97,
+            "value": 28.81245487863948,
+            "params": {
+                "n_estimators": 100,
+                "max_depth": 7,
+                "learning_rate": 0.062628115909737,
+                "subsample": 0.792997015519074,
+                "colsample_bylevel": 0.9721312241706425,
+                "l2_leaf_reg": 0.005329566808870337,
+                "random_strength": 1.6107514600347237,
+                "bagging_temperature": 1.3493133887584485,
+                "border_count": 255,
+                "min_data_in_leaf": 31
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 28.81245487863948,
+                "mape": 0.13883745389582053,
+                "training_time": 0.7586694199999329,
+                "prediction_time": 0.005492880001838785,
+                "evaluation_time": 0.0006715000010444783
+            }
+        },
+        {
+            "number": 98,
+            "value": 26.808591783055977,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 8,
+                "learning_rate": 0.040653164104580884,
+                "subsample": 0.750819659772718,
+                "colsample_bylevel": 0.7850232394704503,
+                "l2_leaf_reg": 0.003003191774103463,
+                "random_strength": 1.3023673908216338,
+                "bagging_temperature": 2.199502947413352,
+                "border_count": 255,
+                "min_data_in_leaf": 28
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.808591783055977,
+                "mape": 0.12762616068514143,
+                "training_time": 11.739063060001353,
+                "prediction_time": 0.007338719999825116,
+                "evaluation_time": 0.0006368199989083223
+            }
+        },
+        {
+            "number": 99,
+            "value": 26.849567622485885,
+            "params": {
+                "n_estimators": 1000,
+                "max_depth": 8,
+                "learning_rate": 0.045615378114474095,
+                "subsample": 0.7691557199371811,
+                "colsample_bylevel": 0.7186796184798236,
+                "l2_leaf_reg": 0.010606418578709031,
+                "random_strength": 0.8783385504561323,
+                "bagging_temperature": 4.890020124436418,
+                "border_count": 64,
+                "min_data_in_leaf": 24
+            },
+            "state": "COMPLETE",
+            "user_attrs": {
+                "mae": 26.849567622485885,
+                "mape": 0.12803595353158542,
+                "training_time": 7.1313804399978835,
+                "prediction_time": 0.007296979999227915,
+                "evaluation_time": 0.0006683999992674217
+            }
+        }
+    ]
+}
