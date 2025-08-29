@@ -14,7 +14,7 @@ from thesis.simulation.pipeline import (
 from thesis.simulation.scenario import SimulationScenario, SimulationScenarioConfig
 
 
-def main():
+def main() -> None:
     experiment = SimulationExperiment()
     logger = setup_logger(experiment.name, experiment.logs_dir)
 
