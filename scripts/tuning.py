@@ -7,96 +7,91 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
+from thesis.common.config import OUTPUTS_DIR, RESULTS_DIRNAME, TUNING_RESULTS_FILENAME
 from thesis.common.logger import setup_logger
 from thesis.eta.experiment import ETAEvaluation, ETAExperiment
+from thesis.eta.models import ModelType
 
 
-def load_all_tuning_results(results_dir: Path) -> Dict[str, pd.DataFrame]:
-    """Load tuning results from all model experiments and convert to DataFrames.
-
-    This function loads both regular and focused tuning results for each model
-    and merges them into a single DataFrame per model.
+def load_tuning_results(
+    experiment_path: Path,
+) -> dict[str, float | str | dict[str, float] | list[dict[str, float | str | dict[str, float]]]]:
     """
-    results = {}
+    Load tuning results from an experiment directory.
 
-    model_files = {
-        "XGBoost": [
-            results_dir / "xgboost_tuning" / "results" / "tuning_results.json",
-            results_dir / "xgboost_tuning_focused" / "results" / "tuning_results.json",
-        ],
-        "CatBoost": [
-            results_dir / "catboost_tuning" / "results" / "tuning_results.json",
-            results_dir / "catboost_tuning_focused" / "results" / "tuning_results.json",
-        ],
-        "LightGBM": [
-            results_dir / "lightgbm_tuning" / "results" / "tuning_results.json",
-            results_dir / "lightgbm_tuning_focused" / "results" / "tuning_results.json",
-        ],
+    Args:
+        experiment_path (Path): Path to the experiment directory.
+
+    Returns:
+        dict[str, float | str | dict[str, float] | list[dict[str, float | str | dict[str, float]]]]: Dictionary containing the tuning experiment results.
+    """
+    results_dir = experiment_path / RESULTS_DIRNAME
+    if not results_dir.is_dir():
+        return {}
+
+    tuning_file = results_dir / TUNING_RESULTS_FILENAME
+    if not tuning_file.exists():
+        return {}
+
+    with open(tuning_file, "r") as f:
+        return json.load(f)
+
+
+def load_all_tuning_results() -> dict[str, pd.DataFrame]:
+    """
+    Load all tuning experiment results and return as DataFrames grouped by model.
+
+    Returns:
+        dict[str, pd.DataFrame]: Dictionary with model names as keys and DataFrames as values.
+    """
+    records = []
+
+    tuning_experiment_dirs = [dir for dir in OUTPUTS_DIR.iterdir() if dir.is_dir() and "tuning" in dir.name]
+    for tuning_experiment_dir in tuning_experiment_dirs:
+        experiment_name = tuning_experiment_dir.name
+        tuning_experiment_results = load_tuning_results(tuning_experiment_dir)
+
+        if tuning_experiment_results:
+            model = tuning_experiment_results["model"]
+            for trial in tuning_experiment_results["trials"]:
+                if trial["state"] == "COMPLETE":
+                    trial_data = {
+                        "experiment": experiment_name,
+                        "model": model,
+                        "trial_number": trial["number"],
+                        "mae": trial["value"],
+                        "mape": trial["user_attrs"]["mape"],
+                        "training_time": trial["user_attrs"]["training_time"],
+                        "prediction_time": trial["user_attrs"]["prediction_time"],
+                        "evaluation_time": trial["user_attrs"]["evaluation_time"],
+                        "total_time": (
+                            trial["user_attrs"]["training_time"]
+                            + trial["user_attrs"]["prediction_time"]
+                            + trial["user_attrs"]["evaluation_time"]
+                        ),
+                        **trial["params"],
+                    }
+                    records.append(trial_data)
+
+    df = pd.DataFrame(records)
+
+    constant_parameters = {
+        ModelType.CATBOOST_REGRESSOR: {"border_count": 255},
+        ModelType.LIGHTGBM_REGRESSOR: {"reg_alpha": 0.0},
     }
 
-    for model_name, file_paths in model_files.items():
-        all_trial_data = []
-        loaded_files = []
+    results = {}
+    for model in df["model"].unique():
+        model_df = df[df["model"] == model].copy()
+        model_df = model_df.dropna(axis=1, how="all")
 
-        for file_path in file_paths:
-            if file_path.exists():
-                with open(file_path, "r") as f:
-                    data = json.load(f)
+        if model in constant_parameters:
+            for parameter, value in constant_parameters[model].items():
+                if parameter in model_df.columns:
+                    model_df[parameter] = model_df[parameter].fillna(value)
 
-                    trial_data = []
-                    for trial in data["trials"]:
-                        if trial["state"] == "COMPLETE":
-                            row = {
-                                "model": model_name,
-                                "trial_number": trial["number"],
-                                "mae": trial["value"],
-                                "mape": trial["user_attrs"]["mape"],
-                                "training_time": trial["user_attrs"]["training_time"],
-                                "prediction_time": trial["user_attrs"]["prediction_time"],
-                                "evaluation_time": trial["user_attrs"]["evaluation_time"],
-                                "source": file_path.parent.parent.name,  # e.g., "xgboost_tuning" or "xgboost_tuning_focused"
-                                "total_time": (
-                                    trial["user_attrs"]["training_time"]
-                                    + trial["user_attrs"]["prediction_time"]
-                                    + trial["user_attrs"]["evaluation_time"]
-                                ),
-                                **trial["params"],
-                            }
-                            trial_data.append(row)
-
-                    all_trial_data.extend(trial_data)
-                    loaded_files.append(file_path.parent.parent.name)
-                    print(f"✓ Loaded {file_path.parent.parent.name}: {len(trial_data)} completed trials")
-            else:
-                print(f"✗ Missing {model_name} results at {file_path}")
-
-        if all_trial_data:
-            # Create DataFrame and handle potential duplicate trial numbers by making them unique
-            df = pd.DataFrame(all_trial_data)
-
-            # Fill in constant parameter values that were used in focused tuning
-            constant_params = {
-                "CatBoost": {"border_count": 255},
-                "LightGBM": {"reg_alpha": 0.0},
-                "XGBoost": {},  # Add any XGBoost constants if needed
-            }
-
-            if model_name in constant_params:
-                for param, value in constant_params[model_name].items():
-                    if param in df.columns:
-                        nan_count_before = df[param].isna().sum()
-                        df[param] = df[param].fillna(value)
-                        if nan_count_before > 0:
-                            print(f"  ✓ Filled {nan_count_before} NaN values for {param} with constant: {value}")
-
-            # Reset trial numbers to be unique across both files
-            df = df.reset_index(drop=True)
-            df["trial_number"] = range(len(df))
-
-            results[model_name] = df
-            print(f"✓ Combined {model_name}: {len(df)} total completed trials from {len(loaded_files)} files")
-        else:
-            print(f"✗ No completed trials found for {model_name}")
+        model_df = model_df.reset_index(drop=True)
+        results[model] = model_df
 
     return results
 
@@ -177,7 +172,7 @@ def create_parameter_vs_mae_plots(results: Dict[str, pd.DataFrame]):
                 "model",
                 "trial_number",
                 "mae",
-                "source",
+                "experiment",
                 "mape",
                 "training_time",
                 "prediction_time",
@@ -291,7 +286,7 @@ def analyze_parameter_correlations(results: Dict[str, pd.DataFrame]):
                 "model",
                 "trial_number",
                 "mae",
-                "source",
+                "experiment",
                 "mape",
                 "training_time",
                 "prediction_time",
@@ -354,7 +349,7 @@ def generate_insights_and_recommendations(results: Dict[str, pd.DataFrame]):
                 "model",
                 "trial_number",
                 "mae",
-                "source",
+                "experiment",
                 "mape",
                 "training_time",
                 "prediction_time",
