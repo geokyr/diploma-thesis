@@ -1,5 +1,3 @@
-import json
-from pathlib import Path
 from typing import Dict
 
 import matplotlib.pyplot as plt
@@ -7,104 +5,9 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
-from thesis.common.config import OUTPUTS_DIR, RESULTS_DIRNAME, TUNING_RESULTS_FILENAME
 from thesis.common.logger import setup_logger
 from thesis.eta.experiment import ETAEvaluation, ETAExperiment
-from thesis.eta.models import ModelType
-
-
-def load_tuning_results(
-    experiment_path: Path,
-) -> dict[str, float | str | dict[str, float] | list[dict[str, float | str | dict[str, float]]]]:
-    """
-    Load tuning results from an experiment directory.
-
-    Args:
-        experiment_path (Path): Path to the experiment directory.
-
-    Returns:
-        dict[str, float | str | dict[str, float] | list[dict[str, float | str | dict[str, float]]]]: Dictionary containing the tuning experiment results.
-    """
-    results_dir = experiment_path / RESULTS_DIRNAME
-    if not results_dir.is_dir():
-        return {}
-
-    tuning_file = results_dir / TUNING_RESULTS_FILENAME
-    if not tuning_file.exists():
-        return {}
-
-    with open(tuning_file, "r") as f:
-        return json.load(f)
-
-
-def load_all_tuning_results() -> dict[str, pd.DataFrame]:
-    """
-    Load all tuning experiment results and return as DataFrames grouped by model.
-
-    Returns:
-        dict[str, pd.DataFrame]: Dictionary with model names as keys and DataFrames as values.
-    """
-    results = {}
-
-    tuning_experiment_dirs = [dir for dir in OUTPUTS_DIR.iterdir() if dir.is_dir() and "tuning" in dir.name]
-    for tuning_experiment_dir in tuning_experiment_dirs:
-        experiment_name = tuning_experiment_dir.name
-        tuning_experiment_results = load_tuning_results(tuning_experiment_dir)
-
-        if not tuning_experiment_results:
-            continue
-
-        records = []
-        model = tuning_experiment_results["model"]
-
-        for trial in tuning_experiment_results["trials"]:
-            if trial["state"] != "COMPLETE":
-                continue
-
-            user_attrs = trial["user_attrs"]
-
-            records.append(
-                {
-                    "experiment": experiment_name,
-                    "model": model,
-                    "trial_number": trial["number"],
-                    "mae": trial["value"],
-                    "mape": user_attrs["mape"],
-                    "training_time": user_attrs["training_time"],
-                    "prediction_time": user_attrs["prediction_time"],
-                    "evaluation_time": user_attrs["evaluation_time"],
-                    "total_time": (
-                        user_attrs["training_time"] + user_attrs["prediction_time"] + user_attrs["evaluation_time"]
-                    ),
-                    **trial["params"],
-                }
-            )
-
-        if not records:
-            continue
-
-        df = pd.DataFrame(records)
-
-        if model not in results:
-            results[model] = df
-        else:
-            results[model] = pd.concat([results[model], df])
-
-    constant_parameters = {
-        ModelType.CATBOOST_REGRESSOR: {"border_count": 255},
-        ModelType.LIGHTGBM_REGRESSOR: {"reg_alpha": 0.0},
-    }
-
-    final_results = {}
-    for model, df in results.items():
-        if model in constant_parameters:
-            for parameter, value in constant_parameters[model].items():
-                if parameter in df.columns:
-                    df[parameter] = df[parameter].fillna(value)
-
-        final_results[model] = df.reset_index(drop=True)
-
-    return final_results
+from thesis.eta.results import load_all_tuning_results
 
 
 def create_performance_overview(results: Dict[str, pd.DataFrame]):
