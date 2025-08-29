@@ -21,7 +21,8 @@
         "evaluation_time": 0.0010838599991984665
     },
     "n_trials": 100,
-    "study_name": "XGBRegressor",
+    "study_name": "xgboost_tuning",
+    "model": "XGBRegressor",
     "trials": [
         {
             "number": 0,

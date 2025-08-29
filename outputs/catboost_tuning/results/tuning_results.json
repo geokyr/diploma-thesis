@@ -21,7 +21,8 @@
         "evaluation_time": 0.0006623799999943003
     },
     "n_trials": 100,
-    "study_name": "CatBoostRegressor",
+    "study_name": "catboost_tuning",
+    "model": "CatBoostRegressor",
     "trials": [
         {
             "number": 0,

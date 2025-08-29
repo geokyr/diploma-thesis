@@ -166,7 +166,7 @@ class BaseModelTuner(ABC):
             study_name=self.study_name,
             sampler=optuna.samplers.TPESampler(seed=self.random_seed),
         )
-
+        study.set_user_attr("model", self.model_type)
         study.optimize(self.objective, n_trials=self.n_trials)
 
         total_trials = len(study.trials)

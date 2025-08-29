@@ -21,6 +21,7 @@
     },
     "n_trials": 100,
     "study_name": "lightgbm_tuning_focused",
+    "model": "LGBMRegressor",
     "trials": [
         {
             "number": 0,

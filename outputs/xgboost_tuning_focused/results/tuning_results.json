@@ -22,6 +22,7 @@
     },
     "n_trials": 100,
     "study_name": "xgboost_tuning_focused",
+    "model": "XGBRegressor",
     "trials": [
         {
             "number": 0,

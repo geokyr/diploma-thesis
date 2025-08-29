@@ -609,6 +609,7 @@ def build_tuning_results(
         "best_user_attrs": study.best_trial.user_attrs,
         "n_trials": len(study.trials),
         "study_name": study.study_name,
+        "model": study.user_attrs["model"],
     }
 
     trials_data = []

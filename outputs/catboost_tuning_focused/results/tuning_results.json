@@ -21,6 +21,7 @@
     },
     "n_trials": 100,
     "study_name": "catboost_tuning_focused",
+    "model": "CatBoostRegressor",
     "trials": [
         {
             "number": 0,
