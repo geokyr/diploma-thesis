@@ -1,11 +1,12 @@
 from thesis.common.data import (
+    generate_trips,
     get_adaptation_retrain_data,
     get_adaptation_test_data,
     load_fcd_dataset,
     preprocess_fcd_dataset,
 )
 from thesis.common.logger import setup_logger
-from thesis.eta.data import ensure_dataset_is_valid, generate_full_trips
+from thesis.eta.data import ensure_dataset_is_valid
 from thesis.eta.experiment import ETAEvaluation, ETAExperiment, load_model, save_model
 from thesis.eta.features import split_features_and_target
 from thesis.eta.models import ModelType, create_model, get_retraining_kwargs
@@ -22,12 +23,12 @@ def main() -> None:
     ensure_dataset_is_valid(experiment.test_path)
     fcd_test_raw = load_fcd_dataset(experiment.test_path)
     fcd_test = preprocess_fcd_dataset(fcd_test_raw)
-    trips_test = generate_full_trips(fcd_test)
+    trips_test = generate_trips(fcd_test)
 
     ensure_dataset_is_valid(experiment.rain_path)
     fcd_rain_raw = load_fcd_dataset(experiment.rain_path)
     fcd_rain = preprocess_fcd_dataset(fcd_rain_raw)
-    trips_rain = generate_full_trips(fcd_rain)
+    trips_rain = generate_trips(fcd_rain)
 
     retrain_data = get_adaptation_retrain_data(trips_test, trips_rain)
     test_data = get_adaptation_test_data(trips_rain)
