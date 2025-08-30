@@ -13,6 +13,7 @@ import numpy as np
 import optuna
 import pandas as pd
 import seaborn as sns
+from sklearn.linear_model import LinearRegression
 
 from thesis.common.config import (
     OUTPUTS_DIR,
@@ -572,7 +573,6 @@ def run_metric_analysis(
 
     fig.suptitle(f"{metric_name} Analysis", fontsize=16, fontweight="bold")
     plt.tight_layout()
-    plt.subplots_adjust(top=0.93)
     plt.savefig(plot_path, bbox_inches="tight")
     plt.close()
 
@@ -730,13 +730,195 @@ def load_all_tuning_results() -> dict[ModelType, pd.DataFrame]:
 
 def save_all_tuning_results(results: dict[ModelType, pd.DataFrame], results_dir: Path) -> None:
     """
-    Save all tuning results to CSV files.
+    Save all tuning results to a CSV file.
 
     Args:
         results (dict[ModelType, pd.DataFrame]): Dictionary with model names as keys and DataFrames as values.
         results_dir (Path): Directory to save results to.
     """
-    for model, df in results.items():
-        df.to_csv(results_dir / f"{model}.csv", index=False)
+    results_path = results_dir / "tuning_results.csv"
 
-    logger.info(f"All tuning results saved to {results_dir}")
+    all_data = []
+    for _, df in results.items():
+        all_data.append(df)
+
+    combined_df = pd.concat(all_data, ignore_index=True)
+    combined_df.to_csv(results_path, index=False)
+
+    logger.info(f"Tuning results saved to {results_path}")
+
+
+def plot_boxplot_by_model(df: pd.DataFrame, column: str, title: str, ylabel: str, ax: plt.Axes) -> None:
+    """
+    Plot a boxplot for a given column grouped by model on a given axis.
+
+    Args:
+        df (pd.DataFrame): DataFrame with model results
+        column (str): Column name to plot
+        title (str): Plot title
+        ylabel (str): Y-axis label
+        ax (plt.Axes): Matplotlib axis to plot on
+    """
+    df_plot = df.copy()
+    if "%" in ylabel:
+        df_plot[column] = df_plot[column] * 100
+
+    df_plot.boxplot(column=column, by="model", ax=ax)
+    ax.set_title(title, fontweight="bold")
+    ax.set_xlabel("Model")
+    ax.set_ylabel(ylabel)
+
+
+def plot_mae_convergence(results: dict[str, pd.DataFrame], ax: plt.Axes) -> None:
+    """
+    Plot MAE convergence over trial numbers for all models on a given axis.
+
+    Args:
+        results (dict[str, pd.DataFrame]): Dictionary with model names as keys and DataFrames as values.
+        ax (plt.Axes): Matplotlib axis to plot on.
+    """
+    colors = plt.cm.viridis(np.linspace(0.1, 0.9, len(results)))
+
+    all_final_values = []
+    for i, (model_name, df) in enumerate(results.items()):
+        df_sorted = df.sort_values(["experiment", "trial_number"])
+
+        continuous_trial_numbers = []
+        trial_counter = 0
+        for experiment in df_sorted["experiment"].unique():
+            experiment_trials = df_sorted[df_sorted["experiment"] == experiment]
+            experiment_trial_numbers = list(range(trial_counter, trial_counter + len(experiment_trials)))
+            continuous_trial_numbers.extend(experiment_trial_numbers)
+            trial_counter += len(experiment_trials)
+
+        mae_values = df_sorted["mae"].values
+        best_mae_so_far = np.minimum.accumulate(mae_values)
+        all_final_values.extend(best_mae_so_far)
+        ax.plot(continuous_trial_numbers, best_mae_so_far, label=model_name, color=colors[i], linewidth=2.5)
+
+    y_min = min(all_final_values)
+    y_max = max(all_final_values)
+    y_range = y_max - y_min
+
+    ax.set_ylim(y_min - y_range * 0.05, y_max + y_range * 0.05)
+    ax.set_title("Best MAE Over Trials", fontweight="bold")
+    ax.set_xlabel("Trial Number")
+    ax.set_ylabel("Best MAE So Far")
+    ax.legend(loc="upper right", framealpha=0.9)
+    ax.grid(True, alpha=0.3)
+
+
+def run_tuning_analysis(results: dict[str, pd.DataFrame], plots_dir: Path) -> None:
+    """
+    Create overview plots of model performance and timing.
+
+    Args:
+        results (dict[str, pd.DataFrame]): Dictionary with model names as keys and DataFrames as values.
+        plots_dir (Path): Directory to save the plots.
+    """
+    logger.info("Running tuning analysis")
+
+    all_data = [df for _, df in results.items()]
+    combined_df = pd.concat(all_data, ignore_index=True)
+
+    plot_path = plots_dir / "tuning_analysis.png"
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
+
+    plot_boxplot_by_model(combined_df, "mae", "MAE by Model", "MAE", ax1)
+    plot_boxplot_by_model(combined_df, "mape", "MAPE by Model", "MAPE (%)", ax2)
+    plot_boxplot_by_model(combined_df, "training_time", "Training Time by Model", "Training Time (s)", ax3)
+    plot_mae_convergence(results, ax4)
+
+    fig.suptitle("Tuning Results Overview", fontsize=16, fontweight="bold")
+    plt.tight_layout()
+    plt.savefig(plot_path, bbox_inches="tight")
+    plt.close()
+
+    logger.info("Completed tuning analysis")
+
+
+def plot_parameters_vs_mae(results: dict[str, pd.DataFrame], plots_dir: Path) -> None:
+    """
+    Plot scatter plots of parameter vs MAE for each model.
+
+    Args:
+        results (dict[str, pd.DataFrame]): Dictionary with model names as keys and DataFrames as values.
+        plots_dir (Path): Directory to save the plots.
+    """
+    for model, df in results.items():
+        plot_path = plots_dir / f"{model}_parameters_vs_mae.png"
+
+        param_cols = [
+            col
+            for col in df.columns
+            if col
+            not in [
+                "model",
+                "trial_number",
+                "mae",
+                "experiment",
+                "mape",
+                "training_time",
+                "prediction_time",
+                "evaluation_time",
+            ]
+        ]
+
+        n_params = len(param_cols)
+        n_cols = min(3, n_params)
+        n_rows = (n_params + n_cols - 1) // n_cols
+
+        fig, axes = plt.subplots(n_rows, n_cols, figsize=(6 * n_cols, 4 * n_rows))
+        colors = plt.cm.viridis([0.1, 0.5, 0.9])
+
+        for i, param in enumerate(param_cols):
+            row = i // n_cols
+            col = i % n_cols
+            ax = axes[row, col] if n_rows > 1 else axes[col]
+
+            param_values = df[param]
+            mae_values = df["mae"]
+
+            ax.scatter(param_values, mae_values, alpha=0.7, s=35, color=colors[0], edgecolors="white")
+
+            lr = LinearRegression()
+            X = param_values.values.reshape(-1, 1)
+            y = mae_values.values
+            lr.fit(X, y)
+
+            x_trend = np.linspace(param_values.min(), param_values.max(), 100)
+            y_trend = lr.predict(x_trend.reshape(-1, 1))
+            ax.plot(x_trend, y_trend, "--", color=colors[1], alpha=0.7, linewidth=2)
+
+            top_10_pct = df.nsmallest(max(1, len(df) // 10), "mae")
+            top_param_values = top_10_pct[param]
+            top_mae_values = top_10_pct["mae"]
+            ax.scatter(
+                top_param_values,
+                top_mae_values,
+                color=colors[2],
+                s=60,
+                alpha=0.7,
+                label="Top 10%",
+                edgecolors="white",
+                linewidth=1,
+            )
+
+            ax.legend(loc="upper right", framealpha=0.7)
+            ax.set_xlabel(param)
+            ax.set_ylabel("MAE")
+            ax.set_title(f"{param}", fontweight="bold")
+            ax.grid(True, alpha=0.3)
+
+        for i in range(n_params, n_rows * n_cols):
+            row = i // n_cols
+            col = i % n_cols
+            ax = axes[row, col] if n_rows > 1 else axes[col]
+            ax.set_visible(False)
+
+        fig.suptitle(f"{model} - Parameters vs MAE", fontsize=16, fontweight="bold")
+        plt.tight_layout()
+        plt.savefig(plot_path, bbox_inches="tight")
+        plt.close()
+
+        logger.info(f"{model} - Parameters vs MAE plot saved to {plot_path}")
