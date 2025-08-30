@@ -219,8 +219,20 @@ def get_retraining_kwargs(model_type: ModelType, trained_model: BaseEstimator) -
         ModelType.CATBOOST_REGRESSOR: "init_model",
     }
 
+    needs_regressor = {
+        ModelType.XGBOOST_REGRESSOR: True,
+        ModelType.CATBOOST_REGRESSOR: True,
+    }
+
     key = retraining_keys.get(model_type)
-    return {key: trained_model} if key else {}
+    if not key:
+        return {}
+
+    actual_model = trained_model
+    if needs_regressor.get(model_type) and isinstance(trained_model, TransformedTargetRegressor):
+        actual_model = trained_model.regressor_
+
+    return {key: actual_model}
 
 
 def wrap_with_transformed_target_regressor(
