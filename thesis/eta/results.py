@@ -390,14 +390,20 @@ def save_research_results(results_df: pd.DataFrame, results_dir: Path) -> None:
     """
     results_path = results_dir / RESEARCH_RESULTS_FILENAME
     results_df.to_csv(results_path, index=False)
+
     logger.info(f"Research experiment results saved to {results_path}")
 
 
 def plot_metric_by_experiment(
-    df: pd.DataFrame, metric_column: str, metric_name: str, metric_unit: str, decimal_places: int, plots_dir: Path
+    df: pd.DataFrame,
+    metric_column: str,
+    metric_name: str,
+    metric_unit: str,
+    decimal_places: int,
+    ax: plt.Axes,
 ) -> None:
     """
-    Plot average metric values by experiment.
+    Plot average metric values by experiment on a given axis.
 
     Args:
         df (pd.DataFrame): DataFrame with results.
@@ -405,43 +411,38 @@ def plot_metric_by_experiment(
         metric_name (str): Display name for the metric.
         metric_unit (str): Unit of the metric.
         decimal_places (int): Number of decimal places to show for the metric.
-        plots_dir (Path): Directory to save the plots.
+        ax (plt.Axes): Matplotlib axis to plot on.
     """
-    plot_path = plots_dir / f"{metric_column}_by_experiment.png"
-
     metric_by_exp = df.groupby("experiment")[metric_column].mean()
-
-    num_experiments = len(metric_by_exp)
-    width = 8
-    height = max(6, num_experiments * 0.4)
-
-    plt.figure(figsize=(width, height))
     colors = plt.cm.viridis(np.linspace(0, 1, len(metric_by_exp)))
-    plt.barh(range(len(metric_by_exp)), metric_by_exp.values, color=colors)
-    plt.title(f"Average {metric_name} by Experiment", fontweight="bold")
-    plt.xlabel(f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}")
-    plt.ylabel("Experiment")
-    plt.yticks(range(len(metric_by_exp)), metric_by_exp.index)
-    plt.gca().invert_yaxis()
+
+    ax.barh(range(len(metric_by_exp)), metric_by_exp.values, color=colors)
+    ax.set_title(f"Average {metric_name} by Experiment", fontweight="bold")
+    ax.set_xlabel(f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}")
+    ax.set_ylabel("Experiment")
+    ax.set_yticks(range(len(metric_by_exp)))
+    ax.set_yticklabels(metric_by_exp.index)
+    ax.invert_yaxis()
 
     min_val, max_val = metric_by_exp.values.min(), metric_by_exp.values.max()
     range_val = max_val - min_val
-    plt.xlim(min_val - range_val * 0.2, max_val + range_val * 0.2)
+    ax.set_xlim(min_val - range_val * 0.2, max_val + range_val * 0.2)
 
     for i, v in enumerate(metric_by_exp.values):
         label = f"{v:.{decimal_places}f}{metric_unit}"
-        plt.text(v + range_val * 0.02, i, label, ha="left", va="center", fontweight="bold", color="black")
-
-    plt.savefig(plot_path, bbox_inches="tight")
-    plt.close()
-    logger.info(f"{metric_name} by experiment plot saved to {plot_path}")
+        ax.text(v + range_val * 0.02, i, label, ha="left", va="center", fontweight="bold", color="black")
 
 
 def plot_metric_by_model(
-    df: pd.DataFrame, metric_column: str, metric_name: str, metric_unit: str, decimal_places: int, plots_dir: Path
+    df: pd.DataFrame,
+    metric_column: str,
+    metric_name: str,
+    metric_unit: str,
+    decimal_places: int,
+    ax: plt.Axes,
 ) -> None:
     """
-    Plot average metric values by model.
+    Plot average metric values by model on a given axis.
 
     Args:
         df (pd.DataFrame): DataFrame with results.
@@ -449,43 +450,38 @@ def plot_metric_by_model(
         metric_name (str): Display name for the metric.
         metric_unit (str): Unit of the metric.
         decimal_places (int): Number of decimal places to show for the metric.
-        plots_dir (Path): Directory to save the plots.
+        ax (plt.Axes): Matplotlib axis to plot on.
     """
-    plot_path = plots_dir / f"{metric_column}_by_model.png"
-
     metric_by_model = df.groupby("model")[metric_column].mean()
-
-    num_models = len(metric_by_model)
-    width = 8
-    height = max(4, num_models * 0.4)
-
-    plt.figure(figsize=(width, height))
     colors = plt.cm.viridis(np.linspace(0, 1, len(metric_by_model)))
-    plt.barh(range(len(metric_by_model)), metric_by_model.values, color=colors)
-    plt.title(f"Average {metric_name} by Model", fontweight="bold")
-    plt.xlabel(f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}")
-    plt.ylabel("Model")
-    plt.yticks(range(len(metric_by_model)), metric_by_model.index)
-    plt.gca().invert_yaxis()
+
+    ax.barh(range(len(metric_by_model)), metric_by_model.values, color=colors)
+    ax.set_title(f"Average {metric_name} by Model", fontweight="bold")
+    ax.set_xlabel(f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}")
+    ax.set_ylabel("Model")
+    ax.set_yticks(range(len(metric_by_model)))
+    ax.set_yticklabels(metric_by_model.index)
+    ax.invert_yaxis()
 
     min_val, max_val = metric_by_model.values.min(), metric_by_model.values.max()
     range_val = max_val - min_val
-    plt.xlim(min_val - range_val * 0.2, max_val + range_val * 0.2)
+    ax.set_xlim(min_val - range_val * 0.2, max_val + range_val * 0.2)
 
     for i, v in enumerate(metric_by_model.values):
         label = f"{v:.{decimal_places}f}{metric_unit}"
-        plt.text(v + range_val * 0.02, i, label, ha="left", va="center", fontweight="bold", color="black")
-
-    plt.savefig(plot_path, bbox_inches="tight")
-    plt.close()
-    logger.info(f"{metric_name} by model plot saved to {plot_path}")
+        ax.text(v + range_val * 0.02, i, label, ha="left", va="center", fontweight="bold", color="black")
 
 
 def plot_metric_heatmap(
-    df: pd.DataFrame, metric_column: str, metric_name: str, metric_unit: str, decimal_places: int, plots_dir: Path
+    df: pd.DataFrame,
+    metric_column: str,
+    metric_name: str,
+    metric_unit: str,
+    decimal_places: int,
+    ax: plt.Axes,
 ) -> None:
     """
-    Plot metric heatmap of experiment vs model.
+    Plot metric heatmap of experiment vs model on a given axis.
 
     Args:
         df (pd.DataFrame): DataFrame with results.
@@ -493,57 +489,43 @@ def plot_metric_heatmap(
         metric_name (str): Display name for the metric.
         metric_unit (str): Unit of the metric.
         decimal_places (int): Number of decimal places to show for the metric.
-        plots_dir (Path): Directory to save the plots.
+        ax (plt.Axes): Matplotlib axis to plot on.
     """
-    plot_path = plots_dir / f"{metric_column}_heatmap.png"
-
     metric_pivot = df.pivot(index="experiment", columns="model", values=metric_column)
-
-    num_experiments = len(metric_pivot.index)
-    num_models = len(metric_pivot.columns)
-    width = max(8, num_models * 1.2)
-    height = max(4, num_experiments * 0.5)
-
-    plt.figure(figsize=(width, height))
     cbar_label = f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}"
+
     sns.heatmap(
         metric_pivot,
         annot=True,
         fmt=f".{decimal_places}f",
         cmap="viridis",
         cbar_kws={"label": cbar_label},
+        ax=ax,
     )
-    plt.title(f"{metric_name} Heatmap: Experiment vs Model", fontweight="bold")
-    plt.xlabel("Model")
-    plt.ylabel("Experiment")
-
-    plt.savefig(plot_path, bbox_inches="tight")
-    plt.close()
-    logger.info(f"{metric_name} heatmap saved to {plot_path}")
+    ax.set_title(f"{metric_name} Heatmap: Experiment vs Model", fontweight="bold")
+    ax.set_xlabel("Model")
+    ax.set_ylabel("Experiment")
 
 
 def plot_metric_distribution(
-    df: pd.DataFrame, metric_column: str, metric_name: str, metric_unit: str, plots_dir: Path
+    df: pd.DataFrame,
+    metric_column: str,
+    metric_name: str,
+    metric_unit: str,
+    ax: plt.Axes,
 ) -> None:
     """
-    Plot metric distribution by experiment using boxplots.
+    Plot metric distribution by experiment using boxplots on a given axis.
 
     Args:
         df (pd.DataFrame): DataFrame with results.
         metric_column (str): Column name for the metric to analyze.
         metric_name (str): Display name for the metric.
         metric_unit (str): Unit of the metric.
-        plots_dir (Path): Directory to save the plots.
+        ax (plt.Axes): Matplotlib axis to plot on.
     """
-    plot_path = plots_dir / f"{metric_column}_distribution.png"
-
     experiments = sorted(df["experiment"].unique())
 
-    num_experiments = len(experiments)
-    width = 8
-    height = max(6, num_experiments * 0.4)
-
-    plt.figure(figsize=(width, height))
     sns.boxplot(
         data=df,
         y="experiment",
@@ -553,21 +535,19 @@ def plot_metric_distribution(
         palette=[plt.cm.viridis(i / len(experiments)) for i in range(len(experiments))],
         legend=False,
         orient="h",
+        ax=ax,
     )
-    plt.title(f"{metric_name} Distribution by Experiment", fontweight="bold")
-    plt.xlabel(f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}")
-    plt.ylabel("Experiment")
 
-    plt.savefig(plot_path, bbox_inches="tight")
-    plt.close()
-    logger.info(f"{metric_name} distribution plot saved to {plot_path}")
+    ax.set_title(f"{metric_name} Distribution by Experiment", fontweight="bold")
+    ax.set_xlabel(f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}")
+    ax.set_ylabel("Experiment")
 
 
 def run_metric_analysis(
     df: pd.DataFrame, metric_column: str, metric_name: str, metric_unit: str, decimal_places: int, plots_dir: Path
 ) -> None:
     """
-    Run a comprehensive analysis for a metric by generating multiple plots.
+    Run a comprehensive analysis for a metric by generating a 2x2 subplot with all analysis types.
 
     Args:
         df (pd.DataFrame): DataFrame with results.
@@ -582,10 +562,19 @@ def run_metric_analysis(
     if metric_unit == "%":
         df[metric_column] = df[metric_column] * 100
 
-    plot_metric_by_experiment(df, metric_column, metric_name, metric_unit, decimal_places, plots_dir)
-    plot_metric_by_model(df, metric_column, metric_name, metric_unit, decimal_places, plots_dir)
-    plot_metric_heatmap(df, metric_column, metric_name, metric_unit, decimal_places, plots_dir)
-    plot_metric_distribution(df, metric_column, metric_name, metric_unit, plots_dir)
+    plot_path = plots_dir / f"{metric_column}_analysis.png"
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
+
+    plot_metric_by_experiment(df, metric_column, metric_name, metric_unit, decimal_places, ax1)
+    plot_metric_by_model(df, metric_column, metric_name, metric_unit, decimal_places, ax2)
+    plot_metric_heatmap(df, metric_column, metric_name, metric_unit, decimal_places, ax3)
+    plot_metric_distribution(df, metric_column, metric_name, metric_unit, ax4)
+
+    fig.suptitle(f"{metric_name} Analysis", fontsize=16, fontweight="bold")
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.93)
+    plt.savefig(plot_path, bbox_inches="tight")
+    plt.close()
 
     logger.info(f"Completed {metric_name} analysis")
 
@@ -670,12 +659,12 @@ def load_tuning_results(
         return json.load(f)
 
 
-def load_all_tuning_results() -> dict[str, pd.DataFrame]:
+def load_all_tuning_results() -> dict[ModelType, pd.DataFrame]:
     """
     Load all tuning experiment results and return as DataFrames grouped by model.
 
     Returns:
-        dict[str, pd.DataFrame]: Dictionary with model names as keys and DataFrames as values.
+        dict[ModelType, pd.DataFrame]: Dictionary with model names as keys and DataFrames as values.
     """
     results = {}
 
@@ -706,9 +695,6 @@ def load_all_tuning_results() -> dict[str, pd.DataFrame]:
                     "training_time": user_attrs["training_time"],
                     "prediction_time": user_attrs["prediction_time"],
                     "evaluation_time": user_attrs["evaluation_time"],
-                    "total_time": (
-                        user_attrs["training_time"] + user_attrs["prediction_time"] + user_attrs["evaluation_time"]
-                    ),
                     **trial["params"],
                 }
             )
@@ -737,4 +723,20 @@ def load_all_tuning_results() -> dict[str, pd.DataFrame]:
 
         final_results[model] = df.reset_index(drop=True)
 
+    logger.info(f"Loaded tuning results for {len(final_results)} models")
+
     return final_results
+
+
+def save_all_tuning_results(results: dict[ModelType, pd.DataFrame], results_dir: Path) -> None:
+    """
+    Save all tuning results to CSV files.
+
+    Args:
+        results (dict[ModelType, pd.DataFrame]): Dictionary with model names as keys and DataFrames as values.
+        results_dir (Path): Directory to save results to.
+    """
+    for model, df in results.items():
+        df.to_csv(results_dir / f"{model}.csv", index=False)
+
+    logger.info(f"All tuning results saved to {results_dir}")
