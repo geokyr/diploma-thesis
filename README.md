@@ -29,7 +29,7 @@ This will create a virtual environment `.venv` in the project root and install a
 All scripts should be invoked via `uv run` so they use the right virtual environment.
 
 ```bash
-uv run scripts/simulation.py
+uv run simulation/simulation.py
 ```
 
 Another option is to activate the virtual environment and run the scripts directly.
@@ -37,13 +37,13 @@ Another option is to activate the virtual environment and run the scripts direct
 ```powershell
 # Windows
 .venv\Scripts\activate
-python scripts/simulation.py
+python simulation/simulation.py
 ```
 
 ```bash
 # Linux/MacOS
 source .venv/bin/activate
-python scripts/simulation.py
+python simulation/simulation.py
 ```
 
 To deactivate the virtual environment, run the following command.
