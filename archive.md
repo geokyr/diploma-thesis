@@ -8,7 +8,7 @@ uv python pin 3.12.9
 echo "" >> pyproject.toml
 echo "[tool.hatch.build.targets.wheel]" >> pyproject.toml
 echo 'packages = ["thesis"]' >> pyproject.toml
-uv add aiohttp==3.12.15 catboost==1.2.8 dash==3.2.0 eclipse-sumo==1.24.0 fastapi==0.116.1 ipykernel==6.29.5 lightgbm==4.6.0 matplotlib==3.10.1 numpy==2.2.3 optuna==4.4.0 pandas==2.2.3 pyarrow==21.0.0 pydantic==2.11.7 requests==2.32.4 river==0.22.0 scikit-learn==1.6.1 scipy==1.15.2 seaborn==0.13.2 uvicorn==0.35.0 xgboost==2.1.4
+uv add catboost==1.2.8 eclipse-sumo==1.24.0 ipykernel==6.29.5 lightgbm==4.6.0 matplotlib==3.10.1 numpy==2.2.3 optuna==4.4.0 pandas==2.2.3 pyarrow==21.0.0 requests==2.32.4 scikit-learn==1.6.1 scipy==1.15.2 seaborn==0.13.2 xgboost==2.1.4
 ```
 
 ## Closure Drift
