@@ -173,9 +173,9 @@ sequenceDiagram
 
 ### Data & Schemas
 #### Datasets
-- `simulation/data/train/*.parquet`
-- `simulation/data/test/*.parquet`
-- `simulation/data/rain/*.parquet`
+- `simulation/data/train-fcd.parquet`
+- `simulation/data/test-fcd.parquet`
+- `simulation/data/rain-fcd.parquet`
 
 #### Trip Record
 ```json
@@ -184,7 +184,7 @@ sequenceDiagram
   "sim_time": "seconds-from-start",
   "source_x": float, "source_y": float,
   "destination_x": float, "destination_y": float,
-  "hour_bin": int,
+  "time_start": int,
   "distance": float,
   "…task-specific features…",
   "duration": float
