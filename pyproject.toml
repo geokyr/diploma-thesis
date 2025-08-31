@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = [
     { name = "George Kyriakopoulos", email = "imgeorgekyr@gmail.com" }
 ]
-requires-python = ">=3.12.9"
+requires-python = ">=3.12.11,<3.13.0"
 dependencies = [
     "catboost==1.2.8",
     "eclipse-sumo==1.24.0",
