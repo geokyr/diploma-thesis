@@ -70,10 +70,9 @@ I'm not sure how we should handle the different environments for the different c
 
 I'm also not sure how we should handle the data and models, but I think using volumes and passing them to each container that needs them is a good idea.
 
-Keep it simple. I need you to plan this and explain everything in detail before proceeding with the implementation. Then we can start building on top of that.
+Also keep in mind, the drift service will be done by a colleague, keep it as a blackbox for now, but design around it and handle the communication with it, and my colleague can later reform his code to fit our needs. The UI will also be designed by a colleague, so keep it simple and efficient, but being able to see the interactions and replies from the backend.
 
-Also keep in mind, the drift service will be done by a colleague, keep it as a blackbox for now, but design around it and handle the communication with it, and my colleague can later reform his code to fit our needs.
-The UI will also be designed by a colleague, so keep it simple and efficient, but being able to see the interactions and replies from the backend.
+Keep it simple. I need you to plan this and explain everything in detail before proceeding with the implementation. Then we can start building on top of that.
 
 ### Components Diagram
 ```mermaid
