@@ -46,7 +46,7 @@ After enough data has been collected for a model to retrain, a notification shou
 
 We want to keep this in general simple, and not too complex. We don't know if there is a better way to do this, or any other ideas to suggest for improvement or changes. We are mainly using Python, and we will probably use FastAPI for the Backend, Dash Plotly or any other capable framework for the Frontend that integrates well with Python, River library for the Drift Component together and a FastAPI if needed for the communication. We will try not to set up a database, as we can do our job for now with filesystem models and data (parquet for speed). We are open to ideas and to changes to make this more feasible and not extremely complex on an engineering aspect. Also, the errors can be stored at some place, like a file or in memory for the frontend.
 
-The Backend probably is the one responsible for driving the simulation clock of the timelapse, for sending feature batches to model services in simulation order to predict, for receiving the predictions, matching them to the ground truth, computing the errors, sending them to the Frontend and to the Drift Component, managing the drift state for the 3 models (stable > confirmed > collecting > retraining > swapped), polling events to Frontend (tick, errors update, drift event, retrain status, day transition for drift, etc), providing rest endpoints for run control (start, pause, restart), etc. These are all ideas and thoughts and can be reduced, modified or removed if not necessary.
+The Backend probably is the one responsible for driving the simulation clock of the timelapse, for sending feature batches to the predictors in simulation order to predict, for receiving the predictions, matching them to the ground truth, computing the errors, sending them to the Frontend and to the Drift Component, managing the drift state for the 3 models (stable > confirmed > collecting > retraining > swapped), polling events to Frontend (tick, errors update, drift event, retrain status, day transition for drift, etc), providing rest endpoints for run control (start, pause, restart), etc. These are all ideas and thoughts and can be reduced, modified or removed if not necessary.
 
 The models will be served on the Model Serving Components running FastAPI and Uvicorn or any other capable framework, that will load the model weights from the filesystem and also run the code for the preprocessing steps, and serve some endpoints, like /predict and /retrain, and maybe /status for training progress, or /load to load model weights. The Backend will be orchestrating the whole process, and the Frontend will be a simple dashboard with the graphs and metrics, the notifications, and the user tab to request a prediction for a specific trip. The notifications can be timestamped and include a descriptive message.
 
@@ -57,6 +57,21 @@ For a general orchestration, using Docker is a good idea, with various container
 Give me a good plan for this, the architecture, the components, their roles, what communications will go on, how it will be orchestrated, what tools to actually use, since I'm open to suggestions, and if its feasible to do this with the tools suggested, other ideas for changes or improvements, etc. Get technical because I need it to make sure this is possible to do, and there are tools to do it, so be detailed, without becoming too complex or over engineering it.
 
 Give me what I'm asking for, but keep in mind that the goal is to do something that is worth it, isn't extremely complex since we are undergraduate students doing this for a master or diploma thesis, but keeps a level of realism with some room for future improvements.
+
+Here's an overview of what I'm planning to build. Take the overall plan as a guide, and the more technical details can be adjusted to fit whatever we decide to work with, so it's not an exact spec, but rough guidelines. Can you help me start with this and provide an MVP of this architecture, so that I can work on it iteratively later and refine it to match the final wanted product? Also make sure to plan on the iterations, and how this can be built in steps, starting from a working core and having laid out a proper skeleton that will be easy to extend and modify later down the road.
+
+The diagrams and the rest of the information are just possible options, you can use them as a guide, but not stick to them, feel free to change them to fit whatever you consider is better.
+
+I'd like to use docker and docker compose. I also use uv and a pyproject.toml to handle the envs, with python 3.12.9. I already have one on my root for the env I was using on my experiments, and I also have the thesis/ folder which contains all my library code that I used on the experiments. This is installed editable on the environment so I can do global imports with safety. We can add folders for the backend, UI, and whatever else is needed inside the thesis/ folder.
+
+I'm not sure how we should handle the different environments for the different containers/components, but use uv and pyproject.toml if possible. Also make the dockerfiles efficient, so that they don't have to be rebuilt every time, and only the changed files are rebuilt.
+
+I'm also not sure how we should handle the data and models, but I think using volumes and passing them to each container that needs them is a good idea.
+
+Keep it simple. I need you to plan this and explain everything in detail before proceeding with the implementation. Then we can start building on top of that.
+
+Also keep in mind, the drift service will be done by a colleague, keep it as a blackbox for now, but design around it and handle the communication with it, and my colleague can later reform his code to fit our needs.
+The UI will also be designed by a colleague, so keep it simple and efficient, but being able to see the interactions and replies from the backend.
 
 ## Architecture
 ### Components Diagram
@@ -75,7 +90,7 @@ flowchart TD
     O5[Drift Status]
   end
 
-  subgraph MS[Model Service]
+  subgraph PR[Predictor]
     M1[/predict/]
     M2[/retrain/]
     M3[/load/]
@@ -92,10 +107,10 @@ flowchart TD
   UI -- REST poll --> BE
   UI -- REST /start --> BE
   UI -- REST /pause --> BE
-  BE -- REST /predict(batch) --> MS
-  BE -- REST /retrain --> MS
-  BE -- REST /load --> MS
-  MS -- writes/reads --> D2
+  BE -- REST /predict(batch) --> PR
+  BE -- REST /retrain --> PR
+  BE -- REST /load --> PR
+  PR -- writes/reads --> D2
   BE -- reads --> D1
   BE -- reads current model meta --> D2
   UI -- REST /user_predict --> BE
@@ -108,15 +123,15 @@ sequenceDiagram
   autonumber
   participant UI as Frontend
   participant BE as Backend
-  participant MS as Model Service
+  participant PR as Predictor
   participant FS as File Store
 
   UI->>BE: POST /start
   BE->>FS: Load test.parquet metadata
   loop Every 5 minutes simulation time or 500ms real time
     BE->>BE: Fetch next batch of trips
-    BE->>MS: POST /predict {task, features[]}
-    MS-->>BE: predictions[]
+    BE->>PR: POST /predict {task, features[]}
+    PR-->>BE: predictions[]
     BE->>BE: join with ground truth → abs errors
     BE->>BE: update rolling MAE, push to Drift Engine
     BE-->>UI: poll metrics_update{MAE_eta, MAE_fuel, MAE_stops}
@@ -130,7 +145,7 @@ sequenceDiagram
 sequenceDiagram
   autonumber
   participant BE as Backend
-  participant MS as Model Service
+  participant PR as Predictor
   participant UI as Frontend
 
   BE->>BE: errors[model] (smoothed stream)
@@ -142,15 +157,15 @@ sequenceDiagram
 
   BE->>BE: after N trips/time collected → prepare retrain dataset
   BE-->>UI: notification{model, retrain_started}
-  BE->>MS: POST /retrain {task, data_index, params}
-  MS-->>BE: 202 Accepted
+  BE->>PR: POST /retrain {task, data_index, params}
+  PR-->>BE: 202 Accepted
   loop until done
-    BE->>MS: GET /status?task=...
-    MS-->>BE: {"progress": p%}
+    BE->>PR: GET /status?task=...
+    PR-->>BE: {"progress": p%}
     BE-->>UI: retrain_status{model, p%}
   end
-  MS-->>BE: retrain_done{artifact=...}
-  BE->>MS: POST /load {task, version=new}
+  PR-->>BE: retrain_done{artifact=...}
+  BE->>PR: POST /load {task, version=new}
   BE->>BE: state[model]=swapped
   BE-->>UI: notification{model, swapped_to_vN}
   BE-->>UI: metrics show lower error vs drifted regime
@@ -162,203 +177,52 @@ sequenceDiagram
   autonumber
   participant UI as Frontend
   participant BE as Backend
-  participant MS as Model Service
+  participant PR as Predictor
 
   UI->>BE: POST /user_predict {origin, dest, sim_time}
   BE->>BE: derive features (distance, hour_bin, etc.)
-  BE->>MS: POST /predict {task, features}
-  MS-->>BE: {eta, fuel, stops}
+  BE->>PR: POST /predict {task, features}
+  PR-->>BE: {eta, fuel, stops}
   BE-->>UI: prediction payload + current weather/drift badge
-```
-
-### Data & Schemas
-#### Datasets
-- `simulation/data/train-fcd.parquet`
-- `simulation/data/test-fcd.parquet`
-- `simulation/data/rain-fcd.parquet`
-
-#### Trip Record
-```json
-{
-  "trip_id": "string",
-  "sim_time": "seconds-from-start",
-  "source_x": float, "source_y": float,
-  "destination_x": float, "destination_y": float,
-  "time_start": int,
-  "distance": float,
-  "…task-specific features…",
-  "duration": float
-}
-```
-
-#### UI Event - Metrics Update
-```json
-{
-  "sim_time": 12345,
-  "metrics": {
-    "eta":  {"mae_window":  X, "mae_total":  Y, "latest_err": e1},
-    "fuel": {"mae_window":  X, "mae_total":  Y, "latest_err": e2},
-    "stops":{"mae_window":  X, "mae_total":  Y, "latest_err": e3}
-  }
-}
-```
-
-#### Notifications
-```json
-{ "type": "day_transition", "at": 36000 }
-{ "type": "drift_detected", "task": "eta", "at": 37200, "details": {"votes": 3, "detectors": ["ADWIN","KSWIN","SPC"]} }
-{ "type": "retrain_started", "task": "eta", "data": {"old_n": 45000, "new_n": 8000}}
-{ "type": "model_swapped", "task": "eta", "version": "v3" }
-```
-
-#### Model Registry
-```
-models/
-  eta/
-    v1/
-      model.joblib
-      preprocess.pkl
-      meta.json
-    v2/...
-  fuel/...
-  stops/...
 ```
 
 ### Simulation/Timelapse Design
 - Time warp: 20h -> 180s (400x)
 - Tick: 150ms real time so 1m simulation time
 - On each tick, pull all trips within the window (1m)
-- Send batch of features to model service /predict
+- Send batch of features to predictor /predict
 - Compute rolling metrics every 1 second and update the UI (1 Hz)
 
-### Docker Compose
-```yaml
-version: "3.9"
-services:
-  backend:
-    build: ./backend
-    command: uvicorn app:app --host 0.0.0.0 --port 8000
-    volumes:
-      - ./data:/app/data
-      - ./models:/app/models
-    ports: ["8000:8000"]
-    depends_on: [modelsvc]
-
-  modelsvc:
-    build: ./model_service
-    command: uvicorn app:app --host 0.0.0.0 --port 8001
-    volumes:
-      - ./models:/app/models
-    ports: ["8001:8001"]
-
-  ui:
-    build: ./ui
-    command: python app.py
-    environment:
-      - BE_BASE_URL=http://backend:8000
-    ports: ["8050:8050"]
-    depends_on: [backend]
+### Data & Schemas
+#### Datasets
+```
+data/
+  test-fcd.parquet
+  rain-fcd.parquet
 ```
 
-### Repo Layout
+#### Model Registry
 ```
-/backend
-  app.py
-  drift.py
-  state.py
-  schemas.py
-  features.py
-  /data
-  /models
-/model_service
-  app.py
-  pipeline_eta.py
-  pipeline_fuel.py
-  pipeline_stops.py
-  train.py
-  registry.py
-  /models
-/ui
-  app.py
-  components.py
-/data, /models
-```
-
-### Minimal Code Skeletons
-#### Backend Background Loop
-```python
-# app.py
-from fastapi import FastAPI, BackgroundTasks
-import asyncio, time
-from .state import ModelState
-from .drift import DriftEnsemble
-from .schemas import BatchPredictRequest
-from .dataio import TripStreamer
-
-app = FastAPI()
-state = {
-  "eta": ModelState(task="eta"), 
-  "fuel": ModelState(task="fuel"),
-  "stops": ModelState(task="stops")
-}
-streamer = TripStreamer("data/test.parquet", "data/rain.parquet")
-drift = {t: DriftEnsemble() for t in state}
-
-running = False
-speed = 400  # time-warp
-
-@app.post("/control/start")
-async def start(speed_mult: int = 400, tasks: BackgroundTasks = None):
-    global running, speed
-    speed = speed_mult
-    running = True
-    tasks.add_task(sim_loop)
-    return {"ok": True}
-
-async def sim_loop():
-    sim = streamer.iter_ticks(speed=speed, tick_ms=150)
-    async for tick, batches in sim:   # batches: {task: [features]}
-        if not running: break
-        preds = await predict_batches(batches)     # call Model Service
-        errs = compute_errors(preds)               # join gt + abs
-        for task, e_list in errs.items():
-            for e in e_list:
-                m = state[task]
-                m.update_metrics(e)
-                fired = drift[task].update(m.smoothed_error())
-                if fired.majority:
-                    m.on_drift(fired)
-                    notify("drift_detected", task, tick)
-        publish_ui_feed()
-```
-
-#### Model Service Endpoints
-```python
-# model_service/app.py
-from fastapi import FastAPI, BackgroundTasks
-from .registry import load_current, save_new, load_version
-from .train import retrain_task
-
-app = FastAPI()
-pipelines = {
-  "eta": load_current("eta"),
-  "fuel": load_current("fuel"),
-  "stops": load_current("stops"),
-}
-
-@app.post("/predict")
-def predict(req: BatchPredictRequest):
-    pipe = pipelines[req.task]
-    yhat = pipe.predict(req.features)  # handles preprocessing inside
-    return {"yhat": yhat}
-
-@app.post("/retrain")
-def retrain(task: str, data_spec: dict, bgt: BackgroundTasks):
-    bgt.add_task(retrain_task, task, data_spec)
-    return {"accepted": True}
-
-@app.post("/load")
-def load(task: str, version: str):
-    pipelines[task] = load_version(task, version)
-    return {"ok": True}
+models/
+  eta/
+    stable/
+      model.joblib
+      metadata.json
+    retrain/
+      model.joblib
+      metadata.json
+  fuel/
+    stable/
+      model.joblib
+      metadata.json
+    retrain/
+      model.joblib
+      metadata.json
+  stops/
+    stable/
+      model.joblib
+      metadata.json
+    retrain/
+      model.joblib
+      metadata.json
 ```
