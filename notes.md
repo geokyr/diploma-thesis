@@ -117,6 +117,7 @@ flowchart TD
 ```
 
 ### Sequence Diagrams
+
 #### Timelapse Prediction Loop
 ```mermaid
 sequenceDiagram
