@@ -67,7 +67,7 @@ flowchart TD
     A2[User Tab: Map + Predictions]
   end
 
-  subgraph ORCH[Orchestrator]
+  subgraph BE[Backend]
     O1[Simulation Clock]
     O2[Trip Feeder]
     O3[Error Calculator]
@@ -89,16 +89,16 @@ flowchart TD
 
   User["👤 User"] --> UI
   ExternalDataStore["External Data Store"] -.-> FS
-  UI -- REST poll --> ORCH
-  UI -- REST /start --> ORCH
-  UI -- REST /pause --> ORCH
-  ORCH -- REST /predict(batch) --> MS
-  ORCH -- REST /retrain --> MS
-  ORCH -- REST /load --> MS
+  UI -- REST poll --> BE
+  UI -- REST /start --> BE
+  UI -- REST /pause --> BE
+  BE -- REST /predict(batch) --> MS
+  BE -- REST /retrain --> MS
+  BE -- REST /load --> MS
   MS -- writes/reads --> D2
-  ORCH -- reads --> D1
-  ORCH -- reads current model meta --> D2
-  UI -- REST /user_predict --> ORCH
+  BE -- reads --> D1
+  BE -- reads current model meta --> D2
+  UI -- REST /user_predict --> BE
 ```
 
 ### Sequence Diagrams
@@ -107,21 +107,21 @@ flowchart TD
 sequenceDiagram
   autonumber
   participant UI as Frontend
-  participant ORCH as Orchestrator
+  participant BE as Backend
   participant MS as Model Service
   participant FS as File Store
 
-  UI->>ORCH: POST /start
-  ORCH->>FS: Load test.parquet metadata
+  UI->>BE: POST /start
+  BE->>FS: Load test.parquet metadata
   loop Every 5 minutes simulation time or 500ms real time
-    ORCH->>ORCH: Fetch next batch of trips
-    ORCH->>MS: POST /predict {task, features[]}
-    MS-->>ORCH: predictions[]
-    ORCH->>ORCH: join with ground truth → abs errors
-    ORCH->>ORCH: update rolling MAE, push to Drift Engine
-    ORCH-->>UI: poll metrics_update{MAE_eta, MAE_fuel, MAE_stops}
-    ORCH->>ORCH: if test→rain boundary: set "day change"
-    ORCH-->>UI: notification{day_transition}
+    BE->>BE: Fetch next batch of trips
+    BE->>MS: POST /predict {task, features[]}
+    MS-->>BE: predictions[]
+    BE->>BE: join with ground truth → abs errors
+    BE->>BE: update rolling MAE, push to Drift Engine
+    BE-->>UI: poll metrics_update{MAE_eta, MAE_fuel, MAE_stops}
+    BE->>BE: if test→rain boundary: set "day change"
+    BE-->>UI: notification{day_transition}
   end
 ```
 
@@ -129,31 +129,31 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
   autonumber
-  participant ORCH as Orchestrator
+  participant BE as Backend
   participant MS as Model Service
   participant UI as Frontend
 
-  ORCH->>ORCH: errors[model] (smoothed stream)
-  ORCH-->>ORCH: detectors fire, majority vote=drift at t
-  ORCH->>ORCH: state[model]=confirmed, start "collecting" window
-  ORCH-->>UI: notification{model, drift_detected, t}
+  BE->>BE: errors[model] (smoothed stream)
+  BE-->>BE: detectors fire, majority vote=drift at t
+  BE->>BE: state[model]=confirmed, start "collecting" window
+  BE-->>UI: notification{model, drift_detected, t}
 
-  Note over ORCH: Continue predicting with old model to accumulate rain data
+  Note over BE: Continue predicting with old model to accumulate rain data
 
-  ORCH->>ORCH: after N trips/time collected → prepare retrain dataset
-  ORCH-->>UI: notification{model, retrain_started}
-  ORCH->>MS: POST /retrain {task, data_index, params}
-  MS-->>ORCH: 202 Accepted
+  BE->>BE: after N trips/time collected → prepare retrain dataset
+  BE-->>UI: notification{model, retrain_started}
+  BE->>MS: POST /retrain {task, data_index, params}
+  MS-->>BE: 202 Accepted
   loop until done
-    ORCH->>MS: GET /status?task=...
-    MS-->>ORCH: {"progress": p%}
-    ORCH-->>UI: retrain_status{model, p%}
+    BE->>MS: GET /status?task=...
+    MS-->>BE: {"progress": p%}
+    BE-->>UI: retrain_status{model, p%}
   end
-  MS-->>ORCH: retrain_done{artifact=...}
-  ORCH->>MS: POST /load {task, version=new}
-  ORCH->>ORCH: state[model]=swapped
-  ORCH-->>UI: notification{model, swapped_to_vN}
-  ORCH-->>UI: metrics show lower error vs drifted regime
+  MS-->>BE: retrain_done{artifact=...}
+  BE->>MS: POST /load {task, version=new}
+  BE->>BE: state[model]=swapped
+  BE-->>UI: notification{model, swapped_to_vN}
+  BE-->>UI: metrics show lower error vs drifted regime
 ```
 
 #### User Query Map Origin/Destination at Current Sim Time
@@ -161,14 +161,14 @@ sequenceDiagram
 sequenceDiagram
   autonumber
   participant UI as Frontend
-  participant ORCH as Orchestrator
+  participant BE as Backend
   participant MS as Model Service
 
-  UI->>ORCH: POST /user_predict {origin, dest, sim_time}
-  ORCH->>ORCH: derive features (distance, hour_bin, etc.)
-  ORCH->>MS: POST /predict {task, features}
-  MS-->>ORCH: {eta, fuel, stops}
-  ORCH-->>UI: prediction payload + current weather/drift badge
+  UI->>BE: POST /user_predict {origin, dest, sim_time}
+  BE->>BE: derive features (distance, hour_bin, etc.)
+  BE->>MS: POST /predict {task, features}
+  MS-->>BE: {eta, fuel, stops}
+  BE-->>UI: prediction payload + current weather/drift badge
 ```
 
 ### Data & Schemas
@@ -235,8 +235,8 @@ models/
 ```yaml
 version: "3.9"
 services:
-  orchestrator:
-    build: ./orchestrator
+  backend:
+    build: ./backend
     command: uvicorn app:app --host 0.0.0.0 --port 8000
     volumes:
       - ./data:/app/data
@@ -255,14 +255,14 @@ services:
     build: ./ui
     command: python app.py
     environment:
-      - ORCH_BASE_URL=http://orchestrator:8000
+      - BE_BASE_URL=http://backend:8000
     ports: ["8050:8050"]
-    depends_on: [orchestrator]
+    depends_on: [backend]
 ```
 
 ### Repo Layout
 ```
-/orchestrator
+/backend
   app.py
   drift.py
   state.py
@@ -285,7 +285,7 @@ services:
 ```
 
 ### Minimal Code Skeletons
-#### Orchestrator Background Loop
+#### Backend Background Loop
 ```python
 # app.py
 from fastapi import FastAPI, BackgroundTasks
