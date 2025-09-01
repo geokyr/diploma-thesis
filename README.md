@@ -20,7 +20,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ```bash
 git clone https://github.com/geokyr/diploma-thesis
 cd diploma-thesis
-uv install
+uv sync --all-extras
 ```
 
 This will create a virtual environment `.venv` in the project root and install all the dependencies.
@@ -32,32 +32,15 @@ All scripts should be invoked via `uv run` so they use the right virtual environ
 uv run simulation/simulation.py
 ```
 
-Another option is to activate the virtual environment and run the scripts directly.
-
-```powershell
-# Windows
-.venv\Scripts\activate
-python simulation/simulation.py
-```
-
-```bash
-# Linux/MacOS
-source .venv/bin/activate
-python simulation/simulation.py
-```
-
-To deactivate the virtual environment, run the following command.
-
-```bash
-deactivate
-```
-
 ## Project Structure
 - `experiments/` - Machine learning experiments
 - `presentation/` - Presentation files and figures
 - `resources/` - Various documents and images about the project
 - `simulation/` - Simulation related files including the sumo network files
 - `thesis/` - Python code package for the project
+  - `backend/` - FastAPI backend service
   - `common/` - Common modules and config
   - `eta/` - Machine learning task
+  - `frontend/` - Dash frontend service
+  - `predictors/` - Predictor services
   - `simulation/` - Simulation pipeline

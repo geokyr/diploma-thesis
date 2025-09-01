@@ -1,26 +1,11 @@
 [project]
-name = "diploma-thesis"
+name = "thesis"
 version = "0.1.0"
 authors = [
     { name = "George Kyriakopoulos", email = "imgeorgekyr@gmail.com" }
 ]
 requires-python = ">=3.12.11,<3.13.0"
-dependencies = [
-    "catboost==1.2.8",
-    "eclipse-sumo==1.24.0",
-    "ipykernel==6.29.5",
-    "lightgbm==4.6.0",
-    "matplotlib==3.10.1",
-    "numpy==2.2.3",
-    "optuna==4.4.0",
-    "pandas==2.2.3",
-    "pyarrow==21.0.0",
-    "requests==2.32.4",
-    "scikit-learn==1.6.1",
-    "scipy==1.15.2",
-    "seaborn==0.13.2",
-    "xgboost==2.1.4",
-]
+dependencies = []
 
 [build-system]
 requires = ["uv_build>=0.8.13,<0.9.0"]
@@ -29,3 +14,61 @@ build-backend = "uv_build"
 [tool.uv.build-backend]
 module-root = "."
 module-name = "thesis"
+
+[project.optional-dependencies]
+backend = [
+    "fastapi==0.116.1",
+    "httpx==0.28.1",
+    "numpy==2.2.3",
+    "pandas==2.2.3",
+    "pydantic==2.11.7",
+    "uvicorn==0.35.0",
+    "thesis[common]",
+    "thesis[eta]",
+]
+
+common = [
+    "matplotlib==3.10.1",
+    "pandas==2.2.3",
+    "pyyaml==6.0.2",
+]
+
+eta = [
+    "catboost==1.2.8",
+    "joblib==1.5.1",
+    "lightgbm==4.6.0",
+    "matplotlib==3.10.1",
+    "numpy==2.2.3",
+    "optuna==4.4.0",
+    "pandas==2.2.3",
+    "requests==2.32.4",
+    "scikit-learn==1.6.1",
+    "seaborn==0.13.2",
+    "tqdm==4.67.1",
+    "xgboost==2.1.4",
+    "thesis[common]",
+    "thesis[simulation]",
+]
+
+frontend = [
+    "dash==3.2.0",
+    "plotly==6.2.0",
+    "requests==2.32.4",
+]
+
+predictors = [
+    "fastapi==0.116.1",
+    "joblib==1.5.1",
+    "numpy==2.2.3",
+    "pandas==2.2.3",
+    "pydantic==2.11.7",
+    "uvicorn==0.35.0",
+    "thesis[eta]",
+]
+
+simulation = [
+    "eclipse-sumo==1.24.0",
+    "numpy==2.2.3",
+    "pyarrow==21.0.0",
+    "thesis[common]",
+]
