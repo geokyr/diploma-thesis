@@ -64,9 +64,9 @@ Here's an overview of what I'm planning to build. Take the overall plan as a gui
 
 The diagrams and the rest of the information are just possible options, you can use them as a guide, but not stick to them, feel free to change them to fit whatever you consider is better.
 
-I'd like to use docker and docker compose. I also use uv and a pyproject.toml to handle the envs, with python 3.12.9. I already have one on my root for the env I was using on my experiments, and I also have the thesis/ folder which contains all my library code that I used on the experiments. This is installed editable on the environment so I can do global imports with safety. We can add folders for the backend, UI, and whatever else is needed inside the thesis/ folder.
+I'd like to use docker and docker compose. I also use uv and a pyproject.toml to handle the envs, with Python 3.12.11. I already have one on my root for the env I was using on my experiments, and I also have the thesis/ folder which contains all my library code that I used on the experiments. This is installed editable on the environment so I can do global imports with safety. We can add folders for the backend, UI, and whatever else is needed inside the thesis/ folder.
 
-I'm not sure how we should handle the different environments for the different containers/components, but use uv and pyproject.toml if possible. Also make the dockerfiles efficient, so that they don't have to be rebuilt every time, and only the changed files are rebuilt.
+I'm not sure how we should handle the different environments for the different containers/components, but use uv and pyproject.toml if possible. If it makes sense for them to be separate, and different from the root environment, then do that.Also make the dockerfiles efficient, so that they don't have to be rebuilt every time, and only the changed files are rebuilt.
 
 I'm also not sure how we should handle the data and models, but I think using volumes and passing them to each container that needs them is a good idea.
 
