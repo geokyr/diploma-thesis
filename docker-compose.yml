@@ -6,15 +6,15 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./shared:/shared
+      - ./platform:/platform
     environment:
       - ETA_PREDICTOR_URL=http://eta-predictor:8000
       - FUEL_PREDICTOR_URL=http://fuel-predictor:8000
       - STOPS_PREDICTOR_URL=http://stops-predictor:8000
       - FRONTEND_URL=http://frontend:8080
-      - SHARED_DATA_PATH=/shared/data
-      - SHARED_STATE_PATH=/shared/state
-      - SHARED_MODELS_PATH=/shared/models
+      - PLATFORM_DATA_PATH=/platform/data
+      - PLATFORM_STATE_PATH=/platform/state
+      - PLATFORM_MODELS_PATH=/platform/models
     depends_on:
       eta-predictor:
         condition: service_healthy
@@ -37,11 +37,11 @@ services:
     ports:
       - "8001:8000"
     volumes:
-      - ./shared:/shared
+      - ./platform:/platform
     environment:
       - TASK=eta
       - BACKEND_URL=http://backend:8000
-      - SHARED_MODELS_PATH=/shared/models
+      - PLATFORM_MODELS_PATH=/platform/models
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -57,11 +57,11 @@ services:
     ports:
       - "8002:8000"
     volumes:
-      - ./shared:/shared
+      - ./platform:/platform
     environment:
       - TASK=fuel
       - BACKEND_URL=http://backend:8000
-      - SHARED_MODELS_PATH=/shared/models
+      - PLATFORM_MODELS_PATH=/platform/models
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -77,11 +77,11 @@ services:
     ports:
       - "8003:8000"
     volumes:
-      - ./shared:/shared
+      - ./platform:/platform
     environment:
       - TASK=stops
       - BACKEND_URL=http://backend:8000
-      - SHARED_MODELS_PATH=/shared/models
+      - PLATFORM_MODELS_PATH=/platform/models
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -97,7 +97,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./shared:/shared
+      - ./platform:/platform
     environment:
       - BACKEND_URL=http://backend:8000
     depends_on:
