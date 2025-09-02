@@ -1,6 +1,7 @@
 services:
   backend:
-    build: 
+    container_name: backend
+    build:
       dockerfile: ./thesis/backend/Dockerfile
     ports:
       - "8000:8000"
@@ -30,6 +31,7 @@ services:
     restart: unless-stopped
 
   eta-predictor:
+    container_name: eta-predictor
     build:
       dockerfile: ./thesis/predictors/Dockerfile
     ports:
@@ -49,6 +51,7 @@ services:
     restart: unless-stopped
 
   # fuel-predictor:
+  #   container_name: fuel-predictor
   #   build:
   #     dockerfile: ./thesis/predictors/Dockerfile
   #   ports:
@@ -68,6 +71,7 @@ services:
   #   restart: unless-stopped
 
   # stops-predictor:
+  #   container_name: stops-predictor
   #   build:
   #     dockerfile: ./thesis/predictors/Dockerfile
   #   ports:
@@ -87,6 +91,7 @@ services:
   #   restart: unless-stopped
 
   frontend:
+    container_name: frontend
     build:
       dockerfile: ./thesis/frontend/Dockerfile
     ports:
