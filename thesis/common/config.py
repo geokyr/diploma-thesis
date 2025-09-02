@@ -162,6 +162,11 @@ class ServicesConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class FrontendConfig:
+    update_interval_ms: int
+
+
+@dataclass(frozen=True, slots=True)
 class Config:
     logging: LoggingConfig
     dirname: DirnameConfig
@@ -175,6 +180,7 @@ class Config:
     features: FeaturesConfig
     models: ModelsConfig
     services: ServicesConfig
+    frontend: FrontendConfig
 
 
 def load_config(config_path: Path) -> Config:
@@ -193,6 +199,7 @@ def load_config(config_path: Path) -> Config:
             features=FeaturesConfig(**data["features"]),
             models=ModelsConfig(**data["models"]),
             services=ServicesConfig(**data["services"]),
+            frontend=FrontendConfig(**data["frontend"]),
         )
 
 
@@ -301,3 +308,5 @@ PORT_PREDICTOR_ETA = CONFIG.services.predictor_eta
 PORT_PREDICTOR_FUEL = CONFIG.services.predictor_fuel
 PORT_PREDICTOR_STOPS = CONFIG.services.predictor_stops
 PORT_FRONTEND = CONFIG.services.frontend
+
+UPDATE_INTERVAL_MS = CONFIG.frontend.update_interval_ms

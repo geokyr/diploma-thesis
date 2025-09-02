@@ -120,3 +120,6 @@ services:
   predictor_fuel: 8002
   predictor_stops: 8003
   frontend: 8080
+
+frontend:
+  update_interval_ms: 1000
