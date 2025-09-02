@@ -118,3 +118,10 @@ platform:
   predictor_eta: "predictor-eta"
   predictor_fuel: "predictor-fuel"
   predictor_stops: "predictor-stops"
+
+ports:
+  backend: 8000
+  predictor_eta: 8001
+  predictor_fuel: 8002
+  predictor_stops: 8003
+  frontend: 8080

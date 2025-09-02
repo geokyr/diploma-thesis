@@ -8,13 +8,11 @@ services:
     volumes:
       - ./platform:/platform
     environment:
-      - ETA_PREDICTOR_URL=http://eta-predictor:8000
-      - FUEL_PREDICTOR_URL=http://fuel-predictor:8000
-      - STOPS_PREDICTOR_URL=http://stops-predictor:8000
+      - ETA_PREDICTOR_URL=http://eta-predictor:8001
+      - FUEL_PREDICTOR_URL=http://fuel-predictor:8002
+      - STOPS_PREDICTOR_URL=http://stops-predictor:8003
       - FRONTEND_URL=http://frontend:8080
-      - PLATFORM_DATA_PATH=/platform/data
-      - PLATFORM_STATE_PATH=/platform/state
-      - PLATFORM_MODELS_PATH=/platform/models
+      - PLATFORM_DIR=/platform
     depends_on:
       eta-predictor:
         condition: service_healthy
@@ -35,15 +33,15 @@ services:
     build:
       dockerfile: ./thesis/predictors/Dockerfile
     ports:
-      - "8001:8000"
+      - "8001:8001"
     volumes:
       - ./platform:/platform
     environment:
-      - TASK=eta
+      - TASK_TYPE=eta
       - BACKEND_URL=http://backend:8000
-      - PLATFORM_MODELS_PATH=/platform/models
+      - PLATFORM_DIR=/platform
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -55,15 +53,15 @@ services:
   #   build:
   #     dockerfile: ./thesis/predictors/Dockerfile
   #   ports:
-  #     - "8002:8000"
+  #     - "8002:8002"
   #   volumes:
   #     - ./platform:/platform
   #   environment:
-  #     - TASK=fuel
+  #     - TASK_TYPE=fuel
   #     - BACKEND_URL=http://backend:8000
-  #     - PLATFORM_MODELS_PATH=/platform/models
+  #     - PLATFORM_DIR=/platform
   #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+  #     test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
   #     interval: 30s
   #     timeout: 10s
   #     retries: 3
@@ -75,15 +73,15 @@ services:
   #   build:
   #     dockerfile: ./thesis/predictors/Dockerfile
   #   ports:
-  #     - "8003:8000"
+  #     - "8003:8003"
   #   volumes:
   #     - ./platform:/platform
   #   environment:
-  #     - TASK=stops
+  #     - TASK_TYPE=stops
   #     - BACKEND_URL=http://backend:8000
-  #     - PLATFORM_MODELS_PATH=/platform/models
+  #     - PLATFORM_DIR=/platform
   #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+  #     test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
   #     interval: 30s
   #     timeout: 10s
   #     retries: 3

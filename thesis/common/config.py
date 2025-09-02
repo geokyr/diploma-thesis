@@ -160,6 +160,15 @@ class PlatformConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class PortsConfig:
+    backend: int
+    predictor_eta: int
+    predictor_fuel: int
+    predictor_stops: int
+    frontend: int
+
+
+@dataclass(frozen=True, slots=True)
 class Config:
     logging: LoggingConfig
     dirname: DirnameConfig
@@ -173,6 +182,7 @@ class Config:
     features: FeaturesConfig
     models: ModelsConfig
     platform: PlatformConfig
+    ports: PortsConfig
 
 
 def load_config(config_path: Path) -> Config:
@@ -191,6 +201,7 @@ def load_config(config_path: Path) -> Config:
             features=FeaturesConfig(**data["features"]),
             models=ModelsConfig(**data["models"]),
             platform=PlatformConfig(**data["platform"]),
+            ports=PortsConfig(**data["ports"]),
         )
 
 
@@ -297,3 +308,9 @@ FRONTEND = CONFIG.platform.frontend
 PREDICTOR_ETA = CONFIG.platform.predictor_eta
 PREDICTOR_FUEL = CONFIG.platform.predictor_fuel
 PREDICTOR_STOPS = CONFIG.platform.predictor_stops
+
+PORT_BACKEND = CONFIG.ports.backend
+PORT_PREDICTOR_ETA = CONFIG.ports.predictor_eta
+PORT_PREDICTOR_FUEL = CONFIG.ports.predictor_fuel
+PORT_PREDICTOR_STOPS = CONFIG.ports.predictor_stops
+PORT_FRONTEND = CONFIG.ports.frontend
