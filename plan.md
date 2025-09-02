@@ -4,7 +4,7 @@
 Building a drift detection and mitigation platform with 3 ML models (ETA, fuel consumption, stops prediction) running on streaming Athens traffic data with concept drift simulation (test → rain scenarios).
 
 ## Key Requirements & Constraints
-- **Simple Architecture**: 3 components only (Backend, Predictors, Frontend)
+- **Simple Architecture**: 3 components only (Backend, Predictor, Frontend)
 - **No Over-engineering**: Filesystem storage, no database, minimal complexity
 - **Existing Code Reuse**: Leverage `thesis/` package for data processing and ML
 - **Docker Orchestration**: uv + group dependencies per service
@@ -23,7 +23,7 @@ thesis/
 │   ├── drift.py             # Drift detection (colleague integration)
 │   ├── state.py             # JSON-based state management
 │   └── models.py            # Pydantic API models
-├── predictors/              # Model serving services (3 instances)
+├── predictor/               # Model serving services (3 instances)
 │   ├── main.py              # FastAPI model server
 │   ├── predictor.py         # joblib model loading & prediction
 │   └── preprocessing.py     # thesis.eta.features wrapper
@@ -63,7 +63,7 @@ from thesis.eta.models import ModelType, create_model
 
 ### Feature Engineering Pipeline
 ```python
-# predictors/preprocessing.py
+# predictor/preprocessing.py
 def preprocess_batch(trip_data: list) -> pd.DataFrame:
     """Convert raw trip data to features using existing pipeline"""
     df = pd.DataFrame(trip_data)
@@ -139,7 +139,7 @@ dependencies = [
 ]
 ```
 
-#### Predictors
+#### Predictor
 ```toml
 dependencies = [
     "fastapi>=0.104.1",
@@ -203,7 +203,7 @@ async def simulation_loop():
         await asyncio.sleep(SIMULATION_TICK_MS / 1000)  # 150ms default
 ```
 
-### Prediction Pipeline (Predictors)
+### Prediction Pipeline (Predictor)
 ```python
 @app.post("/predict")
 async def predict_batch(request: PredictRequest):
@@ -279,9 +279,9 @@ COLLECTION_WINDOW_TRIPS=1000      # Trips to collect before retraining
 DRIFT_DETECTION_SMOOTHING=10      # Rolling window for error smoothing
 
 # Service URLs
-ETA_PREDICTOR_URL=http://eta-predictor:8000
-FUEL_PREDICTOR_URL=http://fuel-predictor:8000
-STOPS_PREDICTOR_URL=http://stops-predictor:8000
+PREDICTOR_ETA_URL=http://predictor-eta:8001
+PREDICTOR_FUEL_URL=http://predictor-fuel:8002
+PREDICTOR_STOPS_URL=http://predictor-stops:8003
 ```
 
 ### Integration with thesis/common/config.yaml

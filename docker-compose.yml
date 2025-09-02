@@ -7,18 +7,12 @@ services:
       - "8000:8000"
     volumes:
       - ./platform:/platform
-    environment:
-      - ETA_PREDICTOR_URL=http://eta-predictor:8001
-      - FUEL_PREDICTOR_URL=http://fuel-predictor:8002
-      - STOPS_PREDICTOR_URL=http://stops-predictor:8003
-      - FRONTEND_URL=http://frontend:8080
-      - PLATFORM_DIR=/platform
     depends_on:
-      eta-predictor:
+      predictor-eta:
         condition: service_healthy
-      # fuel-predictor:
+      # predictor-fuel:
       #   condition: service_healthy
-      # stops-predictor:
+      # predictor-stops:
       #   condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -28,18 +22,16 @@ services:
       start_period: 30s
     restart: unless-stopped
 
-  eta-predictor:
-    container_name: eta-predictor
+  predictor-eta:
+    container_name: predictor-eta
     build:
-      dockerfile: ./thesis/predictors/Dockerfile
+      dockerfile: ./thesis/predictor/Dockerfile
     ports:
       - "8001:8001"
     volumes:
       - ./platform:/platform
     environment:
       - TASK_TYPE=eta
-      - BACKEND_URL=http://backend:8000
-      - PLATFORM_DIR=/platform
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
       interval: 30s
@@ -48,18 +40,16 @@ services:
       start_period: 30s
     restart: unless-stopped
 
-  # fuel-predictor:
-  #   container_name: fuel-predictor
+  # predictor-fuel:
+  #   container_name: predictor-fuel
   #   build:
-  #     dockerfile: ./thesis/predictors/Dockerfile
+  #     dockerfile: ./thesis/predictor/Dockerfile
   #   ports:
   #     - "8002:8002"
   #   volumes:
   #     - ./platform:/platform
   #   environment:
   #     - TASK_TYPE=fuel
-  #     - BACKEND_URL=http://backend:8000
-  #     - PLATFORM_DIR=/platform
   #   healthcheck:
   #     test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
   #     interval: 30s
@@ -68,18 +58,16 @@ services:
   #     start_period: 30s
   #   restart: unless-stopped
 
-  # stops-predictor:
-  #   container_name: stops-predictor
+  # predictor-stops:
+  #   container_name: predictor-stops
   #   build:
-  #     dockerfile: ./thesis/predictors/Dockerfile
+  #     dockerfile: ./thesis/predictor/Dockerfile
   #   ports:
   #     - "8003:8003"
   #   volumes:
   #     - ./platform:/platform
   #   environment:
   #     - TASK_TYPE=stops
-  #     - BACKEND_URL=http://backend:8000
-  #     - PLATFORM_DIR=/platform
   #   healthcheck:
   #     test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
   #     interval: 30s
@@ -98,8 +86,6 @@ services:
       - ./platform:/platform
       # TODO: remove this, only for dev
       - ./thesis/frontend:/app/thesis/frontend
-    environment:
-      - BACKEND_URL=http://backend:8000
     depends_on:
       backend:
         condition: service_healthy

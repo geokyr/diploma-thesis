@@ -8,12 +8,12 @@ RUN pip install --no-cache-dir uv \
 WORKDIR /app
 
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --extra predictors --no-install-project
+RUN uv sync --frozen --extra predictor --no-install-project
 
 COPY thesis ./thesis
 RUN uv pip install -e .
 
 EXPOSE 8001 8002 8003
 
-WORKDIR /app/thesis/predictors
+WORKDIR /app/thesis/predictor
 CMD ["uv", "run", "python", "main.py"]

@@ -52,7 +52,7 @@ frontend = [
     "requests==2.32.4",
 ]
 
-predictors = [
+predictor = [
     "fastapi==0.116.1",
     "joblib==1.5.1",
     "numpy==2.2.3",

@@ -42,5 +42,5 @@ uv run simulation/simulation.py
   - `common/` - Common modules and config
   - `eta/` - Machine learning task
   - `frontend/` - Dash frontend service
-  - `predictors/` - Predictor services
+  - `predictor/` - Predictor services
   - `simulation/` - Simulation pipeline
