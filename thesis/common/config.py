@@ -152,6 +152,8 @@ class ModelsConfig:
 
 @dataclass(frozen=True, slots=True)
 class PlatformConfig:
+    host: str
+    debug: bool
     backend: str
     frontend: str
     predictor_eta: str
@@ -303,6 +305,8 @@ COLSAMPLE_BYTREE = CONFIG.models.colsample_bytree
 N_TRIALS = CONFIG.models.n_trials
 DIRECTION = CONFIG.models.direction
 
+HOST = CONFIG.platform.host
+DEBUG = CONFIG.platform.debug
 BACKEND = CONFIG.platform.backend
 FRONTEND = CONFIG.platform.frontend
 PREDICTOR_ETA = CONFIG.platform.predictor_eta
