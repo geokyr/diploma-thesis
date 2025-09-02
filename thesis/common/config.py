@@ -41,6 +41,7 @@ class DirnameConfig:
     plots: str
     models: str
     results: str
+    state: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -150,6 +151,15 @@ class ModelsConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class PlatformConfig:
+    backend: str
+    frontend: str
+    predictor_eta: str
+    predictor_fuel: str
+    predictor_stops: str
+
+
+@dataclass(frozen=True, slots=True)
 class Config:
     logging: LoggingConfig
     dirname: DirnameConfig
@@ -162,6 +172,7 @@ class Config:
     eta: EtaConfig
     features: FeaturesConfig
     models: ModelsConfig
+    platform: PlatformConfig
 
 
 def load_config(config_path: Path) -> Config:
@@ -179,6 +190,7 @@ def load_config(config_path: Path) -> Config:
             eta=EtaConfig(**data["eta"]),
             features=FeaturesConfig(**data["features"]),
             models=ModelsConfig(**data["models"]),
+            platform=PlatformConfig(**data["platform"]),
         )
 
 
@@ -189,6 +201,8 @@ PROJECT_DIR = Path(__file__).parent.parent.parent
 SIMULATION_DIR = PROJECT_DIR / CONFIG.dirname.simulation
 OUTPUTS_DIR = PROJECT_DIR / CONFIG.dirname.outputs
 
+PLATFORM_DIR = Path(os.environ.get("PLATFORM_DIR", "/platform"))
+
 MAX_FILE_SIZE = CONFIG.logging.max_file_size
 BACKUP_COUNT = CONFIG.logging.backup_count
 
@@ -197,6 +211,7 @@ LOGS_DIRNAME = CONFIG.dirname.logs
 PLOTS_DIRNAME = CONFIG.dirname.plots
 MODELS_DIRNAME = CONFIG.dirname.models
 RESULTS_DIRNAME = CONFIG.dirname.results
+STATE_DIRNAME = CONFIG.dirname.state
 
 OSM_DATA_FILENAME = CONFIG.filename.osm_data
 GUI_SETTINGS_FILENAME = CONFIG.filename.gui_settings
@@ -276,3 +291,9 @@ SUBSAMPLE = CONFIG.models.subsample
 COLSAMPLE_BYTREE = CONFIG.models.colsample_bytree
 N_TRIALS = CONFIG.models.n_trials
 DIRECTION = CONFIG.models.direction
+
+BACKEND = CONFIG.platform.backend
+FRONTEND = CONFIG.platform.frontend
+PREDICTOR_ETA = CONFIG.platform.predictor_eta
+PREDICTOR_FUEL = CONFIG.platform.predictor_fuel
+PREDICTOR_STOPS = CONFIG.platform.predictor_stops

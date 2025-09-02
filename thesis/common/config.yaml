@@ -10,6 +10,7 @@ dirname:
   plots: "plots"
   models: "models"
   results: "results"
+  state: "state"
 
 filename:
   osm_data: "osm_bbox.osm.xml.gz"
@@ -110,3 +111,10 @@ models:
   colsample_bytree: 0.8
   n_trials: 100
   direction: "minimize"
+
+platform:
+  backend: "backend"
+  frontend: "frontend" 
+  predictor_eta: "predictor-eta"
+  predictor_fuel: "predictor-fuel"
+  predictor_stops: "predictor-stops"
