@@ -151,18 +151,9 @@ class ModelsConfig:
 
 
 @dataclass(frozen=True, slots=True)
-class PlatformConfig:
+class ServicesConfig:
     host: str
     debug: bool
-    backend: str
-    frontend: str
-    predictor_eta: str
-    predictor_fuel: str
-    predictor_stops: str
-
-
-@dataclass(frozen=True, slots=True)
-class PortsConfig:
     backend: int
     predictor_eta: int
     predictor_fuel: int
@@ -183,8 +174,7 @@ class Config:
     eta: EtaConfig
     features: FeaturesConfig
     models: ModelsConfig
-    platform: PlatformConfig
-    ports: PortsConfig
+    services: ServicesConfig
 
 
 def load_config(config_path: Path) -> Config:
@@ -202,8 +192,7 @@ def load_config(config_path: Path) -> Config:
             eta=EtaConfig(**data["eta"]),
             features=FeaturesConfig(**data["features"]),
             models=ModelsConfig(**data["models"]),
-            platform=PlatformConfig(**data["platform"]),
-            ports=PortsConfig(**data["ports"]),
+            services=ServicesConfig(**data["services"]),
         )
 
 
@@ -305,16 +294,10 @@ COLSAMPLE_BYTREE = CONFIG.models.colsample_bytree
 N_TRIALS = CONFIG.models.n_trials
 DIRECTION = CONFIG.models.direction
 
-HOST = CONFIG.platform.host
-DEBUG = CONFIG.platform.debug
-BACKEND = CONFIG.platform.backend
-FRONTEND = CONFIG.platform.frontend
-PREDICTOR_ETA = CONFIG.platform.predictor_eta
-PREDICTOR_FUEL = CONFIG.platform.predictor_fuel
-PREDICTOR_STOPS = CONFIG.platform.predictor_stops
-
-PORT_BACKEND = CONFIG.ports.backend
-PORT_PREDICTOR_ETA = CONFIG.ports.predictor_eta
-PORT_PREDICTOR_FUEL = CONFIG.ports.predictor_fuel
-PORT_PREDICTOR_STOPS = CONFIG.ports.predictor_stops
-PORT_FRONTEND = CONFIG.ports.frontend
+HOST = CONFIG.services.host
+DEBUG = CONFIG.services.debug
+PORT_BACKEND = CONFIG.services.backend
+PORT_PREDICTOR_ETA = CONFIG.services.predictor_eta
+PORT_PREDICTOR_FUEL = CONFIG.services.predictor_fuel
+PORT_PREDICTOR_STOPS = CONFIG.services.predictor_stops
+PORT_FRONTEND = CONFIG.services.frontend
