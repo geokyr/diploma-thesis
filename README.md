@@ -1,6 +1,6 @@
-# diploma-thesis
+# thesis
 
-Continuous Machine Learning, Concept Drift, MLOps, and Cooperative, Connected and Automated Mobility applications for my Diploma Thesis at ECE NTUA
+Continuous Machine Learning, Concept Drift, MLOps, and Cooperative, Connected and Automated Mobility applications for my Thesis at ECE NTUA
 
 ## Environment Setup
 All dependencies are declared in `pyproject.toml` and managed with [uv](https://docs.astral.sh/uv/).
@@ -18,8 +18,8 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ### Clone and install dependencies
 ```bash
-git clone https://github.com/geokyr/diploma-thesis
-cd diploma-thesis
+git clone https://github.com/geokyr/thesis
+cd thesis
 uv sync --all-extras
 ```
 

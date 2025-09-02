@@ -10,7 +10,7 @@
         <osm-files value="osm_bbox.osm.xml.gz"/>
         <osm.keep-full-type value="true"/>
         <osm.merge-relations value="1"/>
-        <type-file value="C:\Users\george\Desktop\diploma-thesis\.venv\Lib\site-packages\sumo\data\typemap\osmPolyconvert.typ.xml"/>
+        <type-file value="C:\Users\george\Desktop\thesis\.venv\Lib\site-packages\sumo\data\typemap\osmPolyconvert.typ.xml"/>
     </input>
 
     <output>
