@@ -7,7 +7,7 @@ Building a drift detection and mitigation platform with 3 ML models (ETA, fuel c
 - **Simple Architecture**: 3 components only (Backend, Predictors, Frontend)
 - **No Over-engineering**: Filesystem storage, no database, minimal complexity
 - **Existing Code Reuse**: Leverage `thesis/` package for data processing and ML
-- **Docker Orchestration**: uv + pyproject.toml per service
+- **Docker Orchestration**: uv + group dependencies per service
 - **Real-time Demo**: 20h simulation data compressed to 2-3 minutes timelapse
 - **Performance**: Handle 55-60k trips, ~333 trips/second peak with batching
 - **Python 3.12.11**: uv environment management
@@ -17,42 +17,37 @@ Building a drift detection and mitigation platform with 3 ML models (ETA, fuel c
 ### 1. Three-Service Architecture
 ```
 thesis/
-├── platform/                    # New platform code
-│   ├── backend/                 # FastAPI orchestrator + drift detection
-│   │   ├── pyproject.toml      
-│   │   ├── main.py              # FastAPI app with WebSocket
-│   │   ├── simulation.py        # Clock & trip feeder from parquet
-│   │   ├── drift.py             # Drift detection (colleague integration)
-│   │   ├── state.py             # JSON-based state management
-│   │   └── models.py            # Pydantic API models
-│   ├── predictors/              # Model serving services (3 instances)
-│   │   ├── pyproject.toml      
-│   │   ├── main.py              # FastAPI model server
-│   │   ├── predictor.py         # joblib model loading & prediction
-│   │   └── preprocessing.py     # thesis.eta.features wrapper
-│   ├── frontend/                # Dash dashboard  
-│   │   ├── pyproject.toml      
-│   │   ├── main.py              # Dash app
-│   │   ├── admin_tab.py         # Real-time metrics & notifications
-│   │   └── user_tab.py          # Athens map interface
-│   └── docker-compose.yml       # Service orchestration
-├── common/                      # Your existing library code
+├── backend/                 # FastAPI orchestrator + drift detection
+│   ├── main.py              # FastAPI app with WebSocket
+│   ├── simulation.py        # Clock & trip feeder from parquet
+│   ├── drift.py             # Drift detection (colleague integration)
+│   ├── state.py             # JSON-based state management
+│   └── models.py            # Pydantic API models
+├── predictors/              # Model serving services (3 instances)
+│   ├── main.py              # FastAPI model server
+│   ├── predictor.py         # joblib model loading & prediction
+│   └── preprocessing.py     # thesis.eta.features wrapper
+├── frontend/                # Dash dashboard
+│   ├── main.py              # Dash app
+│   ├── admin_tab.py         # Real-time metrics & notifications
+│   └── user_tab.py          # Athens map interface
+├── common/
 ├── eta/
 ├── simulation/
-└── (other existing thesis/ code)
-
-shared/                          # Volume-mounted data (at project root)
-├── data/                        # test-fcd.parquet, rain-fcd.parquet
+platform/                    # Volume-mounted data (at project root)
+├── data/                    # test-fcd.parquet, rain-fcd.parquet
 │   ├── test-fcd.parquet
 │   └── rain-fcd.parquet
-├── models/                      # Model registry with versioning
+├── models/                  # Model registry with versioning
 │   ├── eta/{stable/, retrained/}
 │   ├── fuel/{stable/, retrained/}
 │   └── stops/{stable/, retrained/}
-└── state/                       # Persistent state files
-    ├── simulation.json          # Current time, dataset, status
-    ├── model-versions.json      # Active model versions
-    └── drift-status.json        # Per-model drift states
+├── state/                   # Persistent state files
+│   ├── simulation.json      # Current time, dataset, status
+│   ├── model-versions.json  # Active model versions
+│   └── drift-status.json    # Per-model drift states
+├── docker-compose.dev.yml   # Development docker-compose file
+└── docker-compose.yml       # Production docker-compose file
 ```
 
 ## Integration with Existing Code
@@ -99,7 +94,7 @@ FEATURES_CONFIG = config["features"]    # n_clusters, coordinate_scale, etc.
 **Key APIs:**
 ```python
 POST /start              # Start simulation
-POST /pause              # Pause/resume simulation  
+POST /pause              # Pause/resume simulation
 GET /status              # Current simulation state
 POST /user-predict       # Custom trip prediction
 WebSocket /ws            # Real-time metrics stream
@@ -133,52 +128,32 @@ POST /load               # Swap to new model version
 
 #### Backend
 ```toml
-[project]
-name = "platform-backend"
 dependencies = [
     "fastapi>=0.104.1",
-    "uvicorn>=0.24.0", 
+    "uvicorn>=0.24.0",
     "websockets>=12.0",
     "httpx>=0.25.2",
     "pandas>=2.1.0",
     "pydantic>=2.5.0",
     "numpy>=1.24.0"
 ]
-
-[tool.uv]
-dev-dependencies = ["thesis @ {root:uri}../../"]
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
 ```
 
 #### Predictors
 ```toml
-[project]
-name = "platform-predictors"
 dependencies = [
     "fastapi>=0.104.1",
     "uvicorn>=0.24.0",
     "joblib>=1.3.2",
     "pandas>=2.1.0",
-    "scikit-learn>=1.3.0", 
+    "scikit-learn>=1.3.0",
     "lightgbm>=4.0.0",
     "numpy>=1.24.0"
 ]
-
-[tool.uv]
-dev-dependencies = ["thesis @ {root:uri}../../"]
-
-[build-system]
-requires = ["hatchling"] 
-build-backend = "hatchling.build"
 ```
 
 #### Frontend
 ```toml
-[project]
-name = "platform-frontend"
 dependencies = [
     "dash>=2.14.0",
     "plotly>=5.17.0",
@@ -186,72 +161,6 @@ dependencies = [
     "websocket-client>=1.6.0",
     "requests>=2.31.0"
 ]
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-```
-
-## Docker Setup with Layer Caching
-
-### Efficient Dockerfile Pattern
-```dockerfile
-# platform/backend/Dockerfile
-FROM python:3.12.11-slim
-
-# Install uv (cached layer)
-RUN pip install uv
-
-WORKDIR /app
-
-# Copy dependencies first (cached if unchanged)
-COPY pyproject.toml ./
-COPY ../../thesis ./thesis
-RUN uv sync --frozen
-
-# Copy source code last (invalidates only when code changes)
-COPY *.py ./
-
-CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
-
-### Docker Compose Orchestration
-```yaml
-version: '3.8'
-services:
-  backend:
-    build: ./backend
-    ports: ["8000:8000"]
-    volumes: ["../../shared:/shared"]
-    environment:
-      - TIMELAPSE_SPEED=400
-      - BATCH_SIZE_MINUTES=1
-      - COLLECTION_WINDOW=1000
-    depends_on: [eta-predictor, fuel-predictor, stops-predictor]
-
-  eta-predictor:
-    build: ./predictors  
-    ports: ["8001:8000"]
-    volumes: ["../../shared:/shared"]
-    environment: [TASK_TYPE=eta]
-
-  fuel-predictor:
-    build: ./predictors
-    ports: ["8002:8000"] 
-    volumes: ["../../shared:/shared"]
-    environment: [TASK_TYPE=fuel]
-
-  stops-predictor:
-    build: ./predictors
-    ports: ["8003:8000"]
-    volumes: ["../../shared:/shared"]
-    environment: [TASK_TYPE=stops]
-
-  frontend:
-    build: ./frontend
-    ports: ["8080:8080"]
-    environment: [BACKEND_URL=http://backend:8000]
-    depends_on: [backend]
 ```
 
 ## Data Flow Architecture
@@ -263,34 +172,34 @@ async def simulation_loop():
     while simulation_active:
         # 1. Load next batch of trips (1 min simulation time)
         current_batch = load_trip_batch(current_sim_time, BATCH_SIZE_MINUTES)
-        
+
         # 2. Send to all predictors in parallel
         predictions = await asyncio.gather(
             predict_eta(current_batch),
-            predict_fuel(current_batch), 
+            predict_fuel(current_batch),
             predict_stops(current_batch)
         )
-        
+
         # 3. Calculate errors against ground truth
         errors = calculate_errors(predictions, ground_truth_batch)
-        
+
         # 4. Update drift detector with error stream
         drift_events = update_drift_detection(errors)
-        
+
         # 5. Handle drift events (start collecting/retraining)
         await handle_drift_events(drift_events)
-        
+
         # 6. Broadcast metrics to frontend
         await websocket_broadcast({
             "metrics": calculate_rolling_mae(errors),
             "notifications": drift_events,
             "sim_time": current_sim_time
         })
-        
+
         # 7. Check dataset transition (test → rain)
         if should_transition_to_rain(current_sim_time):
             await notify_day_change()
-            
+
         await asyncio.sleep(SIMULATION_TICK_MS / 1000)  # 150ms default
 ```
 
@@ -301,13 +210,13 @@ async def predict_batch(request: PredictRequest):
     """Batch prediction with feature engineering"""
     # Convert batch to DataFrame
     df_trips = pd.DataFrame(request.trips)
-    
+
     # Apply existing feature engineering pipeline
     df_features = preprocess_batch(df_trips)  # Uses add_all_features()
-    
+
     # Predict using loaded model
     predictions = current_model.predict(df_features)
-    
+
     return {"predictions": predictions.tolist()}
 ```
 
@@ -315,13 +224,13 @@ async def predict_batch(request: PredictRequest):
 
 ### Persistent State (JSON Files)
 ```python
-@dataclass 
+@dataclass
 class SimulationState:
     current_time: int = 0
     dataset: str = "test"  # "test" or "rain"
     active: bool = False
     speed_multiplier: int = 400  # 20h → 3min
-    
+
     def save_checkpoint(self, path: Path):
         with open(path / "simulation.json", "w") as f:
             json.dump(asdict(self), f)
@@ -329,9 +238,9 @@ class SimulationState:
 @dataclass
 class DriftState:
     eta_status: str = "stable"      # stable|collecting|retraining|swapped
-    fuel_status: str = "stable"   
+    fuel_status: str = "stable"
     stops_status: str = "stable"
-    
+
     # Rolling error buffers for drift detection
     eta_errors: deque = field(default_factory=lambda: deque(maxlen=1000))
     fuel_errors: deque = field(default_factory=lambda: deque(maxlen=1000))
@@ -340,7 +249,7 @@ class DriftState:
 
 ### Model Registry Structure
 ```
-shared/models/
+platform/models/
 ├── eta/
 │   ├── stable/
 │   │   ├── model.joblib       # LightGBM/XGBoost model
@@ -371,7 +280,7 @@ DRIFT_DETECTION_SMOOTHING=10      # Rolling window for error smoothing
 
 # Service URLs
 ETA_PREDICTOR_URL=http://eta-predictor:8000
-FUEL_PREDICTOR_URL=http://fuel-predictor:8000  
+FUEL_PREDICTOR_URL=http://fuel-predictor:8000
 STOPS_PREDICTOR_URL=http://stops-predictor:8000
 ```
 
@@ -381,7 +290,7 @@ STOPS_PREDICTOR_URL=http://stops-predictor:8000
 from thesis.common.config import config
 
 # Athens map bounding box
-ATHENS_BBOX = config["network"]["bbox"]  
+ATHENS_BBOX = config["network"]["bbox"]
 # [23.725252771719436, 37.974745936977456, 23.752735758169127, 37.988290142332225]
 
 # Feature engineering parameters
@@ -413,15 +322,15 @@ def create_athens_map():
     bbox = config["network"]["bbox"]
     center_lat = (bbox[1] + bbox[3]) / 2  # 37.981518
     center_lon = (bbox[0] + bbox[2]) / 2  # 23.738994
-    
+
     m = folium.Map(location=[center_lat, center_lon], zoom_start=14)
-    
+
     # Add simulation bounding box
     folium.Rectangle(
         bounds=[[bbox[1], bbox[0]], [bbox[3], bbox[2]]],
         color="red", fillOpacity=0.1, popup="Simulation Area"
     ).add_to(m)
-    
+
     return m
 ```
 
@@ -544,8 +453,8 @@ def time_function(func):
 @time_function
 async def feature_calculation_batch(trips: list) -> pd.DataFrame:
     # Monitor add_all_features() performance
-    
-@time_function  
+
+@time_function
 async def model_prediction_batch(features: pd.DataFrame) -> np.ndarray:
     # Monitor model inference time
 ```
@@ -560,7 +469,7 @@ async def model_prediction_batch(features: pd.DataFrame) -> np.ndarray:
 ### Configurable Performance Tuning
 ```python
 # All timing adjustable via environment variables
-SIMULATION_TICK_MS = int(os.getenv("SIMULATION_TICK_MS", 150))  
+SIMULATION_TICK_MS = int(os.getenv("SIMULATION_TICK_MS", 150))
 BATCH_SIZE_MINUTES = int(os.getenv("BATCH_SIZE_MINUTES", 1))
 COLLECTION_WINDOW_TRIPS = int(os.getenv("COLLECTION_WINDOW_TRIPS", 1000))
 MAX_ERROR_BUFFER_SIZE = int(os.getenv("MAX_ERROR_BUFFER_SIZE", 10000))
@@ -578,7 +487,7 @@ async def update_drift_detector(request: ErrorStreamUpdate):
         drift_result = await drift_detector.update(model_type, errors)
         if drift_result.drift_detected:
             await notify_backend_drift_event(model_type, drift_result)
-    
+
     return {"status": "processed", "timestamp": time.time()}
 ```
 
@@ -603,7 +512,7 @@ class NotificationEvent(BaseModel):
 
 ### Scalability Considerations
 - **Horizontal scaling**: Stateless services can run multiple replicas
-- **Database migration**: Clear data models for future DB integration  
+- **Database migration**: Clear data models for future DB integration
 - **Message queues**: Replace HTTP with async queues for higher throughput
 - **Monitoring**: Prometheus/Grafana integration points identified
 
@@ -613,31 +522,6 @@ class NotificationEvent(BaseModel):
 - **Real-time data**: Interface designed for live data streams
 - **Advanced visualizations**: Modular frontend components
 
-## Development Workflow
-
-### Local Development
-```bash
-# Start all services
-docker-compose up --build
-
-# Individual service development  
-cd platform/backend
-uv run uvicorn main:app --reload --port 8000
-
-# Frontend development
-cd platform/frontend  
-uv run python main.py
-
-# Testing individual predictors
-curl -X POST http://localhost:8001/predict -H "Content-Type: application/json" -d '{"trips": [...]}'
-```
-
-### Debugging & Monitoring
-- **Logging**: Structured logging with correlation IDs across services
-- **Health checks**: `/health` endpoints for all services
-- **Metrics endpoints**: `/metrics` for performance monitoring
-- **Error tracking**: Centralized error collection and alerting
-
 ## Success Criteria & Deliverables
 
 ### Phase 1 Success Criteria
@@ -646,14 +530,14 @@ curl -X POST http://localhost:8001/predict -H "Content-Type: application/json" -
 - [ ] Basic metrics display
 - [ ] State persistence working
 
-### Phase 2 Success Criteria  
+### Phase 2 Success Criteria
 - [ ] All 3 models predicting simultaneously
 - [ ] Real-time graphs updating at 1Hz
 - [ ] Test→rain transition working
 - [ ] Performance adequate for demo
 
 ### Phase 3 Success Criteria
-- [ ] Drift detection working on rain data  
+- [ ] Drift detection working on rain data
 - [ ] Retraining and model swapping functional
 - [ ] All drift states visualized
 - [ ] Colleague integration points ready
