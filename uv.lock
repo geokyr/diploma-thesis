@@ -820,6 +820,11 @@ wheels = [
 name = "thesis"
 version = "0.1.0"
 source = { editable = "." }
+dependencies = [
+    { name = "matplotlib" },
+    { name = "pandas" },
+    { name = "pyyaml" },
+]
 
 [package.optional-dependencies]
 backend = [
@@ -835,18 +840,12 @@ backend = [
     { name = "pandas" },
     { name = "pyarrow" },
     { name = "pydantic" },
-    { name = "pyyaml" },
     { name = "requests" },
     { name = "scikit-learn" },
     { name = "seaborn" },
     { name = "tqdm" },
     { name = "uvicorn" },
     { name = "xgboost" },
-]
-common = [
-    { name = "matplotlib" },
-    { name = "pandas" },
-    { name = "pyyaml" },
 ]
 eta = [
     { name = "catboost" },
@@ -858,7 +857,6 @@ eta = [
     { name = "optuna" },
     { name = "pandas" },
     { name = "pyarrow" },
-    { name = "pyyaml" },
     { name = "requests" },
     { name = "scikit-learn" },
     { name = "seaborn" },
@@ -870,7 +868,7 @@ frontend = [
     { name = "plotly" },
     { name = "requests" },
 ]
-predictors = [
+predictor = [
     { name = "catboost" },
     { name = "eclipse-sumo" },
     { name = "fastapi" },
@@ -882,7 +880,6 @@ predictors = [
     { name = "pandas" },
     { name = "pyarrow" },
     { name = "pydantic" },
-    { name = "pyyaml" },
     { name = "requests" },
     { name = "scikit-learn" },
     { name = "seaborn" },
@@ -892,11 +889,8 @@ predictors = [
 ]
 simulation = [
     { name = "eclipse-sumo" },
-    { name = "matplotlib" },
     { name = "numpy" },
-    { name = "pandas" },
     { name = "pyarrow" },
-    { name = "pyyaml" },
 ]
 
 [package.metadata]
@@ -905,43 +899,40 @@ requires-dist = [
     { name = "dash", marker = "extra == 'frontend'", specifier = "==3.2.0" },
     { name = "eclipse-sumo", marker = "extra == 'simulation'", specifier = "==1.24.0" },
     { name = "fastapi", marker = "extra == 'backend'", specifier = "==0.116.1" },
-    { name = "fastapi", marker = "extra == 'predictors'", specifier = "==0.116.1" },
+    { name = "fastapi", marker = "extra == 'predictor'", specifier = "==0.116.1" },
     { name = "httpx", marker = "extra == 'backend'", specifier = "==0.28.1" },
     { name = "joblib", marker = "extra == 'eta'", specifier = "==1.5.1" },
-    { name = "joblib", marker = "extra == 'predictors'", specifier = "==1.5.1" },
+    { name = "joblib", marker = "extra == 'predictor'", specifier = "==1.5.1" },
     { name = "lightgbm", marker = "extra == 'eta'", specifier = "==4.6.0" },
-    { name = "matplotlib", marker = "extra == 'common'", specifier = "==3.10.1" },
+    { name = "matplotlib", specifier = "==3.10.1" },
     { name = "matplotlib", marker = "extra == 'eta'", specifier = "==3.10.1" },
     { name = "numpy", marker = "extra == 'backend'", specifier = "==2.2.3" },
     { name = "numpy", marker = "extra == 'eta'", specifier = "==2.2.3" },
-    { name = "numpy", marker = "extra == 'predictors'", specifier = "==2.2.3" },
+    { name = "numpy", marker = "extra == 'predictor'", specifier = "==2.2.3" },
     { name = "numpy", marker = "extra == 'simulation'", specifier = "==2.2.3" },
     { name = "optuna", marker = "extra == 'eta'", specifier = "==4.4.0" },
+    { name = "pandas", specifier = "==2.2.3" },
     { name = "pandas", marker = "extra == 'backend'", specifier = "==2.2.3" },
-    { name = "pandas", marker = "extra == 'common'", specifier = "==2.2.3" },
     { name = "pandas", marker = "extra == 'eta'", specifier = "==2.2.3" },
-    { name = "pandas", marker = "extra == 'predictors'", specifier = "==2.2.3" },
+    { name = "pandas", marker = "extra == 'predictor'", specifier = "==2.2.3" },
     { name = "plotly", marker = "extra == 'frontend'", specifier = "==6.2.0" },
     { name = "pyarrow", marker = "extra == 'simulation'", specifier = "==21.0.0" },
     { name = "pydantic", marker = "extra == 'backend'", specifier = "==2.11.7" },
-    { name = "pydantic", marker = "extra == 'predictors'", specifier = "==2.11.7" },
-    { name = "pyyaml", marker = "extra == 'common'", specifier = "==6.0.2" },
+    { name = "pydantic", marker = "extra == 'predictor'", specifier = "==2.11.7" },
+    { name = "pyyaml", specifier = "==6.0.2" },
     { name = "requests", marker = "extra == 'eta'", specifier = "==2.32.4" },
     { name = "requests", marker = "extra == 'frontend'", specifier = "==2.32.4" },
     { name = "scikit-learn", marker = "extra == 'eta'", specifier = "==1.6.1" },
     { name = "seaborn", marker = "extra == 'eta'", specifier = "==0.13.2" },
-    { name = "thesis", extras = ["common"], marker = "extra == 'backend'" },
-    { name = "thesis", extras = ["common"], marker = "extra == 'eta'" },
-    { name = "thesis", extras = ["common"], marker = "extra == 'simulation'" },
     { name = "thesis", extras = ["eta"], marker = "extra == 'backend'" },
-    { name = "thesis", extras = ["eta"], marker = "extra == 'predictors'" },
+    { name = "thesis", extras = ["eta"], marker = "extra == 'predictor'" },
     { name = "thesis", extras = ["simulation"], marker = "extra == 'eta'" },
     { name = "tqdm", marker = "extra == 'eta'", specifier = "==4.67.1" },
     { name = "uvicorn", marker = "extra == 'backend'", specifier = "==0.35.0" },
-    { name = "uvicorn", marker = "extra == 'predictors'", specifier = "==0.35.0" },
+    { name = "uvicorn", marker = "extra == 'predictor'", specifier = "==0.35.0" },
     { name = "xgboost", marker = "extra == 'eta'", specifier = "==2.1.4" },
 ]
-provides-extras = ["common", "simulation", "eta", "backend", "frontend", "predictors"]
+provides-extras = ["backend", "eta", "frontend", "predictor", "simulation"]
 
 [[package]]
 name = "threadpoolctl"
