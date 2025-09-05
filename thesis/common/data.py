@@ -46,10 +46,12 @@ def load_fcd_dataset_csv(fcd_csv_path: Path) -> pd.DataFrame:
 
     dtype = {
         "timestep_time": int,
-        "vehicle_acceleration": float,
+        "vehicle_fuel": float,
         "vehicle_id": str,
+        "vehicle_lane": str,
         "vehicle_odometer": float,
         "vehicle_speed": float,
+        "vehicle_waiting": float,
         "vehicle_x": float,
         "vehicle_y": float,
     }
