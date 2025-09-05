@@ -1,6 +1,0 @@
-{
-    "task": "eta",
-    "model": "LGBMRegressor",
-    "version": "stable",
-    "source": "outputs/final_model/models/LGBMRegressor.joblib"
-}
