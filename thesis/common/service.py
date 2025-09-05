@@ -20,7 +20,6 @@ from thesis.common.config import (
     PORT_PREDICTOR_ETA,
     PORT_PREDICTOR_FUEL,
     PORT_PREDICTOR_STOPS,
-    STATE_DIRNAME,
 )
 
 
@@ -77,7 +76,6 @@ class PlatformServiceConfig:
         predictor_stops_url (str): Stops predictor URL.
         data_dir (Path): Path to the data directory.
         models_dir (Path): Path to the models directory.
-        state_dir (Path): Path to the state directory.
     """
 
     _PORTS = {
@@ -97,7 +95,7 @@ class PlatformServiceConfig:
     }
 
     def __post_init__(self) -> None:
-        for dir in [self.logs_dir, self.data_dir, self.models_dir, self.state_dir]:
+        for dir in [self.logs_dir, self.data_dir, self.models_dir]:
             dir.mkdir(parents=True, exist_ok=True)
 
     def __repr__(self) -> str:
@@ -116,7 +114,6 @@ class PlatformServiceConfig:
             f"{self.predictor_stops_url=}, "
             f"{self.data_dir=}, "
             f"{self.models_dir=}, "
-            f"{self.state_dir=})"
         )
 
     @property
@@ -170,7 +167,3 @@ class PlatformServiceConfig:
     @property
     def models_dir(self) -> Path:
         return PLATFORM_DIR / MODELS_DIRNAME
-
-    @property
-    def state_dir(self) -> Path:
-        return PLATFORM_DIR / STATE_DIRNAME

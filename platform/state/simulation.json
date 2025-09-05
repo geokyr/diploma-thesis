@@ -1,7 +1,0 @@
-{
-  "current_time": 0,
-  "dataset": "test",
-  "active": false,
-  "speed_multiplier": 400,
-  "batch_size_minutes": 1
-}

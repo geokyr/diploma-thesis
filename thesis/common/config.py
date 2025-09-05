@@ -41,7 +41,6 @@ class DirnameConfig:
     plots: str
     models: str
     results: str
-    state: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -220,7 +219,6 @@ LOGS_DIRNAME = CONFIG.dirname.logs
 PLOTS_DIRNAME = CONFIG.dirname.plots
 MODELS_DIRNAME = CONFIG.dirname.models
 RESULTS_DIRNAME = CONFIG.dirname.results
-STATE_DIRNAME = CONFIG.dirname.state
 
 OSM_DATA_FILENAME = CONFIG.filename.osm_data
 GUI_SETTINGS_FILENAME = CONFIG.filename.gui_settings

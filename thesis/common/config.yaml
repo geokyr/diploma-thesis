@@ -10,7 +10,6 @@ dirname:
   plots: "plots"
   models: "models"
   results: "results"
-  state: "state"
 
 filename:
   osm_data: "osm_bbox.osm.xml.gz"
