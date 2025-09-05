@@ -1,8 +1,5 @@
 # Notes
 
-## To Do
-- To Do
-
 ## Platform
 
 ### Overview
