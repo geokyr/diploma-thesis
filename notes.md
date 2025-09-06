@@ -2,6 +2,139 @@
 
 ## Platform
 
+### Prompt
+
+**You are a senior ML systems architect and Python engineer.** Your task is to design an MVP platform for **drift detection and mitigation** across multiple tabular ML regressors, using synthetic traffic data generated with **SUMO** for central **Athens**. Provide a practical, implementation-ready plan that an undergraduate team of 2-3 people can build iteratively in around 1-2 weeks. Keep it simple but realistic, and leave clean seams for future growth.
+
+#### 1) Context & Goals
+
+* We simulate a **20-hour timelapse demo** (10h base “test” + 10h “rain” drift) compressed to \~4 minutes.
+* We have **3 regression models** (initially build ETA; add Fuel and Stops later). Models are **XGBoost or LightGBM** with **different preprocessing/feature sets** per task.
+* **Drift** is induced in the “rain” set (lane friction 1.0→0.4). We want:
+  * Live MAE plots per model.
+  * A **drift detector** (treat as external black box for now) that votes using **ADWIN, Page-Hinkley, KSWIN, SPC** over a rolling window; **majority=3** triggers drift.
+  * A simple **mitigation** loop: detect → collect N minutes of rain data → retrain on (recent base + collected rain) → hot-swap model → errors improve (not necessarily back to baseline).
+* **Ground truth is available immediately** (for demo), so errors can be computed right away.
+
+#### 2) Data
+
+* Source: **SUMO FCD** (CSV/Parquet). Columns (semicolon or comma delimited), one row per (timestep, vehicle):
+  `timestep_time, vehicle_fuel, vehicle_id, vehicle_lane, vehicle_odometer, vehicle_speed, vehicle_waiting, vehicle_x, vehicle_y`
+* Three files (each **10 hours**): **train-fcd**, **test-fcd**, **rain-fcd**; \~**55–60k trips** per set after preprocessing.
+* We **preprocess** into **trip-level** rows (src/dst coords, start time, distance, duration, engineered features). One model has \~**55 features**.
+  We can either:
+  1. **Build features on the fly** from FCD; or
+  2. **Precompute trips/features** to Parquet and read slices per sim window.
+     Ask you to **pick one for the MVP**, justify trade-offs, and show how to switch later.
+
+#### 3) Simulation & UX storyboard
+
+* **Timelapse driver**: every **1 real second ≈ 5 simulation minutes**. For each tick:
+  * Orchestrator requests predictions for trips with `timestep_time in [start,end]`.
+  * Predictor returns predictions (or predictions+errors). Orchestrator computes MAE per model and sends updates.
+  * Errors feed both the **live charts** and the **drift detector**.
+* **Admin tab**: three live MAE charts (ETA/Fuel/Stops).
+  Visual states: **stable (green) → drift (red) → collecting (yellow) → retraining (blue) → swapped (green)** with timestamped notifications.
+* **User tab** (later iteration): pausing the timelapse opens a map of Athens to pick source/destination. Backend maps clicks to our coordinate system, computes needed features (incl. distance/edges via `sumolib`/`traci` if chosen), and returns predictions **for the current sim time**.
+
+#### 4) Architecture (please propose)
+
+* Keep components minimal and decoupled. Assume **Docker + docker-compose**. There is already the `thesis/` folder with the code for the experiments, dataset simulation, feature engineering, model training, evaluation, etc. It is installed editable on the root environment so we can do global imports with safety. There is a `pyproject.toml` file containing dependencies for the following possible containers: backend, frontend, predictor, etc. You can use this as a starting point, together with the `docker-compose.yml` file, to plan the architecture. There is also a `platform` folder set up, including data logs and models folders, that we can use and volume mount to the containers.
+* Start with **three containers**; add more later:
+  1. **backend** (FastAPI): simulation clock, orchestration, sending updates, notifications, REST control (`/start`, `/pause`, `/resume`, `/restart`), model registry watcher, drift-service client.
+  2. **predictor-eta** (FastAPI+Uvicorn): model load, preprocessing, `/predict`, `/retrain`, `/status`, `/load`. Later: `predictor-fuel`, `predictor-stops`.
+  3. **frontend** (Dash or Streamlit—pick one and justify): admin dashboard with live charts & notifications; later: user map tab.
+     Optional:
+  4. **drift-service** (black box): consumes errors per sample per model; returns state transitions/events.
+  5. **redis** (optional, if needed for fast state, pub/sub, and timelapse tick fanout, as an easy to implement and efficient solution, without much overhead).
+* **Storage**:
+  * **Datasets** (Parquet) volume: `platform/data/{train,test,rain}.parquet`.
+  * **Model registry** volume: `platform/models/<task>/<version>/model.joblib` and `platform/models/<task>/latest → <version>` symlink or pointer.
+  * **Run artifacts** (logs, metrics) volume: `platform/logs/` and `platform/metrics/`, if a database is not used.
+
+#### 5) Interfaces & contracts (define precisely)
+
+* **Backend ↔ Predictor** (JSON over HTTP):
+  * `POST /predict`: `{task, sim_window: {start_ts, end_ts} | {row_ids}, return: "preds"|"errors"}` → returns batched predictions and/or errors.
+    Include a **schema** with dtypes and example payloads.
+  * `POST /retrain`: `{task, data_ref: {from_ts,to_ts} | {row_ids}, base_mix: float, params?}` → async job id; `GET /status/{job_id}` for progress.
+  * `POST /load`: `{task, version | "latest"}` → 200 on success; model hot-swapped atomically.
+* **Backend ↔ Drift-service** (black box; define this now so we can mock it):
+  * `POST /errors`: `{task, ts, abs_errors: [..]}`;
+  * `GET /state?task=ETA`: `{state, details, since_ts}`;
+  * **Events**: `drift_detected`, `collecting_started`, `retraining_started`, `swapped`.
+* **Backend ↔ Frontend**:
+  * Try to do REST for updates, by polling the backend for updates, or if there is not much overhead, use SSE/WebSocket for **live updates**: `{ts, task, mae, state, notification?}`.
+  * REST for controls: `/start`, `/pause`, `/resume`, `/restart`.
+  * Later: `/predict_once` for user map queries.
+
+Provide **OpenAPI YAML** for the backend and predictor services, including request/response models. The above are given to get an idea, you don't have to follow them exactly, feel free to change them to fit our needs, based on what you think is best, as an expert.
+
+#### 6) Drift lifecycle (state machine)
+
+* Per model: **stable → drift → collecting → retraining → swapped → stable**.
+  * Trigger: majority vote (ADWIN, Page-Hinkley, KSWIN, SPC) over sliding window; configurable thresholds.
+  * Collect for **K sim minutes** after drift before retraining.
+  * Retrain on (**recent base** + **collected rain**) with simple strategy first (e.g., full refit or partial fit if available).
+  * On success, **update model registry** and instruct predictor to `/load latest`.
+    Request a **Mermaid state diagram** for this.
+
+#### 7) Batching & timelapse
+
+* Default: orchestrator sends **index/time windows** (e.g., 300-row 5-minute chunks) to predictor.
+* Ask you to:
+  * Specify **Parquet filtering** strategy (pyarrow predicates vs. row groups).
+  * Propose a **memory-safe batch size** and backpressure rules (what if predictor lags?).
+  * Define **MAE per tick**: compute over the current batch only; frontend re-plots MAE history each tick.
+
+#### 8) Model versioning & hot swap
+
+* Filesystem registry with `latest` pointer per task.
+* Predictor watches for changes (or backend calls `/load`).
+* Define atomicity (temp file + rename) and **rollback** if `/load` fails.
+* Document expected **model metadata** (task, version, train\_data\_time\_range, metrics).
+
+#### 9) Tooling & stack constraints (must follow)
+
+* **Python 3.12.11**, **uv** for envs, **pyproject.toml** everywhere.
+* Use **FastAPI + Uvicorn**, **pandas/pyarrow**, **xgboost/lightgbm**, and (optionally) **river** for drift if helpful in mocks.
+* Containers: **python:3.12.11-slim**, maximize layer cache, check provided Dockerfiles and improve if possible.
+* Keep services **independently buildable**; explain whether to share the root env or have per-service extras.
+* Provide **.dockerignore** examples.
+
+#### 10) Deliverables (required in your answer)
+
+1. **High-level architecture**: one paragraph + a **Mermaid component diagram** showing containers, volumes, and dataflow.
+2. **Backend state diagram** (Mermaid) for the drift lifecycle.
+3. **Two sequence diagrams** (Mermaid):
+   * a) Timelapse tick (predict → error → drift update → UI).
+   * b) Drift detection → collect → retrain → hot-swap.
+4. **API specs** (OpenAPI YAML) for **backend** and **predictor** (minimal but runnable).
+5. **docker-compose.yml** (minimal) plus **Dockerfiles** for backend, predictor, and frontend with caching best practices, based on the provided ones.
+6. **Repo layout** (monorepo) with folders under `thesis/` (`backend/`, `predictor/`, `frontend/`, `drift/`, `common/`), and a root `pyproject.toml` using **uv**, based on the provided one.
+7. **Implementation plan** with **iterations/milestones**:
+   * **Iteration 1 (MVP)**: backend + predictor-eta + frontend admin charts; run only **test** dataset; mock drift service; no retrain.
+   * **Iteration 2**: add **rain** dataset and real drift lifecycle; notification system.
+   * **Iteration 3**: user map tab and one-off prediction; optional Redis.
+   * **Iteration 4**: add Fuel & Stops predictors; basic model registry + hot-swap; CI sanity tests.
+     For each iteration: exact goals, acceptance criteria, and “definition of done.”
+8. **Risks & simplifications**: call out at most 8 risks (I/O, feature latency, UI flicker, drift thresholds, etc.) with a one-line mitigation each.
+
+#### 11) Assumptions you can make
+
+* Datasets are present under `./data/*.parquet`.
+* Model artifacts are joblib’d; predictors don't handle their own preprocessing, but it can be done through the relevant code under `common/` or `eta/` folders, as seen in the experiments.
+* For the map tab, a simple bounding box conversion is OK (no full routing).
+* Ground truth is instantly available for each batch.
+
+#### 12) Style & constraints for your response
+
+* Be **concise and prescriptive**; prefer **working defaults** over options.
+* No over-engineering; avoid heavy infra.
+* Include **code blocks with filenames** and keep each file short but runnable/stubbed.
+* Use **Mermaid** for all diagrams.
+* If any detail is ambiguous, **state a sensible default** and proceed—don’t ask me questions.
+
 ### Overview
 We want to make a platform based around the concept of a drift detection and mitigation process.
 
