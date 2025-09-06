@@ -9,13 +9,6 @@ services:
       - ./platform:/platform
     environment:
       - SERVICE=backend
-    depends_on:
-      predictor-eta:
-        condition: service_healthy
-      # predictor-fuel:
-      #   condition: service_healthy
-      # predictor-stops:
-      #   condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -23,60 +16,6 @@ services:
       retries: 3
       start_period: 30s
     restart: unless-stopped
-
-  predictor-eta:
-    container_name: predictor-eta
-    build:
-      dockerfile: ./thesis/predictor/Dockerfile
-    ports:
-      - "8001:8001"
-    volumes:
-      - ./platform:/platform
-    environment:
-      - SERVICE=predictor-eta
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    restart: unless-stopped
-
-  # predictor-fuel:
-  #   container_name: predictor-fuel
-  #   build:
-  #     dockerfile: ./thesis/predictor/Dockerfile
-  #   ports:
-  #     - "8002:8002"
-  #   volumes:
-  #     - ./platform:/platform
-  #   environment:
-  #     - SERVICE=predictor-fuel
-  #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
-  #     start_period: 30s
-  #   restart: unless-stopped
-
-  # predictor-stops:
-  #   container_name: predictor-stops
-  #   build:
-  #     dockerfile: ./thesis/predictor/Dockerfile
-  #   ports:
-  #     - "8003:8003"
-  #   volumes:
-  #     - ./platform:/platform
-  #   environment:
-  #     - SERVICE=predictor-stops
-  #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
-  #     start_period: 30s
-  #   restart: unless-stopped
 
   frontend:
     container_name: frontend
@@ -100,3 +39,66 @@ services:
       retries: 3
       start_period: 30s
     restart: unless-stopped
+
+  predictor-eta:
+    container_name: predictor-eta
+    build:
+      dockerfile: ./thesis/predictor/Dockerfile
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./platform:/platform
+    environment:
+      - SERVICE=predictor-eta
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # predictor-fuel:
+  #   container_name: predictor-fuel
+  #   build:
+  #     dockerfile: ./thesis/predictor/Dockerfile
+  #   ports:
+  #     - "8002:8002"
+  #   volumes:
+  #     - ./platform:/platform
+  #   environment:
+  #     - SERVICE=predictor-fuel
+  #   depends_on:
+  #     backend:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 30s
+  #   restart: unless-stopped
+
+  # predictor-stops:
+  #   container_name: predictor-stops
+  #   build:
+  #     dockerfile: ./thesis/predictor/Dockerfile
+  #   ports:
+  #     - "8003:8003"
+  #   volumes:
+  #     - ./platform:/platform
+  #   environment:
+  #     - SERVICE=predictor-stops
+  #   depends_on:
+  #     backend:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 30s
+  #   restart: unless-stopped
