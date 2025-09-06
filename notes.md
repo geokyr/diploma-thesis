@@ -86,8 +86,6 @@ Give me what I'm asking for, but keep in mind that the goal is to do something t
 
 Here's an overview of what I'm planning to build. Take the overall plan as a guide, and the more technical details can be adjusted to fit whatever we decide to work with, so it's not an exact spec, but rough guidelines. Can you help me start with this and provide an MVP of this architecture, so that I can work on it iteratively later and refine it to match the final wanted product? Also make sure to plan on the iterations, and how this can be built in steps, starting from a working core and having laid out a proper skeleton that will be easy to extend and modify later down the road.
 
-The diagrams and the rest of the information are just possible options, you can use them as a guide, but not stick to them, feel free to change them to fit whatever you consider is better.
-
 I'd like to use docker and docker compose. I also use uv and a pyproject.toml to handle the envs, with Python 3.12.11. I already have one on my root for the env I was using on my experiments, and I also have the thesis/ folder which contains all my library code that I used on the experiments. This is installed editable on the environment so I can do global imports with safety. We can add folders for the backend, frontend, and whatever else is needed inside the thesis/ folder.
 
 I'm not sure how we should handle the different environments for the different containers/components, but use uv and pyproject.toml if possible. If it makes sense for them to be separate, and different from the root environment, then do that. Also make the dockerfiles efficient, so that they don't have to be rebuilt every time, and only the changed files are rebuilt.
