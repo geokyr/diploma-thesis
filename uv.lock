@@ -994,6 +994,15 @@ wheels = [
 ]
 
 [[package]]
+name = "redis"
+version = "5.2.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/47/da/d283a37303a995cd36f8b92db85135153dc4f7a8e4441aa827721b442cfb/redis-5.2.1.tar.gz", hash = "sha256:16f2e22dff21d5125e8481515e386711a34cbec50f0e44413dd7d9c060a54e0f", size = 4608355, upload-time = "2024-12-06T09:50:41.956Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3c/5f/fa26b9b2672cbe30e07d9a5bdf39cf16e3b80b42916757c5f92bca88e4ba/redis-5.2.1-py3-none-any.whl", hash = "sha256:ee7e1056b9aea0f04c6c2ed59452947f34c4940ee025f5dd83e6a6418b6989e4", size = 261502, upload-time = "2024-12-06T09:50:39.656Z" },
+]
+
+[[package]]
 name = "requests"
 version = "2.32.4"
 source = { registry = "https://pypi.org/simple" }
@@ -1015,6 +1024,28 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/c8/5a/b17e1e257d3e6f2e7758930e1256832c9ddd576f8631781e6a072914befa/retrying-1.4.2.tar.gz", hash = "sha256:d102e75d53d8d30b88562d45361d6c6c934da06fab31bd81c0420acb97a8ba39", size = 11411, upload-time = "2025-08-03T03:35:25.189Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/67/f3/6cd296376653270ac1b423bb30bd70942d9916b6978c6f40472d6ac038e7/retrying-1.4.2-py3-none-any.whl", hash = "sha256:bbc004aeb542a74f3569aeddf42a2516efefcdaff90df0eb38fbfbf19f179f59", size = 10859, upload-time = "2025-08-03T03:35:23.829Z" },
+]
+
+[[package]]
+name = "river"
+version = "0.22.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "pandas" },
+    { name = "scipy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/31/23/4e4d1c99e38767c0afb4d6bcbe9a36157bf365578320d1b3356054e1fc79/river-0.22.0.tar.gz", hash = "sha256:8b06840e0d832dbd1064145e56e3f75492402716f5eb733753da3099194a3a68", size = 1404781, upload-time = "2024-11-25T23:29:10.012Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4e/3b/d4d47bb966873fada5cc013f40d7eb940454f092c3c97fd77fdfb74d205f/river-0.22.0-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:23af8856bfd6839c28dc777e980500e4d89ca6cf986391a8da6b1557b651077e", size = 2490125, upload-time = "2024-11-25T23:28:41.354Z" },
+    { url = "https://files.pythonhosted.org/packages/42/92/21f530c61ba8b1187cdd1eab72cfbc9dccc6501cb627c63c2274cc5758a1/river-0.22.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:46c52b5e2e727aba83b51df2832d2e6d75ae58960c297320356e3e23746cd479", size = 2489355, upload-time = "2024-11-25T23:28:42.655Z" },
+    { url = "https://files.pythonhosted.org/packages/e2/14/81bbe837cc8a2621ef13cdcb7b80a40c08e08c12de65f5f740b434918960/river-0.22.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:86d2af4f1ae7294db1cfbe5d587f759f1d2398b20f7dae73301d7e12db56d579", size = 3120052, upload-time = "2024-11-25T23:28:45.788Z" },
+    { url = "https://files.pythonhosted.org/packages/2c/a8/163cd4c010e2622947cc2e4dbae224dbfd9cd88dcf9d3c89f9884fa30d68/river-0.22.0-cp312-cp312-manylinux_2_17_i686.manylinux_2_5_i686.manylinux1_i686.manylinux2014_i686.whl", hash = "sha256:f7ce7e6f5d64432f7b4ae73530e7b22313582c1f3c2a1ef2f8bca604569d9db7", size = 3080375, upload-time = "2024-11-25T23:28:47.981Z" },
+    { url = "https://files.pythonhosted.org/packages/72/18/93d114964933f58127112ae4b64574378433f235db7e3429f209a856c072/river-0.22.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:0fb478839a3ea59efaac93f106c3078979dcaa142f678a7ce8b249a2d0487573", size = 3150668, upload-time = "2024-11-25T23:28:49.565Z" },
+    { url = "https://files.pythonhosted.org/packages/73/92/4a378d36be5e5f88263b3207a229eac79c8ac383523ea024827cad728f12/river-0.22.0-cp312-cp312-musllinux_1_1_aarch64.whl", hash = "sha256:4f1028fdf13aea37602bc169462779a34499e24e19ba01e21ac9d90f32a5bcfd", size = 3639811, upload-time = "2024-11-25T23:28:51.036Z" },
+    { url = "https://files.pythonhosted.org/packages/5c/b4/bf58ef98e0b6d219a0c4f153238bbafdb487feab2f0f66d5dbb08ecdef92/river-0.22.0-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:29b3522ee06a2e26c51da94b99d0dc4771f8d70c4277c93516b16a090aea6d19", size = 3681964, upload-time = "2024-11-25T23:28:52.46Z" },
+    { url = "https://files.pythonhosted.org/packages/d9/d5/97cf44af09031209ee25238b131e30e3fb3de4c91d394b5aef29f9b54096/river-0.22.0-cp312-cp312-win32.whl", hash = "sha256:2a62ee46fcf70a96c56ad8c30b04cf48c2fa1b09eaa45935ebeb394d45edae0a", size = 2052093, upload-time = "2024-11-25T23:28:54.085Z" },
+    { url = "https://files.pythonhosted.org/packages/bc/d5/f88a19a878270f8ab5821e8ac926a5db8301310990ab93600d5afb3c930d/river-0.22.0-cp312-cp312-win_amd64.whl", hash = "sha256:673bb7ba229a6a8043e7ce6c1fc9451b0e22a0094676f20a4903cd612d087715", size = 2158724, upload-time = "2024-11-25T23:28:55.452Z" },
 ]
 
 [[package]]
@@ -1170,12 +1201,21 @@ backend = [
     { name = "pandas" },
     { name = "pyarrow" },
     { name = "pydantic" },
+    { name = "redis" },
     { name = "requests" },
     { name = "scikit-learn" },
     { name = "seaborn" },
     { name = "tqdm" },
     { name = "uvicorn" },
     { name = "xgboost" },
+]
+drift = [
+    { name = "fastapi" },
+    { name = "numpy" },
+    { name = "redis" },
+    { name = "river" },
+    { name = "scikit-learn" },
+    { name = "uvicorn" },
 ]
 eta = [
     { name = "catboost" },
@@ -1229,6 +1269,7 @@ requires-dist = [
     { name = "dash", marker = "extra == 'frontend'", specifier = "==3.2.0" },
     { name = "eclipse-sumo", marker = "extra == 'simulation'", specifier = "==1.24.0" },
     { name = "fastapi", marker = "extra == 'backend'", specifier = "==0.116.1" },
+    { name = "fastapi", marker = "extra == 'drift'", specifier = "==0.116.1" },
     { name = "fastapi", marker = "extra == 'predictor'", specifier = "==0.116.1" },
     { name = "httpx", marker = "extra == 'backend'", specifier = "==0.28.1" },
     { name = "ipykernel", specifier = ">=6.30.1" },
@@ -1238,6 +1279,7 @@ requires-dist = [
     { name = "matplotlib", specifier = "==3.10.1" },
     { name = "matplotlib", marker = "extra == 'eta'", specifier = "==3.10.1" },
     { name = "numpy", marker = "extra == 'backend'", specifier = "==2.2.3" },
+    { name = "numpy", marker = "extra == 'drift'", specifier = "==2.2.3" },
     { name = "numpy", marker = "extra == 'eta'", specifier = "==2.2.3" },
     { name = "numpy", marker = "extra == 'predictor'", specifier = "==2.2.3" },
     { name = "numpy", marker = "extra == 'simulation'", specifier = "==2.2.3" },
@@ -1251,8 +1293,12 @@ requires-dist = [
     { name = "pydantic", marker = "extra == 'backend'", specifier = "==2.11.7" },
     { name = "pydantic", marker = "extra == 'predictor'", specifier = "==2.11.7" },
     { name = "pyyaml", specifier = "==6.0.2" },
+    { name = "redis", marker = "extra == 'backend'", specifier = "==5.2.1" },
+    { name = "redis", marker = "extra == 'drift'", specifier = "==5.2.1" },
     { name = "requests", marker = "extra == 'eta'", specifier = "==2.32.4" },
     { name = "requests", marker = "extra == 'frontend'", specifier = "==2.32.4" },
+    { name = "river", marker = "extra == 'drift'", specifier = "==0.22.0" },
+    { name = "scikit-learn", marker = "extra == 'drift'", specifier = "==1.6.1" },
     { name = "scikit-learn", marker = "extra == 'eta'", specifier = "==1.6.1" },
     { name = "seaborn", marker = "extra == 'eta'", specifier = "==0.13.2" },
     { name = "thesis", extras = ["eta"], marker = "extra == 'backend'" },
@@ -1260,10 +1306,11 @@ requires-dist = [
     { name = "thesis", extras = ["simulation"], marker = "extra == 'eta'" },
     { name = "tqdm", marker = "extra == 'eta'", specifier = "==4.67.1" },
     { name = "uvicorn", marker = "extra == 'backend'", specifier = "==0.35.0" },
+    { name = "uvicorn", marker = "extra == 'drift'", specifier = "==0.35.0" },
     { name = "uvicorn", marker = "extra == 'predictor'", specifier = "==0.35.0" },
     { name = "xgboost", marker = "extra == 'eta'", specifier = "==2.1.4" },
 ]
-provides-extras = ["backend", "eta", "frontend", "predictor", "simulation"]
+provides-extras = ["backend", "eta", "frontend", "predictor", "simulation", "drift"]
 
 [[package]]
 name = "threadpoolctl"

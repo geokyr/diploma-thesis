@@ -28,6 +28,7 @@ backend = [
     "pandas==2.2.3",
     "pydantic==2.11.7",
     "uvicorn==0.35.0",
+    "redis==5.2.1",
     "thesis[eta]",
 ]
 
@@ -67,4 +68,13 @@ simulation = [
     "eclipse-sumo==1.24.0",
     "numpy==2.2.3",
     "pyarrow==21.0.0",
+]
+
+drift = [
+    "fastapi==0.116.1",
+    "uvicorn==0.35.0",
+    "redis==5.2.1",
+    "river==0.22.0",
+    "numpy==2.2.3",
+    "scikit-learn==1.6.1",
 ]
