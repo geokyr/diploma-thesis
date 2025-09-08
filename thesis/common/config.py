@@ -41,6 +41,7 @@ class DirnameConfig:
     plots: str
     models: str
     results: str
+    appdata: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -152,17 +153,14 @@ class ModelsConfig:
 @dataclass(frozen=True, slots=True)
 class ServicesConfig:
     host: str
-    debug: bool
+    environment: str
     backend: int
     predictor_eta: int
     predictor_fuel: int
     predictor_stops: int
+    drift: int
     frontend: int
-
-
-@dataclass(frozen=True, slots=True)
-class FrontendConfig:
-    update_interval_ms: int
+    redis: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -179,7 +177,6 @@ class Config:
     features: FeaturesConfig
     models: ModelsConfig
     services: ServicesConfig
-    frontend: FrontendConfig
 
 
 def load_config(config_path: Path) -> Config:
@@ -198,18 +195,15 @@ def load_config(config_path: Path) -> Config:
             features=FeaturesConfig(**data["features"]),
             models=ModelsConfig(**data["models"]),
             services=ServicesConfig(**data["services"]),
-            frontend=FrontendConfig(**data["frontend"]),
         )
 
 
-CONFIG_PATH = Path(__file__).parent / "config.yaml"
+CONFIG_PATH = Path(__file__).with_name("config.yaml")
 CONFIG = load_config(CONFIG_PATH)
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
 SIMULATION_DIR = PROJECT_DIR / CONFIG.dirname.simulation
 OUTPUTS_DIR = PROJECT_DIR / CONFIG.dirname.outputs
-
-PLATFORM_DIR = Path(os.environ.get("PLATFORM_DIR", "/platform"))
 
 MAX_FILE_SIZE = CONFIG.logging.max_file_size
 BACKUP_COUNT = CONFIG.logging.backup_count
@@ -219,6 +213,7 @@ LOGS_DIRNAME = CONFIG.dirname.logs
 PLOTS_DIRNAME = CONFIG.dirname.plots
 MODELS_DIRNAME = CONFIG.dirname.models
 RESULTS_DIRNAME = CONFIG.dirname.results
+APPDATA_DIRNAME = CONFIG.dirname.appdata
 
 OSM_DATA_FILENAME = CONFIG.filename.osm_data
 GUI_SETTINGS_FILENAME = CONFIG.filename.gui_settings
@@ -300,11 +295,11 @@ N_TRIALS = CONFIG.models.n_trials
 DIRECTION = CONFIG.models.direction
 
 HOST = CONFIG.services.host
-DEBUG = CONFIG.services.debug
+ENVIRONMENT = CONFIG.services.environment
 PORT_BACKEND = CONFIG.services.backend
 PORT_PREDICTOR_ETA = CONFIG.services.predictor_eta
 PORT_PREDICTOR_FUEL = CONFIG.services.predictor_fuel
 PORT_PREDICTOR_STOPS = CONFIG.services.predictor_stops
+PORT_DRIFT = CONFIG.services.drift
 PORT_FRONTEND = CONFIG.services.frontend
-
-UPDATE_INTERVAL_MS = CONFIG.frontend.update_interval_ms
+PORT_REDIS = CONFIG.services.redis

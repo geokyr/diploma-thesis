@@ -6,34 +6,17 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./platform:/platform
+      - ./appdata/data:/app/data
+      - ./appdata/logs:/app/logs
     environment:
       - SERVICE=backend
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    restart: unless-stopped
-
-  frontend:
-    container_name: frontend
-    build:
-      dockerfile: ./thesis/frontend/Dockerfile
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./platform:/platform
-      # TODO: remove this, only for dev
-      - ./thesis/frontend:/app/thesis/frontend
-    environment:
-      - SERVICE=frontend
+      - ENVIRONMENT=production
+      - APP_DIR=/app
     depends_on:
-      backend:
+      redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/_dash-dependencies"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -47,9 +30,13 @@ services:
     ports:
       - "8001:8001"
     volumes:
-      - ./platform:/platform
+      - ./appdata/models:/app/models
+      - ./appdata/data:/app/data
+      - ./appdata/logs:/app/logs
     environment:
       - SERVICE=predictor-eta
+      - ENVIRONMENT=production
+      - APP_DIR=/app
     depends_on:
       backend:
         condition: service_healthy
@@ -68,9 +55,13 @@ services:
   #   ports:
   #     - "8002:8002"
   #   volumes:
-  #     - ./platform:/platform
+  #     - ./appdata/models:/app/models
+  #     - ./appdata/data:/app/data
+  #     - ./appdata/logs:/app/logs
   #   environment:
   #     - SERVICE=predictor-fuel
+  #     - ENVIRONMENT=production
+  #     - APP_DIR=/app
   #   depends_on:
   #     backend:
   #       condition: service_healthy
@@ -89,9 +80,13 @@ services:
   #   ports:
   #     - "8003:8003"
   #   volumes:
-  #     - ./platform:/platform
+  #     - ./appdata/models:/app/models
+  #     - ./appdata/data:/app/data
+  #     - ./appdata/logs:/app/logs
   #   environment:
   #     - SERVICE=predictor-stops
+  #     - ENVIRONMENT=production
+  #     - APP_DIR=/app
   #   depends_on:
   #     backend:
   #       condition: service_healthy
@@ -102,3 +97,72 @@ services:
   #     retries: 3
   #     start_period: 30s
   #   restart: unless-stopped
+
+  drift:
+    container_name: drift
+    build:
+      dockerfile: ./thesis/drift/Dockerfile
+    ports:
+      - "8004:8004"
+    volumes:
+      - ./appdata/logs:/app/logs
+    environment:
+      - SERVICE=drift
+      - ENVIRONMENT=production
+      - APP_DIR=/app
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  frontend:
+    container_name: frontend
+    build:
+      dockerfile: ./thesis/frontend/Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./appdata/logs:/app/logs
+    environment:
+      - SERVICE=frontend
+      - ENVIRONMENT=production
+      - APP_DIR=/app
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/_dash-dependencies"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  redis:
+    container_name: redis
+    image: redis:7.4-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    environment:
+      - SERVICE=redis
+      - ENVIRONMENT=production
+      - APP_DIR=/app
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  redis_data:

@@ -10,6 +10,7 @@ dirname:
   plots: "plots"
   models: "models"
   results: "results"
+  appdata: "appdata"
 
 filename:
   osm_data: "osm_bbox.osm.xml.gz"
@@ -113,12 +114,11 @@ models:
 
 services:
   host: "0.0.0.0"
-  debug: true
+  environment: "development"
   backend: 8000
   predictor_eta: 8001
   predictor_fuel: 8002
   predictor_stops: 8003
+  drift: 8004
   frontend: 8080
-
-frontend:
-  update_interval_ms: 1000
+  redis: 6379
