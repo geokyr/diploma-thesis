@@ -8,11 +8,11 @@ RUN pip install --no-cache-dir uv \
 WORKDIR /app
 
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --extra backend --no-install-project
+RUN uv sync --frozen --extra drift --no-install-project
 
 COPY thesis ./thesis
 RUN uv pip install -e .
 
-EXPOSE 8000
+EXPOSE 8004
 
-CMD ["uv", "run", "python", "thesis/backend/main.py"]
+CMD ["uv", "run", "python", "thesis/drift/main.py"]

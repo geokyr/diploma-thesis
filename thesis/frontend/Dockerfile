@@ -15,5 +15,4 @@ RUN uv pip install -e .
 
 EXPOSE 8080
 
-WORKDIR /app/thesis/frontend
-CMD ["uv", "run", "python", "main.py"]
+CMD ["uv", "run", "python", "thesis/frontend/main.py"]

@@ -15,5 +15,4 @@ RUN uv pip install -e .
 
 EXPOSE 8001 8002 8003
 
-WORKDIR /app/thesis/predictor
-CMD ["uv", "run", "python", "main.py"]
+CMD ["uv", "run", "python", "thesis/predictor/main.py"]
