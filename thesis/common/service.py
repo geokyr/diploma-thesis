@@ -74,7 +74,7 @@ class PlatformServiceConfig:
         port (int): Port.
         task (Task | None): Task.
         host (str): Host.
-        environment (str): Environment.
+        is_development (bool): Is development.
         app_dir (Path): Path to the app directory.
         logs_dir (Path): Path to the logs directory.
         data_dir (Path): Path to the data directory.
@@ -119,7 +119,7 @@ class PlatformServiceConfig:
             f"{self.port=}, "
             f"{self.task=}, "
             f"{self.host=}, "
-            f"{self.environment=}, "
+            f"{self.is_development=}, "
             f"{self.app_dir=}, "
             f"{self.logs_dir=}, "
             f"{self.data_dir=}, "
@@ -150,8 +150,8 @@ class PlatformServiceConfig:
         return HOST
 
     @property
-    def environment(self) -> str:
-        return os.environ.get("ENVIRONMENT", ENVIRONMENT)
+    def is_development(self) -> bool:
+        return self._environment == "development"
 
     @property
     def app_dir(self) -> Path:
@@ -196,3 +196,7 @@ class PlatformServiceConfig:
     @property
     def redis_url(self) -> str:
         return f"http://{PlatformService.REDIS}:{PORT_REDIS}"
+
+    @property
+    def _environment(self) -> str:
+        return os.environ.get("ENVIRONMENT", ENVIRONMENT)
