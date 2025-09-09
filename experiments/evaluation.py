@@ -29,8 +29,8 @@ def main() -> None:
     ensure_dataset_is_valid(experiment.test_path)
     fcd_test_raw = load_fcd_dataset(experiment.test_path)
     fcd_test = preprocess_fcd_dataset(fcd_test_raw)
-    trips_test = generate_trips(fcd_test)
-    trips_test = add_all_features(trips_test)
+    trips_test_raw = generate_trips(fcd_test)
+    trips_test = add_all_features(trips_test_raw)
     X_test, y_test = split_features_and_target(trips_test)
 
     model_type = ModelType.LIGHTGBM_REGRESSOR
@@ -53,8 +53,8 @@ def main() -> None:
     ensure_dataset_is_valid(experiment.rain_path)
     fcd_rain_raw = load_fcd_dataset(experiment.rain_path)
     fcd_rain = preprocess_fcd_dataset(fcd_rain_raw)
-    trips_rain = generate_trips(fcd_rain)
-    trips_rain = add_all_features(trips_rain)
+    trips_rain_raw = generate_trips(fcd_rain)
+    trips_rain = add_all_features(trips_rain_raw)
     test_data = get_adaptation_test_data(trips_rain)
     X_test, y_test = split_features_and_target(test_data)
 

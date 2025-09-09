@@ -18,8 +18,8 @@ def main() -> None:
     ensure_dataset_is_valid(experiment.train_path)
     fcd_train_raw = load_fcd_dataset(experiment.train_path)
     fcd_train = preprocess_fcd_dataset(fcd_train_raw)
-    trips_train = generate_trips(fcd_train)
-    trips_train = add_all_features(trips_train)
+    trips_train_raw = generate_trips(fcd_train)
+    trips_train = add_all_features(trips_train_raw)
     X_train, y_train = split_features_and_target(trips_train)
 
     transformer = create_quantile_transformer()
