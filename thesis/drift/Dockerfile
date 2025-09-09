@@ -14,5 +14,4 @@ COPY thesis ./thesis
 RUN uv pip install -e .
 
 EXPOSE 8004
-
-CMD ["uv", "run", "python", "thesis/drift/main.py"]
+CMD ["uv", "run", "python", "-m", "thesis.drift.main"]

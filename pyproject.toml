@@ -50,6 +50,7 @@ eta = [
 
 frontend = [
     "dash==3.2.0",
+    "gunicorn>=23.0.0",
     "plotly==6.2.0",
     "requests==2.32.4",
 ]

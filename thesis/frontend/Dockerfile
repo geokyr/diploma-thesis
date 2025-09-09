@@ -14,5 +14,4 @@ COPY thesis ./thesis
 RUN uv pip install -e .
 
 EXPOSE 8080
-
-CMD ["uv", "run", "python", "thesis/frontend/main.py"]
+CMD ["uv", "run", "python", "-m", "thesis.frontend.main"]

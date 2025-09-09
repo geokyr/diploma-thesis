@@ -14,5 +14,4 @@ COPY thesis ./thesis
 RUN uv pip install -e .
 
 EXPOSE 8000
-
-CMD ["uv", "run", "uvicorn", "thesis.backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "python", "-m", "thesis.backend.main"]

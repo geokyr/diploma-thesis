@@ -14,5 +14,4 @@ COPY thesis ./thesis
 RUN uv pip install -e .
 
 EXPOSE 8001 8002 8003
-
-CMD ["uv", "run", "uvicorn", "thesis.predictor.main:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD ["uv", "run", "python", "-m", "thesis.predictor.main"]

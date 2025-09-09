@@ -8,7 +8,6 @@ services:
       - SERVICE=backend
       - APP_DIR=/app
       - ENVIRONMENT=development
-    command: ["uv", "run", "uvicorn", "thesis.backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]
 
   predictor-eta:
     volumes:
@@ -20,7 +19,6 @@ services:
       - SERVICE=predictor-eta
       - APP_DIR=/app
       - ENVIRONMENT=development
-    command: ["uv", "run", "uvicorn", "thesis.predictor.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload", "--log-level", "debug"]
 
   # predictor-fuel:
   #   volumes:
@@ -32,7 +30,6 @@ services:
   #     - SERVICE=predictor-fuel
   #     - APP_DIR=/app
   #     - ENVIRONMENT=development
-  #   command: ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8002", "--reload", "--log-level", "debug"]
 
   # predictor-stops:
   #   volumes:
@@ -44,7 +41,6 @@ services:
   #     - SERVICE=predictor-stops
   #     - APP_DIR=/app
   #     - ENVIRONMENT=development
-  #   command: ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8003", "--reload", "--log-level", "debug"]
 
   drift:
     volumes:
@@ -54,7 +50,6 @@ services:
       - SERVICE=drift
       - APP_DIR=/app
       - ENVIRONMENT=development
-    command: ["uv", "run", "uvicorn", "thesis.drift.main:app", "--host", "0.0.0.0", "--port", "8004", "--reload", "--log-level", "debug"]
 
   frontend:
     volumes:
@@ -64,4 +59,3 @@ services:
       - SERVICE=frontend
       - APP_DIR=/app
       - ENVIRONMENT=development
-    command: ["uv", "run", "python", "thesis/frontend/main.py"]
