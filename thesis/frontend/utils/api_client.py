@@ -1,3 +1,5 @@
+"""Frontend API client."""
+
 import requests
 
 from thesis.common.config import HTTP_CLIENT_TIMEOUT_SECONDS, MAX_INTERVALS, SPEED_MULTIPLIER
