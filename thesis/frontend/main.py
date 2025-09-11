@@ -12,9 +12,10 @@ config = PlatformServiceConfig()
 logger = setup_logger(config.service, config.logs_dir)
 client = ApiClient(config.backend_url)
 
-app: Dash = dash.Dash(__name__)
+app: Dash = dash.Dash("Platform Frontend")
 server = app.server
 
+# TODO: add simulation store to the frontend
 app.layout = html.Div(
     [
         dcc.Interval(
