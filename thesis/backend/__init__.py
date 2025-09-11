@@ -1,3 +1,1 @@
-"""
-Backend service package for orchestration, metrics, and model registry endpoints.
-"""
+"""Package for backend orchestration, metrics, and model registry endpoints."""

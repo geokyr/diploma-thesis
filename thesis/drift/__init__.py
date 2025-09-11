@@ -1,4 +1,1 @@
-"""
-Drift detection service package for the platform.
-Includes the various drift detectors, responsible for detecting drift in the models.
-"""
+"""Package for the drift detection and mitigation service."""
