@@ -1,6 +1,6 @@
 """
 Platform service configuration and utilities.
-Provides platform service types (backend/predictor-eta/predictor-fuel/predictor-stops/frontend/drift/redis) and configuration classes for managing service-specific settings and directories.
+Provides platform service types (backend/predictor-eta/predictor-fuel/predictor-stops/frontend/drift) and configuration classes for managing service-specific settings and directories.
 """
 
 import os
@@ -21,7 +21,6 @@ from thesis.common.config import (
     PORT_PREDICTOR_ETA,
     PORT_PREDICTOR_FUEL,
     PORT_PREDICTOR_STOPS,
-    PORT_REDIS,
     PROJECT_DIR,
 )
 
@@ -52,7 +51,6 @@ class PlatformService(StrEnum):
         PREDICTOR_STOPS: Stops predictor service.
         FRONTEND: Frontend service.
         DRIFT: Drift service.
-        REDIS: Redis service.
     """
 
     BACKEND = "backend"
@@ -61,7 +59,6 @@ class PlatformService(StrEnum):
     PREDICTOR_STOPS = "predictor-stops"
     FRONTEND = "frontend"
     DRIFT = "drift"
-    REDIS = "redis"
 
 
 @dataclass(frozen=True, slots=True)
@@ -85,7 +82,6 @@ class PlatformServiceConfig:
         predictor_stops_url (str): Stops predictor URL.
         frontend_url (str): Frontend URL.
         drift_url (str): Drift URL.
-        redis_url (str): Redis URL.
     """
 
     _PORTS = {
@@ -95,7 +91,6 @@ class PlatformServiceConfig:
         PlatformService.PREDICTOR_STOPS: PORT_PREDICTOR_STOPS,
         PlatformService.FRONTEND: PORT_FRONTEND,
         PlatformService.DRIFT: PORT_DRIFT,
-        PlatformService.REDIS: PORT_REDIS,
     }
 
     _TASKS = {
@@ -105,7 +100,6 @@ class PlatformServiceConfig:
         PlatformService.PREDICTOR_STOPS: Task.STOPS,
         PlatformService.FRONTEND: None,
         PlatformService.DRIFT: None,
-        PlatformService.REDIS: None,
     }
 
     def __post_init__(self) -> None:
@@ -129,8 +123,7 @@ class PlatformServiceConfig:
             f"{self.predictor_fuel_url=}, "
             f"{self.predictor_stops_url=}, "
             f"{self.frontend_url=}, "
-            f"{self.drift_url=}, "
-            f"{self.redis_url=})"
+            f"{self.drift_url=})"
         )
 
     @property
@@ -192,10 +185,6 @@ class PlatformServiceConfig:
     @property
     def drift_url(self) -> str:
         return f"http://{PlatformService.DRIFT}:{PORT_DRIFT}"
-
-    @property
-    def redis_url(self) -> str:
-        return f"http://{PlatformService.REDIS}:{PORT_REDIS}"
 
     @property
     def _environment(self) -> str:
