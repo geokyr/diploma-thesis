@@ -1,7 +1,4 @@
-"""
-ETA-specific data processing and augmentation utilities.
-Provides functions for downloading external datasets, generating sub-trips for data augmentation, and creating enhanced trip datasets for ETA prediction.
-"""
+"""ETA data preprocessing and trip generation utilities."""
 
 import hashlib
 import logging

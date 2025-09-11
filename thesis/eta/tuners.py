@@ -1,7 +1,4 @@
-"""
-Hyperparameter tuning utilities for ETA prediction models.
-Provides Optuna-based optimization framework with model-specific parameter spaces and cross-validation evaluation.
-"""
+"""Optuna hyperparameter tuning utilities for ETA prediction models."""
 
 import logging
 from abc import ABC, abstractmethod

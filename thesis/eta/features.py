@@ -1,7 +1,4 @@
-"""
-Feature engineering and transformation utilities for ETA prediction.
-Provides functions for scaling, transforming features and targets, engineering temporal, spatial, and clustering features from trip data.
-"""
+"""Feature engineering and transformation utilities for ETA prediction."""
 
 import logging
 

@@ -1,7 +1,4 @@
-"""
-Machine learning model definitions and factory functions for ETA prediction.
-Provides a registry of regression models (Linear, XGBoost, LightGBM, CatBoost) with standardized interfaces and retraining capabilities.
-"""
+"""Machine learning model definitions and factory functions for ETA prediction."""
 
 import inspect
 import logging

@@ -1,7 +1,4 @@
-"""
-ETA model training, evaluation, and cross-validation pipeline utilities.
-Provides functions for stratified cross-validation, model training, prediction generation, and comprehensive evaluation metrics.
-"""
+"""ETA model training, evaluation, and cross-validation pipeline utilities."""
 
 import logging
 import time

@@ -1,7 +1,4 @@
-"""
-ETA experiment management.
-Defines experiment configurations, model persistence, and evaluation frameworks for systematic ETA prediction research.
-"""
+"""ETA experiments and experiment configuration management."""
 
 import logging
 from dataclasses import dataclass

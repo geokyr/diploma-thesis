@@ -1,7 +1,4 @@
-"""
-ETA results management.
-Defines data structures for storing, analyzing and visualizing ETA model results.
-"""
+"""Managing, storing, analyzing and visualizing ETA model results."""
 
 import json
 import logging
