@@ -29,6 +29,7 @@ suffix:
   sumocfg: ".sumocfg"
   fcd_csv: "-fcd.csv"
   fcd_parquet: "-fcd.parquet"
+  trips_parquet: "-trips.parquet"
 
 network:
   bbox: [23.725252771719436, 37.974745936977456, 23.752735758169127, 37.988290142332225]
@@ -122,3 +123,12 @@ services:
   drift: 8004
   frontend: 8080
   redis: 6379
+
+timelapse:
+  speed_multiplier: 300.0
+  interval_ms: 1000
+  max_intervals: 240
+
+http:
+  client_timeout_seconds: 3.0
+

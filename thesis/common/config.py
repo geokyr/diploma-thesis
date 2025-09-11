@@ -64,6 +64,7 @@ class SuffixConfig:
     sumocfg: str
     fcd_csv: str
     fcd_parquet: str
+    trips_parquet: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -164,6 +165,19 @@ class ServicesConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class TimelapseConfig:
+    speed_multiplier: float
+    interval_ms: int
+    max_intervals: int
+
+
+@dataclass(frozen=True, slots=True)
+class HttpConfig:
+    client_timeout_seconds: float
+
+
+
+@dataclass(frozen=True, slots=True)
 class Config:
     logging: LoggingConfig
     dirname: DirnameConfig
@@ -177,6 +191,8 @@ class Config:
     features: FeaturesConfig
     models: ModelsConfig
     services: ServicesConfig
+    timelapse: TimelapseConfig
+    http: HttpConfig
 
 
 def load_config(config_path: Path) -> Config:
@@ -194,6 +210,8 @@ def load_config(config_path: Path) -> Config:
             eta=EtaConfig(**data["eta"]),
             features=FeaturesConfig(**data["features"]),
             models=ModelsConfig(**data["models"]),
+            redis=RedisConfig(**data["redis"]),
+            drift=DriftConfig(**data["drift"]),
             services=ServicesConfig(**data["services"]),
         )
 
@@ -230,6 +248,7 @@ TRIPS_SUFFIX = CONFIG.suffix.trips
 SUMOCFG_SUFFIX = CONFIG.suffix.sumocfg
 FCD_CSV_SUFFIX = CONFIG.suffix.fcd_csv
 FCD_PARQUET_SUFFIX = CONFIG.suffix.fcd_parquet
+TRIPS_PARQUET_SUFFIX = CONFIG.suffix.trips_parquet
 
 BBOX = CONFIG.network.bbox
 ROAD_TYPES = CONFIG.network.road_types
@@ -303,3 +322,10 @@ PORT_PREDICTOR_STOPS = CONFIG.services.predictor_stops
 PORT_DRIFT = CONFIG.services.drift
 PORT_FRONTEND = CONFIG.services.frontend
 PORT_REDIS = CONFIG.services.redis
+
+SPEED_MULTIPLIER = CONFIG.timelapse.speed_multiplier
+INTERVAL_MS = CONFIG.timelapse.interval_ms
+MAX_INTERVALS = CONFIG.timelapse.max_intervals
+
+HTTP_CLIENT_TIMEOUT_SECONDS = CONFIG.http.client_timeout_seconds
+
