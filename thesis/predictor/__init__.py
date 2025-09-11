@@ -1,1 +1,1 @@
-"""Package for model inference and lifecycle operations."""
+"""Model inference and lifecycle operations."""

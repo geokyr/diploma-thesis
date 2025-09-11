@@ -1,1 +1,1 @@
-"""Package for frontend utilities and API client helpers."""
+"""Frontend utilities and API client helpers."""

@@ -1,1 +1,1 @@
-"""Package for the Dash platform frontend application."""
+"""Dash platform frontend application."""

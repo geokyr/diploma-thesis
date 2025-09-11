@@ -1,1 +1,1 @@
-"""Package for predictor service utilities and model operations."""
+"""Predictor service utilities and model operations."""

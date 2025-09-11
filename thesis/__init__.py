@@ -1,1 +1,1 @@
-"""Package for simulation, ETA prediction, and drift platform components."""
+"""Simulation, ETA prediction, and drift platform components."""

@@ -1,1 +1,1 @@
-"""Package for backend service utilities and integrations."""
+"""Backend service utilities and integrations."""

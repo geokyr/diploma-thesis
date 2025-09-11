@@ -1,1 +1,1 @@
-"""Package for the drift detection and mitigation service."""
+"""Drift detection and mitigation service."""

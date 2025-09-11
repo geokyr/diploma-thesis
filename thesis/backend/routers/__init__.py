@@ -1,1 +1,1 @@
-"""Package for backend API routers."""
+"""Backend API routers."""

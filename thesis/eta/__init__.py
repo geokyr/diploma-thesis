@@ -1,1 +1,1 @@
-"""Package for ETA prediction models and feature engineering."""
+"""ETA prediction models and feature engineering."""
