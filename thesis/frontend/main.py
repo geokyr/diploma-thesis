@@ -114,12 +114,10 @@ def sync_buttons(_button_id: str):
         status = client.fetch_status() or {}
         state = (status.get("state") or "idle").lower()
 
-        start_disabled = state != "idle"
-        toggle_disabled = state == "idle"
+        is_idle = state == "idle"
         toggle_label = "Pause" if state == "running" else "Resume"
-        reset_disabled = state == "idle"
 
-        return start_disabled, toggle_label, toggle_disabled, reset_disabled
+        return not is_idle, toggle_label, is_idle, is_idle
 
     except Exception:
         return no_update, no_update, no_update, no_update
