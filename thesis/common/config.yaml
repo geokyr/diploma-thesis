@@ -122,13 +122,17 @@ services:
   predictor_stops: 8003
   drift: 8004
   frontend: 8080
-  redis: 6379
+
+redis:
+  host: "redis"
+  port: 6379
+  db_metrics: 0
+  db_cache: 1
+  ttl_metrics: 3600
 
 timelapse:
   speed_multiplier: 300.0
   interval_ms: 1000
   max_intervals: 240
-
-http:
   client_timeout_seconds: 3.0
 

@@ -161,7 +161,15 @@ class ServicesConfig:
     predictor_stops: int
     drift: int
     frontend: int
-    redis: int
+
+
+@dataclass(frozen=True, slots=True)
+class RedisConfig:
+    host: str
+    port: int
+    db_metrics: int
+    db_cache: int
+    ttl_metrics: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -169,12 +177,7 @@ class TimelapseConfig:
     speed_multiplier: float
     interval_ms: int
     max_intervals: int
-
-
-@dataclass(frozen=True, slots=True)
-class HttpConfig:
     client_timeout_seconds: float
-
 
 
 @dataclass(frozen=True, slots=True)
@@ -191,8 +194,8 @@ class Config:
     features: FeaturesConfig
     models: ModelsConfig
     services: ServicesConfig
+    redis: RedisConfig
     timelapse: TimelapseConfig
-    http: HttpConfig
 
 
 def load_config(config_path: Path) -> Config:
@@ -210,9 +213,9 @@ def load_config(config_path: Path) -> Config:
             eta=EtaConfig(**data["eta"]),
             features=FeaturesConfig(**data["features"]),
             models=ModelsConfig(**data["models"]),
-            redis=RedisConfig(**data["redis"]),
-            drift=DriftConfig(**data["drift"]),
             services=ServicesConfig(**data["services"]),
+            redis=RedisConfig(**data["redis"]),
+            timelapse=TimelapseConfig(**data["timelapse"]),
         )
 
 
@@ -321,11 +324,14 @@ PORT_PREDICTOR_FUEL = CONFIG.services.predictor_fuel
 PORT_PREDICTOR_STOPS = CONFIG.services.predictor_stops
 PORT_DRIFT = CONFIG.services.drift
 PORT_FRONTEND = CONFIG.services.frontend
-PORT_REDIS = CONFIG.services.redis
+
+REDIS_HOST = CONFIG.redis.host
+REDIS_PORT = CONFIG.redis.port
+REDIS_DB_METRICS = CONFIG.redis.db_metrics
+REDIS_DB_CACHE = CONFIG.redis.db_cache
+REDIS_TTL_METRICS = CONFIG.redis.ttl_metrics
 
 SPEED_MULTIPLIER = CONFIG.timelapse.speed_multiplier
 INTERVAL_MS = CONFIG.timelapse.interval_ms
 MAX_INTERVALS = CONFIG.timelapse.max_intervals
-
-HTTP_CLIENT_TIMEOUT_SECONDS = CONFIG.http.client_timeout_seconds
-
+HTTP_CLIENT_TIMEOUT_SECONDS = CONFIG.timelapse.client_timeout_seconds
