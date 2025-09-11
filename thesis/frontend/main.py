@@ -4,10 +4,12 @@ from dash import Dash, ctx, dcc, html, no_update
 from dash.dependencies import Input, Output
 
 from thesis.common.config import INTERVAL_MS, MAX_INTERVALS
+from thesis.common.logger import setup_logger
 from thesis.common.service import PlatformServiceConfig
 from thesis.frontend.utils.api_client import ApiClient
 
 config = PlatformServiceConfig()
+logger = setup_logger(config.service, config.logs_dir)
 client = ApiClient(config.backend_url)
 
 app: Dash = dash.Dash(__name__)
@@ -41,6 +43,7 @@ app.layout = html.Div(
 )
 
 
+# TODO: tighten dict types
 @app.callback(
     Output("eta-mae-chart", "figure"),
     Input("interval-component", "n_intervals"),
