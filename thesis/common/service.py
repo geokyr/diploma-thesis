@@ -1,7 +1,4 @@
-"""
-Platform service configuration and utilities.
-Provides platform service types (backend/predictor-eta/predictor-fuel/predictor-stops/frontend/drift) and configuration classes for managing service-specific settings and directories.
-"""
+"""Platform service configuration and utilities."""
 
 import os
 from dataclasses import dataclass

@@ -1,7 +1,4 @@
-"""
-Exploratory Data Analysis (EDA) utilities for traffic simulation data.
-Contains functions for generating statistical reports and visualizations of FCD data and trip patterns.
-"""
+"""Exploratory Data Analysis utilities for traffic simulation data."""
 
 import logging
 from pathlib import Path
