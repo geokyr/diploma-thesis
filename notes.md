@@ -1,6 +1,6 @@
 # Notes
 
-## General
+## To Do
 - Docstrings
 - Type hints
 - Config
