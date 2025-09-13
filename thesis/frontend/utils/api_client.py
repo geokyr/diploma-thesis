@@ -6,6 +6,7 @@ from thesis.common.config import HTTP_CLIENT_TIMEOUT_SECONDS, MAX_INTERVALS, SPE
 
 
 # TODO: tighten dict types
+# TODO: add docstrings
 class ApiClient:
     def __init__(self, backend_url: str, timeout: float = HTTP_CLIENT_TIMEOUT_SECONDS) -> None:
         self.backend_url = backend_url.rstrip("/")

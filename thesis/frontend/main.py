@@ -45,6 +45,7 @@ app.layout = html.Div(
 
 
 # TODO: tighten dict types
+# TODO: add docstrings
 @app.callback(
     Output("eta-mae-chart", "figure"),
     Input("interval-component", "n_intervals"),
