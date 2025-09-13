@@ -1,5 +1,11 @@
 # Notes
 
+## General
+- Docstrings
+- Type hints
+- Config
+- Logging
+
 ## Platform
 
 ### Prompt
