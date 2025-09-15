@@ -1,18 +1,17 @@
 # Notes
 
 ## To Do
+
 - Docstrings
 - Type hints
 - Config
 - Logging
 
-## Platform
-
-### Prompt
+## Plan
 
 **You are a senior ML systems architect and Python engineer.** Your task is to design an MVP platform for **drift detection and mitigation** across multiple tabular ML regressors, using synthetic traffic data generated with **SUMO** for central **Athens**. Provide a practical, implementation-ready plan that 1 person can build iteratively in around 1-2 weeks. Keep it as simple as possible but realistic, and leave clean seams for future growth.
 
-#### 1) Context & Goals
+### 1) Context & Goals
 
 * We simulate a **20-hour timelapse demo** (10h base “test” + 10h “rain” drift) compressed to \~4 minutes.
 * We have **3 regression models** (initially build ETA; add Fuel and Stops later). Models are **XGBoost or LightGBM** with **different preprocessing/feature sets** per task.
@@ -22,7 +21,7 @@
   * A simple **mitigation** loop: detect → collect N minutes of data (mostly rain but could be test data as well) → retrain → hot-swap model → errors improve (not necessarily back to baseline).
 * **Ground truth is available immediately** (for demo), so errors can be computed right away.
 
-#### 2) Data
+### 2) Data
 
 * Source: **SUMO FCD** (CSV/Parquet). Columns (semicolon or comma delimited), one row per (timestep, vehicle):
   `timestep_time, vehicle_fuel, vehicle_id, vehicle_lane, vehicle_odometer, vehicle_speed, vehicle_waiting, vehicle_x, vehicle_y`
@@ -34,7 +33,7 @@
 
   For the MVP, we will use the precomputed features. We can allow the option to switch to the on-the-fly features later.
 
-#### 3) Simulation & UX storyboard
+### 3) Simulation & UX storyboard
 
 * **Timelapse driver**: every **1 real second ≈ 5 simulation minutes**. For each tick:
   * Orchestrator requests predictions for trips with `timestep_time in [start,end]`.
@@ -44,7 +43,7 @@
   Visual states: **stable (green) → drift (red) → collecting (yellow) → retraining (blue) → swapped (green)** with timestamped notifications.
 * **User tab** (later iteration): after pausing the timelapse, the user can switch to the user tab, which opens a map of Athens to pick source/destination. Backend maps clicks inside the bounding box of Athens to our coordinate system, computes needed features (using the model feature building pipeline or including distance/edges via `sumolib`/`traci` if chosen), and returns predictions with the **current sim time** as context, for the current model version.
 
-#### 4) Architecture
+### 4) Architecture
 
 * Keep components minimal and decoupled. Assume **Docker + docker-compose**. There is already the `thesis/` folder with the code for the experiments, dataset simulation, feature engineering, model training, evaluation, etc. It is installed editable on the root environment so we can do global imports with safety. There is a `pyproject.toml` file containing dependencies for the following possible containers: backend, frontend, predictor, drift. You can use this as a starting point, together with the `docker-compose.yml` file, to plan the architecture. There is also an `appdata` folder set up, including data, logs, and models folders, that we can use and volume mount to the containers.
 * We will probably be based on **these containers**:
@@ -58,7 +57,7 @@
   * **Model registry** volume: `appdata/models/<task>/<version>/<model_name>.joblib` and `appdata/models/<task>/latest.txt → <version>` pointer.
   * **Logs** volume: `appdata/logs/<service_name>/`.
 
-#### 5) Interfaces & contracts
+### 5) Interfaces & contracts
 
 * **Backend ↔ Predictor** (JSON over HTTP):
   * `POST /predict`: `{start_ts, end_ts, return_type: "predictions"|"errors"|"both"}` → returns batched predictions, errors, or both.
@@ -75,7 +74,7 @@
 
 The above are given to get an idea, you don't have to follow them exactly, feel free to change them to fit our needs, based on what you think is best, as an expert.
 
-#### 6) Drift lifecycle
+### 6) Drift lifecycle
 
 * Per model: **stable → drift → collecting → retraining → swapped**.
   * Trigger: majority vote (ADWIN, Page-Hinkley, KSWIN, SPC) over sliding window; configurable thresholds.
@@ -83,20 +82,20 @@ The above are given to get an idea, you don't have to follow them exactly, feel 
   * Retrain on collected data with simple strategy (partial fit based on stable).
   * On success, **update model registry** and instruct predictor to `/load latest`.
 
-#### 7) Model versioning & hot swap
+### 7) Model versioning & hot swap
 
 * Filesystem registry with `latest.txt` pointer per task.
 * Predictor watches for changes (or backend specifically calls `/load`, when retraining is done).
 * Document expected **model metadata** (task, version, created_at, model, start_ts, end_ts).
 
-#### 8) Tooling & stack constraints
+### 8) Tooling & stack constraints
 
 * **Python 3.12.11**, **uv** for envs, **pyproject.toml** everywhere.
 * Use **FastAPI + Uvicorn**, **pandas/pyarrow**, **xgboost/lightgbm**, and (optionally) **river** for drift if helpful in mocks.
 * Containers: **python:3.12.11-slim**, maximize layer cache, check provided Dockerfiles and improve if possible.
 * Keep services **independently buildable**.
 
-#### 9) Deliverables
+### 9) Deliverables
 
 1. **High-level architecture**: one paragraph + a **Mermaid component diagram** showing containers, volumes, and dataflow.
 2. **Backend state diagram** (Mermaid) for the drift lifecycle.
@@ -113,19 +112,20 @@ The above are given to get an idea, you don't have to follow them exactly, feel 
      For each iteration: exact goals, acceptance criteria, and definition of done.
 7. **Risks & simplifications**: call out at most 8 risks (I/O, feature latency, UI flicker, drift thresholds, etc.) with a one-line mitigation each.
 
-#### 10) Assumptions you can make
+### 10) Assumptions you can make
 
 * Datasets are present under `./appdata/data/*.parquet`, or under `/app/data/*.parquet` for containers.
 * Model artifacts use joblib; predictors don't handle their own preprocessing, but it can be done through the relevant code under `common/` or `eta/` folders, as seen in the experiments.
 * For the map tab, a simple bounding box conversion is OK (no full routing).
 * Ground truth is instantly available for each batch.
 
-#### 11) Additional notes
+### 11) Additional notes
+
 * The test and rain datasets could be merged, by adding 36000 seconds to the timestamps of the rain dataset. This would be a good idea, since it would eliminate any need for specifying dataset name, and we would only be using the timestamps to split the data into batches.
 * The errors returned by the predictor could also have timestamps included, so we can use them to plot the errors over time and also digest the errors in correct order in the drift service.
 * I haven't talked a lot about notifications, but on later iterations (2 or later) we would like to have notifications for the drift events on the frontend.
 
-#### 12) Style & constraints for your response
+### 12) Style & constraints for your response
 
 * Be **concise and prescriptive**; prefer **working defaults** over options.
 * No over-engineering; avoid heavy infra.
@@ -133,10 +133,10 @@ The above are given to get an idea, you don't have to follow them exactly, feel 
 * Use **Mermaid** for all diagrams.
 * If any detail is ambiguous, **state a sensible default** and proceed—don’t ask me questions.
 
-
 ## Archive
 
 ### Environment Setup
+
 To construct the environment with uv, the following commands were used.
 ```bash
 uv init --bare --package --python ">=3.12.11,<3.13.0"
@@ -148,6 +148,7 @@ echo 'module-name = "thesis"' >> pyproject.toml
 ```
 
 ### Closure Drift
+
 When trying out the closure drift scenario, there were a few problems with the implementation and the quality of the data generated. Two options were tried, and both of them had their own problems, leading to the conclusion that it was not possible to create a realistic closure scenario that would be strong enough to be detected by the drift detector, while also not completely messing up with the traffic patterns.
 
 Option one was to use a rerouter on some lanes that would make the act as closed. This was done by using the [closingLaneReroute](https://sumo.dlr.de/docs/Simulation/Rerouter.html#closing_a_lane) rerouter. This however meant that cars would be inserted on the network at the time they were supposed to leave based on the routes file, calculate a route and then while the car was following the route, if it had a closed lane on it, it would be blocked and not move. This could be observed on the gui, where cars would be first at green traffic lights and would not move, up until the point where 300 seconds would pass and the car would get teleported to the next lane. This was caused by the fact that cars didn't have a rerouter device on them, but adding one could possibly interfere with the whole simulation, as other cars would also change their, calculated at insertion time, routes and alter the network traffic behavior, when compared to the base scenario.
@@ -157,6 +158,7 @@ Option two was to generate a new network where the closed lanes or edges would b
 Finally, in almost every closure scenario that was simulated, the results from the models were not as expected, since frequently the drifted scenario would return better results than the scenario where we had retrained the models on the drift data. Therefore, it was decided not to include this drift scenario on this project.
 
 ### Components Diagram
+
 ```mermaid
 flowchart TD
   subgraph UI[Frontend]
@@ -201,6 +203,7 @@ flowchart TD
 ### Sequence Diagrams
 
 #### Timelapse Prediction Loop
+
 ```mermaid
 sequenceDiagram
   autonumber
@@ -224,6 +227,7 @@ sequenceDiagram
 ```
 
 #### Drift Detection → Data Collection → Retrain → Swap
+
 ```mermaid
 sequenceDiagram
   autonumber
@@ -255,6 +259,7 @@ sequenceDiagram
 ```
 
 #### User Query Map Origin/Destination at Current Sim Time
+
 ```mermaid
 sequenceDiagram
   autonumber
