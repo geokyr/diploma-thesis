@@ -1,6 +1,6 @@
 # thesis
 
-Continuous Machine Learning, Concept Drift, MLOps, and Cooperative, Connected and Automated Mobility applications for my Thesis at ECE NTUA
+Continuous Machine Learning, Concept Drift, MLOps, and Cooperative, Connected and Automated Mobility applications for my thesis at ECE NTUA
 
 ## Environment Setup
 All dependencies are declared in `pyproject.toml` and managed with [uv](https://docs.astral.sh/uv/).
