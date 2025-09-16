@@ -10,8 +10,7 @@ logger = setup_logger(config.service, config.logs_dir)
 app = FastAPI(title="Platform Drift Service", version="1.0.0")
 
 
-# TODO: make this better
-@app.get("/health")
+@app.get("/health", tags=["health"])
 def health():
     return {"status": "healthy", "service": PlatformService.DRIFT}
 
