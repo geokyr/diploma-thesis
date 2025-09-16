@@ -1,7 +1,6 @@
 services:
   backend:
     volumes:
-      - ./appdata/data:/app/data
       - ./appdata/logs:/app/logs
       - ./thesis:/app/thesis
     environment:
@@ -12,7 +11,7 @@ services:
   predictor-eta:
     volumes:
       - ./appdata/models:/app/models
-      - ./appdata/data:/app/data
+      - ./appdata/data:/app/data:ro
       - ./appdata/logs:/app/logs
       - ./thesis:/app/thesis
     environment:
@@ -23,7 +22,7 @@ services:
   # predictor-fuel:
   #   volumes:
   #     - ./appdata/models:/app/models
-  #     - ./appdata/data:/app/data
+  #     - ./appdata/data:/app/data:ro
   #     - ./appdata/logs:/app/logs
   #     - ./thesis:/app/thesis
   #   environment:
@@ -34,7 +33,7 @@ services:
   # predictor-stops:
   #   volumes:
   #     - ./appdata/models:/app/models
-  #     - ./appdata/data:/app/data
+  #     - ./appdata/data:/app/data:ro
   #     - ./appdata/logs:/app/logs
   #     - ./thesis:/app/thesis
   #   environment:
