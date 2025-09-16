@@ -1,11 +1,10 @@
 import uvicorn
 from fastapi import FastAPI
 
+from thesis.backend.routers.metrics import router as metrics_router
+from thesis.backend.routers.simulation import router as simulation_router
 from thesis.common.logger import setup_logger
 from thesis.common.service import PlatformService, PlatformServiceConfig
-
-from .routers.metrics import router as metrics_router
-from .routers.simulation import router as simulation_router
 
 config = PlatformServiceConfig()
 logger = setup_logger(config.service, config.logs_dir)
