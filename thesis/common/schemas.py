@@ -95,12 +95,6 @@ class Notification(BaseModel):
     message: str = Field(..., description="Message of the notification")
 
 
-class SimulationStartRequest(BaseModel):
-    """Request for starting a simulation."""
-
-    speed_multiplier: float = Field(300.0, gt=0.0, le=600.0)
-
-
 class SimulationStatus(BaseModel):
     """Status of the simulation."""
 

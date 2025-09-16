@@ -2,7 +2,7 @@
 
 import requests
 
-from thesis.common.config import HTTP_CLIENT_TIMEOUT_SECONDS, MAX_INTERVALS, SPEED_MULTIPLIER
+from thesis.common.config import HTTP_CLIENT_TIMEOUT_SECONDS, MAX_INTERVALS
 
 
 # TODO: tighten dict types
@@ -24,8 +24,8 @@ class ApiClient:
     def fetch_history(self, limit: int = MAX_INTERVALS) -> dict:
         return self._get("/metrics/history", params={"limit": limit})
 
-    def simulation_start(self, speed_multiplier: float = SPEED_MULTIPLIER) -> dict:
-        return self._post("/simulation/start", {"speed_multiplier": speed_multiplier})
+    def simulation_start(self) -> dict:
+        return self._post("/simulation/start")
 
     def simulation_pause(self) -> dict:
         return self._post("/simulation/pause")
