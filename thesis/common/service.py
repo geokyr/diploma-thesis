@@ -21,21 +21,7 @@ from thesis.common.config import (
     PORT_PREDICTOR_STOPS,
     PROJECT_DIR,
 )
-
-
-class MLTask(StrEnum):
-    """
-    Tasks.
-
-    Attributes:
-        ETA: Estimated time of arrival prediction task.
-        FUEL: Fuel consumption prediction task.
-        STOPS: Number of stops prediction task.
-    """
-
-    ETA = "eta"
-    FUEL = "fuel"
-    STOPS = "stops"
+from thesis.common.enums import MLTask
 
 
 class PlatformService(StrEnum):
