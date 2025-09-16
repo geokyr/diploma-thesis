@@ -33,8 +33,8 @@ class ApiClient:
     def simulation_resume(self) -> dict:
         return self._post("/simulation/resume")
 
-    def simulation_reset(self) -> dict:
-        return self._post("/simulation/reset")
+    def simulation_restart(self) -> dict:
+        return self._post("/simulation/restart")
 
     def fetch_status(self) -> dict:
         return self._get("/simulation/status")

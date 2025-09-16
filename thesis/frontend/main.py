@@ -36,7 +36,7 @@ app.layout = html.Div(
             [
                 html.Button("Start", id="btn-start", n_clicks=0),
                 html.Button("Pause", id="btn-toggle", n_clicks=0, disabled=True),
-                html.Button("Reset", id="btn-reset", n_clicks=0, disabled=True),
+                html.Button("Restart", id="btn-restart", n_clicks=0, disabled=True),
             ]
         ),
         dcc.Graph(id="eta-mae-chart"),
@@ -67,10 +67,10 @@ def update_chart(n_intervals: int, store_data: dict | None):
     Output("simulation-store", "data"),
     Input("btn-start", "n_clicks"),
     Input("btn-toggle", "n_clicks"),
-    Input("btn-reset", "n_clicks"),
+    Input("btn-restart", "n_clicks"),
     prevent_initial_call=True,
 )
-def control_simulation(n_start: int, n_toggle: int, n_reset: int):
+def control_simulation(n_start: int, n_toggle: int, n_restart: int):
     button_id = ctx.triggered_id
 
     try:
@@ -84,8 +84,8 @@ def control_simulation(n_start: int, n_toggle: int, n_reset: int):
                 client.simulation_pause()
             elif state == "paused":
                 client.simulation_resume()
-        elif button_id == "btn-reset":
-            client.simulation_reset()
+        elif button_id == "btn-restart":
+            client.simulation_restart()
 
         latest = client.fetch_status() or {}
         return {
@@ -112,7 +112,7 @@ def manage_interval(store_data: dict):
         event = (store_data).get("event")
 
         disabled = state != "running"
-        if event in ("btn-start", "btn-reset"):
+        if event in ("btn-start", "btn-restart"):
             return disabled, 0
 
         return disabled, no_update
@@ -125,7 +125,7 @@ def manage_interval(store_data: dict):
     Output("btn-start", "disabled"),
     Output("btn-toggle", "children"),
     Output("btn-toggle", "disabled"),
-    Output("btn-reset", "disabled"),
+    Output("btn-restart", "disabled"),
     Input("simulation-store", "data"),
     prevent_initial_call=True,
 )
@@ -138,9 +138,9 @@ def sync_buttons(store_data: dict):
         start_disabled = not is_idle
         toggle_label = "Pause" if is_running else "Resume"
         toggle_disabled = is_idle
-        reset_disabled = is_idle
+        restart_disabled = is_idle
 
-        return start_disabled, toggle_label, toggle_disabled, reset_disabled
+        return start_disabled, toggle_label, toggle_disabled, restart_disabled
 
     except Exception:
         return no_update, no_update, no_update, no_update
