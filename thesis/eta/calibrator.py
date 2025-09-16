@@ -29,20 +29,20 @@ class FeatureCalibrator:
     Feature calibrator to fit on train trips and transform test and rain trips.
 
     Attributes:
-        distance_percentiles: thresholds at configured percentiles
-        city_center_x: mean center x used for radial features
-        city_center_y: mean center y used for radial features
-        kmeans_source: clustering on source coordinates
-        kmeans_destination: clustering on destination coordinates
-        pca_coordinates: PCA on coordinates
+        distance_percentiles (np.ndarray): thresholds at configured percentiles
+        city_center_x (float): mean center x used for radial features
+        city_center_y (float): mean center y used for radial features
+        kmeans_source (KMeans): clustering on source coordinates
+        kmeans_destination (KMeans): clustering on destination coordinates
+        pca_coordinates (PCA): PCA on coordinates
     """
 
-    distance_percentiles: np.ndarray | None = None
-    city_center_x: float | None = None
-    city_center_y: float | None = None
-    kmeans_source: KMeans | None = None
-    kmeans_destination: KMeans | None = None
-    pca_coordinates: PCA | None = None
+    distance_percentiles: np.ndarray
+    city_center_x: float
+    city_center_y: float
+    kmeans_source: KMeans
+    kmeans_destination: KMeans
+    pca_coordinates: PCA
 
     def fit(
         self,
