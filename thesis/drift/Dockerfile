@@ -2,7 +2,7 @@ FROM python:3.12.11-slim
 
 RUN pip install --no-cache-dir uv \
     && apt-get update \
-    && apt-get install -y curl libgomp1 \
+    && apt-get install -y --no-install-recommends curl libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
