@@ -25,7 +25,7 @@ filename:
   research_results: "research_results.csv"
   tuning_results: "tuning_results.json"
   feature_calibrator: "feature_calibrator.joblib"
-  merged_trips: "trips.parquet"
+  trips_parquet: "trips.parquet"
 
 suffix:
   trips: ".trips.xml"
