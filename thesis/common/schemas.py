@@ -8,7 +8,6 @@ from thesis.common.enums import DriftState, MLTask, SimulationState
 from thesis.common.service import PlatformService
 
 
-# TODO: add docstrings
 class TimeWindow(BaseModel):
     """Time window for predictions or retraining."""
 
