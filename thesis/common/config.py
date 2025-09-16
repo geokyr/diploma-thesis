@@ -39,6 +39,7 @@ class DirnameConfig:
     models: str
     results: str
     appdata: str
+    misc: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -53,6 +54,7 @@ class FilenameConfig:
     results: str
     research_results: str
     tuning_results: str
+    merged_trips: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -61,7 +63,6 @@ class SuffixConfig:
     sumocfg: str
     fcd_csv: str
     fcd_parquet: str
-    trips_parquet: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -121,7 +122,7 @@ class FeaturesConfig:
     noon_ceiling: int
     afternoon_floor: int
     rush_hours: list[int]
-    distance_percentiles: list[int]
+    percentile_thresholds: list[int]
     num_freqs: int
     coordinate_scale: float
     cell: int
@@ -232,6 +233,7 @@ PLOTS_DIRNAME = CONFIG.dirname.plots
 MODELS_DIRNAME = CONFIG.dirname.models
 RESULTS_DIRNAME = CONFIG.dirname.results
 APPDATA_DIRNAME = CONFIG.dirname.appdata
+MISC_DIRNAME = CONFIG.dirname.misc
 
 OSM_DATA_FILENAME = CONFIG.filename.osm_data
 GUI_SETTINGS_FILENAME = CONFIG.filename.gui_settings
@@ -243,12 +245,12 @@ LOGS_FILENAME = CONFIG.filename.logs
 RESULTS_FILENAME = CONFIG.filename.results
 RESEARCH_RESULTS_FILENAME = CONFIG.filename.research_results
 TUNING_RESULTS_FILENAME = CONFIG.filename.tuning_results
+MERGED_TRIPS_FILENAME = CONFIG.filename.merged_trips
 
 TRIPS_SUFFIX = CONFIG.suffix.trips
 SUMOCFG_SUFFIX = CONFIG.suffix.sumocfg
 FCD_CSV_SUFFIX = CONFIG.suffix.fcd_csv
 FCD_PARQUET_SUFFIX = CONFIG.suffix.fcd_parquet
-TRIPS_PARQUET_SUFFIX = CONFIG.suffix.trips_parquet
 
 BBOX = CONFIG.network.bbox
 ROAD_TYPES = CONFIG.network.road_types
@@ -290,7 +292,7 @@ NOON_FLOOR = CONFIG.features.noon_floor
 NOON_CEILING = CONFIG.features.noon_ceiling
 AFTERNOON_FLOOR = CONFIG.features.afternoon_floor
 RUSH_HOURS = CONFIG.features.rush_hours
-DISTANCE_PERCENTILES = CONFIG.features.distance_percentiles
+PERCENTILE_THRESHOLDS = CONFIG.features.percentile_thresholds
 NUM_FREQS = CONFIG.features.num_freqs
 COORDINATE_SCALE = CONFIG.features.coordinate_scale
 CELL = CONFIG.features.cell

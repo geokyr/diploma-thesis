@@ -13,13 +13,13 @@ from thesis.common.config import (
     AFTERNOON_FLOOR,
     CELL,
     COORDINATE_SCALE,
-    DISTANCE_PERCENTILES,
     MORNING_CEILING,
     N_CLUSTERS,
     N_COMPONENTS,
     NOON_CEILING,
     NOON_FLOOR,
     NUM_FREQS,
+    PERCENTILE_THRESHOLDS,
     RANDOM_SEED_DEFAULT,
     RUSH_HOURS,
 )
@@ -81,7 +81,9 @@ def split_features_and_target(
     """
     missing_columns = [col for col in target_columns if col not in df.columns]
     if missing_columns:
-        raise ValueError(f"DataFrame must contain target columns: {missing_columns}")
+        error_msg = f"DataFrame must contain target columns: {missing_columns}"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
 
     X = df.drop(target_columns, axis=1)
     y = df[target_columns]
@@ -199,7 +201,7 @@ def add_temporal_features(df: pd.DataFrame) -> pd.DataFrame:
 
     df_hour = df.copy()
 
-    df_hour["hour_bin"] = (df_hour["time_start"] // 3600) % 24
+    df_hour["hour_bin"] = (df_hour["time_start"] % 36000) // 3600
     df_hour["is_morning"] = (df_hour["hour_bin"] <= MORNING_CEILING).astype(int)
     df_hour["is_noon"] = ((df_hour["hour_bin"] >= NOON_FLOOR) & (df_hour["hour_bin"] <= NOON_CEILING)).astype(int)
     df_hour["is_afternoon"] = (df_hour["hour_bin"] >= AFTERNOON_FLOOR).astype(int)
@@ -210,12 +212,22 @@ def add_temporal_features(df: pd.DataFrame) -> pd.DataFrame:
     return df_hour
 
 
-def add_spatial_features(df: pd.DataFrame) -> pd.DataFrame:
+def add_spatial_features(
+    df: pd.DataFrame,
+    distance_percentiles: np.ndarray | None = None,
+    percentile_thresholds: list[int] = PERCENTILE_THRESHOLDS,
+    city_center_x: float | None = None,
+    city_center_y: float | None = None,
+) -> pd.DataFrame:
     """
     Add spatial features to the dataframe.
 
     Args:
         df (pd.DataFrame): DataFrame with trip data containing source_x, source_y, destination_x, destination_y, distance columns.
+        distance_percentiles (np.ndarray | None): Percentiles to use for distance features.
+        percentile_thresholds (list[int]): Percentiles to use for distance features.
+        city_center_x (float | None): Mean center x to use for radial features.
+        city_center_y (float | None): Mean center y to use for radial features.
 
     Returns:
         pd.DataFrame: DataFrame with added spatial features.
@@ -239,7 +251,8 @@ def add_spatial_features(df: pd.DataFrame) -> pd.DataFrame:
     df_spatial["trip_bearing_sin"] = np.sin(df_spatial["trip_bearing"])
     df_spatial["trip_bearing_cos"] = np.cos(df_spatial["trip_bearing"])
 
-    distance_percentiles = np.percentile(df_spatial["distance"], DISTANCE_PERCENTILES)
+    if distance_percentiles is None:
+        distance_percentiles = np.percentile(df_spatial["distance"], percentile_thresholds)
 
     df_spatial["is_short_distance"] = (df_spatial["distance"] <= distance_percentiles[0]).astype(int)
     df_spatial["is_medium_distance"] = (
@@ -247,8 +260,10 @@ def add_spatial_features(df: pd.DataFrame) -> pd.DataFrame:
     ).astype(int)
     df_spatial["is_long_distance"] = (df_spatial["distance"] > distance_percentiles[2]).astype(int)
 
-    city_center_x = np.mean(df_spatial["x_center"])
-    city_center_y = np.mean(df_spatial["y_center"])
+    if city_center_x is None:
+        city_center_x = np.mean(df_spatial["x_center"])
+    if city_center_y is None:
+        city_center_y = np.mean(df_spatial["y_center"])
 
     df_spatial["source_distance_from_city_center"] = np.hypot(
         df_spatial["source_x"] - city_center_x, df_spatial["source_y"] - city_center_y
@@ -269,15 +284,15 @@ def add_spatial_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def add_fourier_features(
-    df: pd.DataFrame, num_freqs: int = NUM_FREQS, coordinate_scale: float = COORDINATE_SCALE
+    df: pd.DataFrame, coordinate_scale: float = COORDINATE_SCALE, num_freqs: int = NUM_FREQS
 ) -> pd.DataFrame:
     """
     Add fourier positional encoding features to the dataframe.
 
     Args:
         df (pd.DataFrame): DataFrame with trip data containing source_x, source_y, destination_x, destination_y columns.
-        num_freqs (int): Number of frequency components to use for fourier encoding.
         coordinate_scale (float): Scale factor to normalize coordinates for fourier encoding.
+        num_freqs (int): Number of frequency components to use for fourier encoding.
 
     Returns:
         pd.DataFrame: DataFrame with added fourier features.
@@ -331,13 +346,19 @@ def add_cell_features(df: pd.DataFrame, cell: int = CELL) -> pd.DataFrame:
 
 
 def add_clustering_features(
-    df: pd.DataFrame, n_clusters: int = N_CLUSTERS, random_seed: int = RANDOM_SEED_DEFAULT
+    df: pd.DataFrame,
+    kmeans_source: KMeans | None = None,
+    kmeans_destination: KMeans | None = None,
+    n_clusters: int = N_CLUSTERS,
+    random_seed: int = RANDOM_SEED_DEFAULT,
 ) -> pd.DataFrame:
     """
     Add clustering features to the dataframe.
 
     Args:
         df (pd.DataFrame): DataFrame with trip data containing source_x, source_y, destination_x, destination_y columns.
+        kmeans_source (KMeans | None): KMeans object to use for source clustering.
+        kmeans_destination (KMeans | None): KMeans object to use for destination clustering.
         n_clusters (int): Number of clusters for K-means clustering on coordinates.
         random_seed (int): Random seed for clustering.
 
@@ -352,23 +373,36 @@ def add_clustering_features(
 
     source_coordinates = df_cluster[["source_x", "source_y"]].values
     destination_coordinates = df_cluster[["destination_x", "destination_y"]].values
-    kmeans_source = KMeans(n_clusters=n_clusters, random_state=random_seed)
-    kmeans_destination = KMeans(n_clusters=n_clusters, random_state=random_seed)
+    if kmeans_source is None:
+        kmeans_source = KMeans(n_clusters=n_clusters, random_state=random_seed)
+        df_cluster["source_cluster"] = kmeans_source.fit_predict(source_coordinates)
+    else:
+        df_cluster["source_cluster"] = kmeans_source.predict(source_coordinates)
 
-    df_cluster["source_cluster"] = kmeans_source.fit_predict(source_coordinates)
-    df_cluster["destination_cluster"] = kmeans_destination.fit_predict(destination_coordinates)
+    if kmeans_destination is None:
+        kmeans_destination = KMeans(n_clusters=n_clusters, random_state=random_seed)
+        df_cluster["destination_cluster"] = kmeans_destination.fit_predict(destination_coordinates)
+    else:
+        df_cluster["destination_cluster"] = kmeans_destination.predict(destination_coordinates)
 
     _log_feature_addition(df, df_cluster, "clustering")
 
     return df_cluster
 
 
-def add_pca_features(df: pd.DataFrame, random_seed: int = RANDOM_SEED_DEFAULT) -> pd.DataFrame:
+def add_pca_features(
+    df: pd.DataFrame,
+    pca_coordinates: PCA | None = None,
+    n_components: int = N_COMPONENTS,
+    random_seed: int = RANDOM_SEED_DEFAULT,
+) -> pd.DataFrame:
     """
     Add pca features to the dataframe.
 
     Args:
         df (pd.DataFrame): DataFrame with trip data containing source_x, source_y, destination_x, destination_y columns.
+        pca_coordinates (PCA | None): PCA object to use for pca.
+        n_components (int): Number of components for pca.
         random_seed (int): Random seed for pca.
 
     Returns:
@@ -380,20 +414,21 @@ def add_pca_features(df: pd.DataFrame, random_seed: int = RANDOM_SEED_DEFAULT) -
 
     df_pca = df.copy()
 
-    all_coordinates = np.vstack(
-        [df_pca[["source_x", "source_y"]].values, df_pca[["destination_x", "destination_y"]].values]
-    )
+    source_coordinates = df_pca[["source_x", "source_y"]].values
+    destination_coordinates = df_pca[["destination_x", "destination_y"]].values
 
-    pca_coordinates = PCA(n_components=N_COMPONENTS, random_state=random_seed)
-    pca_coordinates.fit(all_coordinates)
+    if pca_coordinates is None:
+        all_coordinates = np.vstack([source_coordinates, destination_coordinates])
+        pca_coordinates = PCA(n_components=n_components, random_state=random_seed)
+        pca_coordinates.fit(all_coordinates)
 
-    source_coords_pca = pca_coordinates.transform(df_pca[["source_x", "source_y"]].values)
-    dest_coords_pca = pca_coordinates.transform(df_pca[["destination_x", "destination_y"]].values)
+    source_coordinates_pca = pca_coordinates.transform(source_coordinates)
+    destination_coordinates_pca = pca_coordinates.transform(destination_coordinates)
 
-    df_pca["source_pca_1"] = source_coords_pca[:, 0]
-    df_pca["source_pca_2"] = source_coords_pca[:, 1]
-    df_pca["dest_pca_1"] = dest_coords_pca[:, 0]
-    df_pca["dest_pca_2"] = dest_coords_pca[:, 1]
+    df_pca["source_pca_1"] = source_coordinates_pca[:, 0]
+    df_pca["source_pca_2"] = source_coordinates_pca[:, 1]
+    df_pca["dest_pca_1"] = destination_coordinates_pca[:, 0]
+    df_pca["dest_pca_2"] = destination_coordinates_pca[:, 1]
 
     _log_feature_addition(df, df_pca, "pca")
 
@@ -402,32 +437,48 @@ def add_pca_features(df: pd.DataFrame, random_seed: int = RANDOM_SEED_DEFAULT) -
 
 def add_all_features(
     df: pd.DataFrame,
-    num_freqs: int = NUM_FREQS,
+    distance_percentiles: np.ndarray | None = None,
+    percentile_thresholds: list[int] = PERCENTILE_THRESHOLDS,
+    city_center_x: float | None = None,
+    city_center_y: float | None = None,
     coordinate_scale: float = COORDINATE_SCALE,
+    num_freqs: int = NUM_FREQS,
     cell: int = CELL,
+    kmeans_source: KMeans | None = None,
+    kmeans_destination: KMeans | None = None,
     n_clusters: int = N_CLUSTERS,
     random_seed: int = RANDOM_SEED_DEFAULT,
+    pca_coordinates: PCA | None = None,
+    n_components: int = N_COMPONENTS,
 ) -> pd.DataFrame:
     """
     Add all features to the dataframe.
 
     Args:
         df (pd.DataFrame): DataFrame with trip data containing source_x, source_y, destination_x, destination_y, distance columns.
-        num_freqs (int): Number of frequency components to use for fourier encoding.
+        distance_percentiles (np.ndarray | None): Percentiles to use for distance features.
+        percentile_thresholds (list[int]): Percentiles to use for distance features.
+        city_center_x (float | None): Mean center x to use for radial features.
+        city_center_y (float | None): Mean center y to use for radial features.
         coordinate_scale (float): Scale factor to normalize coordinates for fourier encoding.
+        num_freqs (int): Number of frequency components to use for fourier encoding.
         cell (int): Size of the cell in meters.
+        kmeans_source (KMeans | None): KMeans object to use for source clustering.
+        kmeans_destination (KMeans | None): KMeans object to use for destination clustering.
         n_clusters (int): Number of clusters for K-means clustering on coordinates.
         random_seed (int): Random seed for clustering and pca.
+        pca_coordinates (PCA | None): PCA object to use for pca.
+        n_components (int): Number of components for pca.
 
     Returns:
         pd.DataFrame: DataFrame with added all features.
     """
     df = add_temporal_features(df)
-    df = add_spatial_features(df)
-    df = add_fourier_features(df, num_freqs, coordinate_scale)
+    df = add_spatial_features(df, distance_percentiles, percentile_thresholds, city_center_x, city_center_y)
+    df = add_fourier_features(df, coordinate_scale, num_freqs)
     df = add_cell_features(df, cell)
-    df = add_clustering_features(df, n_clusters, random_seed)
-    df = add_pca_features(df, random_seed)
+    df = add_clustering_features(df, kmeans_source, kmeans_destination, n_clusters, random_seed)
+    df = add_pca_features(df, pca_coordinates, n_components, random_seed)
 
     return df
 

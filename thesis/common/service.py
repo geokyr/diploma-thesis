@@ -11,6 +11,7 @@ from thesis.common.config import (
     ENVIRONMENT,
     HOST,
     LOGS_DIRNAME,
+    MISC_DIRNAME,
     MODELS_DIRNAME,
     PORT_BACKEND,
     PORT_DRIFT,
@@ -22,7 +23,7 @@ from thesis.common.config import (
 )
 
 
-class Task(StrEnum):
+class MLTask(StrEnum):
     """
     Tasks.
 
@@ -58,7 +59,6 @@ class PlatformService(StrEnum):
     DRIFT = "drift"
 
 
-# TODO: refactor and remove whatever is not needed
 @dataclass(frozen=True, slots=True)
 class PlatformServiceConfig:
     """
@@ -67,13 +67,14 @@ class PlatformServiceConfig:
     Properties:
         service (PlatformService): Service.
         port (int): Port.
-        task (Task | None): Task.
+        ml_task (MLTask | None): ML task.
         host (str): Host.
         is_development (bool): Is development.
         app_dir (Path): Path to the app directory.
         logs_dir (Path): Path to the logs directory.
         data_dir (Path): Path to the data directory.
         models_dir (Path): Path to the models directory.
+        misc_dir (Path): Path to the misc directory.
         backend_url (str): Backend URL.
         predictor_eta_url (str): ETA predictor URL.
         predictor_fuel_url (str): Fuel predictor URL.
@@ -89,17 +90,23 @@ class PlatformServiceConfig:
         PlatformService.DRIFT: PORT_DRIFT,
     }
 
-    _TASKS = {
+    _ML_TASKS = {
         PlatformService.BACKEND: None,
-        PlatformService.PREDICTOR_ETA: Task.ETA,
-        PlatformService.PREDICTOR_FUEL: Task.FUEL,
-        PlatformService.PREDICTOR_STOPS: Task.STOPS,
+        PlatformService.PREDICTOR_ETA: MLTask.ETA,
+        PlatformService.PREDICTOR_FUEL: MLTask.FUEL,
+        PlatformService.PREDICTOR_STOPS: MLTask.STOPS,
         PlatformService.FRONTEND: None,
         PlatformService.DRIFT: None,
     }
 
     def __post_init__(self) -> None:
-        for dir in [self.app_dir, self.logs_dir, self.data_dir, self.models_dir]:
+        for dir in [
+            self.app_dir,
+            self.logs_dir,
+            self.data_dir,
+            self.models_dir,
+            self.misc_dir,
+        ]:
             dir.mkdir(parents=True, exist_ok=True)
 
     def __repr__(self) -> str:
@@ -107,13 +114,14 @@ class PlatformServiceConfig:
             f"{self.__class__.__name__}("
             f"{self.service=}, "
             f"{self.port=}, "
-            f"{self.task=}, "
+            f"{self.ml_task=}, "
             f"{self.host=}, "
             f"{self.is_development=}, "
             f"{self.app_dir=}, "
             f"{self.logs_dir=}, "
             f"{self.data_dir=}, "
             f"{self.models_dir=}, "
+            f"{self.misc_dir=}, "
             f"{self.backend_url=}, "
             f"{self.predictor_eta_url=}, "
             f"{self.predictor_fuel_url=}, "
@@ -129,8 +137,8 @@ class PlatformServiceConfig:
         return self._PORTS[self.service]
 
     @property
-    def task(self) -> Task | None:
-        return self._TASKS[self.service]
+    def ml_task(self) -> MLTask | None:
+        return self._ML_TASKS[self.service]
 
     @property
     def host(self) -> str:
@@ -150,11 +158,15 @@ class PlatformServiceConfig:
 
     @property
     def data_dir(self) -> Path:
-        return self.app_dir / DATA_DIRNAME
+        return self.app_dir / DATA_DIRNAME / self.ml_task if self.ml_task else self.app_dir / DATA_DIRNAME
 
     @property
     def models_dir(self) -> Path:
-        return self.app_dir / MODELS_DIRNAME
+        return self.app_dir / MODELS_DIRNAME / self.ml_task if self.ml_task else self.app_dir / MODELS_DIRNAME
+
+    @property
+    def misc_dir(self) -> Path:
+        return self.app_dir / MISC_DIRNAME / self.ml_task if self.ml_task else self.app_dir / MISC_DIRNAME
 
     @property
     def backend_url(self) -> str:
