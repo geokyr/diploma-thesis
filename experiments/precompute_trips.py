@@ -4,9 +4,9 @@ from thesis.common.config import (
     APPDATA_DIRNAME,
     DATA_DIRNAME,
     END_TIME,
-    MERGED_TRIPS_FILENAME,
     MISC_DIRNAME,
     PROJECT_DIR,
+    TRIPS_PARQUET_FILENAME,
 )
 from thesis.common.data import generate_trips, load_fcd_dataset, preprocess_fcd_dataset
 from thesis.common.enums import MLTask
@@ -47,7 +47,7 @@ def main() -> None:
     )
     trips_merged = calibrator.transform(trips_merged_raw)
 
-    out_path = PROJECT_DIR / APPDATA_DIRNAME / DATA_DIRNAME / MLTask.ETA / MERGED_TRIPS_FILENAME
+    out_path = PROJECT_DIR / APPDATA_DIRNAME / DATA_DIRNAME / MLTask.ETA / TRIPS_PARQUET_FILENAME
     trips_merged.to_parquet(out_path)
 
     logger.info(f"Precomputed features for {len(trips_merged)} trips: {out_path}")
