@@ -1,12 +1,19 @@
+import pandas as pd
+
 from thesis.common.config import (
-    FCD_PARQUET_SUFFIX,
-    TRIPS_PARQUET_SUFFIX,
+    APPDATA_DIRNAME,
+    DATA_DIRNAME,
+    END_TIME,
+    MERGED_TRIPS_FILENAME,
+    MISC_DIRNAME,
+    PROJECT_DIR,
 )
 from thesis.common.data import generate_trips, load_fcd_dataset, preprocess_fcd_dataset
 from thesis.common.logger import setup_logger
+from thesis.common.service import MLTask
+from thesis.eta.calibrator import FeatureCalibrator
 from thesis.eta.data import ensure_dataset_is_valid
 from thesis.eta.experiment import ETAEvaluation, ETAExperiment
-from thesis.eta.features import add_all_features
 
 
 def main() -> None:
@@ -15,26 +22,35 @@ def main() -> None:
 
     logger.info(f"Running {experiment.name} experiment with {experiment.evaluation} evaluation")
 
-    fcd_paths = [experiment.train_path, experiment.test_path, experiment.rain_path]
+    ensure_dataset_is_valid(experiment.train_path)
+    fcd_train_raw = load_fcd_dataset(experiment.train_path)
+    fcd_train = preprocess_fcd_dataset(fcd_train_raw)
+    trips_train = generate_trips(fcd_train)
 
-    for fcd_path in fcd_paths:
-        scenario = fcd_path.name.replace(FCD_PARQUET_SUFFIX, "")
-        output_path = fcd_path.with_name(f"{scenario}{TRIPS_PARQUET_SUFFIX}")
+    ensure_dataset_is_valid(experiment.test_path)
+    fcd_test_raw = load_fcd_dataset(experiment.test_path)
+    fcd_test = preprocess_fcd_dataset(fcd_test_raw)
+    trips_test = generate_trips(fcd_test)
 
-        if output_path.exists():
-            logger.info(f"Skipping precomputing trips for {scenario} because output already exists: {output_path}")
-            continue
+    ensure_dataset_is_valid(experiment.rain_path)
+    fcd_rain_raw = load_fcd_dataset(experiment.rain_path)
+    fcd_rain = preprocess_fcd_dataset(fcd_rain_raw)
+    trips_rain = generate_trips(fcd_rain)
 
-        logger.info(f"Precomputing trips for {scenario}")
+    calibrator = FeatureCalibrator().fit(trips_train)
+    misc_dir = PROJECT_DIR / APPDATA_DIRNAME / MISC_DIRNAME / MLTask.ETA
+    calibrator.save(misc_dir)
 
-        ensure_dataset_is_valid(fcd_path)
-        fcd_raw = load_fcd_dataset(fcd_path)
-        fcd = preprocess_fcd_dataset(fcd_raw)
-        trips_raw = generate_trips(fcd)
-        trips = add_all_features(trips_raw)
-        trips.to_parquet(output_path)
+    trips_rain_shifted = trips_rain.assign(time_start=trips_rain["time_start"] + END_TIME)
+    trips_merged_raw = (
+        pd.concat([trips_test, trips_rain_shifted], ignore_index=True).sort_values("time_start").reset_index(drop=True)
+    )
+    trips_merged = calibrator.transform(trips_merged_raw)
 
-        logger.info(f"Precomputed {len(trips)} trips: {output_path}")
+    out_path = PROJECT_DIR / APPDATA_DIRNAME / DATA_DIRNAME / MLTask.ETA / MERGED_TRIPS_FILENAME
+    trips_merged.to_parquet(out_path)
+
+    logger.info(f"Precomputed features for {len(trips_merged)} trips: {out_path}")
 
 
 if __name__ == "__main__":
