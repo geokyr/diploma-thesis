@@ -14,11 +14,11 @@
 ### 1) Context & Goals
 
 * We simulate a **20-hour timelapse demo** (10h base “test” + 10h “rain” drift) compressed to \~4 minutes.
-* We have **3 regression models** (initially build ETA; add Fuel and Stops later). Models are **XGBoost or LightGBM** with **different preprocessing/feature sets** per task.
+* We have **3 regression models** (initially build ETA; add Fuel and Stops later). Models are **LightGBM or XGBoost** with **different preprocessing/feature sets** per task.
 * **Drift** is induced in the “rain” set (lane friction 1.0→0.4). We want:
   * Live MAE plots per model.
   * A **drift detector** (treat as external black box for now) that votes using **ADWIN, Page-Hinkley, KSWIN, SPC** over a rolling window; **majority=3** triggers drift.
-  * A simple **mitigation** loop: detect → collect N minutes of data (mostly rain but could be test data as well) → retrain → hot-swap model → errors improve (not necessarily back to baseline).
+  * A simple **mitigation** loop: detect → collect N minutes of data → retrain → hot-swap model → errors improve (not necessarily back to baseline).
 * **Ground truth is available immediately** (for demo), so errors can be computed right away.
 
 ### 2) Data
@@ -31,46 +31,49 @@
   1. **Build features on the fly** from FCD; or
   2. **Precompute trips/features** to Parquet and read slices per sim window.
 
-  For the MVP, we will use the precomputed features. We can allow the option to switch to the on-the-fly features later. Also, the test and rain datasets will most likely be merged, by adding 36000 seconds to the timestamps of the rain dataset. This would eliminate any need for specifying dataset name, and we would only be using the timestamps to split the data into batches, plus giving a realistic sense of single data source streaming, and not separate datasets.
+  For the MVP, we will use the precomputed features. However, for the user tab that will be detailed later, we will need to use the on-the-fly features.
+  
+  Also, the train data is used for the model research and is not used in the simulation. The test and rain datasets will most likely be merged, by adding 36000 seconds to the timestamps of the rain dataset. This would simplify the code and architecture, since we can use one dataset, thus giving a realistic sense of single data source streaming. The difference will be in the timestamps, as 0 to 36000 is test dataset and 36000 to 72000 is rain dataset, as 2 continuous different days with 10 hours each.
 
 ### 3) Simulation & UX storyboard
 
 * **Timelapse driver**: every **1 real second ≈ 5 simulation minutes**. For each tick:
   * Orchestrator requests predictions for trips with `timestep_time in [start,end]`.
-  * Predictor returns errors (or predictions+errors, but predictions are not needed for this batch predict, only for a certain usecase we will discuss later).
+  * Predictor returns errors.
   * Errors feed both the **live charts** and the **drift detector**.
 * **Admin tab**: three live MAE charts (ETA/Fuel/Stops).
   Visual states: **stable (green) → drift (red) → collecting (yellow) → retraining (blue) → swapped (green)** with timestamped notifications.
-* **User tab** (later iteration): after pausing the timelapse, the user can switch to the user tab, which opens a map of Athens to pick source/destination. Backend maps clicks inside the bounding box of Athens to our coordinate system, computes needed features (using the model feature building pipeline or including distance/edges via `sumolib`/`traci` if chosen), and returns predictions with the **current sim time** as context, for the current model version.
+* **User tab** (later iteration): after pausing the timelapse, the user can switch to the user tab, which opens a map of Athens to pick source/destination. Backend maps clicks inside the bounding box of Athens to our coordinate system, computes needed features (using the feature calibrator, fitted on train data, and if needed by the model, including distance/edges via `sumolib`/`traci` etc.), and returns predictions with the **current sim time** as context, for the current model version.
 
 ### 4) Architecture
 
-* Keep components minimal and decoupled. Assume **Docker + docker-compose**. There is already the `thesis/` folder with the code for the experiments, dataset simulation, feature engineering, model training, evaluation, etc. It is installed editable on the root environment so we can do global imports with safety. There is a `pyproject.toml` file containing dependencies for the following possible containers: backend, frontend, predictor, drift. You can use this as a starting point, together with the `docker-compose.yml` file, to plan the architecture. There is also an `appdata` folder set up, including data, logs, and models folders, that we can use and volume mount to the containers.
+* Keep components minimal and decoupled. Assume **Docker + docker-compose**. There is already the `thesis/` folder with the code for the experiments, dataset simulation, feature engineering, model training, evaluation, etc. It is installed editable on the root environment so we can do global imports with safety. There is a `pyproject.toml` file containing dependencies for the following possible containers: backend, frontend, predictor, drift. You can use this as a starting point, together with the `docker-compose.yml` file, to plan the architecture. There is also an `appdata` folder set up, including data, logs, models, and misc folders, that we can use and volume mount to the containers, and its mounted at `/app/` instead of `/appdata/`.
 * We can probably start with **these containers**:
   1. **backend** (FastAPI + Uvicorn): simulation clock, orchestration, metrics updates, notifications, REST control (`/start`, `/pause`, `/resume`, `/restart`).
   2. **predictor-eta** (FastAPI + Uvicorn): model loading, data loading, data preprocessing for single predict, `/predict`, `/retrain`, `/status`, `/load`. Later: `predictor-fuel`, `predictor-stops`.
-  3. **frontend** (Dash/Plotly + Gunicorn): admin dashboard with live charts & notifications; later: user map tab.
-  4. **drift-service** (River + FastAPI + Uvicorn): consumes absolute errors per sample per model; returns state transitions/events when drift is detected.
-  5. **redis**: probably helps with some state and storing metrics for the running simulation, as an easy to implement and efficient solution, without much overhead, and can be used for other things if you judge it necessary, as a faster alternative to filesystem storage.
+  3. **frontend** (Dash/Plotly + Gunicorn): admin dashboard with live charts & notifications, user map tab.
+  4. **drift-service** (River + FastAPI + Uvicorn): consumes errors per sample per model, returns state transitions/events when drift is detected.
+  5. **redis**: not a hard requirement, but I thought it would be a good addition to have from the start, probably helps with some state and storing metrics for the running simulation, as an easy to implement and efficient solution, without much overhead, and can be used for other things if you judge it necessary, as a faster alternative to filesystem storage and with a better interface.
 * **Storage**:
   * **Datasets** (Parquet) volume: `appdata/data/<task>/trips.parquet`.
   * **Model registry** volume: `appdata/models/<task>/<version>/<model_name>.joblib` and `appdata/models/<task>/latest.txt → <version>` pointer.
   * **Logs** volume: `appdata/logs/<service_name>/`.
+  * **Misc** volume: `appdata/misc/<task>/feature_calibrator.joblib`.
 
 ### 5) Interfaces & contracts
 
 * **Backend ↔ Predictor** (JSON over HTTP):
-  * `POST /predict`: `{start_ts, end_ts, return_type: "predictions"|"errors"|"both"}` → returns batched predictions, errors, or both.
+  * `POST /predict`: `{start_ts, end_ts}` → returns batched `{ts, error}` per sample, so we can use them to plot the errors over time and also digest the errors in correct order in the drift service.
   * `POST /retrain`: `{start_ts, end_ts}` → async job id; `GET /retrain/status/{job_id}` for progress.
   * `POST /load`: `{version | "latest"}` → 200 on success; model hot-swapped.
 * **Backend ↔ Drift-service** (black box; define this now so we can mock it):
-  * `POST /errors`: `{task, errors: [..]}`;
+  * `POST /errors`: `{task, samples: {ts, error}[]}`;
   * `GET /state?task=ETA`: `{state, start_ts}`;
-  * **Events**: `drift_detected`, `collecting_started`, `retraining_started`, `swapped`.
+  * **Events**: `drift_detected`, `collecting_started`, `retraining_started`, `swapped_to_latest`.
 * **Backend ↔ Frontend**:
-  * Consider what is the best, but possible REST for receiving the errors and then some calculations to get whatever MAE we need to show in the frontend. Maybe we can use SSE/WebSocket for **live updates**: `{ts, task, mae, state, notification?}`, but only if it's not too much overhead.
+  * Consider what is the best, but possible REST for receiving the list of errors and timestamps and then some calculations to get whatever MAE we need to show in the frontend.
   * REST for controls: `/start`, `/pause`, `/resume`, `/restart`.
-  * Later: `/predict_single` for single user map queries.
+  * Later: `/predict_single` for single user map queries, that builds features on the fly andreturns the predictions (errors are not defined in this case since we do not have a ground truth for every possible sample).
 
 The above are given to get an idea, you don't have to follow them exactly, feel free to change them to fit our needs, based on what you think is best, as an expert.
 
@@ -105,26 +108,14 @@ The above are given to get an idea, you don't have to follow them exactly, feel 
 4. **docker-compose.yml** (minimal) plus **Dockerfiles** for backend, predictor, drift and frontend with caching best practices, based on the provided ones.
 5. **Repo layout** (monorepo) with folders under `thesis/` (`backend/`, `predictor/`, `frontend/`, `drift/`, `common/`), and a root `pyproject.toml` using **uv**, based on the provided one.
 6. **Implementation plan** with **iterations/milestones**:
-   * **Iteration 1 (MVP)**: backend + predictor-eta + frontend admin charts; run only **test** dataset; mock drift service; no retrain.
-   * **Iteration 2**: add **rain** dataset and real drift lifecycle; notification system.
+   * **Iteration 1 (MVP)**: backend + predictor-eta + frontend admin charts; mock drift service; no retrain.
+   * **Iteration 2**: add real drift lifecycle with retraining; notification system.
    * **Iteration 3**: user map tab and one-off prediction.
-   * **Iteration 4**: add Fuel & Stops predictors; basic model registry + hot-swap.
+   * **Iteration 4**: add Fuel & Stops predictors.
      For each iteration: exact goals, acceptance criteria, and definition of done.
-7. **Risks & simplifications**: call out at most 8 risks (I/O, feature latency, UI flicker, drift thresholds, etc.) with a one-line mitigation each.
+7. **Risks & simplifications**: call out at most 8 risks/warnings (I/O, feature latency, UI flicker, drift thresholds, etc.) with a one-line mitigation each.
 
-### 10) Assumptions you can make
-
-* Datasets are present under `./appdata/data/*.parquet`, or under `/app/data/*.parquet` for containers.
-* Model artifacts use joblib; predictors don't handle their own preprocessing, but it can be done through the relevant code under `common/` or `eta/` folders, as seen in the experiments.
-* For the map tab, a simple bounding box conversion is OK (no full routing).
-* Ground truth is instantly available for each batch.
-
-### 11) Additional notes
-
-* The errors returned by the predictor could also have timestamps included, so we can use them to plot the errors over time and also digest the errors in correct order in the drift service.
-* I haven't talked a lot about notifications, but on later iterations (2 or later) we would like to have notifications for the drift events and more on the frontend.
-
-### 12) Style & constraints for your response
+### 10) Style & constraints for your response
 
 * Be **concise and prescriptive**; prefer **working defaults** over options.
 * No over-engineering; avoid heavy infra.
