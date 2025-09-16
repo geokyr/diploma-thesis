@@ -161,7 +161,9 @@ def load_model(model_type: ModelType, models_dir: Path) -> BaseEstimator:
     model_path = models_dir / f"{model_type}.joblib"
 
     if not model_path.exists():
-        raise FileNotFoundError(f"Model file not found: {model_path}")
+        error_msg = f"Model file not found: {model_path}"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
 
     model = joblib.load(model_path)
     logger.info(f"Model loaded from {model_path}")

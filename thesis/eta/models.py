@@ -187,7 +187,9 @@ def create_model(model_type: ModelType, random_seed: int = RANDOM_SEED_DEFAULT, 
     """
     if model_type not in MODEL_REGISTRY:
         available = ", ".join(str(t) for t in ModelType)
-        raise ValueError(f"Unknown model: {model_type}. Available models: {available}")
+        error_msg = f"Unknown model: {model_type}. Available models: {available}"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
 
     creator_func = MODEL_REGISTRY[model_type]
 
