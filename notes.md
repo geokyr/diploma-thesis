@@ -31,7 +31,7 @@
   1. **Build features on the fly** from FCD; or
   2. **Precompute trips/features** to Parquet and read slices per sim window.
 
-  For the MVP, we will use the precomputed features. We can allow the option to switch to the on-the-fly features later.
+  For the MVP, we will use the precomputed features. We can allow the option to switch to the on-the-fly features later. Also, the test and rain datasets will most likely be merged, by adding 36000 seconds to the timestamps of the rain dataset. This would eliminate any need for specifying dataset name, and we would only be using the timestamps to split the data into batches, plus giving a realistic sense of single data source streaming, and not separate datasets.
 
 ### 3) Simulation & UX storyboard
 
@@ -46,14 +46,14 @@
 ### 4) Architecture
 
 * Keep components minimal and decoupled. Assume **Docker + docker-compose**. There is already the `thesis/` folder with the code for the experiments, dataset simulation, feature engineering, model training, evaluation, etc. It is installed editable on the root environment so we can do global imports with safety. There is a `pyproject.toml` file containing dependencies for the following possible containers: backend, frontend, predictor, drift. You can use this as a starting point, together with the `docker-compose.yml` file, to plan the architecture. There is also an `appdata` folder set up, including data, logs, and models folders, that we can use and volume mount to the containers.
-* We will probably be based on **these containers**:
+* We can probably start with **these containers**:
   1. **backend** (FastAPI + Uvicorn): simulation clock, orchestration, metrics updates, notifications, REST control (`/start`, `/pause`, `/resume`, `/restart`).
   2. **predictor-eta** (FastAPI + Uvicorn): model loading, data loading, data preprocessing for single predict, `/predict`, `/retrain`, `/status`, `/load`. Later: `predictor-fuel`, `predictor-stops`.
   3. **frontend** (Dash/Plotly + Gunicorn): admin dashboard with live charts & notifications; later: user map tab.
   4. **drift-service** (River + FastAPI + Uvicorn): consumes absolute errors per sample per model; returns state transitions/events when drift is detected.
-  5. **redis**: optional, but probably helps with some state and storing metrics for the running simulation, as an easy to implement and efficient solution, without much overhead, and can be used for other things if you judge it necessary.
+  5. **redis**: probably helps with some state and storing metrics for the running simulation, as an easy to implement and efficient solution, without much overhead, and can be used for other things if you judge it necessary, as a faster alternative to filesystem storage.
 * **Storage**:
-  * **Datasets** (Parquet) volume: `appdata/data/{test,rain}-trips.parquet`.
+  * **Datasets** (Parquet) volume: `appdata/data/<task>/trips.parquet`.
   * **Model registry** volume: `appdata/models/<task>/<version>/<model_name>.joblib` and `appdata/models/<task>/latest.txt → <version>` pointer.
   * **Logs** volume: `appdata/logs/<service_name>/`.
 
@@ -121,9 +121,8 @@ The above are given to get an idea, you don't have to follow them exactly, feel 
 
 ### 11) Additional notes
 
-* The test and rain datasets will be merged, by adding 36000 seconds to the timestamps of the rain dataset. This would eliminate any need for specifying dataset name, and we would only be using the timestamps to split the data into batches, plus giving a realistic sense of single data source streaming, and not separate datasets. So the final dataset will be under `appdata/data/trips.parquet`.
 * The errors returned by the predictor could also have timestamps included, so we can use them to plot the errors over time and also digest the errors in correct order in the drift service.
-* I haven't talked a lot about notifications, but on later iterations (2 or later) we would like to have notifications for the drift events on the frontend.
+* I haven't talked a lot about notifications, but on later iterations (2 or later) we would like to have notifications for the drift events and more on the frontend.
 
 ### 12) Style & constraints for your response
 
