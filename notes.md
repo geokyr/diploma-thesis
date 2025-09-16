@@ -121,7 +121,7 @@ The above are given to get an idea, you don't have to follow them exactly, feel 
 
 ### 11) Additional notes
 
-* The test and rain datasets will be merged, by adding 36000 seconds to the timestamps of the rain dataset. This would eliminate any need for specifying dataset name, and we would only be using the timestamps to split the data into batches, plus giving a realistic sense of single data source streaming, and not separate datasets.
+* The test and rain datasets will be merged, by adding 36000 seconds to the timestamps of the rain dataset. This would eliminate any need for specifying dataset name, and we would only be using the timestamps to split the data into batches, plus giving a realistic sense of single data source streaming, and not separate datasets. So the final dataset will be under `appdata/data/trips.parquet`.
 * The errors returned by the predictor could also have timestamps included, so we can use them to plot the errors over time and also digest the errors in correct order in the drift service.
 * I haven't talked a lot about notifications, but on later iterations (2 or later) we would like to have notifications for the drift events on the frontend.
 
