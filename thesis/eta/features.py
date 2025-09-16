@@ -386,8 +386,8 @@ def add_clustering_features(
 
     df_cluster = df.copy()
 
-    source_coordinates = df_cluster[["source_x", "source_y"]].values
-    destination_coordinates = df_cluster[["destination_x", "destination_y"]].values
+    source_coordinates = df_cluster[["source_x", "source_y"]].to_numpy()
+    destination_coordinates = df_cluster[["destination_x", "destination_y"]].to_numpy()
     if kmeans_source is None:
         kmeans_source = KMeans(n_clusters=n_clusters, random_state=random_seed)
         df_cluster["source_cluster"] = kmeans_source.fit_predict(source_coordinates)
@@ -431,8 +431,8 @@ def add_pca_features(
 
     df_pca = df.copy()
 
-    source_coordinates = df_pca[["source_x", "source_y"]].values
-    destination_coordinates = df_pca[["destination_x", "destination_y"]].values
+    source_coordinates = df_pca[["source_x", "source_y"]].to_numpy()
+    destination_coordinates = df_pca[["destination_x", "destination_y"]].to_numpy()
 
     if pca_coordinates is None:
         all_coordinates = np.vstack([source_coordinates, destination_coordinates])
@@ -655,8 +655,8 @@ class FeatureCalibrator:
         city_center_x = np.mean(x_center)
         city_center_y = np.mean(y_center)
 
-        source_coordinates = df[["source_x", "source_y"]].values
-        destination_coordinates = df[["destination_x", "destination_y"]].values
+        source_coordinates = df[["source_x", "source_y"]].to_numpy()
+        destination_coordinates = df[["destination_x", "destination_y"]].to_numpy()
         kmeans_source = KMeans(n_clusters=n_clusters, random_state=random_seed)
         kmeans_destination = KMeans(n_clusters=n_clusters, random_state=random_seed)
         kmeans_source.fit(source_coordinates)

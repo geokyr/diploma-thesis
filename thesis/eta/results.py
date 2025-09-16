@@ -414,7 +414,7 @@ def plot_metric_by_experiment(
     metric_by_exp = df.groupby("experiment")[metric_column].mean()
     colors = plt.cm.viridis(np.linspace(0, 1, len(metric_by_exp)))
 
-    ax.barh(range(len(metric_by_exp)), metric_by_exp.values, color=colors)
+    ax.barh(range(len(metric_by_exp)), metric_by_exp.to_numpy(), color=colors)
     ax.set_title(f"Average {metric_name} by Experiment", fontweight="bold")
     ax.set_xlabel(f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}")
     ax.set_ylabel("Experiment")
@@ -422,11 +422,11 @@ def plot_metric_by_experiment(
     ax.set_yticklabels(metric_by_exp.index)
     ax.invert_yaxis()
 
-    min_val, max_val = metric_by_exp.values.min(), metric_by_exp.values.max()
+    min_val, max_val = metric_by_exp.to_numpy().min(), metric_by_exp.to_numpy().max()
     range_val = max_val - min_val
     ax.set_xlim(min_val - range_val * 0.2, max_val + range_val * 0.2)
 
-    for i, v in enumerate(metric_by_exp.values):
+    for i, v in enumerate(metric_by_exp.to_numpy()):
         label = f"{v:.{decimal_places}f}{metric_unit}"
         ax.text(v + range_val * 0.02, i, label, ha="left", va="center", fontweight="bold", color="black")
 
@@ -453,7 +453,7 @@ def plot_metric_by_model(
     metric_by_model = df.groupby("model")[metric_column].mean()
     colors = plt.cm.viridis(np.linspace(0, 1, len(metric_by_model)))
 
-    ax.barh(range(len(metric_by_model)), metric_by_model.values, color=colors)
+    ax.barh(range(len(metric_by_model)), metric_by_model.to_numpy(), color=colors)
     ax.set_title(f"Average {metric_name} by Model", fontweight="bold")
     ax.set_xlabel(f"{metric_name}{' (' + metric_unit + ')' if metric_unit else ''}")
     ax.set_ylabel("Model")
@@ -461,11 +461,11 @@ def plot_metric_by_model(
     ax.set_yticklabels(metric_by_model.index)
     ax.invert_yaxis()
 
-    min_val, max_val = metric_by_model.values.min(), metric_by_model.values.max()
+    min_val, max_val = metric_by_model.to_numpy().min(), metric_by_model.to_numpy().max()
     range_val = max_val - min_val
     ax.set_xlim(min_val - range_val * 0.2, max_val + range_val * 0.2)
 
-    for i, v in enumerate(metric_by_model.values):
+    for i, v in enumerate(metric_by_model.to_numpy()):
         label = f"{v:.{decimal_places}f}{metric_unit}"
         ax.text(v + range_val * 0.02, i, label, ha="left", va="center", fontweight="bold", color="black")
 
@@ -788,7 +788,7 @@ def plot_mae_convergence(results: dict[str, pd.DataFrame], ax: plt.Axes) -> None
             continuous_trial_numbers.extend(experiment_trial_numbers)
             trial_counter += len(experiment_trials)
 
-        mae_values = df_sorted["mae"].values
+        mae_values = df_sorted["mae"].to_numpy()
         best_mae_so_far = np.minimum.accumulate(mae_values)
         all_final_values.extend(best_mae_so_far)
         ax.plot(continuous_trial_numbers, best_mae_so_far, label=model_name, color=colors[i], linewidth=2.5)
@@ -879,8 +879,8 @@ def plot_parameters_vs_mae(results: dict[str, pd.DataFrame], plots_dir: Path) ->
             ax.scatter(param_values, mae_values, alpha=0.7, s=35, color=colors[0], edgecolors="white")
 
             lr = LinearRegression()
-            X = param_values.values.reshape(-1, 1)
-            y = mae_values.values
+            X = param_values.to_numpy().reshape(-1, 1)
+            y = mae_values.to_numpy()
             lr.fit(X, y)
 
             x_trend = np.linspace(param_values.min(), param_values.max(), 100)
