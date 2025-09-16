@@ -11,9 +11,9 @@ from thesis.common.config import (
 from thesis.common.data import generate_trips, load_fcd_dataset, preprocess_fcd_dataset
 from thesis.common.logger import setup_logger
 from thesis.common.service import MLTask
-from thesis.eta.calibrator import FeatureCalibrator
 from thesis.eta.data import ensure_dataset_is_valid
 from thesis.eta.experiment import ETAEvaluation, ETAExperiment
+from thesis.eta.features import FeatureCalibrator
 
 
 def main() -> None:
@@ -37,7 +37,7 @@ def main() -> None:
     fcd_rain = preprocess_fcd_dataset(fcd_rain_raw)
     trips_rain = generate_trips(fcd_rain)
 
-    calibrator = FeatureCalibrator().fit(trips_train)
+    calibrator = FeatureCalibrator.from_train_trips(trips_train)
     misc_dir = PROJECT_DIR / APPDATA_DIRNAME / MISC_DIRNAME / MLTask.ETA
     calibrator.save(misc_dir)
 

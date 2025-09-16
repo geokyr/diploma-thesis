@@ -54,6 +54,7 @@ class FilenameConfig:
     results: str
     research_results: str
     tuning_results: str
+    feature_calibrator: str
     merged_trips: str
 
 
@@ -245,6 +246,7 @@ LOGS_FILENAME = CONFIG.filename.logs
 RESULTS_FILENAME = CONFIG.filename.results
 RESEARCH_RESULTS_FILENAME = CONFIG.filename.research_results
 TUNING_RESULTS_FILENAME = CONFIG.filename.tuning_results
+FEATURE_CALIBRATOR_FILENAME = CONFIG.filename.feature_calibrator
 MERGED_TRIPS_FILENAME = CONFIG.filename.merged_trips
 
 TRIPS_SUFFIX = CONFIG.suffix.trips
