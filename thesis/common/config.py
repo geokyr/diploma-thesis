@@ -167,8 +167,6 @@ class RedisConfig:
     host: str
     port: int
     db_metrics: int
-    db_cache: int
-    ttl_metrics: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -329,8 +327,6 @@ PORT_FRONTEND = CONFIG.services.frontend
 REDIS_HOST = CONFIG.redis.host
 REDIS_PORT = CONFIG.redis.port
 REDIS_DB_METRICS = CONFIG.redis.db_metrics
-REDIS_DB_CACHE = CONFIG.redis.db_cache
-REDIS_TTL_METRICS = CONFIG.redis.ttl_metrics
 
 SPEED_MULTIPLIER = CONFIG.timelapse.speed_multiplier
 INTERVAL_MS = CONFIG.timelapse.interval_ms
