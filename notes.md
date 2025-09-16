@@ -63,12 +63,12 @@
 ### 5) Interfaces & contracts
 
 * **Backend ↔ Predictor** (JSON over HTTP):
-  * `POST /predict`: `{start_ts, end_ts}` → returns batched `{ts, error}` per sample, so we can use them to plot the errors over time and also digest the errors in correct order in the drift service.
-  * `POST /retrain`: `{start_ts, end_ts}` → async job id; `GET /retrain/status/{job_id}` for progress.
+  * `POST /predict`: `{start_timestamp, end_timestamp}` → returns batched `{timestamp, error}` per sample, so we can use them to plot the errors over time and also digest the errors in correct order in the drift service.
+  * `POST /retrain`: `{start_timestamp, end_timestamp}` → async job id; `GET /retrain/status/{job_id}` for progress.
   * `POST /load`: `{version | "latest"}` → 200 on success; model hot-swapped.
 * **Backend ↔ Drift-service** (black box; define this now so we can mock it):
-  * `POST /errors`: `{task, samples: {ts, error}[]}`;
-  * `GET /state?task=ETA`: `{state, start_ts}`;
+  * `POST /errors`: `{task, samples: {timestamp, error}[]}`;
+  * `GET /state?task=ETA`: `{state, start_timestamp}`;
   * **Events**: `drift_detected`, `collecting_started`, `retraining_started`, `swapped_to_latest`.
 * **Backend ↔ Frontend**:
   * Consider what is the best, but possible REST for receiving the list of errors and timestamps and then some calculations to get whatever MAE we need to show in the frontend.
