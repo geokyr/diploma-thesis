@@ -13,6 +13,7 @@ services:
       - ./appdata/models:/app/models
       - ./appdata/data:/app/data:ro
       - ./appdata/logs:/app/logs
+      - ./appdata/misc:/app/misc
       - ./thesis:/app/thesis
     environment:
       - SERVICE=predictor-eta
@@ -24,6 +25,7 @@ services:
   #     - ./appdata/models:/app/models
   #     - ./appdata/data:/app/data:ro
   #     - ./appdata/logs:/app/logs
+  #     - ./appdata/misc:/app/misc
   #     - ./thesis:/app/thesis
   #   environment:
   #     - SERVICE=predictor-fuel
@@ -35,6 +37,7 @@ services:
   #     - ./appdata/models:/app/models
   #     - ./appdata/data:/app/data:ro
   #     - ./appdata/logs:/app/logs
+  #     - ./appdata/misc:/app/misc
   #     - ./thesis:/app/thesis
   #   environment:
   #     - SERVICE=predictor-stops

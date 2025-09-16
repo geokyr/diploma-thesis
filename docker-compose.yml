@@ -31,6 +31,7 @@ services:
       - ./appdata/models:/app/models
       - ./appdata/data:/app/data:ro
       - ./appdata/logs:/app/logs
+      - ./appdata/misc:/app/misc
     environment:
       - SERVICE=predictor-eta
       - APP_DIR=/app
@@ -55,6 +56,7 @@ services:
   #     - ./appdata/models:/app/models
   #     - ./appdata/data:/app/data:ro
   #     - ./appdata/logs:/app/logs
+  #     - ./appdata/misc:/app/misc
   #   environment:
   #     - SERVICE=predictor-fuel
   #     - APP_DIR=/app
@@ -79,6 +81,7 @@ services:
   #     - ./appdata/models:/app/models
   #     - ./appdata/data:/app/data:ro
   #     - ./appdata/logs:/app/logs
+  #     - ./appdata/misc:/app/misc
   #   environment:
   #     - SERVICE=predictor-stops
   #     - APP_DIR=/app
