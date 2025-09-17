@@ -65,6 +65,7 @@ class PlatformServiceConfig:
         predictor_eta_url (str): ETA predictor URL.
         predictor_fuel_url (str): Fuel predictor URL.
         predictor_stops_url (str): Stops predictor URL.
+        drift_url (str): Drift URL.
     """
 
     _PORTS = {
@@ -111,7 +112,8 @@ class PlatformServiceConfig:
             f"{self.backend_url=}, "
             f"{self.predictor_eta_url=}, "
             f"{self.predictor_fuel_url=}, "
-            f"{self.predictor_stops_url=})"
+            f"{self.predictor_stops_url=}, "
+            f"{self.drift_url=})"
         )
 
     @property
@@ -169,6 +171,10 @@ class PlatformServiceConfig:
     @property
     def predictor_stops_url(self) -> str:
         return f"http://{PlatformService.PREDICTOR_STOPS}:{PORT_PREDICTOR_STOPS}"
+
+    @property
+    def drift_url(self) -> str:
+        return f"http://{PlatformService.DRIFT}:{PORT_DRIFT}"
 
     @property
     def _environment(self) -> str:
