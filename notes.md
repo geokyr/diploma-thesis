@@ -53,7 +53,6 @@
   2. **predictor-eta** (FastAPI + Uvicorn): model loading, data loading, data preprocessing for single predict, `/predict`, `/retrain`, `/status`, `/load`. Later: `predictor-fuel`, `predictor-stops`.
   3. **frontend** (Dash/Plotly + Gunicorn): admin dashboard with live charts & notifications, user map tab.
   4. **drift-service** (River + FastAPI + Uvicorn): consumes errors per sample per model, returns state transitions/events when drift is detected.
-  5. **redis**: not a hard requirement, but I thought it would be a good addition to have from the start, probably helps with some state and storing metrics for the running simulation, as an easy to implement and efficient solution, without much overhead, and can be used for other things if you judge it necessary, as a faster alternative to filesystem storage and with a better interface.
 * **Storage**:
   * **Datasets** (Parquet) volume: `appdata/data/<task>/trips.parquet`.
   * **Model registry** volume: `appdata/models/<task>/<version>/<model_name>.joblib` and `appdata/models/<task>/latest.txt → <version>` pointer.

@@ -125,11 +125,6 @@ services:
   drift: 8004
   frontend: 8080
 
-redis:
-  host: "redis"
-  port: 6379
-  db_metrics: 0
-
 timelapse:
   speed_multiplier: 300.0
   interval_ms: 1000

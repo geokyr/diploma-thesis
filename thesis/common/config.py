@@ -163,13 +163,6 @@ class ServicesConfig:
 
 
 @dataclass(frozen=True, slots=True)
-class RedisConfig:
-    host: str
-    port: int
-    db_metrics: int
-
-
-@dataclass(frozen=True, slots=True)
 class TimelapseConfig:
     speed_multiplier: float
     interval_ms: int
@@ -191,7 +184,6 @@ class Config:
     features: FeaturesConfig
     models: ModelsConfig
     services: ServicesConfig
-    redis: RedisConfig
     timelapse: TimelapseConfig
 
 
@@ -211,7 +203,6 @@ def load_config(config_path: Path) -> Config:
             features=FeaturesConfig(**data["features"]),
             models=ModelsConfig(**data["models"]),
             services=ServicesConfig(**data["services"]),
-            redis=RedisConfig(**data["redis"]),
             timelapse=TimelapseConfig(**data["timelapse"]),
         )
 
@@ -323,10 +314,6 @@ PORT_PREDICTOR_FUEL = CONFIG.services.predictor_fuel
 PORT_PREDICTOR_STOPS = CONFIG.services.predictor_stops
 PORT_DRIFT = CONFIG.services.drift
 PORT_FRONTEND = CONFIG.services.frontend
-
-REDIS_HOST = CONFIG.redis.host
-REDIS_PORT = CONFIG.redis.port
-REDIS_DB_METRICS = CONFIG.redis.db_metrics
 
 SPEED_MULTIPLIER = CONFIG.timelapse.speed_multiplier
 INTERVAL_MS = CONFIG.timelapse.interval_ms
