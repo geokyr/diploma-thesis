@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from thesis.backend.routers.metrics import router as metrics_router
 from thesis.backend.routers.simulation import router as simulation_router
 from thesis.common.logger import setup_logger
+from thesis.common.schemas import HealthResponse
 from thesis.common.service import PlatformService, PlatformServiceConfig
 
 config = PlatformServiceConfig()
@@ -12,9 +13,9 @@ logger = setup_logger(config.service, config.logs_dir)
 app = FastAPI(title="Platform Backend API", version="1.0.0")
 
 
-@app.get("/health", tags=["health"])
-def health():
-    return {"status": "healthy", "service": PlatformService.BACKEND}
+@app.get("/health", response_model=HealthResponse, tags=["health"])
+def health() -> HealthResponse:
+    return HealthResponse(status="healthy", service=PlatformService.BACKEND)
 
 
 app.include_router(simulation_router, prefix="/simulation", tags=["simulation"])
