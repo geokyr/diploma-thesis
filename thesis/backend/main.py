@@ -20,7 +20,7 @@ async def lifespan(app: FastAPI):
         app.state.simulation_manager = SimulationManager()
         yield
     finally:
-        simulation_manager = getattr(app.state, "simulation_manager", None)
+        simulation_manager: SimulationManager = getattr(app.state, "simulation_manager", None)
         if simulation_manager is not None:
             await simulation_manager.shutdown()
         if hasattr(app.state, "simulation_manager"):
