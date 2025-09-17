@@ -22,16 +22,18 @@ class ErrorPoint(BaseModel):
     error: float = Field(..., description="Error value")
 
 
-class PredictionRequest(BaseModel):
-    """Request for predictions."""
+class PredictionBatchRequest(BaseModel):
+    """Request for batch predictions."""
 
     time_window: TimeWindow = Field(..., description="Time window for predictions")
 
 
-class PredictionResponse(BaseModel):
-    """Response for predictions."""
+class PredictionBatchResponse(BaseModel):
+    """Response for batch predictions."""
 
     points: list[ErrorPoint] = Field(..., description="List of error points")
+    mae: float = Field(..., description="Mean absolute error")
+    count: int = Field(..., description="Count of predictions")
 
 
 class DriftErrorsRequest(BaseModel):
