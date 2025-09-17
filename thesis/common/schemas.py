@@ -11,14 +11,14 @@ from thesis.common.service import PlatformService
 class TimeWindow(BaseModel):
     """Time window for predictions or retraining."""
 
-    start_timestamp: float = Field(..., description="Start timestamp of the window")
-    end_timestamp: float = Field(..., description="End timestamp of the window")
+    start_timestamp: int = Field(..., description="Start timestamp of the window")
+    end_timestamp: int = Field(..., description="End timestamp of the window")
 
 
 class ErrorPoint(BaseModel):
     """Error point for predictions or retraining."""
 
-    timestamp: float = Field(..., description="Timestamp of the error")
+    timestamp: int = Field(..., description="Timestamp of the error")
     error: float = Field(..., description="Error value")
 
 
@@ -33,7 +33,13 @@ class PredictionBatchResponse(BaseModel):
 
     points: list[ErrorPoint] = Field(..., description="List of error points")
     mae: float = Field(..., description="Mean absolute error")
-    count: int = Field(..., description="Count of predictions")
+
+
+class MetricsResponse(BaseModel):
+    """Response for metrics."""
+
+    timestamps: list[int] = Field(..., description="List of timestamps")
+    maes: list[float] = Field(..., description="List of mean absolute errors")
 
 
 class DriftErrorsRequest(BaseModel):
@@ -48,7 +54,7 @@ class DriftErrorsResponse(BaseModel):
 
     task: MLTask = Field(..., description="ML task")
     state: DriftState = Field(..., description="Drift state")
-    start_timestamp: float = Field(..., description="Start timestamp of the state")
+    start_timestamp: int = Field(..., description="Start timestamp of the state")
 
 
 class RetrainRequest(BaseModel):

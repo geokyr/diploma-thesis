@@ -3,7 +3,7 @@ import plotly.graph_objs as go
 from dash import Dash, ctx, dcc, html, no_update
 from dash.dependencies import Input, Output
 
-from thesis.common.config import INTERVAL_MS, MAX_INTERVALS
+from thesis.common.config import INTERVAL_MS
 from thesis.common.logger import setup_logger
 from thesis.common.service import PlatformServiceConfig
 from thesis.frontend.utils.api_client import ApiClient
@@ -18,16 +18,12 @@ server = app.server
 # TODO: add simulation store to the frontend
 app.layout = html.Div(
     [
-        dcc.Interval(
-            id="interval-component", interval=INTERVAL_MS, n_intervals=0, max_intervals=MAX_INTERVALS, disabled=True
-        ),
+        dcc.Interval(id="interval-component", interval=INTERVAL_MS, n_intervals=0, disabled=True),
         dcc.Store(
             id="simulation-store",
             data={
                 "state": "idle",
                 "current_sim_time": 0.0,
-                "progress_percent": 0.0,
-                "tick_count": 0,
                 "event": "init",
             },
         ),
@@ -52,9 +48,9 @@ app.layout = html.Div(
     Input("simulation-store", "data"),
 )
 def update_chart(n_intervals: int, store_data: dict | None):
-    hist = client.fetch_history()
-    timestamps = hist.get("eta", {}).get("timestamps", [])
-    mae_values = hist.get("eta", {}).get("mae_values", [])
+    metrics = client.fetch_metrics()
+    timestamps = metrics.get("timestamps", [])
+    mae_values = metrics.get("maes", [])
 
     figure = go.Figure()
     figure.add_trace(go.Scatter(x=timestamps[::-1], y=mae_values[::-1], mode="lines+markers"))
@@ -77,7 +73,7 @@ def control_simulation(n_start: int, n_toggle: int, n_restart: int):
         if button_id == "btn-start":
             client.simulation_start()
         elif button_id == "btn-toggle":
-            status = client.fetch_status() or {}
+            status = client.fetch_status()
             state = (status.get("state") or "idle").lower()
 
             if state == "running":
@@ -87,12 +83,10 @@ def control_simulation(n_start: int, n_toggle: int, n_restart: int):
         elif button_id == "btn-restart":
             client.simulation_restart()
 
-        latest = client.fetch_status() or {}
+        latest = client.fetch_status()
         return {
             "state": latest.get("state"),
             "current_sim_time": latest.get("current_sim_time"),
-            "progress_percent": latest.get("progress_percent"),
-            "tick_count": latest.get("tick_count"),
             "event": button_id,
         }
 
