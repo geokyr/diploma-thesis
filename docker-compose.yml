@@ -14,7 +14,7 @@ services:
     depends_on:
       - redis
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: curl -f http://localhost:8000/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -39,7 +39,7 @@ services:
     depends_on:
       - backend
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      test: curl -f http://localhost:8001/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -64,7 +64,7 @@ services:
   #   depends_on:
   #     - backend
   #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+  #     test: curl -f http://localhost:8002/health
   #     interval: 30s
   #     timeout: 10s
   #     retries: 3
@@ -89,7 +89,7 @@ services:
   #   depends_on:
   #     - backend
   #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+  #     test: curl -f http://localhost:8003/health
   #     interval: 30s
   #     timeout: 10s
   #     retries: 3
@@ -111,7 +111,7 @@ services:
     depends_on:
       - backend
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      test: curl -f http://localhost:8004/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -133,7 +133,7 @@ services:
     depends_on:
       - backend
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/_dash-dependencies"]
+      test: curl -f http://localhost:8080/_dash-dependencies
       interval: 30s
       timeout: 10s
       retries: 3
@@ -149,7 +149,7 @@ services:
       - redis_data:/data
     command: redis-server --appendonly yes
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: redis-cli ping
       interval: 30s
       timeout: 10s
       retries: 3
