@@ -31,14 +31,14 @@ class PredictionRequest(BaseModel):
 class PredictionResponse(BaseModel):
     """Response for predictions."""
 
-    errors: list[ErrorPoint] = Field(..., description="List of error points")
+    points: list[ErrorPoint] = Field(..., description="List of error points")
 
 
 class DriftErrorsRequest(BaseModel):
     """Request for drift errors."""
 
     task: MLTask = Field(..., description="ML task")
-    errors: list[ErrorPoint] = Field(..., description="List of error points")
+    points: list[ErrorPoint] = Field(..., description="List of error points")
 
 
 class DriftErrorsResponse(BaseModel):
@@ -100,9 +100,6 @@ class SimulationStatus(BaseModel):
 
     state: SimulationState = Field(..., description="State of the simulation")
     current_sim_time: float = Field(..., description="Current simulation time")
-    progress_percent: float = Field(..., description="Progress percentage")
-    started_at: datetime = Field(..., description="Timestamp of the start of the simulation")
-    tick_count: int = Field(..., description="Number of ticks")
 
 
 class HealthResponse(BaseModel):
