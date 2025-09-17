@@ -2,27 +2,25 @@
 
 import requests
 
-from thesis.common.config import HTTP_CLIENT_TIMEOUT_SECONDS, MAX_INTERVALS
+from thesis.common.config import HTTP_CLIENT_TIMEOUT_SECONDS
 
 
 # TODO: tighten dict types
 # TODO: add docstrings
+# TODO: improve error handling
 class ApiClient:
-    def __init__(self, backend_url: str, timeout: float = HTTP_CLIENT_TIMEOUT_SECONDS) -> None:
+    def __init__(self, backend_url: str) -> None:
         self.backend_url = backend_url.rstrip("/")
-        self.timeout = timeout
+        self.timeout = HTTP_CLIENT_TIMEOUT_SECONDS
         self.session = requests.Session()
 
     def _get(self, path: str, params: dict | None = None) -> dict:
-        resp = self.session.get(f"{self.backend_url}{path}", params=params, timeout=self.timeout)
-        return resp.json() if resp.ok else {"status": "error"}
+        response = self.session.get(f"{self.backend_url}{path}", params=params, timeout=self.timeout)
+        return response.json() if response.ok else {"status": "error"}
 
     def _post(self, path: str, json_body: dict | None = None) -> dict:
-        resp = self.session.post(f"{self.backend_url}{path}", json=json_body, timeout=self.timeout)
-        return resp.json() if resp.ok else {"status": "error"}
-
-    def fetch_history(self, limit: int = MAX_INTERVALS) -> dict:
-        return self._get("/metrics/history", params={"limit": limit})
+        response = self.session.post(f"{self.backend_url}{path}", json=json_body, timeout=self.timeout)
+        return response.json() if response.ok else {"status": "error"}
 
     def simulation_start(self) -> dict:
         return self._post("/simulation/start")
@@ -38,3 +36,6 @@ class ApiClient:
 
     def fetch_status(self) -> dict:
         return self._get("/simulation/status")
+
+    def fetch_metrics(self) -> dict:
+        return self._get("/simulation/metrics")
