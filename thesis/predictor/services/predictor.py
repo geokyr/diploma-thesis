@@ -21,15 +21,15 @@ class Predictor:
         end_timestamp: int,
     ) -> PredictionBatchResponse:
         if self._model is None:
-            return PredictionBatchResponse(points=[], mae=0.0)
+            return PredictionBatchResponse(points=[], mae=None)
 
         df = self._loader.load_window(start_timestamp, end_timestamp)
         if df.empty:
-            return PredictionBatchResponse(points=[], mae=0.0)
+            return PredictionBatchResponse(points=[], mae=None)
 
         # Split X, y (target duration) using simple convention
         if "duration" not in df.columns:
-            return PredictionBatchResponse(points=[], mae=0.0)
+            return PredictionBatchResponse(points=[], mae=None)
 
         # Capture timestamps for each sample if available
         ts_col = "time_start" if "time_start" in df.columns else None
@@ -71,7 +71,7 @@ class Predictor:
 
         y_pred = self._model.predict(X)
         abs_errors = (abs(y_pred - y)).tolist()
-        mae = float(mean_absolute_error(y, y_pred)) if len(y_pred) > 0 else 0.0
+        mae = float(mean_absolute_error(y, y_pred)) if len(y_pred) > 0 else None
 
         points: list[ErrorPoint]
         if timestamps and len(timestamps) == len(abs_errors):

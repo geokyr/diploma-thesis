@@ -7,14 +7,14 @@ from thesis.common.schemas import MetricsResponse
 @dataclass(slots=True)
 class MetricPoint:
     timestamp: int
-    mae: float
+    mae: float | None
 
 
 class MetricsStore:
     def __init__(self) -> None:
         self._buffer: deque[MetricPoint] = deque()
 
-    def push(self, timestamp: int, mae: float) -> None:
+    def push(self, timestamp: int, mae: float | None) -> None:
         self._buffer.append(MetricPoint(timestamp=timestamp, mae=mae))
 
     def get_all(self) -> MetricsResponse:

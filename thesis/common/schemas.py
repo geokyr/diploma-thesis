@@ -32,14 +32,14 @@ class PredictionBatchResponse(BaseModel):
     """Response for batch predictions."""
 
     points: list[ErrorPoint] = Field(..., description="List of error points")
-    mae: float = Field(..., description="Mean absolute error")
+    mae: float | None = Field(..., description="Mean absolute error")
 
 
 class MetricsResponse(BaseModel):
     """Response for metrics."""
 
     timestamps: list[int] = Field(..., description="List of timestamps")
-    maes: list[float] = Field(..., description="List of mean absolute errors")
+    maes: list[float | None] = Field(..., description="List of mean absolute errors")
 
 
 class DriftErrorsRequest(BaseModel):

@@ -11,7 +11,7 @@ def predict_batch(req: PredictionBatchRequest, request: Request) -> PredictionBa
     predictor: Predictor = getattr(request.app.state, "predictor", None)
 
     if predictor is None:
-        return PredictionBatchResponse(points=[], mae=0.0)
+        return PredictionBatchResponse(points=[], mae=None)
 
     return predictor.predict_window(
         req.time_window.start_timestamp,
