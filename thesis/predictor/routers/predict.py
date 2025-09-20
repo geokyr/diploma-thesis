@@ -8,10 +8,7 @@ router = APIRouter()
 
 @router.post("/batch", response_model=PredictionBatchResponse)
 def predict_batch(req: PredictionBatchRequest, request: Request) -> PredictionBatchResponse:
-    predictor: Predictor = getattr(request.app.state, "predictor", None)
-
-    if predictor is None:
-        return PredictionBatchResponse(points=[], mae=None)
+    predictor: Predictor = request.app.state.predictor
 
     return predictor.predict_window(
         req.time_window.start_timestamp,
