@@ -13,6 +13,6 @@ def predict_batch(req: PredictionBatchRequest, request: Request) -> PredictionBa
     predictor: Predictor = request.app.state.predictor
 
     return predictor.predict_window(
-        req.time_window.start_timestamp,
-        req.time_window.end_timestamp,
+        req.start_timestamp,
+        req.end_timestamp,
     )
