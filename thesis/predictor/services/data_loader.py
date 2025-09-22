@@ -1,4 +1,4 @@
-"""Parquet data loader."""
+"""Parquet data loader for a predictor."""
 
 from pathlib import Path
 
@@ -8,9 +8,7 @@ from thesis.common.config import TIME_START_COLUMN, TRIPS_PARQUET_FILENAME
 
 
 class ParquetDataLoader:
-    """
-    Parquet data loader.
-    """
+    """Parquet data loader for a predictor."""
 
     def __init__(self, data_dir: Path) -> None:
         self._data_parquet_path = data_dir / TRIPS_PARQUET_FILENAME
