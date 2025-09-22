@@ -23,19 +23,6 @@ class ModelManager:
 
         self.load()
 
-    def _resolve_model_path(self, version: str = DEFAULT_VERSION) -> Path | None:
-        """
-        Resolve the model path for a given version.
-
-        Args:
-            version (str): The version of the model to resolve.
-
-        Returns:
-            Path | None: The resolved model path.
-        """
-        model_path = self._models_dir / version / MODEL_FILENAME
-        return model_path if model_path.exists() else None
-
     def load(self, version: str = DEFAULT_VERSION) -> None:
         """
         Load a model for a given version.
@@ -46,8 +33,8 @@ class ModelManager:
         if version == self._version:
             return
 
-        model_path = self._resolve_model_path(version)
-        if model_path is None:
+        model_path = self._models_dir / version / MODEL_FILENAME
+        if not model_path.exists():
             return
 
         self.model = joblib.load(model_path)
