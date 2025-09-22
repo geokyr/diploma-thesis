@@ -12,9 +12,9 @@ from thesis.predictor.services.model_manager import ModelManager
 class Predictor:
     """Predictor service for a single model."""
 
-    def __init__(self, model_manager: ModelManager, loader: ParquetDataLoader) -> None:
-        self._model_manager = model_manager
+    def __init__(self, loader: ParquetDataLoader, model_manager: ModelManager) -> None:
         self._loader = loader
+        self._model_manager = model_manager
 
     def predict_window(self, start_timestamp: int, end_timestamp: int) -> PredictionBatchResponse:
         """
@@ -40,12 +40,12 @@ class Predictor:
 
         timestamps = X[TIME_START_COLUMN].astype(int).tolist()
         abs_errors = (abs(y - y_pred)).tolist()
-        mae = float(mean_absolute_error(y, y_pred))
+        mae = mean_absolute_error(y, y_pred)
 
         if len(timestamps) != len(abs_errors):
             return PredictionBatchResponse(points=[], mae=None)
 
-        points = [ErrorPoint(timestamp=timestamp, error=error) for timestamp, error in zip(timestamps, abs_errors)]
+        points = [ErrorPoint(timestamp, error) for timestamp, error in zip(timestamps, abs_errors)]
         return PredictionBatchResponse(points=points, mae=mae)
 
     def close(self) -> None:
