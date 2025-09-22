@@ -11,7 +11,7 @@ class ParquetDataLoader:
     """Parquet data loader for a predictor."""
 
     def __init__(self, data_dir: Path) -> None:
-        self._data_parquet_path = data_dir / TRIPS_PARQUET_FILENAME
+        self._data_parquet_path: Path | None = data_dir / TRIPS_PARQUET_FILENAME
 
     def load_window(self, start_timestamp: int, end_timestamp: int) -> pd.DataFrame:
         """

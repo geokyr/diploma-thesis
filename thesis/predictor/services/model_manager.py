@@ -17,7 +17,7 @@ class ModelManager:
     """
 
     def __init__(self, models_dir: Path) -> None:
-        self._models_dir = models_dir
+        self._models_dir: Path | None = models_dir
         self._version: str | None = None
         self.model: BaseEstimator | None = None
 

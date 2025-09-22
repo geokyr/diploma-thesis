@@ -13,8 +13,8 @@ class Predictor:
     """Predictor service for a single model."""
 
     def __init__(self, loader: ParquetDataLoader, model_manager: ModelManager) -> None:
-        self._loader = loader
-        self._model_manager = model_manager
+        self._loader: ParquetDataLoader | None = loader
+        self._model_manager: ModelManager | None = model_manager
 
     def predict_window(self, start_timestamp: int, end_timestamp: int) -> PredictionBatchResponse:
         """
