@@ -1238,6 +1238,7 @@ frontend = [
     { name = "dash" },
     { name = "gunicorn" },
     { name = "plotly" },
+    { name = "pydantic" },
     { name = "requests" },
 ]
 predictor = [
@@ -1294,6 +1295,7 @@ requires-dist = [
     { name = "plotly", marker = "extra == 'frontend'", specifier = "==6.2.0" },
     { name = "pyarrow", marker = "extra == 'simulation'", specifier = "==21.0.0" },
     { name = "pydantic", marker = "extra == 'backend'", specifier = "==2.11.7" },
+    { name = "pydantic", marker = "extra == 'frontend'", specifier = "==2.11.7" },
     { name = "pydantic", marker = "extra == 'predictor'", specifier = "==2.11.7" },
     { name = "pyyaml", specifier = "==6.0.2" },
     { name = "requests", marker = "extra == 'eta'", specifier = "==2.32.4" },
