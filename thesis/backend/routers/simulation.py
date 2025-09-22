@@ -64,8 +64,6 @@ async def restart_simulation(request: Request):
         SimulationSnapshot: The current snapshot of the simulation.
     """
     simulation_manager: SimulationManager = request.app.state.simulation_manager
-    metrics_store: MetricsStore = request.app.state.metrics_store
-    metrics_store.clear()
     return await simulation_manager.restart_simulation()
 
 
@@ -85,7 +83,7 @@ def get_snapshot(request: Request):
 
 
 @simulation_router.get("/metrics", response_model=MetricsResponse)
-def get_metrics(request: Request) -> MetricsResponse:
+async def get_metrics(request: Request) -> MetricsResponse:
     """
     Get the metrics of the simulation.
 
@@ -96,4 +94,4 @@ def get_metrics(request: Request) -> MetricsResponse:
         MetricsResponse: The metrics of the simulation.
     """
     metrics_store: MetricsStore = request.app.state.metrics_store
-    return metrics_store.get_metrics()
+    return await metrics_store.get_metrics()
