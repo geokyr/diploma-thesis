@@ -45,8 +45,8 @@ class Predictor:
         if len(timestamps) != len(abs_errors):
             return PredictionBatchResponse([], None)
 
-        points = [ErrorPoint(timestamp, error) for timestamp, error in zip(timestamps, abs_errors)]
-        return PredictionBatchResponse(points, mae)
+        error_points = [ErrorPoint(timestamp, error) for timestamp, error in zip(timestamps, abs_errors)]
+        return PredictionBatchResponse(error_points, mae)
 
     def close(self) -> None:
         """
