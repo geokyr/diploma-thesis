@@ -8,11 +8,18 @@ from thesis.common.enums import DriftState, MLTask, SimulationState
 from thesis.common.service import PlatformService
 
 
-class ErrorPoint(BaseModel):
-    """Error point for predictions or retraining."""
+class HealthResponse(BaseModel):
+    """Response for health check."""
 
-    timestamp: int = Field(..., description="Timestamp of the error")
-    error: float = Field(..., description="Error value")
+    status: str = Field(..., description="Status of the service")
+    service: PlatformService = Field(..., description="Service")
+
+
+class SimulationSnapshot(BaseModel):
+    """Snapshot of the simulation."""
+
+    state: SimulationState = Field(..., description="State of the simulation")
+    time: int = Field(..., description="Current simulation time")
 
 
 class PredictionBatchRequest(BaseModel):
@@ -22,25 +29,38 @@ class PredictionBatchRequest(BaseModel):
     end_timestamp: int = Field(..., description="Window end timestamp for the predictions")
 
 
+class ErrorPoint(BaseModel):
+    """Error point for predictions."""
+
+    timestamp: int = Field(..., description="Timestamp of the error")
+    error: float = Field(..., description="Error value")
+
+
 class PredictionBatchResponse(BaseModel):
     """Response for batch predictions."""
 
-    points: list[ErrorPoint] = Field(..., description="List of error points")
+    error_points: list[ErrorPoint] = Field(..., description="List of error points")
+    mae: float | None = Field(..., description="Mean absolute error")
+
+
+class MetricPoint(BaseModel):
+    """Metric point for metrics."""
+
+    timestamp: int = Field(..., description="Timestamp of the metric")
     mae: float | None = Field(..., description="Mean absolute error")
 
 
 class MetricsResponse(BaseModel):
     """Response for metrics."""
 
-    timestamps: list[int] = Field(..., description="List of timestamps")
-    maes: list[float | None] = Field(..., description="List of mean absolute errors")
+    metric_points: list[MetricPoint] = Field(..., description="List of metric points")
 
 
 class DriftErrorsRequest(BaseModel):
     """Request for drift errors."""
 
     task: MLTask = Field(..., description="ML task")
-    points: list[ErrorPoint] = Field(..., description="List of error points")
+    error_points: list[ErrorPoint] = Field(..., description="List of error points")
 
 
 class DriftErrorsResponse(BaseModel):
@@ -96,17 +116,3 @@ class Notification(BaseModel):
     timestamp: datetime = Field(..., description="Timestamp of the notification")
     ml_task: MLTask = Field(..., description="ML task of the notification")
     message: str = Field(..., description="Message of the notification")
-
-
-class SimulationStatus(BaseModel):
-    """Status of the simulation."""
-
-    state: SimulationState = Field(..., description="State of the simulation")
-    current_sim_time: float = Field(..., description="Current simulation time")
-
-
-class HealthResponse(BaseModel):
-    """Response for health check."""
-
-    status: str = Field(..., description="Status of the service")
-    service: PlatformService = Field(..., description="Service")
