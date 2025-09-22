@@ -1,12 +1,14 @@
+"""Predict router."""
+
 from fastapi import APIRouter, Request
 
 from thesis.common.schemas import PredictionBatchRequest, PredictionBatchResponse
 from thesis.predictor.services.predictor import Predictor
 
-router = APIRouter()
+predict_router = APIRouter()
 
 
-@router.post("/batch", response_model=PredictionBatchResponse)
+@predict_router.post("/batch", response_model=PredictionBatchResponse)
 def predict_batch(req: PredictionBatchRequest, request: Request) -> PredictionBatchResponse:
     predictor: Predictor = request.app.state.predictor
 
