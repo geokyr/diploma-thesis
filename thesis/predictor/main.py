@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI
 
+from thesis.common.enums import PlatformServiceStatus
 from thesis.common.logger import setup_logger
 from thesis.common.schemas import HealthResponse
 from thesis.common.service import PlatformService, PlatformServiceConfig
@@ -52,7 +53,7 @@ app.include_router(predict_router, prefix="/predict", tags=["predict"])
 
 @app.get("/health", response_model=HealthResponse, tags=["health"])
 def get_health() -> HealthResponse:
-    return HealthResponse(status="healthy", service=PlatformService.PREDICTOR_ETA)
+    return HealthResponse(status=PlatformServiceStatus.HEALTHY, service=PlatformService.PREDICTOR_ETA)
 
 
 if __name__ == "__main__":

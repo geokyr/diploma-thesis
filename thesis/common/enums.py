@@ -50,3 +50,16 @@ class SimulationState(StrEnum):
     IDLE = "idle"
     RUNNING = "running"
     PAUSED = "paused"
+
+
+class PlatformServiceStatus(StrEnum):
+    """
+    Platform service statuses.
+
+    Attributes:
+        HEALTHY: Healthy status.
+        UNHEALTHY: Unhealthy status.
+    """
+
+    HEALTHY = "healthy"
+    UNHEALTHY = "unhealthy"
