@@ -20,7 +20,7 @@ async def lifespan(app: FastAPI):
     try:
         parquet_data_loader = ParquetDataLoader(config.data_dir)
         model_manager = ModelManager(config.models_dir)
-        predictor = Predictor(model_manager, parquet_data_loader)
+        predictor = Predictor(parquet_data_loader, model_manager)
 
         app.state.parquet_data_loader = parquet_data_loader
         app.state.model_manager = model_manager
