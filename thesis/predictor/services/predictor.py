@@ -29,11 +29,11 @@ class Predictor:
         """
         model = self._model_manager.model
         if model is None:
-            return PredictionBatchResponse([], None)
+            return PredictionBatchResponse(error_points=[], mae=None)
 
         df = self._loader.load_window(start_timestamp, end_timestamp)
         if df.empty:
-            return PredictionBatchResponse([], None)
+            return PredictionBatchResponse(error_points=[], mae=None)
 
         X, y = split_features_and_target(df)
         y_pred = model.predict(X)
@@ -43,10 +43,10 @@ class Predictor:
         mae = mean_absolute_error(y, y_pred)
 
         if len(timestamps) != len(abs_errors):
-            return PredictionBatchResponse([], None)
+            return PredictionBatchResponse(error_points=[], mae=None)
 
         error_points = [ErrorPoint(timestamp, error) for timestamp, error in zip(timestamps, abs_errors)]
-        return PredictionBatchResponse(error_points, mae)
+        return PredictionBatchResponse(error_points=error_points, mae=mae)
 
     def close(self) -> None:
         """
