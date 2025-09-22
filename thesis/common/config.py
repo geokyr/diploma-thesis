@@ -56,7 +56,6 @@ class FilenameConfig:
     tuning_results: str
     feature_calibrator: str
     trips_parquet: str
-    latest: str
     model: str
     metadata: str
 
@@ -176,7 +175,7 @@ class TimelapseConfig:
 @dataclass(frozen=True, slots=True)
 class PredictorConfig:
     time_start_column: str
-    latest_version: str
+    default_version: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -248,7 +247,6 @@ RESEARCH_RESULTS_FILENAME = CONFIG.filename.research_results
 TUNING_RESULTS_FILENAME = CONFIG.filename.tuning_results
 FEATURE_CALIBRATOR_FILENAME = CONFIG.filename.feature_calibrator
 TRIPS_PARQUET_FILENAME = CONFIG.filename.trips_parquet
-LATEST_FILENAME = CONFIG.filename.latest
 MODEL_FILENAME = CONFIG.filename.model
 METADATA_FILENAME = CONFIG.filename.metadata
 
@@ -335,4 +333,4 @@ MAX_INTERVALS = CONFIG.timelapse.max_intervals
 HTTP_CLIENT_TIMEOUT_SECONDS = CONFIG.timelapse.client_timeout_seconds
 
 TIME_START_COLUMN = CONFIG.predictor.time_start_column
-LATEST_VERSION = CONFIG.predictor.latest_version
+DEFAULT_VERSION = CONFIG.predictor.default_version
