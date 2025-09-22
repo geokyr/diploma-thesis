@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from thesis.common.logger import setup_logger
 from thesis.common.schemas import HealthResponse
 from thesis.common.service import PlatformService, PlatformServiceConfig
-from thesis.drift.routers.drift import router as drift_router
+from thesis.drift.routers.drift import drift_router
 
 config = PlatformServiceConfig()
 logger = setup_logger(config.service, config.logs_dir)
