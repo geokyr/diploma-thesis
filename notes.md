@@ -55,7 +55,7 @@
   4. **drift-service** (River + FastAPI + Uvicorn): consumes errors per sample per model, returns state transitions/events when drift is detected.
 * **Storage**:
   * **Datasets** (Parquet) volume: `appdata/data/<task>/trips.parquet`.
-  * **Model registry** volume: `appdata/models/<task>/<version>/<model_name>.joblib` and `appdata/models/<task>/latest.txt → <version>` pointer.
+  * **Model registry** volume: `appdata/models/<task>/<version>/<model_name>.joblib`.
   * **Logs** volume: `appdata/logs/<service_name>/`.
   * **Misc** volume: `appdata/misc/<task>/feature_calibrator.joblib`.
 
@@ -64,11 +64,11 @@
 * **Backend ↔ Predictor** (JSON over HTTP):
   * `POST /predict`: `{start_timestamp, end_timestamp}` → returns batched `{timestamp, error}` per sample, so we can use them to plot the errors over time and also digest the errors in correct order in the drift service.
   * `POST /retrain`: `{start_timestamp, end_timestamp}` → async job id; `GET /retrain/status/{job_id}` for progress.
-  * `POST /load`: `{version | "latest"}` → 200 on success; model hot-swapped.
+  * `POST /load`: `{version}` → 200 on success; model hot-swapped.
 * **Backend ↔ Drift-service** (black box; define this now so we can mock it):
   * `POST /errors`: `{task, samples: {timestamp, error}[]}`;
   * `GET /state?task=ETA`: `{state, start_timestamp}`;
-  * **Events**: `drift_detected`, `collecting_started`, `retraining_started`, `swapped_to_latest`.
+  * **Events**: `drift_detected`, `collecting_started`, `retraining_started`, `swapped_to_<version>`.
 * **Backend ↔ Frontend**:
   * Consider what is the best, but possible REST for receiving the list of errors and timestamps and then some calculations to get whatever MAE we need to show in the frontend.
   * REST for controls: `/start`, `/pause`, `/resume`, `/restart`.
@@ -82,11 +82,11 @@ The above are given to get an idea, you don't have to follow them exactly, feel 
   * Trigger: majority vote (ADWIN, Page-Hinkley, KSWIN, SPC) over sliding window; configurable thresholds.
   * Collect for **K sim minutes** after drift before retraining.
   * Retrain on collected data with simple strategy (partial fit based on stable).
-  * On success, **update model registry** and instruct predictor to `/load latest`.
+  * On success, **update model registry** and instruct predictor to `/load <version>`.
 
 ### 7) Model versioning & hot swap
 
-* Filesystem registry with `latest.txt` pointer per task.
+* Filesystem registry per task.
 * Predictor watches for changes (or backend specifically calls `/load`, when retraining is done).
 * Document expected **model metadata** (task, version, created_at, model, start_ts, end_ts).
 
