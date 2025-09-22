@@ -35,3 +35,9 @@ class ParquetDataLoader:
                 ]
             ],
         )
+
+    def close(self) -> None:
+        """
+        Close the parquet data loader.
+        """
+        self._data_parquet_path = None
