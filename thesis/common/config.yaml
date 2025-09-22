@@ -26,6 +26,9 @@ filename:
   tuning_results: "tuning_results.json"
   feature_calibrator: "feature_calibrator.joblib"
   trips_parquet: "trips.parquet"
+  latest: "latest.txt"
+  model: "model.joblib"
+  metadata: "metadata.json"
 
 suffix:
   trips: ".trips.xml"
@@ -130,3 +133,7 @@ timelapse:
   interval_ms: 1000
   max_intervals: 240
   client_timeout_seconds: 3.0
+
+predictor:
+  time_start_column: "time_start"
+  latest_version: "latest"

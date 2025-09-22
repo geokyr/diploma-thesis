@@ -56,6 +56,9 @@ class FilenameConfig:
     tuning_results: str
     feature_calibrator: str
     trips_parquet: str
+    latest: str
+    model: str
+    metadata: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -171,6 +174,12 @@ class TimelapseConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class PredictorConfig:
+    time_start_column: str
+    latest_version: str
+
+
+@dataclass(frozen=True, slots=True)
 class Config:
     logging: LoggingConfig
     dirname: DirnameConfig
@@ -185,6 +194,7 @@ class Config:
     models: ModelsConfig
     services: ServicesConfig
     timelapse: TimelapseConfig
+    predictor: PredictorConfig
 
 
 def load_config(config_path: Path) -> Config:
@@ -204,6 +214,7 @@ def load_config(config_path: Path) -> Config:
             models=ModelsConfig(**data["models"]),
             services=ServicesConfig(**data["services"]),
             timelapse=TimelapseConfig(**data["timelapse"]),
+            predictor=PredictorConfig(**data["predictor"]),
         )
 
 
@@ -237,6 +248,9 @@ RESEARCH_RESULTS_FILENAME = CONFIG.filename.research_results
 TUNING_RESULTS_FILENAME = CONFIG.filename.tuning_results
 FEATURE_CALIBRATOR_FILENAME = CONFIG.filename.feature_calibrator
 TRIPS_PARQUET_FILENAME = CONFIG.filename.trips_parquet
+LATEST_FILENAME = CONFIG.filename.latest
+MODEL_FILENAME = CONFIG.filename.model
+METADATA_FILENAME = CONFIG.filename.metadata
 
 TRIPS_SUFFIX = CONFIG.suffix.trips
 SUMOCFG_SUFFIX = CONFIG.suffix.sumocfg
@@ -319,3 +333,6 @@ SPEED_MULTIPLIER = CONFIG.timelapse.speed_multiplier
 INTERVAL_MS = CONFIG.timelapse.interval_ms
 MAX_INTERVALS = CONFIG.timelapse.max_intervals
 HTTP_CLIENT_TIMEOUT_SECONDS = CONFIG.timelapse.client_timeout_seconds
+
+TIME_START_COLUMN = CONFIG.predictor.time_start_column
+LATEST_VERSION = CONFIG.predictor.latest_version
