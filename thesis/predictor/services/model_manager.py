@@ -1,136 +1,117 @@
+"""Model manager for a predictor with simple versioning."""
+
+import json
 from dataclasses import dataclass
-from datetime import datetime
 from pathlib import Path
-from typing import Any, List, Optional
 
 import joblib
 from sklearn.base import BaseEstimator
 
-from thesis.common.service import PlatformServiceConfig
+from thesis.common.config import LATEST_FILENAME, LATEST_VERSION, METADATA_FILENAME, MODEL_FILENAME
+from thesis.common.enums import MLTask
+from thesis.eta.models import ModelType
 
 
-@dataclass(slots=True)
-class LoadedModel:
-    model: Optional[BaseEstimator]
-    version: Optional[str]
-    loaded_at: Optional[datetime]
+@dataclass(frozen=True, slots=True)
+class ModelMetadata:
+    """
+    Metadata for a model.
+
+    Attributes:
+        ml_task (MLTask): The task the model is for.
+        version (str): The version of the model.
+        created_at (str): The timestamp the model was created at.
+        model (ModelType): The model type.
+        start_timestamp (int): The training data start timestamp used to train the model.
+        end_timestamp (int): The training data end timestamp used to train the model.
+    """
+
+    ml_task: MLTask
+    version: str
+    created_at: str
+    model: ModelType
+    start_timestamp: int
+    end_timestamp: int
 
 
 class ModelManager:
     """
-    Task-scoped model manager with simple versioning semantics.
+    Model manager for a predictor with simple versioning.
 
-    Layout per task:
-      /app/models/{task}/
-        v1/model.joblib
-        v2/model.joblib
-        latest -> v2/    (optional symlink)
-        latest.txt       (optional text file with version name)
-    Legacy fallback: /app/models/LGBMRegressor.joblib
+    Attributes:
+        model (BaseEstimator | None): The loaded model.
     """
 
-    def __init__(self, service_config: PlatformServiceConfig) -> None:
-        self._cfg = service_config
-        self._loaded = LoadedModel(model=None, version=None, loaded_at=None)
-        self._metadata: Optional[dict[str, Any]] = None
+    def __init__(self, models_dir: Path) -> None:
+        self._models_dir = models_dir
+        self._metadata: ModelMetadata | None = None
+        self._version: str | None = None
 
-    @property
-    def _task_models_dir(self) -> Path:
-        return self._cfg.models_dir
+        self.model: BaseEstimator | None = None
 
-    def available_versions(self) -> List[str]:
-        if not self._task_models_dir.exists():
-            return []
-        return sorted(
-            [p.name for p in self._task_models_dir.iterdir() if p.is_dir() and p.name.lower().startswith("v")]
-        )
+        self.load()
 
-    def _resolve_version_dir(self, version: str) -> Optional[Path]:
-        # Ignore symlinks; prefer latest.txt when version == "latest"
-        if version == "latest":
-            latest_txt = self._task_models_dir / "latest.txt"
-            if latest_txt.exists():
-                try:
-                    text = latest_txt.read_text(encoding="utf-8").strip()
-                    candidate = self._task_models_dir / text
-                    if candidate.is_dir():
-                        return candidate
-                except Exception:
-                    return None
-            # Fallback: pick highest vN if latest.txt missing
-            versions = self.available_versions()
-            if not versions:
+    def _read_latest_version(self) -> str | None:
+        """
+        Read the latest version from the latest.txt file.
+
+        Returns:
+            str | None: The latest version.
+        """
+        latest_txt = self._models_dir / LATEST_FILENAME
+        if not latest_txt.exists():
+            return None
+
+        try:
+            return latest_txt.read_text(encoding="utf-8").strip()
+        except Exception:
+            return None
+
+    def _resolve_model_path(self, version: str = LATEST_VERSION) -> Path | None:
+        """
+        Resolve the model path for a given version.
+
+        Args:
+            version (str): The version of the model to resolve.
+
+        Returns:
+            Path | None: The resolved model path.
+        """
+        if version == LATEST_VERSION:
+            latest_version = self._read_latest_version()
+            if latest_version is None:
                 return None
-            try:
-                versions_sorted = sorted(versions, key=lambda v: int("".join(ch for ch in v if ch.isdigit())))
-                return self._task_models_dir / versions_sorted[-1]
-            except Exception:
-                return self._task_models_dir / versions[-1]
 
-        # explicit version directory
-        candidate = self._task_models_dir / version
-        return candidate if candidate.is_dir() else None
+            version = latest_version
 
-    def _legacy_model_path(self) -> Path:
-        return self._cfg.models_dir / "LGBMRegressor.joblib"
+        model_path = self._models_dir / version / MODEL_FILENAME
+        return model_path if model_path.exists() else None
 
-    def load(self, version: str = "latest") -> None:
-        # Try versioned path first
-        dir_path = self._resolve_version_dir(version)
-        if dir_path is not None:
-            candidate_names = [
-                dir_path / "model.joblib",
-                dir_path / "LGBMRegressor.joblib",
-                dir_path / "XGBRegressor.joblib",
-                dir_path / "CatBoostRegressor.joblib",
-            ]
-            model_path: Optional[Path] = next((p for p in candidate_names if p.exists()), None)
-            if model_path is None:
-                # fallback: pick any .joblib in dir
-                jobs = list(dir_path.glob("*.joblib"))
-                if jobs:
-                    model_path = jobs[0]
-            if model_path is not None and model_path.exists():
-                model = joblib.load(model_path)
-                self._loaded = LoadedModel(model=model, version=dir_path.name, loaded_at=datetime.now())
-                # try to read metadata.json
-                meta_path = dir_path / "metadata.json"
-                try:
-                    if meta_path.exists():
-                        import json
+    def load(self, version: str = LATEST_VERSION) -> None:
+        """
+        Load a model for a given version.
 
-                        self._metadata = json.loads(meta_path.read_text(encoding="utf-8"))
-                    else:
-                        self._metadata = None
-                except Exception:
-                    self._metadata = None
-                return
+        Args:
+            version (str): The version of the model to load.
+        """
+        if version == self._version:
+            return
 
-        # Legacy fallback
-        legacy = self._legacy_model_path()
-        if legacy.exists():
-            model = joblib.load(legacy)
-            self._loaded = LoadedModel(model=model, version="v1", loaded_at=datetime.now())
+        if version == LATEST_VERSION and self._version == self._read_latest_version():
+            return
+
+        model_path = self._resolve_model_path(version)
+        if model_path is None:
+            return
+
+        self.model = joblib.load(model_path)
+        self._version = model_path.parent.name
+
+        metadata_path = model_path.with_name(METADATA_FILENAME)
+
+        try:
+            if metadata_path.exists():
+                metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+                self._metadata = ModelMetadata(**metadata)
+        except Exception:
             self._metadata = None
-        else:
-            self._loaded = LoadedModel(model=None, version=None, loaded_at=None)
-            self._metadata = None
-
-    def load_default(self) -> None:
-        self.load("latest")
-
-    @property
-    def model(self) -> Optional[BaseEstimator]:
-        return self._loaded.model
-
-    @property
-    def version(self) -> Optional[str]:
-        return self._loaded.version
-
-    @property
-    def loaded_at(self) -> Optional[datetime]:
-        return self._loaded.loaded_at
-
-    @property
-    def metadata(self) -> Optional[dict[str, Any]]:
-        return self._metadata
