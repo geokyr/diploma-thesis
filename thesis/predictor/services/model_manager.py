@@ -7,7 +7,7 @@ from pathlib import Path
 import joblib
 from sklearn.base import BaseEstimator
 
-from thesis.common.config import LATEST_FILENAME, LATEST_VERSION, METADATA_FILENAME, MODEL_FILENAME
+from thesis.common.config import DEFAULT_VERSION, METADATA_FILENAME, MODEL_FILENAME
 from thesis.common.enums import MLTask
 from thesis.eta.models import ModelType
 
@@ -46,28 +46,11 @@ class ModelManager:
         self._models_dir = models_dir
         self._metadata: ModelMetadata | None = None
         self._version: str | None = None
-
         self.model: BaseEstimator | None = None
 
         self.load()
 
-    def _read_latest_version(self) -> str | None:
-        """
-        Read the latest version from the latest.txt file.
-
-        Returns:
-            str | None: The latest version.
-        """
-        latest_txt = self._models_dir / LATEST_FILENAME
-        if not latest_txt.exists():
-            return None
-
-        try:
-            return latest_txt.read_text(encoding="utf-8").strip()
-        except Exception:
-            return None
-
-    def _resolve_model_path(self, version: str = LATEST_VERSION) -> Path | None:
+    def _resolve_model_path(self, version: str = DEFAULT_VERSION) -> Path | None:
         """
         Resolve the model path for a given version.
 
@@ -77,17 +60,10 @@ class ModelManager:
         Returns:
             Path | None: The resolved model path.
         """
-        if version == LATEST_VERSION:
-            latest_version = self._read_latest_version()
-            if latest_version is None:
-                return None
-
-            version = latest_version
-
         model_path = self._models_dir / version / MODEL_FILENAME
         return model_path if model_path.exists() else None
 
-    def load(self, version: str = LATEST_VERSION) -> None:
+    def load(self, version: str = DEFAULT_VERSION) -> None:
         """
         Load a model for a given version.
 
@@ -95,9 +71,6 @@ class ModelManager:
             version (str): The version of the model to load.
         """
         if version == self._version:
-            return
-
-        if version == LATEST_VERSION and self._version == self._read_latest_version():
             return
 
         model_path = self._resolve_model_path(version)
@@ -115,3 +88,12 @@ class ModelManager:
                 self._metadata = ModelMetadata(**metadata)
         except Exception:
             self._metadata = None
+
+    def close(self) -> None:
+        """
+        Close the model manager.
+        """
+        self._models_dir = None
+        self._metadata = None
+        self._version = None
+        self.model = None
