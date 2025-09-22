@@ -1,31 +1,41 @@
+"""Metrics store for the frontend charts."""
+
+import asyncio
 from collections import deque
-from dataclasses import dataclass
 
-from thesis.common.schemas import MetricsResponse
-
-
-@dataclass(slots=True)
-class MetricPoint:
-    timestamp: int
-    mae: float | None
+from thesis.common.schemas import MetricPoint, MetricsResponse
 
 
 class MetricsStore:
+    """Metrics store for the frontend charts."""
+
     def __init__(self) -> None:
-        self._buffer: deque[MetricPoint] = deque()
+        self._metric_points: deque[MetricPoint] = deque()
+        self._lock = asyncio.Lock()
 
-    def push(self, timestamp: int, mae: float | None) -> None:
-        self._buffer.append(MetricPoint(timestamp=timestamp, mae=mae))
+    async def push(self, timestamp: int, mae: float | None) -> None:
+        """
+        Push a metric point to the store.
 
-    def get_all(self) -> MetricsResponse:
-        metric_points = list(self._buffer)
-        timestamps = [point.timestamp for point in metric_points]
-        maes = [point.mae for point in metric_points]
+        Args:
+            timestamp (int): Timestamp of the metric.
+            mae (float | None): Mean absolute error.
+        """
+        async with self._lock:
+            self._metric_points.append(MetricPoint(timestamp=timestamp, mae=mae))
 
-        return MetricsResponse(
-            timestamps=timestamps,
-            maes=maes,
-        )
+    async def get_metrics(self) -> MetricsResponse:
+        """
+        Get the metrics from the store.
 
-    def clear(self) -> None:
-        self._buffer.clear()
+        Returns:
+            MetricsResponse: Metrics response.
+        """
+        async with self._lock:
+            metric_points = list(self._metric_points)
+            return MetricsResponse(metric_points=metric_points)
+
+    async def clear(self) -> None:
+        """Clear the metrics store."""
+        async with self._lock:
+            self._metric_points.clear()
