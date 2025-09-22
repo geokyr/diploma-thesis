@@ -17,7 +17,7 @@ class ModelManager:
     """
 
     def __init__(self, models_dir: Path) -> None:
-        self._models_dir: Path | None = models_dir
+        self._models_dir: Path = models_dir
         self._version: str | None = None
         self.model: BaseEstimator | None = None
 
@@ -40,10 +40,7 @@ class ModelManager:
         self.model = joblib.load(model_path)
         self._version = model_path.parent.name
 
-    def close(self) -> None:
-        """
-        Close the model manager.
-        """
-        self._models_dir = None
+    def clear(self) -> None:
+        """Clear the model manager."""
         self._version = None
         self.model = None
