@@ -14,7 +14,7 @@ app.include_router(drift_router, prefix="/drift", tags=["drift"])
 
 
 @app.get("/health", response_model=HealthResponse, tags=["health"])
-def health() -> HealthResponse:
+def get_health() -> HealthResponse:
     return HealthResponse(status="healthy", service=PlatformService.DRIFT)
 
 
