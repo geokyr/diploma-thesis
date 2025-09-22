@@ -47,14 +47,12 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Platform Predictor Service", version="1.0.0", lifespan=lifespan)
+app.include_router(predict_router, prefix="/predict", tags=["predict"])
 
 
 @app.get("/health", response_model=HealthResponse, tags=["health"])
 def get_health() -> HealthResponse:
     return HealthResponse(status="healthy", service=PlatformService.PREDICTOR_ETA)
-
-
-app.include_router(predict_router, prefix="/predict", tags=["predict"])
 
 
 if __name__ == "__main__":
