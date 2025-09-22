@@ -8,13 +8,6 @@ from thesis.common.enums import DriftState, MLTask, SimulationState
 from thesis.common.service import PlatformService
 
 
-class TimeWindow(BaseModel):
-    """Time window for predictions or retraining."""
-
-    start_timestamp: int = Field(..., description="Start timestamp of the window")
-    end_timestamp: int = Field(..., description="End timestamp of the window")
-
-
 class ErrorPoint(BaseModel):
     """Error point for predictions or retraining."""
 
@@ -25,7 +18,8 @@ class ErrorPoint(BaseModel):
 class PredictionBatchRequest(BaseModel):
     """Request for batch predictions."""
 
-    time_window: TimeWindow = Field(..., description="Time window for predictions")
+    start_timestamp: int = Field(..., description="Window start timestamp for the predictions")
+    end_timestamp: int = Field(..., description="Window end timestamp for the predictions")
 
 
 class PredictionBatchResponse(BaseModel):
@@ -60,7 +54,8 @@ class DriftErrorsResponse(BaseModel):
 class RetrainRequest(BaseModel):
     """Request for retraining."""
 
-    time_window: TimeWindow = Field(..., description="Time window for retraining")
+    start_timestamp: int = Field(..., description="Window start timestamp for retraining")
+    end_timestamp: int = Field(..., description="Window end timestamp for retraining")
 
 
 class RetrainResult(BaseModel):
