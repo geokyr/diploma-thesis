@@ -1,19 +1,19 @@
 """Predictor service for a single model."""
 
-from sklearn.base import BaseEstimator
 from sklearn.metrics import mean_absolute_error
 
 from thesis.common.config import TIME_START_COLUMN
 from thesis.common.schemas import ErrorPoint, PredictionBatchResponse
 from thesis.eta.features import split_features_and_target
 from thesis.predictor.services.data_loader import ParquetDataLoader
+from thesis.predictor.services.model_manager import ModelManager
 
 
 class Predictor:
     """Predictor service for a single model."""
 
-    def __init__(self, model: BaseEstimator | None, loader: ParquetDataLoader) -> None:
-        self._model = model
+    def __init__(self, model_manager: ModelManager, loader: ParquetDataLoader) -> None:
+        self._model_manager = model_manager
         self._loader = loader
 
     def predict_window(self, start_timestamp: int, end_timestamp: int) -> PredictionBatchResponse:
@@ -27,7 +27,8 @@ class Predictor:
         Returns:
             PredictionBatchResponse: Prediction batch response.
         """
-        if self._model is None:
+        model = self._model_manager.model
+        if model is None:
             return PredictionBatchResponse(points=[], mae=None)
 
         df = self._loader.load_window(start_timestamp, end_timestamp)
@@ -35,7 +36,7 @@ class Predictor:
             return PredictionBatchResponse(points=[], mae=None)
 
         X, y = split_features_and_target(df)
-        y_pred = self._model.predict(X)
+        y_pred = model.predict(X)
 
         timestamps = X[TIME_START_COLUMN].astype(int).tolist()
         abs_errors = (abs(y - y_pred)).tolist()
@@ -46,3 +47,10 @@ class Predictor:
 
         points = [ErrorPoint(timestamp=timestamp, error=error) for timestamp, error in zip(timestamps, abs_errors)]
         return PredictionBatchResponse(points=points, mae=mae)
+
+    def close(self) -> None:
+        """
+        Close the predictor.
+        """
+        self._model_manager = None
+        self._loader = None
