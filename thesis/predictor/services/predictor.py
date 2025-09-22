@@ -5,16 +5,16 @@ from sklearn.metrics import mean_absolute_error
 from thesis.common.config import TIME_START_COLUMN
 from thesis.common.schemas import ErrorPoint, PredictionBatchResponse
 from thesis.eta.features import split_features_and_target
-from thesis.predictor.services.data_loader import ParquetDataLoader
+from thesis.predictor.services.data_loader import DataLoader
 from thesis.predictor.services.model_manager import ModelManager
 
 
 class Predictor:
     """Predictor service for a single model."""
 
-    def __init__(self, loader: ParquetDataLoader, model_manager: ModelManager) -> None:
-        self._loader: ParquetDataLoader | None = loader
-        self._model_manager: ModelManager | None = model_manager
+    def __init__(self, data_loader: DataLoader, model_manager: ModelManager) -> None:
+        self._data_loader: DataLoader = data_loader
+        self._model_manager: ModelManager = model_manager
 
     def predict_window(self, start_timestamp: int, end_timestamp: int) -> PredictionBatchResponse:
         """
@@ -31,7 +31,7 @@ class Predictor:
         if model is None:
             return PredictionBatchResponse(error_points=[], mae=None)
 
-        df = self._loader.load_window(start_timestamp, end_timestamp)
+        df = self._data_loader.load_window(start_timestamp, end_timestamp)
         if df.empty:
             return PredictionBatchResponse(error_points=[], mae=None)
 
@@ -48,9 +48,6 @@ class Predictor:
         error_points = [ErrorPoint(timestamp, error) for timestamp, error in zip(timestamps, abs_errors)]
         return PredictionBatchResponse(error_points=error_points, mae=mae)
 
-    def close(self) -> None:
-        """
-        Close the predictor.
-        """
-        self._model_manager = None
-        self._loader = None
+    def clear(self) -> None:
+        """Clear the predictor."""
+        pass
