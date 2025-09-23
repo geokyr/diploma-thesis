@@ -40,7 +40,7 @@ class SimulationManager:
                         raise
                     except Exception:
                         pass
-                    await asyncio.sleep(self._timelapse_driver.interval_seconds)
+                    await asyncio.sleep(self._timelapse_driver._interval_seconds)
                 else:
                     await asyncio.sleep(self._pause_poll_seconds)
         except asyncio.CancelledError:
