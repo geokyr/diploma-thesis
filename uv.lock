@@ -1224,9 +1224,9 @@ eta = [
 ]
 frontend = [
     { name = "dash" },
+    { name = "httpx" },
     { name = "plotly" },
     { name = "pydantic" },
-    { name = "requests" },
 ]
 predictor = [
     { name = "catboost" },
@@ -1262,6 +1262,7 @@ requires-dist = [
     { name = "fastapi", marker = "extra == 'drift'", specifier = "==0.116.1" },
     { name = "fastapi", marker = "extra == 'predictor'", specifier = "==0.116.1" },
     { name = "httpx", marker = "extra == 'backend'", specifier = "==0.28.1" },
+    { name = "httpx", marker = "extra == 'frontend'", specifier = "==0.28.1" },
     { name = "ipykernel", specifier = ">=6.30.1" },
     { name = "joblib", marker = "extra == 'eta'", specifier = "==1.5.1" },
     { name = "joblib", marker = "extra == 'predictor'", specifier = "==1.5.1" },
@@ -1285,7 +1286,6 @@ requires-dist = [
     { name = "pydantic", marker = "extra == 'predictor'", specifier = "==2.11.7" },
     { name = "pyyaml", specifier = "==6.0.2" },
     { name = "requests", marker = "extra == 'eta'", specifier = "==2.32.4" },
-    { name = "requests", marker = "extra == 'frontend'", specifier = "==2.32.4" },
     { name = "river", marker = "extra == 'drift'", specifier = "==0.22.0" },
     { name = "scikit-learn", marker = "extra == 'drift'", specifier = "==1.6.1" },
     { name = "scikit-learn", marker = "extra == 'eta'", specifier = "==1.6.1" },

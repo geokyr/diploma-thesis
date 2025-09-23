@@ -51,7 +51,7 @@ frontend = [
     "dash==3.2.0",
     "plotly==6.2.0",
     "pydantic==2.11.7",
-    "requests==2.32.4",
+    "httpx==0.28.1",
 ]
 
 predictor = [
