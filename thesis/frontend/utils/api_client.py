@@ -1,6 +1,6 @@
 """Frontend API client."""
 
-import requests
+import httpx
 
 from thesis.common.config import HTTP_CLIENT_TIMEOUT_SECONDS
 from thesis.common.schemas import MetricsResponse, SimulationSnapshot
@@ -11,34 +11,7 @@ class ApiClient:
 
     def __init__(self, backend_url: str) -> None:
         self._backend_url = backend_url.rstrip("/")
-        self._timeout = HTTP_CLIENT_TIMEOUT_SECONDS
-        self._session = requests.Session()
-
-    def _get(self, path: str, **kwargs) -> requests.Response:
-        """
-        Get a response from the backend.
-
-        Args:
-            path: The path to the backend.
-            **kwargs: Additional keyword arguments to pass to the session.get method.
-
-        Returns:
-            requests.Response: The response from the backend.
-        """
-        return self._session.get(f"{self._backend_url}{path}", timeout=self._timeout, **kwargs)
-
-    def _post(self, path: str, **kwargs) -> requests.Response:
-        """
-        Post a request to the backend.
-
-        Args:
-            path: The path to the backend.
-            **kwargs: Additional keyword arguments to pass to the session.post method.
-
-        Returns:
-            requests.Response: The response from the backend.
-        """
-        return self._session.post(f"{self._backend_url}{path}", timeout=self._timeout, **kwargs)
+        self._client = httpx.Client(base_url=backend_url, timeout=HTTP_CLIENT_TIMEOUT_SECONDS)
 
     def simulation_start(self) -> SimulationSnapshot:
         """
@@ -47,9 +20,9 @@ class ApiClient:
         Returns:
             SimulationSnapshot: The snapshot of the simulation.
         """
-        response = self._post("/simulation/start")
+        response = self._client.post("/simulation/start")
         response.raise_for_status()
-        return SimulationSnapshot(**response.json())
+        return SimulationSnapshot.model_validate(response.json())
 
     def simulation_pause(self) -> SimulationSnapshot:
         """
@@ -58,9 +31,9 @@ class ApiClient:
         Returns:
             SimulationSnapshot: The snapshot of the simulation.
         """
-        response = self._post("/simulation/pause")
+        response = self._client.post("/simulation/pause")
         response.raise_for_status()
-        return SimulationSnapshot(**response.json())
+        return SimulationSnapshot.model_validate(response.json())
 
     def simulation_resume(self) -> SimulationSnapshot:
         """
@@ -69,9 +42,9 @@ class ApiClient:
         Returns:
             SimulationSnapshot: The snapshot of the simulation.
         """
-        response = self._post("/simulation/resume")
+        response = self._client.post("/simulation/resume")
         response.raise_for_status()
-        return SimulationSnapshot(**response.json())
+        return SimulationSnapshot.model_validate(response.json())
 
     def simulation_reset(self) -> SimulationSnapshot:
         """
@@ -80,9 +53,9 @@ class ApiClient:
         Returns:
             SimulationSnapshot: The snapshot of the simulation.
         """
-        response = self._post("/simulation/reset")
+        response = self._client.post("/simulation/reset")
         response.raise_for_status()
-        return SimulationSnapshot(**response.json())
+        return SimulationSnapshot.model_validate(response.json())
 
     def simulation_snapshot(self) -> SimulationSnapshot:
         """
@@ -91,9 +64,9 @@ class ApiClient:
         Returns:
             SimulationSnapshot: The snapshot of the simulation.
         """
-        response = self._get("/simulation/snapshot")
+        response = self._client.get("/simulation/snapshot")
         response.raise_for_status()
-        return SimulationSnapshot(**response.json())
+        return SimulationSnapshot.model_validate(response.json())
 
     def simulation_metrics(self) -> MetricsResponse:
         """
@@ -102,6 +75,6 @@ class ApiClient:
         Returns:
             MetricsResponse: The metrics of the simulation.
         """
-        response = self._get("/simulation/metrics")
+        response = self._client.get("/simulation/metrics")
         response.raise_for_status()
-        return MetricsResponse(**response.json())
+        return MetricsResponse.model_validate(response.json())
