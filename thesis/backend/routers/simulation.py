@@ -19,7 +19,7 @@ async def start_simulation(request: Request):
         SimulationSnapshot: The current snapshot of the simulation.
     """
     simulation_manager: SimulationManager = request.app.state.simulation_manager
-    return await simulation_manager.start_simulation()
+    return await simulation_manager.start()
 
 
 @simulation_router.post("/pause", response_model=SimulationSnapshot)
@@ -34,7 +34,7 @@ async def pause_simulation(request: Request):
         SimulationSnapshot: The current snapshot of the simulation.
     """
     simulation_manager: SimulationManager = request.app.state.simulation_manager
-    return await simulation_manager.pause_simulation()
+    return await simulation_manager.pause()
 
 
 @simulation_router.post("/resume", response_model=SimulationSnapshot)
@@ -49,13 +49,13 @@ async def resume_simulation(request: Request):
         SimulationSnapshot: The current snapshot of the simulation.
     """
     simulation_manager: SimulationManager = request.app.state.simulation_manager
-    return await simulation_manager.resume_simulation()
+    return await simulation_manager.resume()
 
 
-@simulation_router.post("/restart", response_model=SimulationSnapshot)
-async def restart_simulation(request: Request):
+@simulation_router.post("/reset", response_model=SimulationSnapshot)
+async def reset_simulation(request: Request):
     """
-    Restart the simulation.
+    Reset the simulation.
 
     Args:
         request: Request object.
@@ -64,7 +64,7 @@ async def restart_simulation(request: Request):
         SimulationSnapshot: The current snapshot of the simulation.
     """
     simulation_manager: SimulationManager = request.app.state.simulation_manager
-    return await simulation_manager.restart_simulation()
+    return await simulation_manager.reset()
 
 
 @simulation_router.get("/snapshot", response_model=SimulationSnapshot)
