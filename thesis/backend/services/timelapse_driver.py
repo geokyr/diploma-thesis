@@ -63,7 +63,7 @@ class TimelapseDriver:
         try:
             response = await self._client.post(url, json=payload)
             response.raise_for_status()
-            return PredictionBatchResponse(**response.json())
+            return PredictionBatchResponse.model_validate(response.json())
         except Exception:
             return PredictionBatchResponse(error_points=[], mae=None)
 
@@ -83,7 +83,7 @@ class TimelapseDriver:
         try:
             response = await self._client.post(url, json=payload)
             response.raise_for_status()
-            return DriftErrorsResponse(**response.json())
+            return DriftErrorsResponse.model_validate(response.json())
         except Exception:
             return None
 
