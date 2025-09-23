@@ -11,7 +11,7 @@ class ApiClient:
 
     def __init__(self, backend_url: str) -> None:
         self._backend_url = backend_url.rstrip("/")
-        self._client = httpx.Client(base_url=backend_url, timeout=HTTP_CLIENT_TIMEOUT_SECONDS)
+        self._client = httpx.Client(base_url=self._backend_url, timeout=HTTP_CLIENT_TIMEOUT_SECONDS)
 
     def simulation_start(self) -> SimulationSnapshot:
         """
