@@ -19,7 +19,7 @@ class SimulationSnapshot(BaseModel):
     """Snapshot of the simulation."""
 
     state: SimulationState = Field(..., description="State of the simulation")
-    time: int = Field(..., description="Current simulation time")
+    clock: int = Field(..., description="Current simulation clock time")
 
 
 class PredictionBatchRequest(BaseModel):
@@ -59,14 +59,14 @@ class MetricsResponse(BaseModel):
 class DriftErrorsRequest(BaseModel):
     """Request for drift errors."""
 
-    task: MLTask = Field(..., description="ML task")
+    ml_task: MLTask = Field(..., description="ML task")
     error_points: list[ErrorPoint] = Field(..., description="List of error points")
 
 
 class DriftErrorsResponse(BaseModel):
     """Response for drift errors."""
 
-    task: MLTask = Field(..., description="ML task")
+    ml_task: MLTask = Field(..., description="ML task")
     state: DriftState = Field(..., description="Drift state")
     start_timestamp: int = Field(..., description="Start timestamp of the state")
 
