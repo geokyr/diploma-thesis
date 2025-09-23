@@ -20,7 +20,7 @@ logger = setup_logger(config.service, config.logs_dir)
 async def lifespan(app: FastAPI):
     try:
         metrics_store = MetricsStore()
-        timelapse_driver = TimelapseDriver(metrics_store=metrics_store)
+        timelapse_driver = TimelapseDriver(config=config, metrics_store=metrics_store)
         simulation_manager = SimulationManager(timelapse_driver=timelapse_driver)
 
         app.state.metrics_store = metrics_store
