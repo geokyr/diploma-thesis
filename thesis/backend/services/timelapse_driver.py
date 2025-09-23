@@ -6,7 +6,6 @@ import httpx
 
 from thesis.backend.services.metrics_store import MetricsStore
 from thesis.common.config import HTTP_CLIENT_TIMEOUT_SECONDS, INTERVAL_SECONDS, SPEED_MULTIPLIER
-from thesis.common.enums import DriftState
 from thesis.common.schemas import (
     DriftErrorsRequest,
     DriftErrorsResponse,
@@ -109,9 +108,7 @@ class TimelapseDriver:
             if drift_response is None:
                 return
 
-            if drift_response.state == DriftState.DRIFTED:
-                # TODO: handle drift
-                pass
+            # TODO: implement actual drift lifecycle pipeline
 
     async def reset(self) -> None:
         """Reset the timelapse driver."""
