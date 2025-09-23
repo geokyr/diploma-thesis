@@ -3,39 +3,105 @@
 import requests
 
 from thesis.common.config import HTTP_CLIENT_TIMEOUT_SECONDS
+from thesis.common.schemas import MetricsResponse, SimulationSnapshot
 
 
-# TODO: tighten dict types
-# TODO: add docstrings
-# TODO: improve error handling
 class ApiClient:
+    """Frontend API client."""
+
     def __init__(self, backend_url: str) -> None:
-        self.backend_url = backend_url.rstrip("/")
-        self.timeout = HTTP_CLIENT_TIMEOUT_SECONDS
-        self.session = requests.Session()
+        self._backend_url = backend_url.rstrip("/")
+        self._timeout = HTTP_CLIENT_TIMEOUT_SECONDS
+        self._session = requests.Session()
 
-    def _get(self, path: str, params: dict | None = None) -> dict:
-        response = self.session.get(f"{self.backend_url}{path}", params=params, timeout=self.timeout)
-        return response.json() if response.ok else {"status": "error"}
+    def _get(self, path: str, **kwargs) -> requests.Response:
+        """
+        Get a response from the backend.
 
-    def _post(self, path: str, json_body: dict | None = None) -> dict:
-        response = self.session.post(f"{self.backend_url}{path}", json=json_body, timeout=self.timeout)
-        return response.json() if response.ok else {"status": "error"}
+        Args:
+            path: The path to the backend.
+            **kwargs: Additional keyword arguments to pass to the session.get method.
 
-    def simulation_start(self) -> dict:
-        return self._post("/simulation/start")
+        Returns:
+            requests.Response: The response from the backend.
+        """
+        return self._session.get(f"{self._backend_url}{path}", timeout=self._timeout, **kwargs)
 
-    def simulation_pause(self) -> dict:
-        return self._post("/simulation/pause")
+    def _post(self, path: str, **kwargs) -> requests.Response:
+        """
+        Post a request to the backend.
 
-    def simulation_resume(self) -> dict:
-        return self._post("/simulation/resume")
+        Args:
+            path: The path to the backend.
+            **kwargs: Additional keyword arguments to pass to the session.post method.
 
-    def simulation_restart(self) -> dict:
-        return self._post("/simulation/restart")
+        Returns:
+            requests.Response: The response from the backend.
+        """
+        return self._session.post(f"{self._backend_url}{path}", timeout=self._timeout, **kwargs)
 
-    def fetch_status(self) -> dict:
-        return self._get("/simulation/status")
+    def simulation_start(self) -> SimulationSnapshot:
+        """
+        Start the simulation.
 
-    def fetch_metrics(self) -> dict:
-        return self._get("/simulation/metrics")
+        Returns:
+            SimulationSnapshot: The snapshot of the simulation.
+        """
+        response = self._post("/simulation/start")
+        response.raise_for_status()
+        return SimulationSnapshot(**response.json())
+
+    def simulation_pause(self) -> SimulationSnapshot:
+        """
+        Pause the simulation.
+
+        Returns:
+            SimulationSnapshot: The snapshot of the simulation.
+        """
+        response = self._post("/simulation/pause")
+        response.raise_for_status()
+        return SimulationSnapshot(**response.json())
+
+    def simulation_resume(self) -> SimulationSnapshot:
+        """
+        Resume the simulation.
+
+        Returns:
+            SimulationSnapshot: The snapshot of the simulation.
+        """
+        response = self._post("/simulation/resume")
+        response.raise_for_status()
+        return SimulationSnapshot(**response.json())
+
+    def simulation_reset(self) -> SimulationSnapshot:
+        """
+        Reset the simulation.
+
+        Returns:
+            SimulationSnapshot: The snapshot of the simulation.
+        """
+        response = self._post("/simulation/reset")
+        response.raise_for_status()
+        return SimulationSnapshot(**response.json())
+
+    def simulation_snapshot(self) -> SimulationSnapshot:
+        """
+        Get the snapshot of the simulation.
+
+        Returns:
+            SimulationSnapshot: The snapshot of the simulation.
+        """
+        response = self._get("/simulation/snapshot")
+        response.raise_for_status()
+        return SimulationSnapshot(**response.json())
+
+    def simulation_metrics(self) -> MetricsResponse:
+        """
+        Get the metrics of the simulation.
+
+        Returns:
+            MetricsResponse: The metrics of the simulation.
+        """
+        response = self._get("/simulation/metrics")
+        response.raise_for_status()
+        return MetricsResponse(**response.json())
