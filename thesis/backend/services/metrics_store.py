@@ -11,7 +11,7 @@ class MetricsStore:
 
     def __init__(self) -> None:
         self._metric_points: deque[MetricPoint] = deque()
-        self._lock = asyncio.Lock()
+        self._lock: asyncio.Lock = asyncio.Lock()
 
     async def push(self, timestamp: int, mae: float | None) -> None:
         """
@@ -35,7 +35,11 @@ class MetricsStore:
             metric_points = list(self._metric_points)
             return MetricsResponse(metric_points=metric_points)
 
-    async def clear(self) -> None:
-        """Clear the metrics store."""
+    async def reset(self) -> None:
+        """Reset the metrics store."""
         async with self._lock:
             self._metric_points.clear()
+
+    async def clear(self) -> None:
+        """Clear the metrics store."""
+        await self.reset()
