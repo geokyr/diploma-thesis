@@ -128,10 +128,10 @@ services:
   frontend: 8080
 
 timelapse:
-  speed_multiplier: 300.0
-  interval_ms: 1000
-  max_intervals: 240
-  client_timeout_seconds: 3.0
+  speed_multiplier: 300
+  interval_seconds: 1
+  pause_poll_seconds: 0.1
+  client_timeout_seconds: 10
 
 predictor:
   time_start_column: "time_start"

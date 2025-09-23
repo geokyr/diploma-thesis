@@ -166,10 +166,10 @@ class ServicesConfig:
 
 @dataclass(frozen=True, slots=True)
 class TimelapseConfig:
-    speed_multiplier: float
-    interval_ms: int
-    max_intervals: int
-    client_timeout_seconds: float
+    speed_multiplier: int
+    interval_seconds: int
+    pause_poll_seconds: float
+    client_timeout_seconds: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -328,8 +328,8 @@ PORT_DRIFT = CONFIG.services.drift
 PORT_FRONTEND = CONFIG.services.frontend
 
 SPEED_MULTIPLIER = CONFIG.timelapse.speed_multiplier
-INTERVAL_MS = CONFIG.timelapse.interval_ms
-MAX_INTERVALS = CONFIG.timelapse.max_intervals
+INTERVAL_SECONDS = CONFIG.timelapse.interval_seconds
+PAUSE_POLL_SECONDS = CONFIG.timelapse.pause_poll_seconds
 HTTP_CLIENT_TIMEOUT_SECONDS = CONFIG.timelapse.client_timeout_seconds
 
 TIME_START_COLUMN = CONFIG.predictor.time_start_column
