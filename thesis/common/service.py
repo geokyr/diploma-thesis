@@ -47,26 +47,7 @@ class PlatformService(StrEnum):
 
 @dataclass(frozen=True, slots=True)
 class PlatformServiceConfig:
-    """
-    A platform service config.
-
-    Properties:
-        service (PlatformService): Service.
-        port (int): Port.
-        ml_task (MLTask | None): ML task.
-        host (str): Host.
-        is_development (bool): Is development.
-        app_dir (Path): Path to the app directory.
-        logs_dir (Path): Path to the logs directory.
-        data_dir (Path): Path to the data directory.
-        models_dir (Path): Path to the models directory.
-        misc_dir (Path): Path to the misc directory.
-        backend_url (str): Backend URL.
-        predictor_eta_url (str): ETA predictor URL.
-        predictor_fuel_url (str): Fuel predictor URL.
-        predictor_stops_url (str): Stops predictor URL.
-        drift_url (str): Drift URL.
-    """
+    """A platform service config."""
 
     _PORTS = {
         PlatformService.BACKEND: PORT_BACKEND,
@@ -118,64 +99,80 @@ class PlatformServiceConfig:
 
     @property
     def service(self) -> PlatformService:
+        """Platform service."""
         return PlatformService(os.environ.get("SERVICE", "backend"))
 
     @property
     def port(self) -> int:
+        """Port for the platform service."""
         return self._PORTS[self.service]
 
     @property
     def ml_task(self) -> MLTask | None:
+        """ML task for the predictor if applicable."""
         return self._ML_TASKS[self.service]
 
     @property
     def host(self) -> str:
+        """Host for the platform service."""
         return HOST
 
     @property
     def is_development(self) -> bool:
+        """Bool flag for development environment."""
         return self._environment == "development"
 
     @property
     def app_dir(self) -> Path:
+        """Path to the app directory."""
         return Path(os.environ.get("APP_DIR", PROJECT_DIR / APPDATA_DIRNAME))
 
     @property
     def logs_dir(self) -> Path:
+        """Path to the logs directory."""
         return self.app_dir / LOGS_DIRNAME / self.service
 
     @property
     def data_dir(self) -> Path:
+        """Path to the data directory, ML task-specific if applicable."""
         return self.app_dir / DATA_DIRNAME / self.ml_task if self.ml_task else self.app_dir / DATA_DIRNAME
 
     @property
     def models_dir(self) -> Path:
+        """Path to the models directory, ML task-specific if applicable."""
         return self.app_dir / MODELS_DIRNAME / self.ml_task if self.ml_task else self.app_dir / MODELS_DIRNAME
 
     @property
     def misc_dir(self) -> Path:
+        """Path to the misc directory, ML task-specific if applicable."""
         return self.app_dir / MISC_DIRNAME / self.ml_task if self.ml_task else self.app_dir / MISC_DIRNAME
 
     @property
     def backend_url(self) -> str:
+        """URL to the backend service."""
         return f"http://{PlatformService.BACKEND}:{PORT_BACKEND}"
 
     @property
     def predictor_eta_url(self) -> str:
+        """URL to the ETA predictor service."""
         return f"http://{PlatformService.PREDICTOR_ETA}:{PORT_PREDICTOR_ETA}"
 
     @property
     def predictor_fuel_url(self) -> str:
+        """URL to the Fuel predictor service."""
         return f"http://{PlatformService.PREDICTOR_FUEL}:{PORT_PREDICTOR_FUEL}"
 
     @property
     def predictor_stops_url(self) -> str:
+        """URL to the Stops predictor service."""
         return f"http://{PlatformService.PREDICTOR_STOPS}:{PORT_PREDICTOR_STOPS}"
 
     @property
     def drift_url(self) -> str:
+        """URL to the Drift service."""
         return f"http://{PlatformService.DRIFT}:{PORT_DRIFT}"
 
     @property
     def _environment(self) -> str:
+        """Environment for the platform service."""
         return os.environ.get("ENVIRONMENT", ENVIRONMENT)

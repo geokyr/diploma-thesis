@@ -97,22 +97,27 @@ class ModelResults:
 
     @property
     def training_time(self) -> float:
+        """Time taken to train the model in seconds."""
         return self.training_results.training_time
 
     @property
     def prediction_time(self) -> float:
+        """Time taken to make predictions in seconds."""
         return self.prediction_results.prediction_time
 
     @property
     def evaluation_time(self) -> float:
+        """Time taken to evaluate predictions in seconds."""
         return self.evaluation_results.evaluation_time
 
     @property
     def mae(self) -> float:
+        """Mean Absolute Error."""
         return self.evaluation_results.mae
 
     @property
     def mape(self) -> float:
+        """Mean Absolute Percentage Error."""
         return self.evaluation_results.mape
 
     @classmethod
@@ -192,22 +197,27 @@ class CVResults:
 
     @property
     def training_time(self) -> float:
+        """Time taken to train the model in seconds."""
         return self.cv_mean.training_time
 
     @property
     def prediction_time(self) -> float:
+        """Time taken to make predictions in seconds."""
         return self.cv_mean.prediction_time
 
     @property
     def evaluation_time(self) -> float:
+        """Time taken to evaluate predictions in seconds."""
         return self.cv_mean.evaluation_time
 
     @property
     def mae(self) -> float:
+        """Mean Absolute Error."""
         return self.cv_mean.mae
 
     @property
     def mape(self) -> float:
+        """Mean Absolute Percentage Error."""
         return self.cv_mean.mape
 
     @classmethod

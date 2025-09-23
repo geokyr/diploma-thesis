@@ -50,16 +50,6 @@ class SimulationScenarioConfig:
     Attributes:
         scenario (SimulationScenario): Scenario.
         simulation_dir (Path): Directory for the simulation experiment.
-
-    Properties:
-        data_dir (Path): Path to the data directory.
-        network_path (Path): Path to the network file.
-        trips_path (Path): Path to the trips file.
-        fcd_csv_path (Path): Path to the fcd CSV file.
-        sumocfg_path (Path): Path to the sumocfg file.
-        traffic_generation_periods (list[float]): Traffic generation periods.
-        random_seed (int): Random seed.
-        fcd_parquet_path (Path): Path to the fcd Parquet file.
     """
 
     scenario: SimulationScenario
@@ -93,26 +83,32 @@ class SimulationScenarioConfig:
 
     @property
     def data_dir(self) -> Path:
+        """Path to the data directory."""
         return self.simulation_dir / DATA_DIRNAME
 
     @property
     def network_path(self) -> Path:
+        """Path to the network file."""
         return self.simulation_dir / self._NETWORK_PATHS[self.scenario]
 
     @property
     def trips_path(self) -> Path:
+        """Path to the trips file."""
         return self.simulation_dir / f"{self.scenario}{TRIPS_SUFFIX}"
 
     @property
     def fcd_csv_path(self) -> Path:
+        """Path to the fcd CSV file."""
         return self.data_dir / f"{self.scenario}{FCD_CSV_SUFFIX}"
 
     @property
     def sumocfg_path(self) -> Path:
+        """Path to the sumocfg file."""
         return self.simulation_dir / f"{self.scenario}{SUMOCFG_SUFFIX}"
 
     @property
     def traffic_generation_periods(self) -> list[float]:
+        """Traffic generation periods."""
         return [
             p * self._rng.normal(TRAFFIC_GENERATION_PERIODS_MEAN, TRAFFIC_GENERATION_PERIODS_STD)
             for p in TRAFFIC_GENERATION_PERIODS
@@ -120,12 +116,15 @@ class SimulationScenarioConfig:
 
     @property
     def random_seed(self) -> int:
+        """Random seed."""
         return self._RANDOM_SEEDS[self.scenario]
 
     @property
     def fcd_parquet_path(self) -> Path:
+        """Path to the fcd Parquet file."""
         return self.data_dir / f"{self.scenario}{FCD_PARQUET_SUFFIX}"
 
     @property
     def _rng(self) -> np.random.Generator:
+        """Random number generator."""
         return np.random.default_rng(self.random_seed)

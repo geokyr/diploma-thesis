@@ -23,17 +23,6 @@ class SimulationExperiment:
 
     Attributes:
         simulation_dir (Path): Directory for the simulation experiment.
-
-    Properties:
-        name (str): Name of the simulation experiment.
-        data_dir (Path): Subdirectory for the data.
-        logs_dir (Path): Subdirectory for the logs.
-        plots_dir (Path): Subdirectory for the plots.
-        osm_data_path (Path): Path to the osm data file.
-        gui_settings_path (Path): Path to the gui settings file.
-        poly_path (Path): Path to the poly file.
-        network_base_path (Path): Path to the network file.
-        network_rain_path (Path): Path to the rain network file.
     """
 
     simulation_dir: Path = SIMULATION_DIR
@@ -59,36 +48,45 @@ class SimulationExperiment:
 
     @property
     def name(self) -> str:
+        """Name of the simulation experiment."""
         return self.simulation_dir.stem
 
     @property
     def data_dir(self) -> Path:
+        """Subdirectory for the data."""
         return self.simulation_dir / DATA_DIRNAME
 
     @property
     def logs_dir(self) -> Path:
+        """Subdirectory for the logs."""
         return self.simulation_dir / LOGS_DIRNAME
 
     @property
     def plots_dir(self) -> Path:
+        """Subdirectory for the plots."""
         return self.simulation_dir / PLOTS_DIRNAME
 
     @property
     def osm_data_path(self) -> Path:
+        """Path to the osm data file."""
         return self.simulation_dir / OSM_DATA_FILENAME
 
     @property
     def gui_settings_path(self) -> Path:
+        """Path to the gui settings file."""
         return self.simulation_dir / GUI_SETTINGS_FILENAME
 
     @property
     def poly_path(self) -> Path:
+        """Path to the poly file."""
         return self.simulation_dir / POLY_FILENAME
 
     @property
     def network_base_path(self) -> Path:
+        """Path to the network file."""
         return self.simulation_dir / NETWORK_BASE_FILENAME
 
     @property
     def network_rain_path(self) -> Path:
+        """Path to the rain network file."""
         return self.simulation_dir / NETWORK_RAIN_FILENAME

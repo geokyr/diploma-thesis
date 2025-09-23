@@ -49,17 +49,6 @@ class ETAExperiment:
     Attributes:
         experiment_filename (str): Name of the file that contains the ETA experiment.
         evaluation (ETAEvaluation): Evaluation of the experiment.
-
-    Properties:
-        name (str): Name of the ETA experiment.
-        experiment_dir (Path): Directory for the ETA experiment.
-        models_dir (Path): Subdirectory for the models.
-        logs_dir (Path): Subdirectory for the logs.
-        results_dir (Path): Subdirectory for the results.
-        train_path (Path): Path to the train fcd parquet file.
-        test_path (Path): Path to the test fcd parquet file.
-        rain_path (Path): Path to the rain fcd parquet file.
-        trained_models_dir (Path): Directory for the trained models.
     """
 
     experiment_filename: str
@@ -94,38 +83,47 @@ class ETAExperiment:
 
     @property
     def name(self) -> str:
+        """Name of the ETA experiment."""
         return Path(self.experiment_filename).stem
 
     @property
     def experiment_dir(self) -> Path:
+        """Directory for the ETA experiment."""
         return OUTPUTS_DIR / self.name
 
     @property
     def models_dir(self) -> Path:
+        """Subdirectory for the models."""
         return self.experiment_dir / MODELS_DIRNAME
 
     @property
     def logs_dir(self) -> Path:
+        """Subdirectory for the logs."""
         return self.experiment_dir / LOGS_DIRNAME
 
     @property
     def results_dir(self) -> Path:
+        """Subdirectory for the results."""
         return self.experiment_dir / RESULTS_DIRNAME
 
     @property
     def train_path(self) -> Path:
+        """Path to the train fcd parquet file."""
         return self._TRAIN_PATH
 
     @property
     def test_path(self) -> Path:
+        """Path to the test fcd parquet file."""
         return self._TEST_PATH
 
     @property
     def rain_path(self) -> Path:
+        """Path to the rain fcd parquet file."""
         return self._RAIN_PATH
 
     @property
     def trained_models_dir(self) -> Path:
+        """Directory for the trained models."""
         return self._TRAINED_MODELS_DIR
 
 
