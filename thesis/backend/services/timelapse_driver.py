@@ -58,7 +58,7 @@ class TimelapseDriver:
             PredictionBatchResponse: Prediction batch response.
         """
         url = f"{self._config.predictor_eta_url}/predict/batch"
-        payload = PredictionBatchRequest(start_timestamp=start_timestamp, end_timestamp=end_timestamp)
+        payload = PredictionBatchRequest(start_timestamp=start_timestamp, end_timestamp=end_timestamp).model_dump()
 
         try:
             response = await self._client.post(url, json=payload)
@@ -78,7 +78,7 @@ class TimelapseDriver:
             DriftErrorsResponse | None: Drift errors response or None if failed to check for drift.
         """
         url = f"{self._config.drift_url}/drift/errors"
-        payload = DriftErrorsRequest(ml_task=self._config.ml_task, error_points=error_points)
+        payload = DriftErrorsRequest(ml_task=self._config.ml_task, error_points=error_points).model_dump()
 
         try:
             response = await self._client.post(url, json=payload)
