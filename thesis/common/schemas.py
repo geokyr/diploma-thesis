@@ -21,6 +21,28 @@ class SimulationSnapshot(BaseModel):
     state: SimulationState = Field(..., description="State of the simulation")
     clock: int = Field(..., description="Current simulation clock time")
 
+    def to_dict(self) -> dict[str, SimulationState | int]:
+        """
+        Convert the snapshot to a json serializable dictionary.
+
+        Returns:
+            dict[str, SimulationState | int]: The dictionary representation of the snapshot.
+        """
+        return self.model_dump(mode="json")
+
+    @classmethod
+    def from_dict(cls, data: dict[str, SimulationState | int]) -> "SimulationSnapshot":
+        """
+        Convert the snapshot from a json serializable dictionary.
+
+        Args:
+            data (dict[str, SimulationState | int]): The dictionary representation of the snapshot.
+
+        Returns:
+            SimulationSnapshot: The snapshot.
+        """
+        return cls.model_validate(data)
+
 
 class PredictionBatchRequest(BaseModel):
     """Request for batch predictions."""
