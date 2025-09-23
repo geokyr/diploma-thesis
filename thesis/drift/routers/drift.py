@@ -18,4 +18,4 @@ def process_drift_errors(req: DriftErrorsRequest) -> DriftErrorsResponse:
         DriftErrorsResponse: Response for drift errors.
     """
     # TODO: implement actual drift lifecycle pipeline
-    return DriftErrorsResponse(task=req.task, state=DriftState.STABLE, start_timestamp=0)
+    return DriftErrorsResponse(ml_task=req.ml_task, state=DriftState.STABLE, start_timestamp=0)
