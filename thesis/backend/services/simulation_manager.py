@@ -1,101 +1,126 @@
+"""Simulation manager for the simulation."""
+
 import asyncio
 import contextlib
-from dataclasses import dataclass
-from typing import Optional
 
-from thesis.backend.services.timelapse import TimelapseDriver
+from thesis.backend.services.timelapse_driver import TimelapseDriver
+from thesis.common.config import PAUSE_POLL_SECONDS
 from thesis.common.enums import SimulationState
-from thesis.common.schemas import SimulationStatus
-
-
-@dataclass(slots=True)
-class _SimState:
-    state: SimulationState = SimulationState.IDLE
-    current_sim_time: float = 0.0
+from thesis.common.schemas import SimulationSnapshot
 
 
 class SimulationManager:
-    def __init__(self, driver: Optional[TimelapseDriver] = None) -> None:
-        self._driver = driver or TimelapseDriver()
-        self._state = _SimState()
-        self._tick_task: Optional[asyncio.Task] = None
-        self._lock = asyncio.Lock()
+    """Simulation manager for the simulation."""
 
-    def get_status(self) -> SimulationStatus:
-        return SimulationStatus(
-            state=self._state.state,
-            current_sim_time=self._state.current_sim_time,
-        )
+    def __init__(self, timelapse_driver: TimelapseDriver) -> None:
+        self._timelapse_driver: TimelapseDriver = timelapse_driver
+        self._state: SimulationState = SimulationState.IDLE
+        self._pause_poll_seconds: float = PAUSE_POLL_SECONDS
+        self._tick_task: asyncio.Task | None = None
+        self._lock: asyncio.Lock = asyncio.Lock()
+
+    def get_snapshot(self) -> SimulationSnapshot:
+        """
+        Get the snapshot of the simulation.
+
+        Returns:
+            SimulationSnapshot: The snapshot of the simulation.
+        """
+        return SimulationSnapshot(state=self._state, clock=self._timelapse_driver.clock)
 
     async def _tick_loop(self) -> None:
+        """Tick loop for the simulation."""
         try:
-            while self._state.state != SimulationState.IDLE:
-                if self._state.state == SimulationState.RUNNING:
-                    await self._driver.run_tick()
-                    self._state.current_sim_time = self._driver.current_sim_time
-                await asyncio.sleep(1.0)
+            while True:
+                state = self._state
+                if state == SimulationState.RUNNING:
+                    try:
+                        await self._timelapse_driver.run_tick()
+                    except asyncio.CancelledError:
+                        raise
+                    except Exception:
+                        pass
+                    await asyncio.sleep(self._timelapse_driver.interval_seconds)
+                else:
+                    await asyncio.sleep(self._pause_poll_seconds)
         except asyncio.CancelledError:
             return
 
-    async def start(self) -> SimulationStatus:
-        async with self._lock:
-            self._state.state = SimulationState.RUNNING
-            self._state.current_sim_time = self._driver.current_sim_time
-            if self._tick_task and not self._tick_task.done():
-                self._tick_task.cancel()
-                with contextlib.suppress(asyncio.CancelledError):
-                    await self._tick_task
-            self._tick_task = asyncio.create_task(self._tick_loop())
-            return self.get_status()
+    async def start(self) -> SimulationSnapshot:
+        """
+        Start the simulation.
 
-    async def manual_tick(self) -> dict:
+        Returns:
+            SimulationSnapshot: The snapshot of the simulation.
+        """
         async with self._lock:
-            if self._state.state != SimulationState.RUNNING:
-                return {"status": "skipped"}
-            await self._driver.run_tick()
-            self._state.current_sim_time = self._driver.current_sim_time
-            return {
-                "status": "ok",
-                "sim_time": self._state.current_sim_time,
-            }
+            if self._tick_task is None or self._tick_task.done():
+                self._tick_task = asyncio.create_task(self._tick_loop())
 
-    async def pause(self) -> dict:
-        async with self._lock:
-            if self._state.state == SimulationState.RUNNING:
-                self._state.state = SimulationState.PAUSED
-            return {"status": "ok"}
+            self._state = SimulationState.RUNNING
+            return self.get_snapshot()
 
-    async def resume(self) -> dict:
-        async with self._lock:
-            if self._state.state == SimulationState.PAUSED:
-                self._state.state = SimulationState.RUNNING
-                if self._tick_task is None or self._tick_task.done():
-                    self._tick_task = asyncio.create_task(self._tick_loop())
-            return {"status": "ok"}
+    async def pause(self) -> SimulationSnapshot:
+        """
+        Pause the simulation.
 
-    async def restart(self) -> dict:
+        Returns:
+            SimulationSnapshot: The snapshot of the simulation.
+        """
         async with self._lock:
-            if self._tick_task and not self._tick_task.done():
-                self._tick_task.cancel()
-                with contextlib.suppress(asyncio.CancelledError):
-                    await self._tick_task
-                self._tick_task = None
-            self._state = _SimState()
-            try:
-                self._driver.restart()
-            except Exception:
-                pass
-            return {"status": "ok"}
+            if self._state == SimulationState.RUNNING:
+                self._state = SimulationState.PAUSED
+            return self.get_snapshot()
 
-    async def shutdown(self) -> None:
+    async def resume(self) -> SimulationSnapshot:
+        """
+        Resume the simulation.
+
+        Returns:
+            SimulationSnapshot: The snapshot of the simulation.
+        """
         async with self._lock:
-            if self._tick_task and not self._tick_task.done():
-                self._tick_task.cancel()
-                with contextlib.suppress(asyncio.CancelledError):
-                    await self._tick_task
-                self._tick_task = None
-            self._state = _SimState()
-            try:
-                self._driver.restart()
-            except Exception:
-                pass
+            if self._state == SimulationState.PAUSED:
+                self._state = SimulationState.RUNNING
+            return self.get_snapshot()
+
+    async def reset(self) -> SimulationSnapshot:
+        """
+        Reset the simulation.
+
+        Returns:
+            SimulationSnapshot: The snapshot of the simulation.
+        """
+        async with self._lock:
+            self._state = SimulationState.IDLE
+            task = self._tick_task
+            self._tick_task = None
+
+        if task and not task.done():
+            task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await task
+
+        try:
+            await self._timelapse_driver.reset()
+        except Exception:
+            pass
+
+        return self.get_snapshot()
+
+    async def clear(self) -> None:
+        """Clear the simulation."""
+        async with self._lock:
+            self._state = SimulationState.IDLE
+            task = self._tick_task
+            self._tick_task = None
+
+        if task and not task.done():
+            task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await task
+
+        try:
+            await self._timelapse_driver.clear()
+        except Exception:
+            pass
