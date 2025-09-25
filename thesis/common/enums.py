@@ -25,16 +25,12 @@ class DriftState(StrEnum):
     Attributes:
         STABLE: Stable state.
         DRIFTED: Drifted state.
-        COLLECTING: Collecting state.
         RETRAINING: Retraining state.
-        SWAPPED: Swapped state.
     """
 
     STABLE = "stable"
     DRIFTED = "drifted"
-    COLLECTING = "collecting"
     RETRAINING = "retraining"
-    SWAPPED = "swapped"
 
 
 class SimulationState(StrEnum):
