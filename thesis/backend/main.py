@@ -52,7 +52,7 @@ app.include_router(simulation_router, prefix="/simulation", tags=["simulation"])
 
 
 @app.get("/health", response_model=HealthResponse, tags=["health"])
-def get_health() -> HealthResponse:
+async def get_health() -> HealthResponse:
     return HealthResponse(status=PlatformServiceStatus.HEALTHY, service=PlatformService.BACKEND)
 
 

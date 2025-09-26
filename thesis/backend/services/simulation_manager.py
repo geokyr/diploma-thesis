@@ -19,15 +19,6 @@ class SimulationManager:
         self._tick_task: asyncio.Task | None = None
         self._lock: asyncio.Lock = asyncio.Lock()
 
-    def get_snapshot(self) -> SimulationSnapshot:
-        """
-        Get the snapshot of the simulation.
-
-        Returns:
-            SimulationSnapshot: The snapshot of the simulation.
-        """
-        return SimulationSnapshot(state=self._state, clock=self._timelapse_driver.clock)
-
     async def _tick_loop(self) -> None:
         """Tick loop for the simulation."""
         try:
@@ -40,11 +31,24 @@ class SimulationManager:
                         raise
                     except Exception:
                         pass
-                    await asyncio.sleep(self._timelapse_driver._interval_seconds)
+                    await asyncio.sleep(self._timelapse_driver.interval_seconds)
                 else:
                     await asyncio.sleep(self._pause_poll_seconds)
         except asyncio.CancelledError:
             return
+
+    async def get_snapshot(self) -> SimulationSnapshot:
+        """
+        Get the snapshot of the simulation.
+
+        Returns:
+            SimulationSnapshot: The snapshot of the simulation.
+        """
+        async with self._lock:
+            state = self._state
+            clock = self._timelapse_driver.clock
+
+        return SimulationSnapshot(state=state, clock=clock)
 
     async def start(self) -> SimulationSnapshot:
         """
@@ -56,9 +60,9 @@ class SimulationManager:
         async with self._lock:
             if self._tick_task is None or self._tick_task.done():
                 self._tick_task = asyncio.create_task(self._tick_loop())
-
             self._state = SimulationState.RUNNING
-            return self.get_snapshot()
+
+        return await self.get_snapshot()
 
     async def pause(self) -> SimulationSnapshot:
         """
@@ -70,7 +74,8 @@ class SimulationManager:
         async with self._lock:
             if self._state == SimulationState.RUNNING:
                 self._state = SimulationState.PAUSED
-            return self.get_snapshot()
+
+        return await self.get_snapshot()
 
     async def resume(self) -> SimulationSnapshot:
         """
@@ -82,7 +87,8 @@ class SimulationManager:
         async with self._lock:
             if self._state == SimulationState.PAUSED:
                 self._state = SimulationState.RUNNING
-            return self.get_snapshot()
+
+        return await self.get_snapshot()
 
     async def reset(self) -> SimulationSnapshot:
         """
@@ -106,7 +112,7 @@ class SimulationManager:
         except Exception:
             pass
 
-        return self.get_snapshot()
+        return await self.get_snapshot()
 
     async def clear(self) -> None:
         """Clear the simulation."""

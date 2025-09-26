@@ -22,16 +22,17 @@ class TimelapseDriver:
 
     Attributes:
         clock (int): The current timelapse clock time.
+        interval_seconds (int): The interval seconds.
     """
 
     def __init__(self, config: PlatformServiceConfig, metrics_store: MetricsStore) -> None:
         self._config: PlatformServiceConfig = config
         self._metrics_store: MetricsStore = metrics_store
         self._speed_multiplier: int = SPEED_MULTIPLIER
-        self._interval_seconds: int = INTERVAL_SECONDS
         self._client: httpx.AsyncClient = httpx.AsyncClient(timeout=HTTP_CLIENT_TIMEOUT_SECONDS)
         self._tick_lock: asyncio.Lock = asyncio.Lock()
         self.clock: int = 0
+        self.interval_seconds: int = INTERVAL_SECONDS
 
     def _advance_clock(self) -> tuple[int, int]:
         """
@@ -41,7 +42,7 @@ class TimelapseDriver:
             tuple[int, int]: The start and end timestamps.
         """
         start_timestamp = self.clock
-        self.clock += self._interval_seconds * self._speed_multiplier
+        self.clock += self.interval_seconds * self._speed_multiplier
         end_timestamp = self.clock
 
         return start_timestamp, end_timestamp

@@ -68,7 +68,7 @@ async def reset_simulation(request: Request):
 
 
 @simulation_router.get("/snapshot", response_model=SimulationSnapshot)
-def get_snapshot(request: Request):
+async def get_snapshot(request: Request):
     """
     Get the current snapshot of the simulation.
 
@@ -79,7 +79,7 @@ def get_snapshot(request: Request):
         SimulationSnapshot: The current snapshot of the simulation.
     """
     simulation_manager: SimulationManager = request.app.state.simulation_manager
-    return simulation_manager.get_snapshot()
+    return await simulation_manager.get_snapshot()
 
 
 @simulation_router.get("/metrics", response_model=MetricsResponse)
