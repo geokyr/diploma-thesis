@@ -16,10 +16,10 @@ class DriftClient:
 
     async def get_status(self) -> DriftErrorsResponse:
         """
-        Get the status of all ML Tasks from drift service.
+        Get the status of all ML tasks from drift service.
 
         Returns:
-            DriftErrorsResponse: Status of all ML Tasks.
+            DriftErrorsResponse: Status of all ML tasks.
         """
         response = await self._client.get("/drift/status")
         response.raise_for_status()
