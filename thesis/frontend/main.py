@@ -4,7 +4,7 @@ from dash import Dash, State, ctx, dcc, html, no_update
 from dash.dependencies import Input, Output
 
 from thesis.common.config import INTERVAL_SECONDS
-from thesis.common.enums import SimulationState
+from thesis.common.enums import DriftState, MLTask, SimulationState
 from thesis.common.logger import setup_logger
 from thesis.common.schemas import MetricsResponse, SimulationSnapshot
 from thesis.common.service import PlatformServiceConfig
@@ -14,13 +14,16 @@ config = PlatformServiceConfig()
 logger = setup_logger(config.service, config.logs_dir)
 client = ApiClient(config.backend_url)
 
+# TODO: clear client on shutdown
+# TODO: add type hints on callbacks
+# TODO: add the drift status to the snapshot (general) or introduce a drift store
 
 app: Dash = dash.Dash("Platform Frontend")
-app.layout = html.Div(
+app.layout: html.Div = html.Div(
     [
         dcc.Interval(id="interval-component", interval=INTERVAL_SECONDS * 1000, n_intervals=0, disabled=True),
         dcc.Store(id="snapshot-store", data=SimulationSnapshot(state=SimulationState.IDLE, clock=0).to_dict()),
-        dcc.Store(id="event-store", data={"event": "noop"}),
+        dcc.Store(id="event-store", data="noop"),
         html.Div(
             [
                 html.H2("Simulation"),
@@ -33,7 +36,8 @@ app.layout = html.Div(
         ),
         html.Div(
             [
-                html.H3("ETA MAE"),
+                html.H3("Estimated Time of Arrival - ETA"),
+                html.Div(["Drift: ", html.Span(DriftState.STABLE, id="eta-state")]),
                 dcc.Graph(id="eta-mae-chart"),
             ]
         ),
@@ -48,8 +52,9 @@ app.layout = html.Div(
     Input("button-reset", "n_clicks"),
     prevent_initial_call=True,
 )
-def update_ui_event(n_start: int, n_toggle: int, n_reset: int):
-    return {"event": ctx.triggered_id}
+def update_event(n_start: int, n_toggle: int, n_reset: int):
+    event = ctx.triggered_id
+    return event
 
 
 @app.callback(
@@ -62,28 +67,27 @@ def update_ui_event(n_start: int, n_toggle: int, n_reset: int):
     State("snapshot-store", "data"),
     prevent_initial_call="initial_duplicate",
 )
-def tick_and_apply(n_intervals: int, event_data: dict[str, str], snapshot_data: dict[str, SimulationState | int]):
+async def tick_and_apply(n_intervals: int, event: str, snapshot_data: dict[str, SimulationState | int]):
     try:
         last = SimulationSnapshot.from_dict(snapshot_data)
-        event = event_data.get("event")
 
         if event == "button-start":
-            client.simulation_start()
+            await client.simulation_start()
         elif event == "button-toggle":
             if last.state == SimulationState.RUNNING:
-                client.simulation_pause()
+                await client.simulation_pause()
             elif last.state == SimulationState.PAUSED:
-                client.simulation_resume()
+                await client.simulation_resume()
         elif event == "button-reset":
-            client.simulation_reset()
+            await client.simulation_reset()
 
-        snapshot = client.simulation_snapshot()
+        snapshot = await client.simulation_snapshot()
         new_snapshot_data = snapshot.to_dict()
         disabled = snapshot.state != SimulationState.RUNNING
         n_intervals = 0 if event in ("button-start", "button-reset") else no_update
-        new_event_data = {"event": "noop"}
+        new_event = "noop"
 
-        return new_snapshot_data, disabled, n_intervals, new_event_data
+        return new_snapshot_data, disabled, n_intervals, new_event
 
     except Exception:
         return no_update, no_update, no_update, no_update
@@ -93,9 +97,9 @@ def tick_and_apply(n_intervals: int, event_data: dict[str, str], snapshot_data: 
     Output("eta-mae-chart", "figure"),
     Input("snapshot-store", "data"),
 )
-def update_chart(data: dict[str, SimulationState | int]):
+async def update_chart(data: dict[str, SimulationState | int]):
     try:
-        metrics: MetricsResponse = client.simulation_metrics()
+        metrics: MetricsResponse = await client.simulation_metrics()
         timestamps = [point.timestamp for point in metrics.metric_points]
         mae_values = [point.mae for point in metrics.metric_points]
 
@@ -104,6 +108,19 @@ def update_chart(data: dict[str, SimulationState | int]):
         figure.update_layout(yaxis_title="MAE (s)", xaxis_title="Time (s)")
 
         return figure
+    except Exception:
+        return no_update
+
+
+@app.callback(
+    Output("eta-state", "children"),
+    Input("snapshot-store", "data"),
+)
+async def update_eta_status(data: dict[str, SimulationState | int]):
+    try:
+        drift_status = await client.drift_status(MLTask.ETA)
+        state = drift_status.state
+        return state
     except Exception:
         return no_update
 
