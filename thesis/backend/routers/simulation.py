@@ -1,3 +1,5 @@
+"""Simulation router."""
+
 from fastapi import APIRouter, Request
 
 from thesis.backend.services.metrics_store import MetricsStore
@@ -8,7 +10,7 @@ simulation_router = APIRouter()
 
 
 @simulation_router.post("/start", response_model=SimulationSnapshot)
-async def start_simulation(request: Request):
+async def start_simulation(request: Request) -> SimulationSnapshot:
     """
     Start the simulation.
 
@@ -16,14 +18,14 @@ async def start_simulation(request: Request):
         request: Request object.
 
     Returns:
-        SimulationSnapshot: The current snapshot of the simulation.
+        SimulationSnapshot: Current snapshot of the simulation.
     """
     simulation_manager: SimulationManager = request.app.state.simulation_manager
     return await simulation_manager.start()
 
 
 @simulation_router.post("/pause", response_model=SimulationSnapshot)
-async def pause_simulation(request: Request):
+async def pause_simulation(request: Request) -> SimulationSnapshot:
     """
     Pause the simulation.
 
@@ -31,14 +33,14 @@ async def pause_simulation(request: Request):
         request: Request object.
 
     Returns:
-        SimulationSnapshot: The current snapshot of the simulation.
+        SimulationSnapshot: Current snapshot of the simulation.
     """
     simulation_manager: SimulationManager = request.app.state.simulation_manager
     return await simulation_manager.pause()
 
 
 @simulation_router.post("/resume", response_model=SimulationSnapshot)
-async def resume_simulation(request: Request):
+async def resume_simulation(request: Request) -> SimulationSnapshot:
     """
     Resume the simulation.
 
@@ -46,14 +48,14 @@ async def resume_simulation(request: Request):
         request: Request object.
 
     Returns:
-        SimulationSnapshot: The current snapshot of the simulation.
+        SimulationSnapshot: Current snapshot of the simulation.
     """
     simulation_manager: SimulationManager = request.app.state.simulation_manager
     return await simulation_manager.resume()
 
 
 @simulation_router.post("/reset", response_model=SimulationSnapshot)
-async def reset_simulation(request: Request):
+async def reset_simulation(request: Request) -> SimulationSnapshot:
     """
     Reset the simulation.
 
@@ -61,14 +63,14 @@ async def reset_simulation(request: Request):
         request: Request object.
 
     Returns:
-        SimulationSnapshot: The current snapshot of the simulation.
+        SimulationSnapshot: Current snapshot of the simulation.
     """
     simulation_manager: SimulationManager = request.app.state.simulation_manager
     return await simulation_manager.reset()
 
 
 @simulation_router.get("/snapshot", response_model=SimulationSnapshot)
-async def get_snapshot(request: Request):
+async def get_simulation_snapshot(request: Request) -> SimulationSnapshot:
     """
     Get the current snapshot of the simulation.
 
@@ -76,14 +78,14 @@ async def get_snapshot(request: Request):
         request: Request object.
 
     Returns:
-        SimulationSnapshot: The current snapshot of the simulation.
+        SimulationSnapshot: Current snapshot of the simulation.
     """
     simulation_manager: SimulationManager = request.app.state.simulation_manager
     return await simulation_manager.get_snapshot()
 
 
 @simulation_router.get("/metrics", response_model=MetricsResponse)
-async def get_metrics(request: Request) -> MetricsResponse:
+async def get_simulation_metrics(request: Request) -> MetricsResponse:
     """
     Get the metrics of the simulation.
 
@@ -91,7 +93,7 @@ async def get_metrics(request: Request) -> MetricsResponse:
         request: Request object.
 
     Returns:
-        MetricsResponse: The metrics of the simulation.
+        MetricsResponse: Metrics of the simulation.
     """
     metrics_store: MetricsStore = request.app.state.metrics_store
     return await metrics_store.get_metrics()
