@@ -2,6 +2,7 @@ from fastapi import APIRouter, Request
 
 from thesis.common.enums import MLTask
 from thesis.common.schemas import DriftErrorsRequest, DriftErrorsResponse
+from thesis.drift.services.state_service import StateService
 
 drift_router = APIRouter()
 
@@ -18,7 +19,7 @@ async def process_drift_errors(req: DriftErrorsRequest, request: Request) -> Dri
         DriftErrorsResponse: Response for drift errors.
     """
     # TODO: implement actual drift lifecycle pipeline
-    state_service = request.app.state.state_service
+    state_service: StateService = request.app.state.state_service
     return state_service.get_state(req.ml_task)
 
 
@@ -33,5 +34,5 @@ async def get_drift_status(ml_task: MLTask, request: Request) -> DriftErrorsResp
     Returns:
         DriftErrorsResponse: Drift status for the ML task.
     """
-    state_service = request.app.state.state_service
+    state_service: StateService = request.app.state.state_service
     return state_service.get_state(ml_task)
