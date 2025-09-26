@@ -88,7 +88,6 @@ class DriftErrorsRequest(BaseModel):
 class DriftErrorsResponse(BaseModel):
     """Response for drift errors."""
 
-    ml_task: MLTask = Field(..., description="ML task")
     state: DriftState = Field(..., description="Drift state")
     start_timestamp: int = Field(..., description="Start timestamp of the state")
 
