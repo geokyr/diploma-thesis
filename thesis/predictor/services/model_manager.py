@@ -1,6 +1,7 @@
 """Model manager for a predictor with simple versioning."""
 
 from pathlib import Path
+from threading import RLock
 
 import joblib
 from sklearn.base import BaseEstimator
@@ -14,33 +15,44 @@ class ModelManager:
 
     Attributes:
         model (BaseEstimator | None): The loaded model.
+        version (str | None): The version of the loaded model.
     """
 
     def __init__(self, models_dir: Path) -> None:
         self._models_dir: Path = models_dir
-        self._version: str | None = None
+        self._lock: RLock = RLock()
+        self.version: str | None = None
         self.model: BaseEstimator | None = None
 
         self.load()
 
-    def load(self, version: str = DEFAULT_VERSION) -> None:
+    def load(self, version: str = DEFAULT_VERSION) -> bool:
         """
         Load a model for a given version.
 
         Args:
             version (str): The version of the model to load.
+
+        Returns:
+            bool: True if the model was loaded successfully, False otherwise.
         """
-        if version == self._version:
-            return
+        with self._lock:
+            if version == self.version:
+                return True
 
-        model_path = self._models_dir / version / MODEL_FILENAME
-        if not model_path.exists():
-            return
+            model_path = self._models_dir / version / MODEL_FILENAME
+            if not model_path.exists():
+                return False
 
-        self.model = joblib.load(model_path)
-        self._version = model_path.parent.name
+            model = joblib.load(model_path)
+            version = model_path.parent.name
+
+            self.model = model
+            self.version = version
+            return True
 
     def clear(self) -> None:
         """Clear the model manager."""
-        self._version = None
-        self.model = None
+        with self._lock:
+            self.version = None
+            self.model = None
