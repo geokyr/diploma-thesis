@@ -47,8 +47,9 @@ class SimulationManager:
         async with self._lock:
             state = self._state
             clock = self._timelapse_driver.clock
+            drift = self._timelapse_driver.drift
 
-        return SimulationSnapshot(state=state, clock=clock)
+        return SimulationSnapshot(state=state, clock=clock, drift=drift)
 
     async def start(self) -> SimulationSnapshot:
         """
