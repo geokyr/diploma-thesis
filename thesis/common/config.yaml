@@ -132,6 +132,7 @@ timelapse:
   interval_seconds: 1
   pause_poll_seconds: 0.1
   client_timeout_seconds: 10
+  collect_seconds: 7200
 
 predictor:
   time_start_column: "time_start"
