@@ -15,14 +15,23 @@ class HealthResponse(BaseModel):
     service: PlatformService = Field(..., description="Service")
 
 
+class DriftInfo(BaseModel):
+    """Complete drift info for a task held in the snapshot."""
+
+    state: DriftState = Field(..., description="Drift state")
+    start_timestamp: int = Field(..., description="Start timestamp of current state")
+    collecting: bool = Field(..., description="Whether we are in collection window")
+    job_id: str | None = Field(None, description="Current retrain job id, if any")
+
+
 class SimulationSnapshot(BaseModel):
     """Snapshot of the simulation."""
 
     state: SimulationState = Field(..., description="State of the simulation")
     clock: int = Field(..., description="Current simulation clock time")
-    drift: dict[MLTask, DriftState] | None = Field(None, description="Drift states per ML task")
+    drift_info: dict[MLTask, DriftInfo] | None = Field(None, description="Drift info per ML task")
 
-    def to_dict(self) -> dict[str, SimulationState | int | dict[MLTask, DriftState] | None]:
+    def to_dict(self) -> dict[str, SimulationState | int | dict[MLTask, DriftInfo] | None]:
         """
         Convert the snapshot to a json serializable dictionary.
 
@@ -32,9 +41,7 @@ class SimulationSnapshot(BaseModel):
         return self.model_dump(mode="json")
 
     @classmethod
-    def from_dict(
-        cls, data: dict[str, SimulationState | int | dict[MLTask, DriftState] | None]
-    ) -> "SimulationSnapshot":
+    def from_dict(cls, data: dict[str, SimulationState | int | dict[MLTask, DriftInfo] | None]) -> "SimulationSnapshot":
         """
         Convert the snapshot from a json serializable dictionary.
 
