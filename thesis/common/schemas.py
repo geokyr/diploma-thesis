@@ -20,8 +20,9 @@ class SimulationSnapshot(BaseModel):
 
     state: SimulationState = Field(..., description="State of the simulation")
     clock: int = Field(..., description="Current simulation clock time")
+    drift: dict[MLTask, DriftState] | None = Field(None, description="Drift states per ML task")
 
-    def to_dict(self) -> dict[str, SimulationState | int]:
+    def to_dict(self) -> dict[str, SimulationState | int | dict[MLTask, DriftState] | None]:
         """
         Convert the snapshot to a json serializable dictionary.
 
@@ -31,7 +32,9 @@ class SimulationSnapshot(BaseModel):
         return self.model_dump(mode="json")
 
     @classmethod
-    def from_dict(cls, data: dict[str, SimulationState | int]) -> "SimulationSnapshot":
+    def from_dict(
+        cls, data: dict[str, SimulationState | int | dict[MLTask, DriftState] | None]
+    ) -> "SimulationSnapshot":
         """
         Convert the snapshot from a json serializable dictionary.
 
@@ -92,6 +95,14 @@ class DriftErrorsResponse(BaseModel):
     start_timestamp: int = Field(..., description="Start timestamp of the state")
 
 
+class DriftSetRequest(BaseModel):
+    """Request to set drift state."""
+
+    ml_task: MLTask = Field(..., description="ML task")
+    state: DriftState = Field(..., description="Drift state to set")
+    start_timestamp: int = Field(..., description="Start timestamp for the state")
+
+
 class RetrainRequest(BaseModel):
     """Request for retraining."""
 
@@ -114,18 +125,6 @@ class RetrainStatusRequest(BaseModel):
 
 class RetrainStatusResponse(BaseModel):
     """Response for retraining status."""
-
-    status: str = Field(..., description="Status of the job")
-
-
-class LoadRequest(BaseModel):
-    """Request for loading a model."""
-
-    version: str = Field(..., description="Version of the model")
-
-
-class LoadResponse(BaseModel):
-    """Response for loading a model."""
 
     status: str = Field(..., description="Status of the job")
 
