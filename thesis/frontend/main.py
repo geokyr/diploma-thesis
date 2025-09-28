@@ -1,3 +1,5 @@
+import asyncio
+
 import dash
 import plotly.graph_objs as go
 from dash import Dash, State, ctx, dcc, html, no_update
@@ -14,9 +16,10 @@ config = PlatformServiceConfig()
 logger = setup_logger(config.service, config.logs_dir)
 client = ApiClient(config.backend_url)
 
-# TODO: clear client on shutdown
 # TODO: add type hints on callbacks
-# TODO: add the drift status to the snapshot (general) or introduce a drift store
+# TODO: add the drift info to the snapshot
+# TODO: move callbacks to different file
+# TODO: add user map tab
 
 app: Dash = dash.Dash("Platform Frontend")
 app.layout: html.Div = html.Div(
@@ -161,6 +164,14 @@ def update_snapshot(data: dict[str, SimulationState | int]):
 
     except Exception:
         return no_update, no_update
+
+
+@app.server.after_serving
+def shutdown_client():
+    try:
+        asyncio.run(client.clear())
+    except Exception:
+        return
 
 
 if __name__ == "__main__":
