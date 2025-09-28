@@ -59,3 +59,18 @@ class PlatformServiceStatus(StrEnum):
 
     HEALTHY = "healthy"
     UNHEALTHY = "unhealthy"
+
+
+class RetrainStatus(StrEnum):
+    """
+    Retrain statuses.
+
+    Attributes:
+        COMPLETED: Completed status.
+        FAILED: Failed status.
+        PENDING: Pending status.
+    """
+
+    COMPLETED = "completed"
+    FAILED = "failed"
+    PENDING = "pending"
