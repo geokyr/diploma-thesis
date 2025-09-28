@@ -55,8 +55,8 @@ app.layout: html.Div = html.Div(
     Input("button-reset", "n_clicks"),
     prevent_initial_call=True,
 )
-def update_event(n_start: int, n_toggle: int, n_reset: int):
-    event = ctx.triggered_id
+def update_event(n_start: int, n_toggle: int, n_reset: int) -> str:
+    event = str(ctx.triggered_id)
     return event
 
 
@@ -70,7 +70,9 @@ def update_event(n_start: int, n_toggle: int, n_reset: int):
     State("snapshot-store", "data"),
     prevent_initial_call="initial_duplicate",
 )
-async def tick_and_apply(n_intervals: int, event: str, snapshot_data: dict[str, SimulationState | int]):
+async def tick_and_apply(
+    n_intervals: int, event: str, snapshot_data: dict[str, SimulationState | int]
+) -> tuple[dict[str, SimulationState | int], bool, int, str]:
     try:
         last = SimulationSnapshot.from_dict(snapshot_data)
 
@@ -100,7 +102,7 @@ async def tick_and_apply(n_intervals: int, event: str, snapshot_data: dict[str, 
     Output("eta-mae-chart", "figure"),
     Input("snapshot-store", "data"),
 )
-async def update_chart(data: dict[str, SimulationState | int]):
+async def update_chart(data: dict[str, SimulationState | int]) -> go.Figure:
     try:
         metrics: MetricsResponse = await client.simulation_metrics()
         timestamps = [point.timestamp for point in metrics.metric_points]
@@ -119,7 +121,7 @@ async def update_chart(data: dict[str, SimulationState | int]):
     Output("eta-state", "children"),
     Input("snapshot-store", "data"),
 )
-async def update_eta_status(data: dict[str, SimulationState | int]):
+async def update_eta_status(data: dict[str, SimulationState | int]) -> DriftState:
     try:
         drift_status = await client.drift_status(MLTask.ETA)
         state = drift_status.state
@@ -135,7 +137,7 @@ async def update_eta_status(data: dict[str, SimulationState | int]):
     Output("button-reset", "disabled"),
     Input("snapshot-store", "data"),
 )
-def update_buttons(data: dict[str, SimulationState | int]):
+def update_buttons(data: dict[str, SimulationState | int]) -> tuple[bool, str, bool, bool]:
     try:
         snapshot = SimulationSnapshot.from_dict(data)
         is_idle = snapshot.state == SimulationState.IDLE
@@ -157,7 +159,7 @@ def update_buttons(data: dict[str, SimulationState | int]):
     Output("simulation-clock", "children"),
     Input("snapshot-store", "data"),
 )
-def update_snapshot(data: dict[str, SimulationState | int]):
+def update_snapshot(data: dict[str, SimulationState | int]) -> tuple[SimulationState, int]:
     try:
         snapshot = SimulationSnapshot.from_dict(data)
         return snapshot.state, snapshot.clock
@@ -167,7 +169,7 @@ def update_snapshot(data: dict[str, SimulationState | int]):
 
 
 @app.server.after_serving
-def shutdown_client():
+def shutdown_client() -> None:
     try:
         asyncio.run(client.clear())
     except Exception:
