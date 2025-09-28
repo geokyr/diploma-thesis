@@ -19,7 +19,7 @@ class DriftInfo(BaseModel):
     """Complete drift info for a task held in the snapshot."""
 
     state: DriftState = Field(..., description="Drift state")
-    start_timestamp: int = Field(..., description="Start timestamp of current state")
+    start_timestamp: int | None = Field(None, description="Start timestamp of current state")
     collecting: bool = Field(..., description="Whether we are in collection window")
     job_id: str | None = Field(None, description="Current retrain job id, if any")
 
@@ -72,14 +72,14 @@ class PredictionBatchResponse(BaseModel):
     """Response for batch predictions."""
 
     error_points: list[ErrorPoint] = Field(..., description="List of error points")
-    mae: float | None = Field(..., description="Mean absolute error")
+    mae: float | None = Field(None, description="Mean absolute error")
 
 
 class MetricPoint(BaseModel):
     """Metric point for metrics."""
 
     timestamp: int = Field(..., description="Timestamp of the metric")
-    mae: float | None = Field(..., description="Mean absolute error")
+    mae: float | None = Field(None, description="Mean absolute error")
 
 
 class MetricsResponse(BaseModel):
