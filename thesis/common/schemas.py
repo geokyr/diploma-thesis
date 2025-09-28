@@ -29,24 +29,24 @@ class SimulationSnapshot(BaseModel):
 
     state: SimulationState = Field(..., description="State of the simulation")
     clock: int = Field(..., description="Current simulation clock time")
-    drift_info: dict[MLTask, DriftInfo] | None = Field(None, description="Drift info per ML task")
+    drift_info: dict[MLTask, DriftInfo] = Field(..., description="Drift info per ML task")
 
-    def to_dict(self) -> dict[str, SimulationState | int | dict[MLTask, DriftInfo] | None]:
+    def to_dict(self) -> dict[str, SimulationState | int | dict[MLTask, DriftInfo]]:
         """
         Convert the snapshot to a json serializable dictionary.
 
         Returns:
-            dict[str, SimulationState | int]: The dictionary representation of the snapshot.
+            dict[str, SimulationState | int | dict[MLTask, DriftInfo]]: The dictionary representation of the snapshot.
         """
         return self.model_dump(mode="json")
 
     @classmethod
-    def from_dict(cls, data: dict[str, SimulationState | int | dict[MLTask, DriftInfo] | None]) -> "SimulationSnapshot":
+    def from_dict(cls, data: dict[str, SimulationState | int | dict[MLTask, DriftInfo]]) -> "SimulationSnapshot":
         """
         Convert the snapshot from a json serializable dictionary.
 
         Args:
-            data (dict[str, SimulationState | int]): The dictionary representation of the snapshot.
+            data (dict[str, SimulationState | int | dict[MLTask, DriftInfo]]): The dictionary representation of the snapshot.
 
         Returns:
             SimulationSnapshot: The snapshot.
