@@ -18,7 +18,6 @@ client = ApiClient(config.backend_url)
 
 # TODO: add the drift info to the snapshot
 # TODO: move callbacks to different file
-# TODO: add user map tab
 
 app: Dash = dash.Dash("Platform Frontend")
 app.layout: html.Div = html.Div(
