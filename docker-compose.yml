@@ -11,6 +11,15 @@ services:
       - SERVICE=backend
       - APP_DIR=/app
       - ENVIRONMENT=production
+    depends_on:
+      drift:
+        condition: service_healthy
+      predictor-eta:
+        condition: service_healthy
+      # predictor-fuel:
+      #   condition: service_healthy
+      # predictor-stops:
+      #   condition: service_healthy
     healthcheck:
       test: curl -f http://localhost:8000/health
       interval: 30s
@@ -34,8 +43,6 @@ services:
       - SERVICE=predictor-eta
       - APP_DIR=/app
       - ENVIRONMENT=production
-    depends_on:
-      - backend
     healthcheck:
       test: curl -f http://localhost:8001/health
       interval: 30s
@@ -59,8 +66,6 @@ services:
   #     - SERVICE=predictor-fuel
   #     - APP_DIR=/app
   #     - ENVIRONMENT=production
-  #   depends_on:
-  #     - backend
   #   healthcheck:
   #     test: curl -f http://localhost:8002/health
   #     interval: 30s
@@ -84,8 +89,6 @@ services:
   #     - SERVICE=predictor-stops
   #     - APP_DIR=/app
   #     - ENVIRONMENT=production
-  #   depends_on:
-  #     - backend
   #   healthcheck:
   #     test: curl -f http://localhost:8003/health
   #     interval: 30s
@@ -106,8 +109,6 @@ services:
       - SERVICE=drift
       - APP_DIR=/app
       - ENVIRONMENT=production
-    depends_on:
-      - backend
     healthcheck:
       test: curl -f http://localhost:8004/health
       interval: 30s
@@ -129,7 +130,8 @@ services:
       - APP_DIR=/app
       - ENVIRONMENT=production
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     healthcheck:
       test: curl -f http://localhost:8080/_dash-dependencies
       interval: 30s
