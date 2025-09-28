@@ -4,7 +4,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from thesis.common.enums import DriftState, MLTask, SimulationState
+from thesis.common.enums import DriftState, MLTask, RetrainStatus, SimulationState
 from thesis.common.service import PlatformService
 
 
@@ -121,7 +121,6 @@ class RetrainResult(BaseModel):
     """Result for retraining."""
 
     job_id: str = Field(..., description="Job ID")
-    version: str = Field(..., description="Version of the model")
 
 
 class RetrainStatusRequest(BaseModel):
@@ -133,7 +132,7 @@ class RetrainStatusRequest(BaseModel):
 class RetrainStatusResponse(BaseModel):
     """Response for retraining status."""
 
-    status: str = Field(..., description="Status of the job")
+    status: RetrainStatus = Field(..., description="Status of the job")
 
 
 class Notification(BaseModel):
