@@ -4,6 +4,7 @@ from fastapi import APIRouter, Request
 
 from thesis.backend.services.metrics_store import MetricsStore
 from thesis.backend.services.simulation_manager import SimulationManager
+from thesis.common.enums import MLTask
 from thesis.common.schemas import MetricsResponse, SimulationSnapshot
 
 simulation_router = APIRouter()
@@ -85,15 +86,16 @@ async def get_simulation_snapshot(request: Request) -> SimulationSnapshot:
 
 
 @simulation_router.get("/metrics", response_model=MetricsResponse)
-async def get_simulation_metrics(request: Request) -> MetricsResponse:
+async def get_simulation_metrics(ml_task: MLTask, request: Request) -> MetricsResponse:
     """
     Get the metrics of the simulation.
 
     Args:
+        ml_task (MLTask): ML task.
         request: Request object.
 
     Returns:
         MetricsResponse: Metrics of the simulation.
     """
     metrics_store: MetricsStore = request.app.state.metrics_store
-    return await metrics_store.get_metrics()
+    return await metrics_store.get_metrics(ml_task)
