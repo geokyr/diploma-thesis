@@ -16,7 +16,6 @@ config = PlatformServiceConfig()
 logger = setup_logger(config.service, config.logs_dir)
 client = ApiClient(config.backend_url)
 
-# TODO: add type hints on callbacks
 # TODO: add the drift info to the snapshot
 # TODO: move callbacks to different file
 # TODO: add user map tab
