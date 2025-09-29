@@ -48,7 +48,7 @@ eta = [
 ]
 
 frontend = [
-    "dash[async]==3.2.0",
+    "dash==3.2.0",
     "plotly==6.2.0",
     "pydantic==2.11.7",
     "httpx==0.28.1",
