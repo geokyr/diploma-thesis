@@ -39,6 +39,8 @@ class MetricsStore:
             MetricsResponse: Metrics response.
         """
         async with self._lock:
+            if ml_task not in self._store:
+                self._store[ml_task] = deque()
             metric_points = list(self._store[ml_task])
             return MetricsResponse(metric_points=metric_points)
 
