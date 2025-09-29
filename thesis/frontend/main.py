@@ -1,14 +1,14 @@
-import asyncio
+import atexit
 
 import dash
 import plotly.graph_objs as go
 from dash import Dash, State, ctx, dcc, html, no_update
-from dash.dependencies import Input, Output
+from dash.dependencies import MATCH, Input, Output
 
 from thesis.common.config import INTERVAL_SECONDS
 from thesis.common.enums import DriftState, MLTask, SimulationState
 from thesis.common.logger import setup_logger
-from thesis.common.schemas import MetricsResponse, SimulationSnapshot
+from thesis.common.schemas import DriftInfo, MetricsResponse, SimulationSnapshot
 from thesis.common.service import PlatformServiceConfig
 from thesis.frontend.utils.api_client import ApiClient
 
@@ -16,14 +16,18 @@ config = PlatformServiceConfig()
 logger = setup_logger(config.service, config.logs_dir)
 client = ApiClient(config.backend_url)
 
-# TODO: add the drift info to the snapshot
 # TODO: move callbacks to different file
 
-app: Dash = dash.Dash("Platform Frontend")
+app: Dash = dash.Dash("Platform Frontend", suppress_callback_exceptions=True)
 app.layout: html.Div = html.Div(
     [
-        dcc.Interval(id="interval-component", interval=INTERVAL_SECONDS * 1000, n_intervals=0, disabled=True),
-        dcc.Store(id="snapshot-store", data=SimulationSnapshot(state=SimulationState.IDLE, clock=0).to_dict()),
+        dcc.Interval(id="bootstrap-interval", interval=1000, n_intervals=0, max_intervals=1),
+        dcc.Interval(id="simulation-interval", interval=INTERVAL_SECONDS * 1000, n_intervals=0, disabled=True),
+        dcc.Store(
+            id="snapshot-store",
+            data=SimulationSnapshot(state=SimulationState.IDLE, clock=0, drift_info={}).model_dump(mode="json"),
+        ),
+        dcc.Store(id="ml-tasks-store", data=[]),
         dcc.Store(id="event-store", data="noop"),
         html.Div(
             [
@@ -37,9 +41,8 @@ app.layout: html.Div = html.Div(
         ),
         html.Div(
             [
-                html.H3("Estimated Time of Arrival - ETA"),
-                html.Div(["Drift: ", html.Span(DriftState.STABLE, id="eta-state")]),
-                dcc.Graph(id="eta-mae-chart"),
+                html.H3("ML Tasks"),
+                html.Div(id="ml-cards", children=[html.Div("No predictors available")]),
             ]
         ),
     ]
@@ -60,32 +63,32 @@ def update_event(n_start: int, n_toggle: int, n_reset: int) -> str:
 
 @app.callback(
     Output("snapshot-store", "data"),
-    Output("interval-component", "disabled"),
-    Output("interval-component", "n_intervals"),
+    Output("simulation-interval", "disabled"),
+    Output("simulation-interval", "n_intervals"),
     Output("event-store", "data", allow_duplicate=True),
-    Input("interval-component", "n_intervals"),
+    Input("simulation-interval", "n_intervals"),
     Input("event-store", "data"),
     State("snapshot-store", "data"),
     prevent_initial_call="initial_duplicate",
 )
-async def tick_and_apply(
-    n_intervals: int, event: str, snapshot_data: dict[str, SimulationState | int]
-) -> tuple[dict[str, SimulationState | int], bool, int, str]:
+def tick_and_apply(
+    n_intervals: int, event: str, snapshot_data: dict[str, SimulationState | int | dict[MLTask, DriftInfo]]
+) -> tuple[dict[str, SimulationState | int | dict[MLTask, DriftInfo]], bool, int, str]:
     try:
-        last = SimulationSnapshot.from_dict(snapshot_data)
+        last = SimulationSnapshot.model_validate(snapshot_data)
 
         if event == "button-start":
-            await client.simulation_start()
+            client.simulation_start()
         elif event == "button-toggle":
             if last.state == SimulationState.RUNNING:
-                await client.simulation_pause()
+                client.simulation_pause()
             elif last.state == SimulationState.PAUSED:
-                await client.simulation_resume()
+                client.simulation_resume()
         elif event == "button-reset":
-            await client.simulation_reset()
+            client.simulation_reset()
 
-        snapshot = await client.simulation_snapshot()
-        new_snapshot_data = snapshot.to_dict()
+        snapshot = client.simulation_snapshot()
+        new_snapshot_data = snapshot.model_dump(mode="json")
         disabled = snapshot.state != SimulationState.RUNNING
         n_intervals = 0 if event in ("button-start", "button-reset") else no_update
         new_event = "noop"
@@ -97,12 +100,64 @@ async def tick_and_apply(
 
 
 @app.callback(
-    Output("eta-mae-chart", "figure"),
-    Input("snapshot-store", "data"),
+    Output("ml-cards", "children"),
+    Input("ml-tasks-store", "data"),
 )
-async def update_chart(data: dict[str, SimulationState | int]) -> go.Figure:
+def render_task_cards(ml_tasks: list[str]) -> list:
     try:
-        metrics: MetricsResponse = await client.simulation_metrics()
+        cards = []
+        for ml_task in ml_tasks:
+            cards.append(
+                html.Div(
+                    [
+                        html.H4(ml_task),
+                        html.Div(
+                            ["Drift: ", html.Span(DriftState.STABLE, id={"type": "drift-state", "ml_task": ml_task})]
+                        ),
+                        dcc.Graph(id={"type": "mae-chart", "ml_task": ml_task}),
+                    ]
+                )
+            )
+
+        return cards
+
+    except Exception:
+        return no_update
+
+
+@app.callback(
+    Output({"type": "drift-state", "ml_task": MATCH}, "children"),
+    Input("snapshot-store", "data"),
+    State({"type": "drift-state", "ml_task": MATCH}, "id"),
+)
+def update_drift_label(
+    snapshot_data: dict[str, SimulationState | int | dict[MLTask, DriftInfo]], component_id: dict[str, str]
+) -> DriftState:
+    try:
+        ml_task = component_id["ml_task"]
+        drift_info = snapshot_data["drift_info"]
+
+        if ml_task in drift_info:
+            state = drift_info[ml_task].state
+            return state
+
+        return no_update
+
+    except Exception:
+        return no_update
+
+
+@app.callback(
+    Output({"type": "mae-chart", "ml_task": MATCH}, "figure"),
+    Input("snapshot-store", "data"),
+    State({"type": "mae-chart", "ml_task": MATCH}, "id"),
+)
+def update_chart_for_task(
+    snapshot_data: dict[str, SimulationState | int | dict[MLTask, DriftInfo]], component_id: dict[str, str]
+) -> go.Figure:
+    try:
+        ml_task = MLTask(component_id["ml_task"])
+        metrics: MetricsResponse = client.simulation_metrics(ml_task)
         timestamps = [point.timestamp for point in metrics.metric_points]
         mae_values = [point.mae for point in metrics.metric_points]
 
@@ -116,16 +171,26 @@ async def update_chart(data: dict[str, SimulationState | int]) -> go.Figure:
 
 
 @app.callback(
-    Output("eta-state", "children"),
-    Input("snapshot-store", "data"),
+    Output("snapshot-store", "data", allow_duplicate=True),
+    Output("ml-tasks-store", "data"),
+    Input("bootstrap-interval", "n_intervals"),
+    prevent_initial_call="initial_duplicate",
 )
-async def update_eta_status(data: dict[str, SimulationState | int]) -> DriftState:
+def bootstrap_snapshot(
+    n_intervals: int,
+) -> tuple[dict[str, SimulationState | int | dict[MLTask, DriftInfo]], list[str]]:
     try:
-        drift_status = await client.drift_status(MLTask.ETA)
-        state = drift_status.state
-        return state
+        simulation_snapshot = client.simulation_snapshot()
+        data = simulation_snapshot.model_dump(mode="json")
+
+        drift_info = data["drift_info"]
+        available_ml_tasks = set(drift_info.keys())
+        order_ml_tasks = [MLTask.ETA.value, MLTask.FUEL.value, MLTask.STOPS.value]
+        ml_tasks = [ml_task for ml_task in order_ml_tasks if ml_task in available_ml_tasks]
+
+        return data, ml_tasks
     except Exception:
-        return no_update
+        return no_update, no_update
 
 
 @app.callback(
@@ -137,7 +202,7 @@ async def update_eta_status(data: dict[str, SimulationState | int]) -> DriftStat
 )
 def update_buttons(data: dict[str, SimulationState | int]) -> tuple[bool, str, bool, bool]:
     try:
-        snapshot = SimulationSnapshot.from_dict(data)
+        snapshot = SimulationSnapshot.model_validate(data)
         is_idle = snapshot.state == SimulationState.IDLE
         is_running = snapshot.state == SimulationState.RUNNING
 
@@ -159,17 +224,17 @@ def update_buttons(data: dict[str, SimulationState | int]) -> tuple[bool, str, b
 )
 def update_snapshot(data: dict[str, SimulationState | int]) -> tuple[SimulationState, int]:
     try:
-        snapshot = SimulationSnapshot.from_dict(data)
+        snapshot = SimulationSnapshot.model_validate(data)
         return snapshot.state, snapshot.clock
 
     except Exception:
         return no_update, no_update
 
 
-@app.server.after_serving
+@atexit.register
 def shutdown_client() -> None:
     try:
-        asyncio.run(client.clear())
+        client.clear()
     except Exception:
         return
 
