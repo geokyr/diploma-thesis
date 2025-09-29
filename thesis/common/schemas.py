@@ -82,6 +82,12 @@ class MetricPoint(BaseModel):
     mae: float | None = Field(None, description="Mean absolute error")
 
 
+class MetricsRequest(BaseModel):
+    """Request for metrics."""
+
+    ml_task: MLTask = Field(..., description="ML task")
+
+
 class MetricsResponse(BaseModel):
     """Response for metrics."""
 
