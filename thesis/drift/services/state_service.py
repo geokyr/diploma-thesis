@@ -1,23 +1,22 @@
 """Service for managing drift states per ML task."""
 
-from threading import RLock
+import asyncio
 
 from thesis.common.enums import DriftState, MLTask
 from thesis.common.schemas import DriftErrorsResponse
 
 
-# TODO: add async
 class StateService:
     """Service for managing drift states per ML task."""
 
     def __init__(self) -> None:
-        self._lock: RLock = RLock()
+        self._lock: asyncio.Lock = asyncio.Lock()
         self._state: dict[MLTask, DriftErrorsResponse] = {}
 
         # TODO: remove it after removing the mock
         self._counters: dict[MLTask, int] = {}
 
-    def get_state(self, ml_task: MLTask) -> DriftErrorsResponse:
+    async def get_state(self, ml_task: MLTask) -> DriftErrorsResponse:
         """
         Get the state for the given ML task.
 
@@ -27,7 +26,7 @@ class StateService:
         Returns:
             DriftErrorsResponse: State for the given ML task.
         """
-        with self._lock:
+        async with self._lock:
             if ml_task not in self._state:
                 self._state[ml_task] = DriftErrorsResponse(state=DriftState.STABLE, start_timestamp=0)
 
@@ -37,9 +36,9 @@ class StateService:
             return self._state[ml_task]
 
     # TODO: remove it after removing the mock
-    def on_errors_event_mock(self, ml_task: MLTask) -> DriftErrorsResponse:
+    async def on_errors_event_mock(self, ml_task: MLTask) -> DriftErrorsResponse:
         """Mock drift detection."""
-        with self._lock:
+        async with self._lock:
             if ml_task not in self._state:
                 self._state[ml_task] = DriftErrorsResponse(state=DriftState.STABLE, start_timestamp=0)
             if ml_task not in self._counters:
@@ -58,7 +57,7 @@ class StateService:
 
             return current
 
-    def clear(self) -> None:
+    async def clear(self) -> None:
         """Clear the state service."""
-        with self._lock:
+        async with self._lock:
             self._state.clear()

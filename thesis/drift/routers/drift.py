@@ -19,7 +19,7 @@ async def process_drift_errors(req: DriftErrorsRequest, request: Request) -> Dri
         DriftErrorsResponse: Response for drift errors.
     """
     state_service: StateService = request.app.state.state_service
-    return state_service.on_errors_event_mock(req.ml_task)
+    return await state_service.on_errors_event_mock(req.ml_task)
 
 
 @drift_router.get("/status")
@@ -34,4 +34,4 @@ async def get_drift_status(ml_task: MLTask, request: Request) -> DriftErrorsResp
         DriftErrorsResponse: Drift status for the ML task.
     """
     state_service: StateService = request.app.state.state_service
-    return state_service.get_state(ml_task)
+    return await state_service.get_state(ml_task)

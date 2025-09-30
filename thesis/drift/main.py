@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI):
         state_service: StateService = getattr(app.state, "state_service", None)
 
         if state_service is not None:
-            state_service.clear()
+            await state_service.clear()
 
         if hasattr(app.state, "state_service"):
             delattr(app.state, "state_service")
