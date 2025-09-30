@@ -14,6 +14,9 @@ class StateService:
         self._lock: RLock = RLock()
         self._state: dict[MLTask, DriftErrorsResponse] = {}
 
+        # TODO: remove it after removing the mock
+        self._counters: dict[MLTask, int] = {}
+
     def get_state(self, ml_task: MLTask) -> DriftErrorsResponse:
         """
         Get the state for the given ML task.
@@ -27,7 +30,33 @@ class StateService:
         with self._lock:
             if ml_task not in self._state:
                 self._state[ml_task] = DriftErrorsResponse(state=DriftState.STABLE, start_timestamp=0)
+
+            # TODO: remove it after removing the mock
+            if ml_task not in self._counters:
+                self._counters[ml_task] = 0
             return self._state[ml_task]
+
+    # TODO: remove it after removing the mock
+    def on_errors_event_mock(self, ml_task: MLTask) -> DriftErrorsResponse:
+        """Mock drift detection."""
+        with self._lock:
+            if ml_task not in self._state:
+                self._state[ml_task] = DriftErrorsResponse(state=DriftState.STABLE, start_timestamp=0)
+            if ml_task not in self._counters:
+                self._counters[ml_task] = 0
+
+            current = self._state[ml_task]
+            if current and current.state == DriftState.DRIFTED:
+                return current
+
+            self._counters[ml_task] += 1
+            threshold_counter = 125
+            if self._counters[ml_task] >= threshold_counter:
+                drifted = DriftErrorsResponse(state=DriftState.DRIFTED, start_timestamp=threshold_counter * 300)
+                self._state[ml_task] = drifted
+                return drifted
+
+            return current
 
     def clear(self) -> None:
         """Clear the state service."""
