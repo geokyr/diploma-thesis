@@ -38,7 +38,7 @@ async def lifespan(app: FastAPI):
         data_loader: DataLoader = getattr(app.state, "data_loader", None)
 
         if retrain_service is not None:
-            await retrain_service.clear()
+            retrain_service.clear()
         if predictor is not None:
             predictor.clear()
         if model_manager is not None:
