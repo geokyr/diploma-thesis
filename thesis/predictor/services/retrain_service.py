@@ -51,7 +51,7 @@ def _retrain_job(
         "ml_task": ml_task,
         "version": version,
         "base_version": base_version,
-        "model": model_type.value,
+        "model": model_type,
         "start_timestamp": int(start_timestamp),
         "end_timestamp": int(end_timestamp),
     }
@@ -100,8 +100,8 @@ class RetrainService:
             """Callback for when the future is done."""
             try:
                 _ = future.result()
-                self._model_manager.load(version)
-                self._jobs[job_id]["status"] = RetrainStatus.COMPLETED
+                loaded_ok = self._model_manager.load(version)
+                self._jobs[job_id]["status"] = RetrainStatus.COMPLETED if loaded_ok else RetrainStatus.FAILED
             except Exception:
                 self._jobs[job_id]["status"] = RetrainStatus.FAILED
 
