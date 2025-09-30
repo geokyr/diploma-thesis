@@ -8,7 +8,6 @@ import joblib
 from sklearn.base import BaseEstimator
 
 from thesis.common.config import DEFAULT_VERSION, METADATA_FILENAME, MODEL_FILENAME
-from thesis.eta.models import ModelType
 
 
 # TODO: add async
@@ -129,17 +128,6 @@ class ModelManager:
             metadata_path = model_dir / METADATA_FILENAME
             with open(metadata_path, "w") as f:
                 json.dump(metadata, f, indent=4)
-
-    def get_model_type(self) -> ModelType:
-        """Return ModelType parsed from current metadata.
-
-        Returns:
-            ModelType: ModelType parsed from current metadata.
-        """
-        with self._lock:
-            metadata = self.metadata
-            raw = metadata["model"]
-            return ModelType(raw)
 
     def clear(self) -> None:
         """Clear the model manager."""
