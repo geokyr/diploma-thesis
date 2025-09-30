@@ -6,7 +6,6 @@ from thesis.common.enums import DriftState, MLTask
 from thesis.common.schemas import DriftErrorsResponse
 
 
-# TODO: add async
 class StateService:
     """Service for managing drift states per ML task."""
 

@@ -10,7 +10,6 @@ from sklearn.base import BaseEstimator
 from thesis.common.config import DEFAULT_VERSION, METADATA_FILENAME, MODEL_FILENAME
 
 
-# TODO: add async
 class ModelManager:
     """Model manager for a predictor with simple versioning.
 
