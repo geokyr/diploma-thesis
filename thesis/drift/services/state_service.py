@@ -12,9 +12,7 @@ class StateService:
 
     def __init__(self) -> None:
         self._lock: RLock = RLock()
-        self._state: dict[MLTask, DriftErrorsResponse] = {
-            MLTask.ETA: DriftErrorsResponse(state=DriftState.STABLE, start_timestamp=0),
-        }
+        self._state: dict[MLTask, DriftErrorsResponse] = {}
 
     def get_state(self, ml_task: MLTask) -> DriftErrorsResponse:
         """
@@ -27,6 +25,8 @@ class StateService:
             DriftErrorsResponse: State for the given ML task.
         """
         with self._lock:
+            if ml_task not in self._state:
+                self._state[ml_task] = DriftErrorsResponse(state=DriftState.STABLE, start_timestamp=0)
             return self._state[ml_task]
 
     def clear(self) -> None:
