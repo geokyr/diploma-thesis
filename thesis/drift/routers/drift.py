@@ -18,9 +18,8 @@ async def process_drift_errors(req: DriftErrorsRequest, request: Request) -> Dri
     Returns:
         DriftErrorsResponse: Response for drift errors.
     """
-    # TODO: implement actual drift lifecycle pipeline
     state_service: StateService = request.app.state.state_service
-    return state_service.get_state(req.ml_task)
+    return state_service.on_errors_event_mock(req.ml_task)
 
 
 @drift_router.get("/status")
