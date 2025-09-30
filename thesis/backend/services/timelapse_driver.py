@@ -132,20 +132,20 @@ class TimelapseDriver:
         except Exception:
             return None
 
-    async def _start_retrain(self, task: MLTask, start_ts: int, end_ts: int) -> RetrainResponse | None:
+    async def _start_retrain(self, task: MLTask, start_timestamp: int, end_timestamp: int) -> RetrainResponse | None:
         """
         Start retraining for a given ML task.
 
         Args:
             task (MLTask): ML task.
-            start_ts (int): Start timestamp.
-            end_ts (int): End timestamp.
+            start_timestamp (int): Start timestamp.
+            end_timestamp (int): End timestamp.
 
         Returns:
             RetrainResult | None: Retrain result or None if failed to start retraining.
         """
         url = f"{self._predictor_urls[task]}/retrain/start"
-        payload = RetrainRequest(start_timestamp=start_ts, end_timestamp=end_ts).model_dump()
+        payload = RetrainRequest(start_timestamp=start_timestamp, end_timestamp=end_timestamp).model_dump()
         try:
             response = await self._client.post(url, json=payload)
             response.raise_for_status()
@@ -234,7 +234,10 @@ class TimelapseDriver:
                     data_collected = (end_timestamp - info.start_timestamp) >= self._collect_seconds
                     if data_collected and info.job_id is None:
                         info.state = DriftState.RETRAINING
-                        retrain_result = await self._start_retrain(ml_task, info.start_timestamp, end_timestamp)
+                        start_timestamp = info.start_timestamp - self._collect_seconds
+                        if start_timestamp < 0:
+                            start_timestamp = 0
+                        retrain_result = await self._start_retrain(ml_task, start_timestamp, end_timestamp)
                         job_id = retrain_result.job_id if retrain_result else None
                         if job_id:
                             task = asyncio.create_task(self._handle_retrain(ml_task, job_id))
