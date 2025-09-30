@@ -42,7 +42,7 @@ class MetricsStore:
             if ml_task not in self._store:
                 self._store[ml_task] = deque()
             metric_points = list(self._store[ml_task])
-            return MetricsResponse(metric_points=metric_points)
+        return MetricsResponse(metric_points=metric_points)
 
     async def reset(self) -> None:
         """Reset the metrics store."""
