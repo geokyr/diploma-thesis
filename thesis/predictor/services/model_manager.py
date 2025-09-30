@@ -108,13 +108,12 @@ class ModelManager:
         Returns:
             dict[str, str | int] | None: Loaded metadata.
         """
-        with self._lock:
-            metadata_path = self.models_dir / version / METADATA_FILENAME
-            if not metadata_path.exists():
-                return None
+        metadata_path = self.models_dir / version / METADATA_FILENAME
+        if not metadata_path.exists():
+            return None
 
-            with open(metadata_path, "r") as f:
-                return json.load(f)
+        with open(metadata_path, "r") as f:
+            return json.load(f)
 
     def _write_metadata(self, model_dir: Path, metadata: dict[str, str | int]) -> None:
         """Write metadata under the model directory.
@@ -123,10 +122,9 @@ class ModelManager:
             model_dir (Path): Directory of the model.
             metadata (dict[str, str | int]): Metadata of the model.
         """
-        with self._lock:
-            metadata_path = model_dir / METADATA_FILENAME
-            with open(metadata_path, "w") as f:
-                json.dump(metadata, f, indent=4)
+        metadata_path = model_dir / METADATA_FILENAME
+        with open(metadata_path, "w") as f:
+            json.dump(metadata, f, indent=4)
 
     def clear(self) -> None:
         """Clear the model manager."""
