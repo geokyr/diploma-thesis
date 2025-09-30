@@ -1,7 +1,7 @@
 {
-    "task": "eta",
+    "ml_task": "eta",
     "version": "v1",
-    "created_at": "2025-08-30T22:30:15.000Z",
+    "base_version": "v1",
     "model": "LGBMRegressor",
     "start_timestamp": -36000,
     "end_timestamp": 0
