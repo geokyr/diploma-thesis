@@ -68,9 +68,9 @@ class RetrainStatus(StrEnum):
     Attributes:
         COMPLETED: Completed status.
         FAILED: Failed status.
-        PENDING: Pending status.
+        RUNNING: Running status.
     """
 
     COMPLETED = "completed"
     FAILED = "failed"
-    PENDING = "pending"
+    RUNNING = "running"
