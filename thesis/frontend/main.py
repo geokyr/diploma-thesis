@@ -17,12 +17,11 @@ logger = setup_logger(config.service, config.logs_dir)
 client = ApiClient(config.backend_url)
 
 # TODO: move callbacks to different file
-# TODO: start button should be disabled if no ml tasks are available
 
 app: Dash = dash.Dash("Platform Frontend", suppress_callback_exceptions=True)
 app.layout: html.Div = html.Div(
     [
-        dcc.Interval(id="bootstrap-interval", interval=1000, n_intervals=0, max_intervals=1),
+        dcc.Interval(id="bootstrap-interval", interval=1000, n_intervals=0, disabled=False),
         dcc.Interval(id="simulation-interval", interval=INTERVAL_SECONDS * 1000, n_intervals=0, disabled=True),
         dcc.Store(
             id="snapshot-store",
@@ -33,7 +32,7 @@ app.layout: html.Div = html.Div(
         html.Div(
             [
                 html.H2("Simulation"),
-                html.Button("Start", id="button-start", n_clicks=0),
+                html.Button("Start", id="button-start", n_clicks=0, disabled=True),
                 html.Button("Pause", id="button-toggle", n_clicks=0, disabled=True),
                 html.Button("Reset", id="button-reset", n_clicks=0, disabled=True),
                 html.Div(["Status: ", html.Span(SimulationState.IDLE, id="simulation-state")]),
@@ -107,6 +106,9 @@ def tick_and_apply(
 def render_task_cards(ml_tasks: list[str]) -> list:
     try:
         cards = []
+        if not ml_tasks:
+            return html.Div("No predictors available")
+
         for ml_task in ml_tasks:
             cards.append(
                 html.Div(
@@ -139,8 +141,7 @@ def update_drift_label(
         drift_info = snapshot_data["drift_info"]
 
         if ml_task in drift_info:
-            state = drift_info[ml_task].state
-            return state
+            return drift_info[ml_task]["state"]
 
         return no_update
 
@@ -174,12 +175,13 @@ def update_chart_for_task(
 @app.callback(
     Output("snapshot-store", "data", allow_duplicate=True),
     Output("ml-tasks-store", "data"),
+    Output("bootstrap-interval", "disabled"),
     Input("bootstrap-interval", "n_intervals"),
     prevent_initial_call="initial_duplicate",
 )
 def bootstrap_snapshot(
     n_intervals: int,
-) -> tuple[dict[str, SimulationState | int | dict[MLTask, DriftInfo]], list[str]]:
+) -> tuple[dict[str, SimulationState | int | dict[MLTask, DriftInfo]], list[str], bool]:
     try:
         simulation_snapshot = client.simulation_snapshot()
         data = simulation_snapshot.model_dump(mode="json")
@@ -188,10 +190,11 @@ def bootstrap_snapshot(
         available_ml_tasks = set(drift_info.keys())
         order_ml_tasks = [MLTask.ETA.value, MLTask.FUEL.value, MLTask.STOPS.value]
         ml_tasks = [ml_task for ml_task in order_ml_tasks if ml_task in available_ml_tasks]
+        disable_bootstrap = bool(ml_tasks)
 
-        return data, ml_tasks
+        return data, ml_tasks, disable_bootstrap
     except Exception:
-        return no_update, no_update
+        return no_update, no_update, no_update
 
 
 @app.callback(
@@ -200,14 +203,16 @@ def bootstrap_snapshot(
     Output("button-toggle", "disabled"),
     Output("button-reset", "disabled"),
     Input("snapshot-store", "data"),
+    Input("ml-tasks-store", "data"),
 )
-def update_buttons(data: dict[str, SimulationState | int]) -> tuple[bool, str, bool, bool]:
+def update_buttons(data: dict[str, SimulationState | int], ml_tasks: list[str]) -> tuple[bool, str, bool, bool]:
     try:
         snapshot = SimulationSnapshot.model_validate(data)
         is_idle = snapshot.state == SimulationState.IDLE
         is_running = snapshot.state == SimulationState.RUNNING
+        no_tasks_available = not ml_tasks
 
-        start_disabled = not is_idle
+        start_disabled = (not is_idle) or no_tasks_available
         toggle_label = "Pause" if is_running else "Resume"
         toggle_disabled = is_idle
         reset_disabled = is_idle
