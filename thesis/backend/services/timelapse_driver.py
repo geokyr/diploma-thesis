@@ -57,21 +57,31 @@ class TimelapseDriver:
             for ml_task in self._ml_tasks
         }
 
+    async def _check_ml_task_availability(self, ml_task: MLTask, url: str) -> tuple[MLTask, bool]:
+        """Check if the ML task is available.
+
+        Args:
+            ml_task (MLTask): ML task.
+            url (str): URL of the predictor.
+
+        Returns:
+            tuple[MLTask, bool]: ML task and availability.
+        """
+        try:
+            response = await self._client.get(f"{url}/health")
+            return ml_task, response.status_code == 200
+        except Exception:
+            return ml_task, False
+
     async def detect_available_ml_tasks(self) -> None:
         """Detect available ML tasks."""
         self._ml_tasks.clear()
 
-        for ml_task, predictor_url in self._predictor_urls.items():
-            try:
-                response = await self._client.get(f"{predictor_url}/health")
-                if response.status_code == 200:
-                    self._ml_tasks.append(ml_task)
-            except Exception:
-                continue
+        results = await asyncio.gather(
+            *(self._check_ml_task_availability(ml_task, url) for ml_task, url in self._predictor_urls.items())
+        )
 
-        if not self._ml_tasks and MLTask.ETA in self._predictor_urls:
-            self._ml_tasks.append(MLTask.ETA)
-
+        self._ml_tasks = [ml_task for ml_task, available in results if available]
         self._reset_drift_info()
 
     def _advance_clock(self) -> tuple[int, int]:
