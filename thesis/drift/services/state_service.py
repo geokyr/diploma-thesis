@@ -29,16 +29,6 @@ class StateService:
         with self._lock:
             return self._state[ml_task]
 
-    def set_state(self, ml_task: MLTask, state: DriftState, start_timestamp: int) -> None:
-        """
-        Set the state for the given ML task.
-
-        Args:
-            ml_task (MLTask): ML task to set the state for.
-        """
-        with self._lock:
-            self._state[ml_task] = DriftErrorsResponse(state=state, start_timestamp=start_timestamp)
-
     def clear(self) -> None:
         """Clear the state service."""
         with self._lock:
