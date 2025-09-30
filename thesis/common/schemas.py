@@ -101,8 +101,8 @@ class RetrainRequest(BaseModel):
     end_timestamp: int = Field(..., description="Window end timestamp for retraining")
 
 
-class RetrainResult(BaseModel):
-    """Result for retraining."""
+class RetrainResponse(BaseModel):
+    """Response for retraining."""
 
     job_id: str = Field(..., description="Job ID")
 

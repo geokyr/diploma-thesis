@@ -2,14 +2,14 @@
 
 from fastapi import APIRouter, Request
 
-from thesis.common.schemas import RetrainRequest, RetrainResult, RetrainStatusResponse
+from thesis.common.schemas import RetrainRequest, RetrainResponse, RetrainStatusResponse
 from thesis.predictor.services.retrain_service import RetrainService
 
 retrain_router = APIRouter()
 
 
-@retrain_router.post("/start", response_model=RetrainResult)
-def start_retrain(req: RetrainRequest, request: Request) -> RetrainResult:
+@retrain_router.post("/start", response_model=RetrainResponse)
+def start_retrain(req: RetrainRequest, request: Request) -> RetrainResponse:
     """
     Start retraining for a given window.
 
@@ -22,7 +22,7 @@ def start_retrain(req: RetrainRequest, request: Request) -> RetrainResult:
     """
     retrain_service: RetrainService = request.app.state.retrain_service
     job_id = retrain_service.start(req.start_timestamp, req.end_timestamp)
-    return RetrainResult(job_id=job_id)
+    return RetrainResponse(job_id=job_id)
 
 
 @retrain_router.get("/status/{job_id}", response_model=RetrainStatusResponse)
@@ -38,5 +38,5 @@ def retrain_status(job_id: str, request: Request) -> RetrainStatusResponse:
         RetrainStatusResponse: Status of the job.
     """
     retrain_service: RetrainService = request.app.state.retrain_service
-    status = retrain_service.status(job_id)
+    status = retrain_service.get_status(job_id)
     return RetrainStatusResponse(status=status)

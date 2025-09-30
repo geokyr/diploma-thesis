@@ -16,7 +16,7 @@ from thesis.common.schemas import (
     PredictionBatchRequest,
     PredictionBatchResponse,
     RetrainRequest,
-    RetrainResult,
+    RetrainResponse,
     RetrainStatusResponse,
 )
 from thesis.common.service import PlatformServiceConfig
@@ -132,7 +132,7 @@ class TimelapseDriver:
         except Exception:
             return None
 
-    async def _start_retrain(self, task: MLTask, start_ts: int, end_ts: int) -> RetrainResult | None:
+    async def _start_retrain(self, task: MLTask, start_ts: int, end_ts: int) -> RetrainResponse | None:
         """
         Start retraining for a given ML task.
 
@@ -149,7 +149,7 @@ class TimelapseDriver:
         try:
             response = await self._client.post(url, json=payload)
             response.raise_for_status()
-            return RetrainResult.model_validate(response.json())
+            return RetrainResponse.model_validate(response.json())
         except Exception:
             return None
 
