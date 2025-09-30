@@ -17,6 +17,7 @@ logger = setup_logger(config.service, config.logs_dir)
 client = ApiClient(config.backend_url)
 
 # TODO: move callbacks to different file
+# TODO: start button should be disabled if no ml tasks are available
 
 app: Dash = dash.Dash("Platform Frontend", suppress_callback_exceptions=True)
 app.layout: html.Div = html.Div(
