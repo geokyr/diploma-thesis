@@ -32,7 +32,7 @@ class ModelManager:
         self.load(version)
 
     def load(self, version: str = DEFAULT_VERSION) -> bool:
-        """Load a model for a given version.
+        """Load a model and its metadata for a given version.
 
         Args:
             version (str): Version of the model to load.
@@ -58,7 +58,7 @@ class ModelManager:
             return True
 
     def save(self, model: BaseEstimator, version: str, metadata: dict[str, str | int]) -> None:
-        """Save a model under a directory for a given version.
+        """Save a model and its metadataunder a directory for a given version.
 
         Args:
             model (BaseEstimator): Trained model.
