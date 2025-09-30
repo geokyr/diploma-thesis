@@ -6,6 +6,7 @@
 - Type hints
 - Config
 - Logging
+- Error handling
 
 ## Plan
 
