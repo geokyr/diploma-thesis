@@ -11,7 +11,7 @@ from thesis.common.schemas import (
 )
 
 
-class ApiClient:
+class APIClient:
     """Frontend API client."""
 
     def __init__(self, backend_url: str) -> None:
