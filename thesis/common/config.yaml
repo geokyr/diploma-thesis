@@ -3,37 +3,37 @@ logging:
   backup_count: 5
 
 dirname:
-  simulation: "simulation"
-  outputs: "outputs"
-  data: "data"
-  logs: "logs"
-  plots: "plots"
-  models: "models"
-  results: "results"
-  appdata: "appdata"
-  misc: "misc"
+  simulation: simulation
+  outputs: outputs
+  data: data
+  logs: logs
+  plots: plots
+  models: models
+  results: results
+  appdata: appdata
+  misc: misc
 
 filename:
-  osm_data: "osm_bbox.osm.xml.gz"
-  gui_settings: "osm.view.xml"
-  poly: "osm.poly.xml.gz"
-  network_base: "osm.net.xml.gz"
-  network_rain: "osm-rain.net.xml.gz"
-  routes_temp: "routes.rou.xml"
-  logs: "logs.log"
-  results: "results.json"
-  research_results: "research_results.csv"
-  tuning_results: "tuning_results.json"
-  feature_calibrator: "feature_calibrator.joblib"
-  trips_parquet: "trips.parquet"
-  model: "model.joblib"
-  metadata: "metadata.json"
+  osm_data: osm_bbox.osm.xml.gz
+  gui_settings: osm.view.xml
+  poly: osm.poly.xml.gz
+  network_base: osm.net.xml.gz
+  network_rain: osm-rain.net.xml.gz
+  routes_temp: routes.rou.xml
+  logs: logs.log
+  results: results.json
+  research_results: research_results.csv
+  tuning_results: tuning_results.json
+  feature_calibrator: feature_calibrator.joblib
+  trips_parquet: trips.parquet
+  model: model.joblib
+  metadata: metadata.json
 
 suffix:
-  trips: ".trips.xml"
-  sumocfg: ".sumocfg"
-  fcd_csv: "-fcd.csv"
-  fcd_parquet: "-fcd.parquet"
+  trips: .trips.xml
+  sumocfg: .sumocfg
+  fcd_csv: -fcd.csv
+  fcd_parquet: -fcd.parquet
 
 network:
   bbox: [23.725252771719436, 37.974745936977456, 23.752735758169127, 37.988290142332225]
@@ -46,9 +46,9 @@ network:
       "Aerialway": ["cable_car", "gondola"],
       "Route": ["ferry"]
     }
-  vehicle_classes: "passenger"
-  netconvert_options: "--geometry.remove,--roundabouts.guess,--ramps.guess,--junctions.join,--tls.guess-signals,--tls.discard-simple,--tls.join,--output.original-names,--junctions.corner-detail,5,--output.street-names,--tls.default-type,actuated"
-  polyconvert_options: "--verbose,--osm.keep-full-type,--osm.merge-relations,1"
+  vehicle_classes: passenger
+  netconvert_options: --geometry.remove,--roundabouts.guess,--ramps.guess,--junctions.join,--tls.guess-signals,--tls.discard-simple,--tls.join,--output.original-names,--junctions.corner-detail,5,--output.street-names,--tls.default-type,actuated
+  polyconvert_options: --verbose,--osm.keep-full-type,--osm.merge-relations,1
   friction: 0.4
   view_settings: |
     <viewsettings>
@@ -69,13 +69,13 @@ simulation:
   tls_actuated_jam_threshold: 30
   device_rerouting_adaptation_steps: 18
   device_rerouting_adaptation_interval: 10
-  fcd_output_attributes: "id,x,y,speed,lane,odometer,fuel,waiting"
+  fcd_output_attributes: id,x,y,speed,lane,odometer,fuel,waiting
   start_time: 0
   end_time: 36000
   device_friction_probability: 1.0
 
 external:
-  zenodo_dataset_api_url: "https://zenodo.org/api/records/16950674"
+  zenodo_dataset_api_url: https://zenodo.org/api/records/16950674
 
 eta:
   chunk_size: 8192
@@ -101,9 +101,9 @@ features:
   n_components: 2
 
 models:
-  objective_xgboost: "reg:absoluteerror"
-  objective_lightgbm: "regression_l1"
-  loss_function_catboost: "MAE"
+  objective_xgboost: reg:absoluteerror
+  objective_lightgbm: regression_l1
+  loss_function_catboost: MAE
   verbose_lightgbm: -1
   verbose_catboost: 0
   enable_categorical: true
@@ -115,11 +115,11 @@ models:
   subsample: 0.8
   colsample_bytree: 0.8
   n_trials: 100
-  direction: "minimize"
+  direction: minimize
 
 services:
-  host: "0.0.0.0"
-  environment: "development"
+  host: 0.0.0.0
+  environment: development
   backend: 8000
   predictor_eta: 8001
   predictor_fuel: 8002
@@ -135,5 +135,5 @@ timelapse:
   collect_seconds: 7200
 
 predictor:
-  time_start_column: "time_start"
-  default_version: "v1"
+  time_start_column: time_start
+  default_version: v1
