@@ -4,8 +4,8 @@ import plotly.graph_objs as go
 from dash import Input, Output, State, html, no_update
 from dash.dependencies import MATCH
 
-from thesis.common.enums import DriftInfo, DriftState, MLTask, SimulationState
-from thesis.common.schemas import MetricsResponse
+from thesis.common.enums import DriftState, MLTask, SimulationState
+from thesis.common.schemas import DriftInfo, MetricsResponse
 from thesis.frontend.layouts.admin import create_ml_task_card
 from thesis.frontend.utils.api_client import APIClient
 
