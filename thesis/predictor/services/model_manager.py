@@ -11,7 +11,8 @@ from thesis.common.config import DEFAULT_VERSION, METADATA_FILENAME, MODEL_FILEN
 
 
 class ModelManager:
-    """Model manager for a predictor with simple versioning.
+    """
+    Model manager for a predictor with simple versioning.
 
     Attributes:
         models_dir (Path): Directory to save and load models from.
@@ -30,7 +31,8 @@ class ModelManager:
         self.load(version)
 
     def load(self, version: str = DEFAULT_VERSION) -> bool:
-        """Load a model and its metadata for a given version.
+        """
+        Load a model and its metadata for a given version.
 
         Args:
             version (str): Version of the model to load.
@@ -56,7 +58,8 @@ class ModelManager:
             return True
 
     def save(self, model: BaseEstimator, version: str, metadata: dict[str, str | int]) -> None:
-        """Save a model and its metadataunder a directory for a given version.
+        """
+        Save a model and its metadataunder a directory for a given version.
 
         Args:
             model (BaseEstimator): Trained model.
@@ -73,7 +76,8 @@ class ModelManager:
             self._write_metadata(model_dir, metadata)
 
     def get_next_version(self) -> str:
-        """Compute the next version by scanning existing version directories.
+        """
+        Compute the next version by scanning existing version directories.
 
         Returns:
             str: Next version string.
@@ -100,7 +104,8 @@ class ModelManager:
             return f"v{max_num + 1}"
 
     def _read_metadata(self, version: str = DEFAULT_VERSION) -> dict[str, str | int] | None:
-        """Read metadata for a given version.
+        """
+        Read metadata for a given version.
 
         Args:
             version (str): Version to read metadata for.
@@ -116,7 +121,8 @@ class ModelManager:
             return json.load(f)
 
     def _write_metadata(self, model_dir: Path, metadata: dict[str, str | int]) -> None:
-        """Write metadata under the model directory.
+        """
+        Write metadata under the model directory.
 
         Args:
             model_dir (Path): Directory of the model.

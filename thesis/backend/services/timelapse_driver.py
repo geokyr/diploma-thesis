@@ -58,7 +58,8 @@ class TimelapseDriver:
         }
 
     async def _check_ml_task_availability(self, ml_task: MLTask, url: str) -> tuple[MLTask, bool]:
-        """Check if the ML task is available.
+        """
+        Check if the ML task is available.
 
         Args:
             ml_task (MLTask): ML task.

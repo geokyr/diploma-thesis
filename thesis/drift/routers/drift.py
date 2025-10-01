@@ -1,3 +1,5 @@
+"""Drift router."""
+
 from fastapi import APIRouter, Request
 
 from thesis.common.enums import MLTask

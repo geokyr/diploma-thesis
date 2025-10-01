@@ -17,7 +17,8 @@ from thesis.predictor.services.model_manager import ModelManager
 def _retrain_job(
     data_dir: Path, models_dir: Path, base_version: str, version: str, start_timestamp: int, end_timestamp: int
 ) -> None:
-    """Retrain job.
+    """
+    Retrain job.
 
     Args:
         data_dir: Path to the data directory.
@@ -69,7 +70,8 @@ class RetrainService:
         self._jobs: dict[str, dict[str, RetrainStatus | str | Future]] = {}
 
     def start(self, start_timestamp: int, end_timestamp: int) -> str:
-        """Start retraining for a given window.
+        """
+        Start retraining for a given window.
 
         Args:
             start_timestamp (int): Start timestamp.
@@ -97,7 +99,12 @@ class RetrainService:
         self._jobs[job_id] = {"status": RetrainStatus.RUNNING, "version": version, "future": future}
 
         def _on_done(future: Future) -> None:
-            """Callback for when the future is done."""
+            """
+            Callback for when the future is done.
+
+            Args:
+                future (Future): Future.
+            """
             try:
                 _ = future.result()
                 loaded_ok = self._model_manager.load(version)
@@ -110,7 +117,8 @@ class RetrainService:
         return job_id
 
     def get_status(self, job_id: str) -> RetrainStatus:
-        """Get status of a retraining job.
+        """
+        Get status of a retraining job.
 
         Args:
             job_id (str): Job ID.
