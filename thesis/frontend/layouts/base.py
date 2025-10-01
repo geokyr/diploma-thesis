@@ -18,7 +18,7 @@ def create_base_layout() -> html.Div:
     """
     return html.Div(
         [
-            dcc.Interval(id="bootstrap-interval", interval=1000, n_intervals=0),
+            dcc.Interval(id="bootstrap-interval", interval=INTERVAL_SECONDS * 1000, n_intervals=0),
             dcc.Interval(id="simulation-interval", interval=INTERVAL_SECONDS * 1000, n_intervals=0, disabled=True),
             dcc.Store(
                 id="snapshot-store",
@@ -36,9 +36,16 @@ def create_base_layout() -> html.Div:
                         value="admin",
                         children=[
                             dcc.Tab(label="Admin Tab", value="admin", children=[create_admin_layout()]),
-                            dcc.Tab(label="User Tab", value="user", children=[create_user_layout()]),
+                            dcc.Tab(
+                                id="user-tab",
+                                label="User Tab",
+                                value="user",
+                                disabled=True,
+                                children=[create_user_layout()],
+                            ),
                         ],
                     ),
+                    html.Div(id="user-tab-tooltip-container"),
                 ]
             ),
         ]
