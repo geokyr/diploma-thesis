@@ -1,6 +1,7 @@
 import atexit
 
 import dash
+import dash_bootstrap_components as dbc
 
 from thesis.common.logger import setup_logger
 from thesis.common.service import PlatformServiceConfig
@@ -14,7 +15,11 @@ config = PlatformServiceConfig()
 logger = setup_logger(config.service, config.logs_dir)
 client = APIClient(config.backend_url)
 
-app: dash.Dash = dash.Dash("Platform Frontend", suppress_callback_exceptions=True)
+app: dash.Dash = dash.Dash(
+    "Platform Frontend",
+    suppress_callback_exceptions=True,
+    external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.BOOTSTRAP],
+)
 app.layout = create_base_layout()
 
 register_simulation_callbacks(app, client)
