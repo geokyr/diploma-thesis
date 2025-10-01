@@ -6,11 +6,12 @@ from thesis.common.config import INTERVAL_SECONDS
 from thesis.common.enums import SimulationState
 from thesis.common.schemas import SimulationSnapshot
 from thesis.frontend.layouts.admin import create_admin_layout
+from thesis.frontend.layouts.user import create_user_layout
 
 
 def create_base_layout() -> html.Div:
     """
-    Create the root layout with all stores, intervals, and the admin tab.
+    Create the root layout with all stores, intervals, tabs, and content.
 
     Returns:
         html.Div: Complete application layout.
@@ -25,6 +26,20 @@ def create_base_layout() -> html.Div:
             ),
             dcc.Store(id="ml-tasks-store", data=[]),
             dcc.Store(id="event-store", data="noop"),
-            create_admin_layout(),
+            dcc.Store(id="user-source-store", data=None),
+            dcc.Store(id="user-destination-store", data=None),
+            html.Header(
+                [
+                    html.H1("Platform"),
+                    dcc.Tabs(
+                        id="main-tabs",
+                        value="admin",
+                        children=[
+                            dcc.Tab(label="Admin Tab", value="admin", children=[create_admin_layout()]),
+                            dcc.Tab(label="User Tab", value="user", children=[create_user_layout()]),
+                        ],
+                    ),
+                ]
+            ),
         ]
     )
