@@ -1,4 +1,4 @@
-"""Callbacks for user tab interactions and predictions."""
+"""Callbacks for map interactions and predictions."""
 
 import dash_bootstrap_components as dbc
 import dash_leaflet as dl
@@ -10,9 +10,9 @@ from thesis.common.schemas import DriftInfo, SimulationSnapshot
 from thesis.frontend.utils.api_client import APIClient
 
 
-def register_user_callbacks(app: dash.Dash, client: APIClient) -> None:
+def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
     """
-    Register all user tab callbacks for map interactions and predictions.
+    Register all map callbacks for map interactions and predictions.
 
     Args:
         app (dash.Dash): The Dash app instance
