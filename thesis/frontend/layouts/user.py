@@ -36,7 +36,7 @@ def create_user_layout() -> html.Div:
                             html.Div(["Longitude: ", html.Span("-", id="destination-longitude")]),
                         ]
                     ),
-                    html.Button("Clear Selection", id="button-clear-selection", n_clicks=0),
+                    html.Button("Clear", id="button-clear", n_clicks=0),
                     html.Button("Predict", id="button-predict", n_clicks=0, disabled=True),
                 ]
             ),
