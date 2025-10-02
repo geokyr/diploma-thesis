@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI
 
+from thesis.backend.routers.prediction import prediction_router
 from thesis.backend.routers.simulation import simulation_router
 from thesis.backend.services.metrics_store import MetricsStore
 from thesis.backend.services.simulation_manager import SimulationManager
@@ -51,6 +52,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Platform Backend API", version="1.0.0", lifespan=lifespan)
 app.include_router(simulation_router, prefix="/simulation", tags=["simulation"])
+app.include_router(prediction_router, prefix="/prediction", tags=["prediction"])
 
 
 @app.get("/health", response_model=HealthResponse, tags=["health"])
