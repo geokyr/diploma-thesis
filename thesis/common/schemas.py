@@ -135,7 +135,7 @@ class PredictionSingleRequest(BaseModel):
     source_longitude: float = Field(..., description="Source longitude")
     destination_latitude: float = Field(..., description="Destination latitude")
     destination_longitude: float = Field(..., description="Destination longitude")
-    start_time: int = Field(..., description="Trip start time based on simulation clock")
+    start_time: int = Field(..., description="Trip start time")
 
 
 class PredictionSingleResponse(BaseModel):
