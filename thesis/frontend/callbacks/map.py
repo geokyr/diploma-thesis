@@ -295,14 +295,8 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
                 else:
                     for ml_task, prediction_response in response.predictions.items():
                         if prediction_response.prediction is not None:
-                            prediction_value = prediction_response.prediction
-
-                            if ml_task == MLTask.ETA:
-                                details.append(html.Div([html.Strong("ETA: "), f"{prediction_value} seconds)"]))
-                            elif ml_task == MLTask.FUEL:
-                                details.append(html.Div([html.Strong("Fuel: "), f"{prediction_value} liters"]))
-                            elif ml_task == MLTask.STOPS:
-                                details.append(html.Div([html.Strong("Stops: "), f"{int(prediction_value)} stops"]))
+                            value = prediction_response.prediction
+                            details.append(html.Div([html.Strong(f"{ml_task}: "), f"{value}"]))
 
             except Exception:
                 return no_update
