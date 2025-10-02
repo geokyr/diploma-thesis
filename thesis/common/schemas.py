@@ -126,3 +126,19 @@ class Notification(BaseModel):
     timestamp: datetime = Field(..., description="Timestamp of the notification")
     ml_task: MLTask = Field(..., description="ML task of the notification")
     message: str = Field(..., description="Message of the notification")
+
+
+class TripPredictionRequest(BaseModel):
+    """Request for trip prediction."""
+
+    source_latitude: float = Field(..., description="Source latitude")
+    source_longitude: float = Field(..., description="Source longitude")
+    destination_latitude: float = Field(..., description="Destination latitude")
+    destination_longitude: float = Field(..., description="Destination longitude")
+    start_time: int = Field(..., description="Trip start time based on simulation clock")
+
+
+class TripPredictionResponse(BaseModel):
+    """Response for trip prediction."""
+
+    predictions: dict[str, float] = Field(..., description="Predictions per ML task)")
