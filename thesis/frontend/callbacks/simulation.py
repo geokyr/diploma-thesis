@@ -1,13 +1,13 @@
 """Callbacks for simulation control and state management."""
 
-from dash import Input, Output, State, ctx, no_update
+from dash import Input, Output, State, ctx, dash, no_update
 
 from thesis.common.enums import MLTask, SimulationState
 from thesis.common.schemas import DriftInfo, SimulationSnapshot
 from thesis.frontend.utils.api_client import APIClient
 
 
-def register_simulation_callbacks(app, client: APIClient) -> None:
+def register_simulation_callbacks(app: dash.Dash, client: APIClient) -> None:
     """
     Register all simulation-related callbacks.
 

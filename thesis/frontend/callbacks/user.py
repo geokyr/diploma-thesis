@@ -2,7 +2,7 @@
 
 import dash_bootstrap_components as dbc
 import dash_leaflet as dl
-from dash import Input, Output, State, ctx, html, no_update
+from dash import Input, Output, State, ctx, dash, html, no_update
 
 from thesis.common.config import BBOX
 from thesis.common.enums import MLTask, SimulationState
@@ -10,7 +10,7 @@ from thesis.common.schemas import DriftInfo, SimulationSnapshot
 from thesis.frontend.utils.api_client import APIClient
 
 
-def register_user_callbacks(app, client: APIClient) -> None:
+def register_user_callbacks(app: dash.Dash, client: APIClient) -> None:
     """
     Register all user tab callbacks for map interactions and predictions.
 

@@ -1,7 +1,7 @@
 """Callbacks for monitoring ML task performance and drift detection."""
 
 import plotly.graph_objs as go
-from dash import Input, Output, State, html, no_update
+from dash import Input, Output, State, dash, html, no_update
 from dash.dependencies import MATCH
 
 from thesis.common.enums import DriftState, MLTask, SimulationState
@@ -10,7 +10,7 @@ from thesis.frontend.layouts.admin import create_ml_task_card
 from thesis.frontend.utils.api_client import APIClient
 
 
-def register_monitoring_callbacks(app, client: APIClient) -> None:
+def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
     """
     Register all monitoring callbacks for ML task performance.
 
