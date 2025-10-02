@@ -30,6 +30,8 @@ class TimelapseDriver:
         clock (int): The current timelapse clock time.
         interval_seconds (int): The interval seconds.
         drift_info (dict[MLTask, DriftInfo]): The drift info per ML task.
+        ml_tasks (list[MLTask]): The ML tasks.
+        predictor_urls (dict[MLTask, str]): The predictor URLs.
     """
 
     def __init__(self, config: PlatformServiceConfig, metrics_store: MetricsStore) -> None:
@@ -39,22 +41,22 @@ class TimelapseDriver:
         self._client: httpx.AsyncClient = httpx.AsyncClient(timeout=HTTP_CLIENT_TIMEOUT_SECONDS)
         self._tick_lock: asyncio.Lock = asyncio.Lock()
         self._collect_seconds: int = COLLECT_SECONDS
-        self._ml_tasks: list[MLTask] = []
-        self._predictor_urls: dict[MLTask, str] = {
-            MLTask.ETA: self._config.predictor_eta_url,
-            MLTask.FUEL: self._config.predictor_fuel_url,
-            MLTask.STOPS: self._config.predictor_stops_url,
-        }
         self._retrain_tasks: list[asyncio.Task] = []
         self.clock: int = 0
         self.interval_seconds: int = INTERVAL_SECONDS
         self.drift_info: dict[MLTask, DriftInfo] = {}
+        self.ml_tasks: list[MLTask] = []
+        self.predictor_urls: dict[MLTask, str] = {
+            MLTask.ETA: self._config.predictor_eta_url,
+            MLTask.FUEL: self._config.predictor_fuel_url,
+            MLTask.STOPS: self._config.predictor_stops_url,
+        }
 
     def _reset_drift_info(self) -> None:
         """Reset the drift info."""
         self.drift_info = {
             ml_task: DriftInfo(state=DriftState.STABLE, start_timestamp=None, collecting=False, job_id=None)
-            for ml_task in self._ml_tasks
+            for ml_task in self.ml_tasks
         }
 
     async def _check_ml_task_availability(self, ml_task: MLTask, url: str) -> tuple[MLTask, bool]:
@@ -76,13 +78,13 @@ class TimelapseDriver:
 
     async def detect_available_ml_tasks(self) -> None:
         """Detect available ML tasks."""
-        self._ml_tasks.clear()
+        self.ml_tasks.clear()
 
         results = await asyncio.gather(
-            *(self._check_ml_task_availability(ml_task, url) for ml_task, url in self._predictor_urls.items())
+            *(self._check_ml_task_availability(ml_task, url) for ml_task, url in self.predictor_urls.items())
         )
 
-        self._ml_tasks = [ml_task for ml_task, available in results if available]
+        self.ml_tasks = [ml_task for ml_task, available in results if available]
         self._reset_drift_info()
 
     def _advance_clock(self) -> tuple[int, int]:
@@ -112,7 +114,7 @@ class TimelapseDriver:
         Returns:
             PredictionBatchResponse: Prediction batch response.
         """
-        url = f"{self._predictor_urls[ml_task]}/predict/batch"
+        url = f"{self.predictor_urls[ml_task]}/predict/batch"
         payload = PredictionBatchRequest(start_timestamp=start_timestamp, end_timestamp=end_timestamp).model_dump()
 
         try:
@@ -155,7 +157,7 @@ class TimelapseDriver:
         Returns:
             RetrainResult | None: Retrain result or None if failed to start retraining.
         """
-        url = f"{self._predictor_urls[task]}/retrain/start"
+        url = f"{self.predictor_urls[task]}/retrain/start"
         payload = RetrainRequest(start_timestamp=start_timestamp, end_timestamp=end_timestamp).model_dump()
         try:
             response = await self._client.post(url, json=payload)
@@ -175,7 +177,7 @@ class TimelapseDriver:
         Returns:
             RetrainStatus: Status of the retrain.
         """
-        predictor_url = self._predictor_urls[task]
+        predictor_url = self.predictor_urls[task]
         url = f"{predictor_url}/retrain/status/{job_id}"
         try:
             while True:
@@ -217,7 +219,7 @@ class TimelapseDriver:
         async with self._tick_lock:
             start_timestamp, end_timestamp = self._advance_clock()
 
-            for ml_task in self._ml_tasks:
+            for ml_task in self.ml_tasks:
                 try:
                     batch = await self._predict_window(ml_task, start_timestamp, end_timestamp)
                 except Exception:

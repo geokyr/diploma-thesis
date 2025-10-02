@@ -128,8 +128,8 @@ class Notification(BaseModel):
     message: str = Field(..., description="Message of the notification")
 
 
-class TripPredictionRequest(BaseModel):
-    """Request for trip prediction."""
+class PredictionSingleRequest(BaseModel):
+    """Request for single prediction."""
 
     source_latitude: float = Field(..., description="Source latitude")
     source_longitude: float = Field(..., description="Source longitude")
@@ -138,7 +138,13 @@ class TripPredictionRequest(BaseModel):
     start_time: int = Field(..., description="Trip start time based on simulation clock")
 
 
+class PredictionSingleResponse(BaseModel):
+    """Response for single prediction."""
+
+    prediction: float | None = Field(None, description="Predicted value")
+
+
 class TripPredictionResponse(BaseModel):
     """Response for trip prediction."""
 
-    predictions: dict[str, float] = Field(..., description="Predictions per ML task)")
+    predictions: dict[MLTask, PredictionSingleResponse] = Field(..., description="Predictions per ML task")
