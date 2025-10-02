@@ -17,7 +17,9 @@ def create_user_layout() -> html.Div:
     return html.Div(
         [
             html.H3("Trip Prediction"),
-            html.P("Move around the simulation map and click twice to select source and destination points."),
+            html.P(
+                "Move around the simulation map and click once to select the source, then again for the destination."
+            ),
             html.Div(
                 [
                     html.H4("Source"),
@@ -49,7 +51,6 @@ def create_user_layout() -> html.Div:
                         maxZoom=18,
                         children=[
                             dl.TileLayer(),
-                            # TODO: fix markers not showing up and spans not filling up
                             dl.LayerGroup(id="user-markers"),
                         ],
                         style={
