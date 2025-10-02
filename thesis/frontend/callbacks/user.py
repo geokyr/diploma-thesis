@@ -279,9 +279,33 @@ def register_user_callbacks(app: dash.Dash, client: APIClient) -> None:
                 html.Hr(),
             ]
 
-            has_eta = MLTask.ETA.value in ml_tasks
-            if has_eta:
-                details.append(html.Div("ETA prediction endpoint will be integrated in the next step. "))
+            try:
+                response = client.predict_trip(
+                    source_latitude=source_data["latitude"],
+                    source_longitude=source_data["longitude"],
+                    destination_latitude=destination_data["latitude"],
+                    destination_longitude=destination_data["longitude"],
+                    start_time=snapshot.clock,
+                )
+
+                details.append(html.H4("Predictions"))
+
+                if not response.predictions:
+                    details.append(html.Div("No predictions available. Predictor services may be unavailable."))
+                else:
+                    for ml_task, prediction_response in response.predictions.items():
+                        if prediction_response.prediction is not None:
+                            prediction_value = prediction_response.prediction
+
+                            if ml_task == MLTask.ETA:
+                                details.append(html.Div([html.Strong("ETA: "), f"{prediction_value} seconds)"]))
+                            elif ml_task == MLTask.FUEL:
+                                details.append(html.Div([html.Strong("Fuel: "), f"{prediction_value} liters"]))
+                            elif ml_task == MLTask.STOPS:
+                                details.append(html.Div([html.Strong("Stops: "), f"{int(prediction_value)} stops"]))
+
+            except Exception:
+                return no_update
 
             return html.Div(details)
 
