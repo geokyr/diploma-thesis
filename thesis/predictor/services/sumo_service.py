@@ -1,15 +1,17 @@
 """SUMO service for SUMO network operations."""
 
+from pathlib import Path
+
 import sumolib
 
-from thesis.common.config import NETWORK_BASE_FILENAME, SIMULATION_DIR
+from thesis.common.config import NETWORK_BASE_FILENAME
 
 
 class SumoService:
     """SUMO service for SUMO network operations."""
 
-    def __init__(self) -> None:
-        self._network: sumolib.net.Net = sumolib.net.readNet(SIMULATION_DIR / NETWORK_BASE_FILENAME)
+    def __init__(self, common_dir: Path) -> None:
+        self._network: sumolib.net.Net = sumolib.net.readNet(common_dir / NETWORK_BASE_FILENAME)
 
     def lonlat_to_xy(self, longitude: float, latitude: float) -> tuple[float, float]:
         """

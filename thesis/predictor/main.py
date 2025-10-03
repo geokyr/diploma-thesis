@@ -22,7 +22,7 @@ logger = setup_logger(config.service, config.logs_dir)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
-        sumo_service = SumoService()
+        sumo_service = SumoService(common_dir=config.common_dir)
         data_loader = DataLoader(data_dir=config.data_dir)
         model_manager = ModelManager(models_dir=config.models_dir)
         retrain_service = RetrainService(data_dir=config.data_dir, model_manager=model_manager)
