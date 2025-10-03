@@ -96,7 +96,7 @@ class APIClient:
         source_longitude: float,
         destination_latitude: float,
         destination_longitude: float,
-        start_time: int,
+        start_timestamp: int,
     ) -> TripPredictionResponse:
         """
         Predict trip metrics for a given trip.
@@ -106,7 +106,7 @@ class APIClient:
             source_longitude (float): Source longitude.
             destination_latitude (float): Destination latitude.
             destination_longitude (float): Destination longitude.
-            start_time (int): Trip start time.
+            start_timestamp (int): Trip start time.
 
         Returns:
             TripPredictionResponse: Predictions per ML task.
@@ -116,7 +116,7 @@ class APIClient:
             source_longitude=source_longitude,
             destination_latitude=destination_latitude,
             destination_longitude=destination_longitude,
-            start_time=start_time,
+            start_timestamp=start_timestamp,
         ).model_dump()
 
         response = self._client.post("/predict/trip", json=payload)

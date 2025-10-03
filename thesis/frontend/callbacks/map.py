@@ -285,7 +285,7 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
                     source_longitude=source_data["longitude"],
                     destination_latitude=destination_data["latitude"],
                     destination_longitude=destination_data["longitude"],
-                    start_time=snapshot.clock,
+                    start_timestamp=snapshot.clock,
                 )
 
                 details.append(html.H4("Predictions"))

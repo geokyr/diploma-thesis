@@ -2,7 +2,12 @@
 
 from fastapi import APIRouter, Request
 
-from thesis.common.schemas import PredictionBatchRequest, PredictionBatchResponse
+from thesis.common.schemas import (
+    PredictionBatchRequest,
+    PredictionBatchResponse,
+    PredictionSingleRequest,
+    PredictionSingleResponse,
+)
 from thesis.predictor.services.predictor import Predictor
 
 predict_router = APIRouter()
@@ -24,4 +29,26 @@ def predict_batch(req: PredictionBatchRequest, request: Request) -> PredictionBa
     return predictor.predict_window(
         req.start_timestamp,
         req.end_timestamp,
+    )
+
+
+@predict_router.post("/single", response_model=PredictionSingleResponse)
+def predict_single(req: PredictionSingleRequest, request: Request) -> PredictionSingleResponse:
+    """
+    Predict a single trip.
+
+    Args:
+        req (PredictionSingleRequest): Request for single trip prediction.
+        request (Request): FastAPI request.
+
+    Returns:
+        PredictionSingleResponse: Response for single trip prediction.
+    """
+    predictor: Predictor = request.app.state.predictor
+    return predictor.predict_single(
+        req.source_latitude,
+        req.source_longitude,
+        req.destination_latitude,
+        req.destination_longitude,
+        req.start_timestamp,
     )
