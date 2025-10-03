@@ -6,7 +6,6 @@ from sklearn.base import BaseEstimator
 from sklearn.metrics import mean_absolute_error
 
 from thesis.common.config import (
-    FEATURE_CALIBRATOR_FILENAME,
     TIME_START_COLUMN,
 )
 from thesis.common.enums import MLTask
@@ -29,7 +28,7 @@ class Predictor:
         sumo_service: SumoService,
     ) -> None:
         self._ml_task: MLTask = ml_task
-        self._feature_calibrator: FeatureCalibrator = FeatureCalibrator.load(misc_dir / FEATURE_CALIBRATOR_FILENAME)
+        self._feature_calibrator: FeatureCalibrator = FeatureCalibrator.load(misc_dir)
         self._data_loader: DataLoader = data_loader
         self._model_manager: ModelManager = model_manager
         self._sumo_service: SumoService = sumo_service
