@@ -36,9 +36,10 @@ services:
       - "8001:8001"
     volumes:
       - ./appdata/models:/app/models
+      - ./appdata/common:/app/common:ro
       - ./appdata/data:/app/data:ro
       - ./appdata/logs:/app/logs
-      - ./appdata/misc:/app/misc
+      - ./appdata/misc:/app/misc:ro
     environment:
       - SERVICE=predictor-eta
       - APP_DIR=/app
@@ -59,9 +60,10 @@ services:
   #     - "8002:8002"
   #   volumes:
   #     - ./appdata/models:/app/models
+  #     - ./appdata/common:/app/common:ro
   #     - ./appdata/data:/app/data:ro
   #     - ./appdata/logs:/app/logs
-  #     - ./appdata/misc:/app/misc
+  #     - ./appdata/misc:/app/misc:ro
   #   environment:
   #     - SERVICE=predictor-fuel
   #     - APP_DIR=/app
@@ -82,9 +84,10 @@ services:
   #     - "8003:8003"
   #   volumes:
   #     - ./appdata/models:/app/models
+  #     - ./appdata/common:/app/common:ro
   #     - ./appdata/data:/app/data:ro
   #     - ./appdata/logs:/app/logs
-  #     - ./appdata/misc:/app/misc
+  #     - ./appdata/misc:/app/misc:ro
   #   environment:
   #     - SERVICE=predictor-stops
   #     - APP_DIR=/app
