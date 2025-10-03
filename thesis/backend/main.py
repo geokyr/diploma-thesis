@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI
 
-from thesis.backend.routers.prediction import predict_router
+from thesis.backend.routers.predict import predict_router
 from thesis.backend.routers.simulation import simulation_router
 from thesis.backend.services.metrics_store import MetricsStore
 from thesis.backend.services.prediction_service import PredictionService
