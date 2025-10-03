@@ -7,6 +7,7 @@ from pathlib import Path
 
 from thesis.common.config import (
     APPDATA_DIRNAME,
+    COMMON_DIRNAME,
     DATA_DIRNAME,
     ENVIRONMENT,
     HOST,
@@ -70,6 +71,7 @@ class PlatformServiceConfig:
     def __post_init__(self) -> None:
         for dir in [
             self.app_dir,
+            self.common_dir,
             self.logs_dir,
             self.data_dir,
             self.models_dir,
@@ -86,6 +88,7 @@ class PlatformServiceConfig:
             f"{self.host=}, "
             f"{self.is_development=}, "
             f"{self.app_dir=}, "
+            f"{self.common_dir=}, "
             f"{self.logs_dir=}, "
             f"{self.data_dir=}, "
             f"{self.models_dir=}, "
@@ -126,6 +129,11 @@ class PlatformServiceConfig:
     def app_dir(self) -> Path:
         """Path to the app directory."""
         return Path(os.environ.get("APP_DIR", PROJECT_DIR / APPDATA_DIRNAME))
+
+    @property
+    def common_dir(self) -> Path:
+        """Path to the common directory."""
+        return self.app_dir / COMMON_DIRNAME
 
     @property
     def logs_dir(self) -> Path:

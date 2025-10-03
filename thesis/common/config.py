@@ -40,6 +40,7 @@ class DirnameConfig:
     results: str
     appdata: str
     misc: str
+    common: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -235,6 +236,7 @@ MODELS_DIRNAME = CONFIG.dirname.models
 RESULTS_DIRNAME = CONFIG.dirname.results
 APPDATA_DIRNAME = CONFIG.dirname.appdata
 MISC_DIRNAME = CONFIG.dirname.misc
+COMMON_DIRNAME = CONFIG.dirname.common
 
 OSM_DATA_FILENAME = CONFIG.filename.osm_data
 GUI_SETTINGS_FILENAME = CONFIG.filename.gui_settings
