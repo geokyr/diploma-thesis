@@ -4,6 +4,7 @@
 
 - Docstrings
 - Type hints
+- Typed dicts
 - Config
 - Logging
 - Error handling
