@@ -6,19 +6,16 @@ from enum import StrEnum
 from pathlib import Path
 from typing import ClassVar
 
-import joblib
-from sklearn.base import BaseEstimator
-
 from thesis.common.config import (
     DATA_DIRNAME,
     FCD_PARQUET_SUFFIX,
+    FINAL_MODEL_DIRNAME,
     LOGS_DIRNAME,
     MODELS_DIRNAME,
     OUTPUTS_DIR,
     RESULTS_DIRNAME,
     SIMULATION_DIR,
 )
-from thesis.eta.models import ModelType
 from thesis.simulation.scenario import SimulationScenario
 
 logger = logging.getLogger(__name__)
@@ -59,7 +56,8 @@ class ETAExperiment:
     _TEST_PATH: ClassVar[Path] = _DATA_DIR / f"{SimulationScenario.TEST}{FCD_PARQUET_SUFFIX}"
     _RAIN_PATH: ClassVar[Path] = _DATA_DIR / f"{SimulationScenario.RAIN}{FCD_PARQUET_SUFFIX}"
 
-    _TRAINED_MODELS_DIR: ClassVar[Path] = OUTPUTS_DIR / ETAEvaluation.STABLE / MODELS_DIRNAME
+    _STABLE_MODELS_DIR: ClassVar[Path] = OUTPUTS_DIR / ETAEvaluation.STABLE / MODELS_DIRNAME
+    _FINAL_MODELS_DIR: ClassVar[Path] = OUTPUTS_DIR / FINAL_MODEL_DIRNAME / MODELS_DIRNAME
 
     def __post_init__(self) -> None:
         for dir in [self.models_dir, self.logs_dir, self.results_dir]:
@@ -78,7 +76,8 @@ class ETAExperiment:
             f"{self.train_path=}, "
             f"{self.test_path=}, "
             f"{self.rain_path=}, "
-            f"{self.trained_models_dir=})"
+            f"{self.stable_models_dir=}, "
+            f"{self.final_models_dir=})"
         )
 
     @property
@@ -122,48 +121,11 @@ class ETAExperiment:
         return self._RAIN_PATH
 
     @property
-    def trained_models_dir(self) -> Path:
-        """Directory for the trained models."""
-        return self._TRAINED_MODELS_DIR
+    def stable_models_dir(self) -> Path:
+        """Directory for the stable models."""
+        return self._STABLE_MODELS_DIR
 
-
-def save_model(model: BaseEstimator, model_type: ModelType, models_dir: Path) -> None:
-    """
-    Save model in the models directory.
-
-    Args:
-        model (BaseEstimator): Machine learning model to save.
-        model_type (ModelType): Type of the model.
-        models_dir (Path): Directory to save the model to.
-    """
-    model_path = models_dir / f"{model_type}.joblib"
-    joblib.dump(model, model_path)
-
-    logger.info(f"Model saved to {model_path}")
-
-
-def load_model(model_type: ModelType, models_dir: Path) -> BaseEstimator:
-    """
-    Load model from the models directory.
-
-    Args:
-        model_type (ModelType): Type of the model.
-        models_dir (Path): Directory to load the model from.
-
-    Returns:
-        BaseEstimator: Loaded machine learning model.
-
-    Raises:
-        FileNotFoundError: If the model file does not exist.
-    """
-    model_path = models_dir / f"{model_type}.joblib"
-
-    if not model_path.exists():
-        error_msg = f"Model file not found: {model_path}"
-        logger.error(error_msg)
-        raise FileNotFoundError(error_msg)
-
-    model = joblib.load(model_path)
-    logger.info(f"Model loaded from {model_path}")
-
-    return model
+    @property
+    def final_models_dir(self) -> Path:
+        """Directory for the final models."""
+        return self._FINAL_MODELS_DIR

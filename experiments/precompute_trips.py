@@ -1,14 +1,10 @@
-import pandas as pd
-
-from thesis.common.config import (
-    APPDATA_DIRNAME,
-    DATA_DIRNAME,
-    END_TIME,
-    MISC_DIRNAME,
-    PROJECT_DIR,
-    TRIPS_PARQUET_FILENAME,
+from thesis.common.data import (
+    generate_trips,
+    get_trips_parquet_path,
+    load_fcd_dataset,
+    merge_test_and_rain_trips,
+    preprocess_fcd_dataset,
 )
-from thesis.common.data import generate_trips, load_fcd_dataset, preprocess_fcd_dataset
 from thesis.common.enums import MLTask
 from thesis.common.logger import setup_logger
 from thesis.eta.data import ensure_dataset_is_valid
@@ -38,19 +34,16 @@ def main() -> None:
     trips_rain = generate_trips(fcd_rain)
 
     calibrator = FeatureCalibrator.from_train_trips(trips_train)
-    misc_dir = PROJECT_DIR / APPDATA_DIRNAME / MISC_DIRNAME / MLTask.ETA
-    calibrator.save(misc_dir)
+    feature_calibrator_dir = calibrator.get_feature_calibrator_dir(MLTask.ETA)
+    calibrator.save(feature_calibrator_dir)
 
-    trips_rain_shifted = trips_rain.assign(time_start=trips_rain["time_start"] + END_TIME)
-    trips_merged_raw = (
-        pd.concat([trips_test, trips_rain_shifted], ignore_index=True).sort_values("time_start").reset_index(drop=True)
-    )
+    trips_merged_raw = merge_test_and_rain_trips(trips_test, trips_rain)
     trips_merged = calibrator.transform(trips_merged_raw)
 
-    out_path = PROJECT_DIR / APPDATA_DIRNAME / DATA_DIRNAME / MLTask.ETA / TRIPS_PARQUET_FILENAME
-    trips_merged.to_parquet(out_path)
+    trips_parquet_path = get_trips_parquet_path(MLTask.ETA)
+    trips_merged.to_parquet(trips_parquet_path)
 
-    logger.info(f"Precomputed features for {len(trips_merged)} trips: {out_path}")
+    logger.info(f"Precomputed features for {len(trips_merged)} trips: {trips_parquet_path}")
 
 
 if __name__ == "__main__":

@@ -5,7 +5,17 @@ from pathlib import Path
 
 import pandas as pd
 
-from thesis.common.config import END_TIME, MIN_DISTANCE, MIN_DURATION, NUM_RETRAINING_TRIPS
+from thesis.common.config import (
+    APPDATA_DIRNAME,
+    DATA_DIRNAME,
+    END_TIME,
+    MIN_DISTANCE,
+    MIN_DURATION,
+    NUM_RETRAINING_TRIPS,
+    PROJECT_DIR,
+    TRIPS_PARQUET_FILENAME,
+)
+from thesis.common.enums import MLTask
 
 logger = logging.getLogger(__name__)
 
@@ -194,3 +204,35 @@ def get_adaptation_retrain_data(
     retrain_data = pd.concat([retrain_test_data, retrain_rain_data], ignore_index=True)
 
     return retrain_data
+
+
+def merge_test_and_rain_trips(trips_test: pd.DataFrame, trips_rain: pd.DataFrame) -> pd.DataFrame:
+    """
+    Merge test and rain trips.
+
+    Args:
+        trips_test (pd.DataFrame): Test trips.
+        trips_rain (pd.DataFrame): Rain trips.
+
+    Returns:
+        pd.DataFrame: Merged trips.
+    """
+    trips_rain_shifted = trips_rain.assign(time_start=trips_rain["time_start"] + END_TIME)
+    trips_merged_raw = (
+        pd.concat([trips_test, trips_rain_shifted], ignore_index=True).sort_values("time_start").reset_index(drop=True)
+    )
+
+    return trips_merged_raw
+
+
+def get_trips_parquet_path(ml_task: MLTask) -> Path:
+    """
+    Get the path to the trips Parquet file.
+
+    Args:
+        ml_task (MLTask): ML task.
+
+    Returns:
+        Path: Path to the trips Parquet file.
+    """
+    return PROJECT_DIR / APPDATA_DIRNAME / DATA_DIRNAME / ml_task / TRIPS_PARQUET_FILENAME

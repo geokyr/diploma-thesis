@@ -3,8 +3,10 @@
 import inspect
 import logging
 from enum import StrEnum
+from pathlib import Path
 from typing import Callable
 
+import joblib
 from catboost import CatBoostRegressor
 from lightgbm import LGBMRegressor
 from sklearn.base import BaseEstimator
@@ -248,3 +250,45 @@ def wrap_with_transformed_target_regressor(
         TransformedTargetRegressor: Wrapped model.
     """
     return TransformedTargetRegressor(regressor=model, transformer=transformer)
+
+
+def save_model(model: BaseEstimator, model_type: ModelType, models_dir: Path) -> None:
+    """
+    Save model in the models directory.
+
+    Args:
+        model (BaseEstimator): Machine learning model to save.
+        model_type (ModelType): Type of the model.
+        models_dir (Path): Directory to save the model to.
+    """
+    model_path = models_dir / f"{model_type}.joblib"
+    joblib.dump(model, model_path)
+
+    logger.info(f"Model saved to {model_path}")
+
+
+def load_model(model_type: ModelType, models_dir: Path) -> BaseEstimator:
+    """
+    Load model from the models directory.
+
+    Args:
+        model_type (ModelType): Type of the model.
+        models_dir (Path): Directory to load the model from.
+
+    Returns:
+        BaseEstimator: Loaded machine learning model.
+
+    Raises:
+        FileNotFoundError: If the model file does not exist.
+    """
+    model_path = models_dir / f"{model_type}.joblib"
+
+    if not model_path.exists():
+        error_msg = f"Model file not found: {model_path}"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
+
+    model = joblib.load(model_path)
+    logger.info(f"Model loaded from {model_path}")
+
+    return model

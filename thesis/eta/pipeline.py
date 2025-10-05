@@ -121,3 +121,17 @@ def evaluate_predictions(y_true: pd.Series, y_pred: pd.Series, model_type: Model
         mae=mae,
         mape=mape,
     )
+
+
+def compute_absolute_errors(y_true: pd.Series, y_pred: pd.Series) -> pd.Series:
+    """
+    Compute absolute errors between true and predicted values.
+
+    Args:
+        y_true (pd.Series): Series containing the true target values.
+        y_pred (pd.Series): Series containing the predicted target values.
+
+    Returns:
+        pd.Series: Series containing the absolute errors.
+    """
+    return np.abs(y_true - y_pred)

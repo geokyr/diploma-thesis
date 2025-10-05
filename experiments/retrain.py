@@ -7,9 +7,9 @@ from thesis.common.data import (
 )
 from thesis.common.logger import setup_logger
 from thesis.eta.data import ensure_dataset_is_valid
-from thesis.eta.experiment import ETAEvaluation, ETAExperiment, load_model, save_model
+from thesis.eta.experiment import ETAEvaluation, ETAExperiment
 from thesis.eta.features import split_features_and_target
-from thesis.eta.models import ModelType, create_model, get_retraining_kwargs
+from thesis.eta.models import ModelType, create_model, get_retraining_kwargs, load_model, save_model
 from thesis.eta.pipeline import evaluate_predictions, make_predictions, train_model
 from thesis.eta.results import build_model_results, save_results
 
@@ -39,7 +39,7 @@ def main() -> None:
 
     for model_type in ModelType:
         model = create_model(model_type)
-        trained_model = load_model(model_type, experiment.trained_models_dir)
+        trained_model = load_model(model_type, experiment.stable_models_dir)
         retraining_kwargs = get_retraining_kwargs(model_type, trained_model)
 
         training_results = train_model(model, model_type, X_retrain, y_retrain, **retraining_kwargs)

@@ -41,6 +41,7 @@ class DirnameConfig:
     appdata: str
     misc: str
     common: str
+    final_model: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -59,6 +60,7 @@ class FilenameConfig:
     trips_parquet: str
     model: str
     metadata: str
+    detectors: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -181,6 +183,13 @@ class PredictorConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class DriftConfig:
+    consensus_threshold: int
+    smoothing_window: int
+    grace_period_samples: int
+
+
+@dataclass(frozen=True, slots=True)
 class Config:
     logging: LoggingConfig
     dirname: DirnameConfig
@@ -196,6 +205,7 @@ class Config:
     services: ServicesConfig
     timelapse: TimelapseConfig
     predictor: PredictorConfig
+    drift: DriftConfig
 
 
 def load_config(config_path: Path) -> Config:
@@ -216,6 +226,7 @@ def load_config(config_path: Path) -> Config:
             services=ServicesConfig(**data["services"]),
             timelapse=TimelapseConfig(**data["timelapse"]),
             predictor=PredictorConfig(**data["predictor"]),
+            drift=DriftConfig(**data["drift"]),
         )
 
 
@@ -237,6 +248,7 @@ RESULTS_DIRNAME = CONFIG.dirname.results
 APPDATA_DIRNAME = CONFIG.dirname.appdata
 MISC_DIRNAME = CONFIG.dirname.misc
 COMMON_DIRNAME = CONFIG.dirname.common
+FINAL_MODEL_DIRNAME = CONFIG.dirname.final_model
 
 OSM_DATA_FILENAME = CONFIG.filename.osm_data
 GUI_SETTINGS_FILENAME = CONFIG.filename.gui_settings
@@ -252,6 +264,7 @@ FEATURE_CALIBRATOR_FILENAME = CONFIG.filename.feature_calibrator
 TRIPS_PARQUET_FILENAME = CONFIG.filename.trips_parquet
 MODEL_FILENAME = CONFIG.filename.model
 METADATA_FILENAME = CONFIG.filename.metadata
+DETECTORS_FILENAME = CONFIG.filename.detectors
 
 TRIPS_SUFFIX = CONFIG.suffix.trips
 SUMOCFG_SUFFIX = CONFIG.suffix.sumocfg
@@ -338,3 +351,7 @@ COLLECT_SECONDS = CONFIG.timelapse.collect_seconds
 
 TIME_START_COLUMN = CONFIG.predictor.time_start_column
 DEFAULT_VERSION = CONFIG.predictor.default_version
+
+CONSENSUS_THRESHOLD = CONFIG.drift.consensus_threshold
+SMOOTHING_WINDOW = CONFIG.drift.smoothing_window
+GRACE_PERIOD_SAMPLES = CONFIG.drift.grace_period_samples

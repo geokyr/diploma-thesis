@@ -13,6 +13,7 @@ dirname:
   appdata: appdata
   misc: misc
   common: common
+  final_model: final_model
 
 filename:
   osm_data: osm_bbox.osm.xml.gz
@@ -29,6 +30,7 @@ filename:
   trips_parquet: trips.parquet
   model: model.joblib
   metadata: metadata.json
+  detectors: detectors.joblib
 
 suffix:
   trips: .trips.xml
@@ -138,3 +140,8 @@ timelapse:
 predictor:
   time_start_column: time_start
   default_version: v1
+
+drift:
+  consensus_threshold: 3
+  smoothing_window: 2500
+  grace_period_samples: 3600

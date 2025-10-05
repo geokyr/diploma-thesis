@@ -14,9 +14,11 @@ from sklearn.preprocessing import PowerTransformer, QuantileTransformer, Standar
 
 from thesis.common.config import (
     AFTERNOON_FLOOR,
+    APPDATA_DIRNAME,
     CELL,
     COORDINATE_SCALE,
     FEATURE_CALIBRATOR_FILENAME,
+    MISC_DIRNAME,
     MORNING_CEILING,
     N_CLUSTERS,
     N_COMPONENTS,
@@ -24,9 +26,11 @@ from thesis.common.config import (
     NOON_FLOOR,
     NUM_FREQS,
     PERCENTILE_THRESHOLDS,
+    PROJECT_DIR,
     RANDOM_SEED_DEFAULT,
     RUSH_HOURS,
 )
+from thesis.common.enums import MLTask
 from thesis.eta.models import ModelType
 
 logger = logging.getLogger(__name__)
@@ -744,3 +748,15 @@ class FeatureCalibrator:
         logger.info(f"FeatureCalibrator loaded from {calibrator_path}")
 
         return feature_calibrator
+
+    def get_feature_calibrator_dir(self, ml_task: MLTask) -> Path:
+        """
+        Get the path to the feature calibrator directory.
+
+        Args:
+            ml_task (MLTask): ML task.
+
+        Returns:
+            Path: Path to the feature calibrator directory.
+        """
+        return PROJECT_DIR / APPDATA_DIRNAME / MISC_DIRNAME / ml_task
