@@ -142,6 +142,6 @@ predictor:
   default_version: v1
 
 drift:
-  consensus_threshold: 3
-  smoothing_window: 2500
-  grace_period_samples: 3600
+  consensus_threshold: 4
+  smoothing_window_samples: 10000
+  grace_period_samples: 5000

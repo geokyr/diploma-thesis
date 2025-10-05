@@ -185,7 +185,7 @@ class PredictorConfig:
 @dataclass(frozen=True, slots=True)
 class DriftConfig:
     consensus_threshold: int
-    smoothing_window: int
+    smoothing_window_samples: int
     grace_period_samples: int
 
 
@@ -353,5 +353,5 @@ TIME_START_COLUMN = CONFIG.predictor.time_start_column
 DEFAULT_VERSION = CONFIG.predictor.default_version
 
 CONSENSUS_THRESHOLD = CONFIG.drift.consensus_threshold
-SMOOTHING_WINDOW = CONFIG.drift.smoothing_window
+SMOOTHING_WINDOW_SAMPLES = CONFIG.drift.smoothing_window_samples
 GRACE_PERIOD_SAMPLES = CONFIG.drift.grace_period_samples
