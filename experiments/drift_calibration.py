@@ -26,9 +26,9 @@ def main() -> None:
     model = load_model(model_type, experiment.final_models_dir)
 
     predictions, _ = make_predictions(model, model_type, X_train)
-    absolute_errors = compute_absolute_errors(y_train, predictions)
+    absolute_training_errors = compute_absolute_errors(y_train, predictions)
 
-    calibrate_task_detectors(MLTask.ETA, absolute_errors)
+    calibrate_task_detectors(MLTask.ETA, absolute_training_errors)
 
 
 if __name__ == "__main__":

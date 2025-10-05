@@ -74,3 +74,20 @@ class RetrainStatus(StrEnum):
     COMPLETED = "completed"
     FAILED = "failed"
     RUNNING = "running"
+
+
+class DetectorType(StrEnum):
+    """
+    Drift detector types.
+
+    Attributes:
+        ADWIN: Adaptive Windowing detector.
+        PAGE_HINKLEY: Page-Hinkley test detector.
+        KSWIN: Kolmogorov-Smirnov Windowing detector.
+        SPC: Statistical Process Control detector.
+    """
+
+    ADWIN = "adwin"
+    PAGE_HINKLEY = "page_hinkley"
+    KSWIN = "kswin"
+    SPC = "spc"

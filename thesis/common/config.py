@@ -187,6 +187,14 @@ class DriftConfig:
     consensus_threshold: int
     smoothing_window_samples: int
     grace_period_samples: int
+    delta_candidates: list[float]
+    threshold_candidates: list[float]
+    alpha_candidates: list[float]
+    page_hinkley_delta: float
+    kswin_window_size: int
+    kswin_stat_size: int
+    spc_n_std: int
+    spc_consecutive_violations_required: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -355,3 +363,11 @@ DEFAULT_VERSION = CONFIG.predictor.default_version
 CONSENSUS_THRESHOLD = CONFIG.drift.consensus_threshold
 SMOOTHING_WINDOW_SAMPLES = CONFIG.drift.smoothing_window_samples
 GRACE_PERIOD_SAMPLES = CONFIG.drift.grace_period_samples
+DELTA_CANDIDATES = CONFIG.drift.delta_candidates
+THRESHOLD_CANDIDATES = CONFIG.drift.threshold_candidates
+ALPHA_CANDIDATES = CONFIG.drift.alpha_candidates
+PAGE_HINKLEY_DELTA = CONFIG.drift.page_hinkley_delta
+KSWIN_WINDOW_SIZE = CONFIG.drift.kswin_window_size
+KSWIN_STAT_SIZE = CONFIG.drift.kswin_stat_size
+SPC_N_STD = CONFIG.drift.spc_n_std
+SPC_CONSECUTIVE_VIOLATIONS_REQUIRED = CONFIG.drift.spc_consecutive_violations_required
