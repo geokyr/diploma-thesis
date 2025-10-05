@@ -194,6 +194,7 @@ class DriftConfig:
     kswin_window_size: int
     kswin_stat_size: int
     spc_n_std: int
+    spc_min_std: float
     spc_consecutive_violations_required: int
 
 
@@ -370,4 +371,5 @@ PAGE_HINKLEY_DELTA = CONFIG.drift.page_hinkley_delta
 KSWIN_WINDOW_SIZE = CONFIG.drift.kswin_window_size
 KSWIN_STAT_SIZE = CONFIG.drift.kswin_stat_size
 SPC_N_STD = CONFIG.drift.spc_n_std
+SPC_MIN_STD = CONFIG.drift.spc_min_std
 SPC_CONSECUTIVE_VIOLATIONS_REQUIRED = CONFIG.drift.spc_consecutive_violations_required

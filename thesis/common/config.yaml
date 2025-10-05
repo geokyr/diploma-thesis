@@ -152,4 +152,5 @@ drift:
   kswin_window_size: 5000
   kswin_stat_size: 2000
   spc_n_std: 10
+  spc_min_std: 1e-6
   spc_consecutive_violations_required: 1000
