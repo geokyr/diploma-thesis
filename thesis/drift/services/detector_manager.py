@@ -5,6 +5,7 @@ from pathlib import Path
 
 import joblib
 import numpy as np
+import pandas as pd
 from river.drift import ADWIN, KSWIN, PageHinkley
 
 from thesis.common.config import (
@@ -113,9 +114,9 @@ class DetectorManager:
             errors (np.ndarray): Raw errors to smooth.
 
         Returns:
-            np.ndarray: Smoothed errors using convolution.
+            np.ndarray: Smoothed errors using rolling mean.
         """
-        return np.convolve(errors, np.ones(self._smoothing_window) / self._smoothing_window, mode="valid")
+        return pd.Series(errors).rolling(window=self._smoothing_window, min_periods=1).mean().to_numpy()
 
     def calibrate(self, absolute_errors: list[float] | np.ndarray) -> None:
         """
