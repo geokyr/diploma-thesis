@@ -18,25 +18,23 @@ def start_retrain(req: RetrainRequest, request: Request) -> RetrainResponse:
         request (Request): FastAPI request.
 
     Returns:
-        RetrainResult: Result for retraining.
+        RetrainResponse: Response containing job ID.
     """
     retrain_service: RetrainService = request.app.state.retrain_service
-    job_id = retrain_service.start(req.start_timestamp, req.end_timestamp)
-    return RetrainResponse(job_id=job_id)
+    return retrain_service.start(req.start_timestamp, req.end_timestamp)
 
 
 @retrain_router.get("/status/{job_id}", response_model=RetrainStatusResponse)
 def retrain_status(job_id: str, request: Request) -> RetrainStatusResponse:
     """
-    Get status of a retraining job.
+    Get status and post-adaptation errors of a retraining job.
 
     Args:
         job_id (str): Job ID.
         request (Request): FastAPI request.
 
     Returns:
-        RetrainStatusResponse: Status of the job.
+        RetrainStatusResponse: Status of the job and post-adaptation errors.
     """
     retrain_service: RetrainService = request.app.state.retrain_service
-    status = retrain_service.get_status(job_id)
-    return RetrainStatusResponse(status=status)
+    return retrain_service.get_status(job_id)

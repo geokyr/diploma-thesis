@@ -15,6 +15,8 @@ from thesis.common.schemas import (
     ErrorPoint,
     PredictionBatchRequest,
     PredictionBatchResponse,
+    RecalibrateRequest,
+    RecalibrateResponse,
     RetrainRequest,
     RetrainResponse,
     RetrainStatusResponse,
@@ -145,7 +147,7 @@ class TimelapseDriver:
         except Exception:
             return None
 
-    async def _start_retrain(self, task: MLTask, start_timestamp: int, end_timestamp: int) -> RetrainResponse | None:
+    async def _start_retrain(self, task: MLTask, start_timestamp: int, end_timestamp: int) -> str | None:
         """
         Start retraining for a given ML task.
 
@@ -155,18 +157,19 @@ class TimelapseDriver:
             end_timestamp (int): End timestamp.
 
         Returns:
-            RetrainResult | None: Retrain result or None if failed to start retraining.
+            str | None: Job ID or None if failed to start retraining.
         """
         url = f"{self.predictor_urls[task]}/retrain/start"
         payload = RetrainRequest(start_timestamp=start_timestamp, end_timestamp=end_timestamp).model_dump()
         try:
             response = await self._client.post(url, json=payload)
             response.raise_for_status()
-            return RetrainResponse.model_validate(response.json())
+            retrain_response = RetrainResponse.model_validate(response.json())
+            return retrain_response.job_id
         except Exception:
             return None
 
-    async def _poll_retrain(self, task: MLTask, job_id: str) -> RetrainStatus:
+    async def _poll_retrain(self, task: MLTask, job_id: str) -> tuple[RetrainStatus, list[float] | None]:
         """
         Poll the retrain status for a given ML task and job ID.
 
@@ -175,26 +178,46 @@ class TimelapseDriver:
             job_id (str): Job ID.
 
         Returns:
-            RetrainStatus: Status of the retrain.
+            tuple[RetrainStatus, list[float] | None]: Status of the retrain and post-adaptation errors.
         """
-        predictor_url = self.predictor_urls[task]
-        url = f"{predictor_url}/retrain/status/{job_id}"
+        url = f"{self.predictor_urls[task]}/retrain/status/{job_id}"
         try:
             while True:
                 response = await self._client.get(url)
                 response.raise_for_status()
-                status = RetrainStatusResponse.model_validate(response.json()).status
+                status_response = RetrainStatusResponse.model_validate(response.json())
 
-                if status in (RetrainStatus.COMPLETED, RetrainStatus.FAILED):
-                    return status
+                if status_response.status in (RetrainStatus.COMPLETED, RetrainStatus.FAILED):
+                    return status_response.status, status_response.post_adaptation_errors
 
                 await asyncio.sleep(self.interval_seconds)
         except Exception:
-            return RetrainStatus.FAILED
+            return RetrainStatus.FAILED, None
+
+    async def _recalibrate_drift_detectors(self, ml_task: MLTask, post_adaptation_errors: list[float]) -> bool:
+        """
+        Recalibrate drift detectors with post-adaptation errors.
+
+        Args:
+            ml_task (MLTask): ML task.
+            post_adaptation_errors (list[float]): Post-adaptation errors from retrained model.
+
+        Returns:
+            bool: True if successful, False otherwise.
+        """
+        url = f"{self._config.drift_url}/drift/recalibrate"
+        payload = RecalibrateRequest(ml_task=ml_task, post_adaptation_errors=post_adaptation_errors).model_dump()
+        try:
+            response = await self._client.post(url, json=payload)
+            response.raise_for_status()
+            recalibrate_response = RecalibrateResponse.model_validate(response.json())
+            return recalibrate_response.success
+        except Exception:
+            return False
 
     async def _handle_retrain(self, ml_task: MLTask, job_id: str) -> None:
         """
-        Handle the retrain for a given ML task.
+        Handle the complete retrain pipeline for a given ML task.
 
         Args:
             ml_task (MLTask): ML task.
@@ -203,11 +226,12 @@ class TimelapseDriver:
         info = self.drift_info[ml_task]
         info.job_id = job_id
 
-        status = await self._poll_retrain(ml_task, job_id)
+        status, post_adaptation_errors = await self._poll_retrain(ml_task, job_id)
 
-        if status == RetrainStatus.COMPLETED:
-            info.state = DriftState.STABLE
-        elif status == RetrainStatus.FAILED:
+        if status == RetrainStatus.COMPLETED and post_adaptation_errors:
+            success = await self._recalibrate_drift_detectors(ml_task, post_adaptation_errors)
+            info.state = DriftState.STABLE if success else DriftState.DRIFTED
+        else:
             info.state = DriftState.DRIFTED
 
         info.start_timestamp = None
@@ -245,13 +269,14 @@ class TimelapseDriver:
 
                 if info.collecting and info.start_timestamp is not None:
                     data_collected = (end_timestamp - info.start_timestamp) >= self._collect_seconds
+
                     if data_collected and info.job_id is None:
                         info.state = DriftState.RETRAINING
                         start_timestamp = info.start_timestamp - self._collect_seconds
-                        if start_timestamp < 0:
-                            start_timestamp = 0
-                        retrain_result = await self._start_retrain(ml_task, start_timestamp, end_timestamp)
-                        job_id = retrain_result.job_id if retrain_result else None
+                        start_timestamp = 0 if start_timestamp < 0 else start_timestamp
+
+                        job_id = await self._start_retrain(ml_task, start_timestamp, end_timestamp)
+
                         if job_id:
                             task = asyncio.create_task(self._handle_retrain(ml_task, job_id))
                             self._retrain_tasks.append(task)

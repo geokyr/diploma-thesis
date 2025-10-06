@@ -26,10 +26,7 @@ def predict_batch(req: PredictionBatchRequest, request: Request) -> PredictionBa
         PredictionBatchResponse: Response for batch predictions.
     """
     predictor: Predictor = request.app.state.predictor
-    return predictor.predict_window(
-        req.start_timestamp,
-        req.end_timestamp,
-    )
+    return predictor.predict_window(req.start_timestamp, req.end_timestamp)
 
 
 @predict_router.post("/single", response_model=PredictionSingleResponse)

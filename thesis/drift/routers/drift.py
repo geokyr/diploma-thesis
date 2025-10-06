@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Request
 
 from thesis.common.enums import MLTask
-from thesis.common.schemas import DriftErrorsRequest, DriftErrorsResponse
+from thesis.common.schemas import DriftErrorsRequest, DriftErrorsResponse, RecalibrateRequest, RecalibrateResponse
 from thesis.drift.services.drift_service import DriftService
 
 drift_router = APIRouter()
@@ -37,3 +37,19 @@ async def get_drift_status(ml_task: MLTask, request: Request) -> DriftErrorsResp
     """
     drift_service: DriftService = request.app.state.drift_service
     return await drift_service.get_state(ml_task)
+
+
+@drift_router.post("/recalibrate", response_model=RecalibrateResponse)
+async def recalibrate_detectors(req: RecalibrateRequest, request: Request) -> RecalibrateResponse:
+    """
+    Recalibrate drift detectors after model adaptation.
+
+    Args:
+        req (RecalibrateRequest): Request containing ML task and post-adaptation errors.
+        request (Request): FastAPI request.
+
+    Returns:
+        RecalibrateResponse: Recalibration success status.
+    """
+    drift_service: DriftService = request.app.state.drift_service
+    return await drift_service.recalibrate_task(req.ml_task, req.post_adaptation_errors)

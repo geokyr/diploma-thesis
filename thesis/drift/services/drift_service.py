@@ -6,13 +6,10 @@ from collections import deque
 from dataclasses import dataclass
 from pathlib import Path
 
-import numpy as np
-
 from thesis.common.config import CONSENSUS_THRESHOLD, GRACE_PERIOD_SAMPLES, SMOOTHING_WINDOW_SAMPLES
 from thesis.common.enums import DetectorType, DriftState, MLTask
-from thesis.common.schemas import DriftErrorsResponse, ErrorPoint
+from thesis.common.schemas import DriftErrorsResponse, ErrorPoint, RecalibrateResponse
 from thesis.drift.services.detector_manager import DetectorManager
-from thesis.drift.utils.calibration import rolling_mean
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +58,7 @@ class DriftService:
             FileNotFoundError: If calibrated detectors not found.
             RuntimeError: If detectors loaded but empty.
         """
-        detector_manager = DetectorManager(self._misc_dir, ml_task)
+        detector_manager = DetectorManager(self._misc_dir, ml_task, self._smoothing_window)
         detector_manager.load()
 
         if not detector_manager.detectors:
@@ -183,39 +180,27 @@ class DriftService:
 
                 logger.info(f"Reset drift detection for {ml_task}")
 
-    # TODO: fix logic with post adaptation errors
-    async def recalibrate_task(self, ml_task: MLTask, post_adaptation_errors: list[float]) -> None:
+    async def recalibrate_task(self, ml_task: MLTask, post_adaptation_errors: list[float]) -> RecalibrateResponse:
         """
         Recalibrate detectors after model adaptation.
 
         Args:
             ml_task (MLTask): ML task to recalibrate.
-            post_adaptation_errors (list[float]): Smoothed errors from adapted model.
+            post_adaptation_errors (list[float]): Post-adaptation errors from retrained model.
+
+        Returns:
+            RecalibrateResponse: Recalibration success status.
         """
         async with self._lock:
-            # Smooth errors if not already smoothed
-            if len(post_adaptation_errors) > self._smoothing_window:
-                errors_array = np.array(post_adaptation_errors)
-                smoothed = rolling_mean(errors_array, self._smoothing_window)
-                post_adaptation_errors = smoothed.tolist()
-
-            # Get detector manager for this task
-            if ml_task not in self._snapshots:
-                await self._initialize_task(ml_task)
+            await self._initialize_task(ml_task)
 
             snapshot = self._snapshots[ml_task]
             detector_manager = snapshot.detector_manager
-
-            # Recalibrate detectors
             detector_manager.calibrate(post_adaptation_errors)
 
-            # Save recalibrated detectors
-            detector_manager.save()
-
-            # Reinitialize task with new detectors
-            await self._initialize_task(ml_task)
-
             logger.info(f"Recalibrated detectors for {ml_task}")
+
+            return RecalibrateResponse(success=True)
 
     async def clear(self) -> None:
         """Clear the drift service."""

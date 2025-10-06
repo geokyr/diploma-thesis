@@ -97,17 +97,31 @@ class DetectorManager:
         detectors (dict[DetectorType, ADWIN | PageHinkley | KSWIN | SPCDetector]): Dictionary of all detectors.
     """
 
-    def __init__(self, misc_dir: Path, ml_task: MLTask) -> None:
+    def __init__(self, misc_dir: Path, ml_task: MLTask, smoothing_window: int) -> None:
         self._detectors_path = misc_dir / ml_task / DETECTORS_FILENAME
+        self._smoothing_window = smoothing_window
         self.detectors: dict[DetectorType, ADWIN | PageHinkley | KSWIN | SPCDetector] = {}
 
-    def calibrate(self, absolute_errors_smoothed: list[float] | np.ndarray) -> None:
+    def _smooth_errors(self, errors: np.ndarray) -> np.ndarray:
+        """
+        Apply rolling mean smoothing to errors.
+
+        Args:
+            errors (np.ndarray): Raw errors to smooth.
+
+        Returns:
+            np.ndarray: Smoothed errors using convolution.
+        """
+        return np.convolve(errors, np.ones(self._smoothing_window) / self._smoothing_window, mode="valid")
+
+    def calibrate(self, absolute_errors: list[float] | np.ndarray) -> None:
         """
         Calibrate detectors on absolute errors.
 
         Args:
-            absolute_errors_smoothed (list[float] | np.ndarray): Smoothed absolute errors for calibration.
+            absolute_errors (list[float] | np.ndarray): Absolute errors for calibration.
         """
+        absolute_errors_smoothed = self._smooth_errors(absolute_errors)
         delta_candidates = DELTA_CANDIDATES
         chosen_delta = delta_candidates[0]
 
