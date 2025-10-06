@@ -1,5 +1,6 @@
 """Detector manager for creating and calibrating detectors."""
 
+import logging
 from pathlib import Path
 
 import joblib
@@ -20,6 +21,8 @@ from thesis.common.config import (
     THRESHOLD_CANDIDATES,
 )
 from thesis.common.enums import DetectorType, MLTask
+
+logger = logging.getLogger(__name__)
 
 
 class SPCDetector:
@@ -140,6 +143,7 @@ class DetectorManager:
                 break
 
         adwin = ADWIN(delta=chosen_delta)
+        logger.info(f"Calibrated ADWIN detector with delta={chosen_delta}")
 
         threshold_candidates = THRESHOLD_CANDIDATES
         chosen_threshold = threshold_candidates[0]
@@ -161,6 +165,7 @@ class DetectorManager:
         page_hinkley = PageHinkley(
             min_instances=GRACE_PERIOD_SAMPLES, delta=PAGE_HINKLEY_DELTA, threshold=chosen_threshold
         )
+        logger.info(f"Calibrated Page-Hinkley detector with threshold={chosen_threshold}")
 
         alpha_candidates = ALPHA_CANDIDATES
         chosen_alpha = alpha_candidates[0]
@@ -180,6 +185,7 @@ class DetectorManager:
                 break
 
         kswin = KSWIN(alpha=chosen_alpha, window_size=KSWIN_WINDOW_SIZE, stat_size=KSWIN_STAT_SIZE)
+        logger.info(f"Calibrated KSWIN detector with alpha={chosen_alpha}")
 
         errors_mean = np.mean(absolute_errors_smoothed)
         errors_std = np.std(absolute_errors_smoothed)
@@ -204,6 +210,9 @@ class DetectorManager:
             consecutive_violations_required=consecutive_violations_required,
             grace_period_samples=GRACE_PERIOD_SAMPLES,
         )
+        logger.info(
+            f"Calibrated SPC detector with error_threshold={error_threshold}, consecutive_violations_required={consecutive_violations_required}"
+        )
 
         self.detectors = {
             DetectorType.ADWIN: adwin,
@@ -215,6 +224,7 @@ class DetectorManager:
     def save(self) -> None:
         """Save current detectors."""
         joblib.dump(self.detectors, self._detectors_path)
+        logger.info(f"Saved detectors to {self._detectors_path}")
 
     def load(self) -> None:
         """
@@ -227,6 +237,7 @@ class DetectorManager:
             raise FileNotFoundError(f"Detectors file not found: {self._detectors_path}")
 
         self.detectors = joblib.load(self._detectors_path)
+        logger.info(f"Loaded detectors from {self._detectors_path}")
 
     def clear(self) -> None:
         """Clear the detector manager."""

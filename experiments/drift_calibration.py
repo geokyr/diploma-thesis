@@ -1,7 +1,8 @@
+from thesis.common.config import APPDATA_DIRNAME, MISC_DIRNAME, PROJECT_DIR, SMOOTHING_WINDOW_SAMPLES
 from thesis.common.data import generate_trips, load_fcd_dataset, preprocess_fcd_dataset
 from thesis.common.enums import MLTask
 from thesis.common.logger import setup_logger
-from thesis.drift.utils.calibration import calibrate_task_detectors
+from thesis.drift.services.detector_manager import DetectorManager
 from thesis.eta.data import ensure_dataset_is_valid
 from thesis.eta.experiment import ETAEvaluation, ETAExperiment
 from thesis.eta.features import add_all_features, split_features_and_target
@@ -26,9 +27,13 @@ def main() -> None:
     model = load_model(model_type, experiment.final_models_dir)
 
     predictions, _ = make_predictions(model, model_type, X_train)
-    absolute_training_errors = compute_absolute_errors(y_train, predictions)
+    absolute_errors = compute_absolute_errors(y_train, predictions)
 
-    calibrate_task_detectors(MLTask.ETA, absolute_training_errors)
+    misc_dir = PROJECT_DIR / APPDATA_DIRNAME / MISC_DIRNAME
+    ml_task = MLTask.ETA
+    detector_manager = DetectorManager(misc_dir, ml_task, SMOOTHING_WINDOW_SAMPLES)
+    detector_manager.calibrate(absolute_errors)
+    detector_manager.save()
 
 
 if __name__ == "__main__":
