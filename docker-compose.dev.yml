@@ -50,6 +50,7 @@ services:
   drift:
     volumes:
       - ./appdata/logs:/app/logs
+      - ./appdata/misc:/app/misc:ro
       - ./thesis:/app/thesis
     environment:
       - SERVICE=drift
