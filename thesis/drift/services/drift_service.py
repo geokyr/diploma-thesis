@@ -26,6 +26,7 @@ class DriftSnapshot:
         error_history (deque[float]): Circular buffer for error smoothing.
         samples_seen (int): Number of samples processed.
         fired_detectors (set[DetectorType]): Set of detector types that have fired.
+        running_sum (float): Running sum of errors.
     """
 
     state: DriftState
@@ -34,6 +35,7 @@ class DriftSnapshot:
     error_history: deque[float]
     samples_seen: int
     fired_detectors: set[DetectorType]
+    running_sum: float
 
 
 class DriftService:
@@ -71,6 +73,7 @@ class DriftService:
             error_history=deque(maxlen=self._smoothing_window),
             samples_seen=0,
             fired_detectors=set(),
+            running_sum=0.0,
         )
 
         logger.info(f"Initialized drift detection for {ml_task}")
@@ -86,9 +89,15 @@ class DriftService:
         Returns:
             float: Smoothed error value.
         """
+
+        if len(snapshot.error_history) == snapshot.error_history.maxlen:
+            oldest = snapshot.error_history[0]
+            snapshot.running_sum -= oldest
+
         snapshot.error_history.append(error)
+        snapshot.running_sum += error
         snapshot.samples_seen += 1
-        return sum(snapshot.error_history) / len(snapshot.error_history)
+        return snapshot.running_sum / len(snapshot.error_history)
 
     async def process_errors(self, ml_task: MLTask, error_points: list[ErrorPoint]) -> DriftErrorsResponse:
         """
