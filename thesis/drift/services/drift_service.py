@@ -1,0 +1,226 @@
+"""Drift detection service for ML tasks."""
+
+import asyncio
+import logging
+from collections import deque
+from dataclasses import dataclass
+from pathlib import Path
+
+import numpy as np
+
+from thesis.common.config import CONSENSUS_THRESHOLD, GRACE_PERIOD_SAMPLES, SMOOTHING_WINDOW_SAMPLES
+from thesis.common.enums import DetectorType, DriftState, MLTask
+from thesis.common.schemas import DriftErrorsResponse, ErrorPoint
+from thesis.drift.services.detector_manager import DetectorManager
+from thesis.drift.utils.calibration import rolling_mean
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class DriftSnapshot:
+    """
+    Drift snapshot for a single ML task.
+
+    Attributes:
+        state (DriftState): Current drift state.
+        start_timestamp (int): Timestamp when current state started.
+        detector_manager (DetectorManager): DetectorManager instance for this task.
+        error_history (deque[float]): Circular buffer for error smoothing.
+        samples_seen (int): Number of samples processed.
+        fired_detectors (set[DetectorType]): Set of detector types that have fired.
+    """
+
+    state: DriftState
+    start_timestamp: int
+    detector_manager: DetectorManager
+    error_history: deque[float]
+    samples_seen: int
+    fired_detectors: set[DetectorType]
+
+
+class DriftService:
+    """Drift detection service for ML tasks."""
+
+    def __init__(self, misc_dir: Path) -> None:
+        self._misc_dir: Path = misc_dir
+        self._consensus_threshold: int = CONSENSUS_THRESHOLD
+        self._smoothing_window: int = SMOOTHING_WINDOW_SAMPLES
+        self._grace_period_samples: int = GRACE_PERIOD_SAMPLES
+        self._lock: asyncio.Lock = asyncio.Lock()
+        self._snapshots: dict[MLTask, DriftSnapshot] = {}
+
+    async def _initialize_task(self, ml_task: MLTask) -> None:
+        """
+        Initialize drift detection for a specific ML task.
+
+        Args:
+            ml_task (MLTask): ML task to initialize.
+
+        Raises:
+            FileNotFoundError: If calibrated detectors not found.
+            RuntimeError: If detectors loaded but empty.
+        """
+        detector_manager = DetectorManager(self._misc_dir, ml_task)
+        detector_manager.load()
+
+        if not detector_manager.detectors:
+            raise RuntimeError(f"Detectors loaded but empty for {ml_task}")
+
+        self._snapshots[ml_task] = DriftSnapshot(
+            state=DriftState.STABLE,
+            start_timestamp=0,
+            detector_manager=detector_manager,
+            error_history=deque(maxlen=self._smoothing_window),
+            samples_seen=0,
+            fired_detectors=set(),
+        )
+
+        logger.info(f"Initialized drift detection for {ml_task}")
+
+    def _append_and_smooth_error(self, snapshot: DriftSnapshot, error: float) -> float:
+        """
+        Append error to history and compute rolling mean.
+
+        Args:
+            snapshot (DriftSnapshot): Drift snapshot containing error history.
+            error (float): Error value to add to the window.
+
+        Returns:
+            float: Smoothed error value.
+        """
+        snapshot.error_history.append(error)
+        snapshot.samples_seen += 1
+        return sum(snapshot.error_history) / len(snapshot.error_history)
+
+    async def process_errors(self, ml_task: MLTask, error_points: list[ErrorPoint]) -> DriftErrorsResponse:
+        """
+        Process batch of errors for drift detection.
+
+        Args:
+            ml_task (MLTask): ML task to process errors for.
+            error_points (list[ErrorPoint]): List of error points with timestamps.
+
+        Returns:
+            DriftErrorsResponse: Current drift state after processing errors.
+        """
+        async with self._lock:
+            if ml_task not in self._snapshots:
+                await self._initialize_task(ml_task)
+
+            snapshot = self._snapshots[ml_task]
+
+            if snapshot.state == DriftState.DRIFTED:
+                return DriftErrorsResponse(
+                    state=snapshot.state,
+                    start_timestamp=snapshot.start_timestamp,
+                )
+
+            for error_point in error_points:
+                smoothed_error = self._append_and_smooth_error(snapshot, error_point.error)
+
+                in_grace_period = snapshot.samples_seen <= self._grace_period_samples
+
+                detectors = snapshot.detector_manager.detectors
+                for detector_type, detector in detectors.items():
+                    detector.update(smoothed_error)
+
+                    if in_grace_period:
+                        continue
+
+                    if detector.drift_detected and detector_type not in snapshot.fired_detectors:
+                        snapshot.fired_detectors.add(detector_type)
+                        logger.info(
+                            f"[{ml_task}] {detector_type} fired at sample {snapshot.samples_seen}, timestamp {error_point.timestamp}"
+                        )
+
+                if len(snapshot.fired_detectors) >= self._consensus_threshold and snapshot.state == DriftState.STABLE:
+                    snapshot.state = DriftState.DRIFTED
+                    snapshot.start_timestamp = error_point.timestamp
+                    logger.warning(
+                        f"[{ml_task}] Consensus drift detected at sample {snapshot.samples_seen}, timestamp {error_point.timestamp}"
+                    )
+                    return DriftErrorsResponse(
+                        state=snapshot.state,
+                        start_timestamp=snapshot.start_timestamp,
+                    )
+
+            return DriftErrorsResponse(
+                state=snapshot.state,
+                start_timestamp=snapshot.start_timestamp,
+            )
+
+    async def get_state(self, ml_task: MLTask) -> DriftErrorsResponse:
+        """
+        Get current drift state for an ML task.
+
+        Args:
+            ml_task (MLTask): ML task to get state for.
+
+        Returns:
+            DriftErrorsResponse: Current drift state.
+        """
+        async with self._lock:
+            if ml_task not in self._snapshots:
+                await self._initialize_task(ml_task)
+
+            snapshot = self._snapshots[ml_task]
+            return DriftErrorsResponse(
+                state=snapshot.state,
+                start_timestamp=snapshot.start_timestamp,
+            )
+
+    async def reset_task(self, ml_task: MLTask) -> None:
+        """
+        Reset drift detection for a specific ML task.
+
+        Args:
+            ml_task (MLTask): ML task to reset.
+        """
+        async with self._lock:
+            if ml_task in self._snapshots:
+                await self._initialize_task(ml_task)
+
+                logger.info(f"Reset drift detection for {ml_task}")
+
+    # TODO: fix logic with post adaptation errors
+    async def recalibrate_task(self, ml_task: MLTask, post_adaptation_errors: list[float]) -> None:
+        """
+        Recalibrate detectors after model adaptation.
+
+        Args:
+            ml_task (MLTask): ML task to recalibrate.
+            post_adaptation_errors (list[float]): Smoothed errors from adapted model.
+        """
+        async with self._lock:
+            # Smooth errors if not already smoothed
+            if len(post_adaptation_errors) > self._smoothing_window:
+                errors_array = np.array(post_adaptation_errors)
+                smoothed = rolling_mean(errors_array, self._smoothing_window)
+                post_adaptation_errors = smoothed.tolist()
+
+            # Get detector manager for this task
+            if ml_task not in self._snapshots:
+                await self._initialize_task(ml_task)
+
+            snapshot = self._snapshots[ml_task]
+            detector_manager = snapshot.detector_manager
+
+            # Recalibrate detectors
+            detector_manager.calibrate(post_adaptation_errors)
+
+            # Save recalibrated detectors
+            detector_manager.save()
+
+            # Reinitialize task with new detectors
+            await self._initialize_task(ml_task)
+
+            logger.info(f"Recalibrated detectors for {ml_task}")
+
+    async def clear(self) -> None:
+        """Clear the drift service."""
+        async with self._lock:
+            for _, snapshot in self._snapshots.items():
+                snapshot.detector_manager.clear()
+
+            logger.info("Cleared drift service")

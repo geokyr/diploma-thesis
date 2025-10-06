@@ -17,12 +17,9 @@ logger = setup_logger(config.service, config.logs_dir)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
-        drift_service = DriftService(config)
+        drift_service = DriftService(misc_dir=config.misc_dir)
 
         app.state.drift_service = drift_service
-
-        # TODO: maybe incorporate into __init__
-        await drift_service.initialize()
         yield
     finally:
         drift_service: DriftService = getattr(app.state, "drift_service", None)

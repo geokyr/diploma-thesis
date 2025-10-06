@@ -43,7 +43,7 @@ class SPCDetector:
         Update detector with new absolute error value.
 
         Args:
-            absolute_error: New absolute error value to process.
+            absolute_error (float): New absolute error value to process.
         """
         self._samples_seen += 1
         if self._samples_seen <= self._grace_period_samples or self.drift_detected:
@@ -58,7 +58,8 @@ class SPCDetector:
             self.drift_detected = True
 
     def __getstate__(self) -> dict[str, int | float | None]:
-        """Get state for serialization.
+        """
+        Get state for serialization.
 
         Returns:
             dict[str, int | float | None]: State for serialization.
@@ -70,7 +71,8 @@ class SPCDetector:
         }
 
     def __setstate__(self, state: dict[str, int | float | None]) -> None:
-        """Set state from deserialization.
+        """
+        Set state from deserialization.
 
         Args:
             state (dict[str, int | float | None]): State for deserialization.
@@ -83,7 +85,7 @@ class SPCDetector:
         self.drift_detected = False
 
     def clear(self) -> None:
-        """Clear the detector."""
+        """Clear the SPC detector."""
         pass
 
 
@@ -99,12 +101,12 @@ class DetectorManager:
         self._detectors_path = misc_dir / ml_task / DETECTORS_FILENAME
         self.detectors: dict[DetectorType, ADWIN | PageHinkley | KSWIN | SPCDetector] = {}
 
-    def calibrate(self, training_absolute_errors_smoothed: list[float] | np.ndarray) -> None:
+    def calibrate(self, absolute_errors_smoothed: list[float] | np.ndarray) -> None:
         """
-        Calibrate detectors on training errors.
+        Calibrate detectors on absolute errors.
 
         Args:
-            training_absolute_errors_smoothed: Smoothed training absolute errors for calibration.
+            absolute_errors_smoothed (list[float] | np.ndarray): Smoothed absolute errors for calibration.
         """
         delta_candidates = DELTA_CANDIDATES
         chosen_delta = delta_candidates[0]
@@ -113,7 +115,7 @@ class DetectorManager:
             detector = ADWIN(delta=delta)
             fired = False
 
-            for error in training_absolute_errors_smoothed:
+            for error in absolute_errors_smoothed:
                 detector.update(error)
                 if detector.drift_detected:
                     fired = True
@@ -132,7 +134,7 @@ class DetectorManager:
             detector = PageHinkley(min_instances=1, delta=PAGE_HINKLEY_DELTA, threshold=threshold)
             fired = False
 
-            for error in training_absolute_errors_smoothed:
+            for error in absolute_errors_smoothed:
                 detector.update(error)
                 if detector.drift_detected:
                     fired = True
@@ -153,7 +155,7 @@ class DetectorManager:
             detector = KSWIN(alpha=alpha, window_size=KSWIN_WINDOW_SIZE, stat_size=KSWIN_STAT_SIZE)
             fired = False
 
-            for i, error in enumerate(training_absolute_errors_smoothed):
+            for i, error in enumerate(absolute_errors_smoothed):
                 detector.update(error)
                 if i >= detector.window_size and detector.drift_detected:
                     fired = True
@@ -165,13 +167,13 @@ class DetectorManager:
 
         kswin = KSWIN(alpha=chosen_alpha, window_size=KSWIN_WINDOW_SIZE, stat_size=KSWIN_STAT_SIZE)
 
-        errors_mean = np.mean(training_absolute_errors_smoothed)
-        errors_std = np.std(training_absolute_errors_smoothed)
+        errors_mean = np.mean(absolute_errors_smoothed)
+        errors_std = np.std(absolute_errors_smoothed)
         error_threshold = errors_mean + SPC_N_STD * (errors_std if errors_std > 0 else SPC_MIN_STD)
 
         current_consecutive_violations = 0
         maximum_consecutive_violations = 0
-        for error in training_absolute_errors_smoothed:
+        for error in absolute_errors_smoothed:
             if error > error_threshold:
                 current_consecutive_violations += 1
             else:
@@ -211,3 +213,7 @@ class DetectorManager:
             raise FileNotFoundError(f"Detectors file not found: {self._detectors_path}")
 
         self.detectors = joblib.load(self._detectors_path)
+
+    def clear(self) -> None:
+        """Clear the detector manager."""
+        pass
