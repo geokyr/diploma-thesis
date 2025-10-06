@@ -76,7 +76,7 @@ class RetrainStatus(StrEnum):
     RUNNING = "running"
 
 
-class DetectorType(StrEnum):
+class DriftDetectorType(StrEnum):
     """
     Drift detector types.
 

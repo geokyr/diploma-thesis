@@ -1,4 +1,4 @@
-"""Detector manager for creating and calibrating detectors."""
+"""Manages drift detectors for a specific ML task."""
 
 import logging
 from pathlib import Path
@@ -11,7 +11,7 @@ from river.drift import ADWIN, KSWIN, PageHinkley
 from thesis.common.config import (
     ALPHA_CANDIDATES,
     DELTA_CANDIDATES,
-    DETECTORS_FILENAME,
+    DRIFT_DETECTORS_FILENAME,
     GRACE_PERIOD_SAMPLES,
     KSWIN_STAT_SIZE,
     KSWIN_WINDOW_SIZE,
@@ -21,7 +21,7 @@ from thesis.common.config import (
     SPC_N_STD,
     THRESHOLD_CANDIDATES,
 )
-from thesis.common.enums import DetectorType, MLTask
+from thesis.common.enums import DriftDetectorType, MLTask
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class SPCDetector:
 
     def update(self, absolute_error: float) -> None:
         """
-        Update detector with new absolute error value.
+        Update drift detector with new absolute error value.
 
         Args:
             absolute_error (float): New absolute error value to process.
@@ -89,7 +89,7 @@ class SPCDetector:
         self.drift_detected = False
 
     def clear(self) -> None:
-        """Clear the SPC detector."""
+        """Clear the SPC driftdetector."""
         pass
 
 
@@ -98,13 +98,13 @@ class DetectorManager:
     Manages drift detectors for a specific ML task.
 
     Attributes:
-        detectors (dict[DetectorType, ADWIN | PageHinkley | KSWIN | SPCDetector]): Dictionary of all detectors.
+        drift_detectors (dict[DriftDetectorType, ADWIN | PageHinkley | KSWIN | SPCDetector]): Dictionary of all drift detectors.
     """
 
     def __init__(self, misc_dir: Path, ml_task: MLTask, smoothing_window: int) -> None:
-        self._detectors_path = misc_dir / ml_task / DETECTORS_FILENAME
+        self._drift_detectors_path = misc_dir / ml_task / DRIFT_DETECTORS_FILENAME
         self._smoothing_window = smoothing_window
-        self.detectors: dict[DetectorType, ADWIN | PageHinkley | KSWIN | SPCDetector] = {}
+        self.drift_detectors: dict[DriftDetectorType, ADWIN | PageHinkley | KSWIN | SPCDetector] = {}
 
     def _smooth_errors(self, errors: np.ndarray) -> np.ndarray:
         """
@@ -120,7 +120,7 @@ class DetectorManager:
 
     def calibrate(self, absolute_errors: list[float] | np.ndarray) -> None:
         """
-        Calibrate detectors on absolute errors.
+        Calibrate drift detectors on absolute errors.
 
         Args:
             absolute_errors (list[float] | np.ndarray): Absolute errors for calibration.
@@ -144,7 +144,7 @@ class DetectorManager:
                 break
 
         adwin = ADWIN(delta=chosen_delta)
-        logger.info(f"Calibrated ADWIN detector with delta={chosen_delta}")
+        logger.info(f"Calibrated ADWIN drift detector with delta={chosen_delta}")
 
         threshold_candidates = THRESHOLD_CANDIDATES
         chosen_threshold = threshold_candidates[0]
@@ -166,7 +166,7 @@ class DetectorManager:
         page_hinkley = PageHinkley(
             min_instances=GRACE_PERIOD_SAMPLES, delta=PAGE_HINKLEY_DELTA, threshold=chosen_threshold
         )
-        logger.info(f"Calibrated Page-Hinkley detector with threshold={chosen_threshold}")
+        logger.info(f"Calibrated Page-Hinkley drift detector with threshold={chosen_threshold}")
 
         alpha_candidates = ALPHA_CANDIDATES
         chosen_alpha = alpha_candidates[0]
@@ -186,7 +186,7 @@ class DetectorManager:
                 break
 
         kswin = KSWIN(alpha=chosen_alpha, window_size=KSWIN_WINDOW_SIZE, stat_size=KSWIN_STAT_SIZE)
-        logger.info(f"Calibrated KSWIN detector with alpha={chosen_alpha}")
+        logger.info(f"Calibrated KSWIN drift detector with alpha={chosen_alpha}")
 
         errors_mean = np.mean(absolute_errors_smoothed)
         errors_std = np.std(absolute_errors_smoothed)
@@ -212,33 +212,33 @@ class DetectorManager:
             grace_period_samples=GRACE_PERIOD_SAMPLES,
         )
         logger.info(
-            f"Calibrated SPC detector with error_threshold={error_threshold}, consecutive_violations_required={consecutive_violations_required}"
+            f"Calibrated SPC drift detector with error_threshold={error_threshold}, consecutive_violations_required={consecutive_violations_required}"
         )
 
-        self.detectors = {
-            DetectorType.ADWIN: adwin,
-            DetectorType.PAGE_HINKLEY: page_hinkley,
-            DetectorType.KSWIN: kswin,
-            DetectorType.SPC: spc,
+        self.drift_detectors = {
+            DriftDetectorType.ADWIN: adwin,
+            DriftDetectorType.PAGE_HINKLEY: page_hinkley,
+            DriftDetectorType.KSWIN: kswin,
+            DriftDetectorType.SPC: spc,
         }
 
     def save(self) -> None:
-        """Save current detectors."""
-        joblib.dump(self.detectors, self._detectors_path)
-        logger.info(f"Saved detectors to {self._detectors_path}")
+        """Save current drift detectors."""
+        joblib.dump(self.drift_detectors, self._drift_detectors_path)
+        logger.info(f"Saved drift detectors to {self._drift_detectors_path}")
 
     def load(self) -> None:
         """
-        Load the detectors.
+        Load the drift detectors.
 
         Raises:
-            FileNotFoundError: If the detectors file does not exist.
+            FileNotFoundError: If the drift detectors file does not exist.
         """
-        if not self._detectors_path.exists():
-            raise FileNotFoundError(f"Detectors file not found: {self._detectors_path}")
+        if not self._drift_detectors_path.exists():
+            raise FileNotFoundError(f"Drift detectors file not found: {self._drift_detectors_path}")
 
-        self.detectors = joblib.load(self._detectors_path)
-        logger.info(f"Loaded detectors from {self._detectors_path}")
+        self.drift_detectors = joblib.load(self._drift_detectors_path)
+        logger.info(f"Loaded drift detectors from {self._drift_detectors_path}")
 
     def clear(self) -> None:
         """Clear the detector manager."""

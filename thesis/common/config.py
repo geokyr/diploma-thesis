@@ -60,7 +60,7 @@ class FilenameConfig:
     trips_parquet: str
     model: str
     metadata: str
-    detectors: str
+    drift_detectors: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -273,7 +273,7 @@ FEATURE_CALIBRATOR_FILENAME = CONFIG.filename.feature_calibrator
 TRIPS_PARQUET_FILENAME = CONFIG.filename.trips_parquet
 MODEL_FILENAME = CONFIG.filename.model
 METADATA_FILENAME = CONFIG.filename.metadata
-DETECTORS_FILENAME = CONFIG.filename.detectors
+DRIFT_DETECTORS_FILENAME = CONFIG.filename.drift_detectors
 
 TRIPS_SUFFIX = CONFIG.suffix.trips
 SUMOCFG_SUFFIX = CONFIG.suffix.sumocfg

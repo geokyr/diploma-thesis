@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from thesis.common.config import CONSENSUS_THRESHOLD, GRACE_PERIOD_SAMPLES, SMOOTHING_WINDOW_SAMPLES
-from thesis.common.enums import DetectorType, DriftState, MLTask
+from thesis.common.enums import DriftDetectorType, DriftState, MLTask
 from thesis.common.schemas import DriftErrorsResponse, ErrorPoint, RecalibrateResponse
 from thesis.drift.services.detector_manager import DetectorManager
 
@@ -25,7 +25,7 @@ class DriftSnapshot:
         detector_manager (DetectorManager): DetectorManager instance for this task.
         error_history (deque[float]): Circular buffer for error smoothing.
         samples_seen (int): Number of samples processed.
-        fired_detectors (set[DetectorType]): Set of detector types that have fired.
+        fired_detectors (set[DriftDetectorType]): Set of drift detector types that have fired.
         running_sum (float): Running sum of errors.
     """
 
@@ -34,7 +34,7 @@ class DriftSnapshot:
     detector_manager: DetectorManager
     error_history: deque[float]
     samples_seen: int
-    fired_detectors: set[DetectorType]
+    fired_detectors: set[DriftDetectorType]
     running_sum: float
 
 
@@ -57,14 +57,14 @@ class DriftService:
             ml_task (MLTask): ML task to initialize.
 
         Raises:
-            FileNotFoundError: If calibrated detectors not found.
-            RuntimeError: If detectors loaded but empty.
+            FileNotFoundError: If calibrated drift detectors not found.
+            RuntimeError: If drift detectors loaded but empty.
         """
         detector_manager = DetectorManager(self._misc_dir, ml_task, self._smoothing_window)
         detector_manager.load()
 
-        if not detector_manager.detectors:
-            raise RuntimeError(f"Detectors loaded but empty for {ml_task}")
+        if not detector_manager.drift_detectors:
+            raise RuntimeError(f"Drift detectors loaded but empty for {ml_task}")
 
         self._snapshots[ml_task] = DriftSnapshot(
             state=DriftState.STABLE,
@@ -127,17 +127,17 @@ class DriftService:
 
                 in_grace_period = snapshot.samples_seen <= self._grace_period_samples
 
-                detectors = snapshot.detector_manager.detectors
-                for detector_type, detector in detectors.items():
-                    detector.update(smoothed_error)
+                drift_detectors = snapshot.detector_manager.drift_detectors
+                for drift_detector_type, drift_detector in drift_detectors.items():
+                    drift_detector.update(smoothed_error)
 
                     if in_grace_period:
                         continue
 
-                    if detector.drift_detected and detector_type not in snapshot.fired_detectors:
-                        snapshot.fired_detectors.add(detector_type)
+                    if drift_detector.drift_detected and drift_detector_type not in snapshot.fired_detectors:
+                        snapshot.fired_detectors.add(drift_detector_type)
                         logger.info(
-                            f"[{ml_task}] {detector_type} fired at sample {snapshot.samples_seen}, timestamp {error_point.timestamp}"
+                            f"[{ml_task}] {drift_detector_type} fired at sample {snapshot.samples_seen}, timestamp {error_point.timestamp}"
                         )
 
                 if len(snapshot.fired_detectors) >= self._consensus_threshold and snapshot.state == DriftState.STABLE:
@@ -191,7 +191,7 @@ class DriftService:
 
     async def recalibrate_task(self, ml_task: MLTask, post_adaptation_errors: list[float]) -> RecalibrateResponse:
         """
-        Recalibrate detectors after model adaptation.
+        Recalibrate drift detectors after model adaptation.
 
         Args:
             ml_task (MLTask): ML task to recalibrate.
@@ -207,7 +207,7 @@ class DriftService:
             detector_manager = snapshot.detector_manager
             detector_manager.calibrate(post_adaptation_errors)
 
-            logger.info(f"Recalibrated detectors for {ml_task}")
+            logger.info(f"Recalibrated drift detectors for {ml_task}")
 
             return RecalibrateResponse(success=True)
 

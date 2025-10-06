@@ -30,7 +30,7 @@ filename:
   trips_parquet: trips.parquet
   model: model.joblib
   metadata: metadata.json
-  detectors: detectors.joblib
+  drift_detectors: drift_detectors.joblib
 
 suffix:
   trips: .trips.xml
