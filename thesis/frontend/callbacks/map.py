@@ -46,7 +46,7 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
                 dbc.Tooltip(
                     "Start a simulation and pause it to access the User Tab", target="user-tab", placement="top"
                 )
-                if is_paused
+                if tab_disabled
                 else None
             )
 
