@@ -7,6 +7,7 @@ from thesis.common.enums import MLTask
 from thesis.common.schemas import (
     MetricsRequest,
     MetricsResponse,
+    NotificationFeed,
     PredictionSingleRequest,
     SimulationSnapshot,
     TripPredictionResponse,
@@ -89,6 +90,17 @@ class APIClient:
         response = self._client.get("/simulation/metrics", params=params)
         response.raise_for_status()
         return MetricsResponse.model_validate(response.json())
+
+    def simulation_notifications(self) -> NotificationFeed:
+        """
+        Get all notifications of the simulation.
+
+        Returns:
+            NotificationFeed: Feed of all notifications.
+        """
+        response = self._client.get("/simulation/notifications")
+        response.raise_for_status()
+        return NotificationFeed.model_validate(response.json())
 
     def predict_trip(
         self,
