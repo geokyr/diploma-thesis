@@ -43,7 +43,8 @@ class NotificationStore:
             NotificationFeed: Feed of all notifications.
         """
         async with self._lock:
-            return NotificationFeed(notifications=list(self._store))
+            notifications = list(self._store)
+            return NotificationFeed(notifications=notifications)
 
     async def reset(self) -> None:
         """Reset the notification store."""
