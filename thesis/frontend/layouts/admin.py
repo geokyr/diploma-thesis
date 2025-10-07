@@ -1,8 +1,11 @@
 """Admin tab layout components."""
 
+import dash_bootstrap_components as dbc
 from dash import dcc, html
 
 from thesis.common.enums import DriftState, SimulationState
+from thesis.common.schemas import Notification
+from thesis.frontend.utils.format import format_notification_header
 
 
 def create_admin_layout() -> html.Div:
@@ -17,9 +20,10 @@ def create_admin_layout() -> html.Div:
             html.Div(
                 [
                     html.H2("Simulation"),
-                    html.Button("Start", id="button-start", n_clicks=0, disabled=True),
-                    html.Button("Pause", id="button-toggle", n_clicks=0, disabled=True),
-                    html.Button("Reset", id="button-reset", n_clicks=0, disabled=True),
+                    dbc.Button("Start", id="button-start", n_clicks=0, disabled=True),
+                    dbc.Button("Pause", id="button-toggle", n_clicks=0, disabled=True),
+                    dbc.Button("Reset", id="button-reset", n_clicks=0, disabled=True),
+                    dbc.Button("Notifications", id="notification-panel-toggle", n_clicks=0),
                     html.Div(["Status: ", html.Span(SimulationState.IDLE, id="simulation-state")]),
                     html.Div(["Clock: ", html.Span(0, id="simulation-clock")]),
                 ]
@@ -29,6 +33,14 @@ def create_admin_layout() -> html.Div:
                     html.H3("ML Tasks"),
                     html.Div(id="ml-cards", children=[html.Div("No predictors available")]),
                 ]
+            ),
+            html.Div(id="toast-container"),
+            dbc.Offcanvas(
+                html.P("No notifications"),
+                id="notification-panel-content",
+                title="Notifications",
+                is_open=False,
+                placement="end",
             ),
         ]
     )
@@ -50,4 +62,46 @@ def create_ml_task_card(ml_task: str) -> html.Div:
             html.Div(["Drift: ", html.Span(DriftState.STABLE, id={"type": "drift-state", "ml_task": ml_task})]),
             dcc.Graph(id={"type": "mae-chart", "ml_task": ml_task}),
         ]
+    )
+
+
+def create_alert(notification: Notification) -> dbc.Alert:
+    """
+    Create a single alert.
+
+    Args:
+        notification (Notification): Notification to display.
+
+    Returns:
+        dbc.Alert: Alert component.
+    """
+    header = format_notification_header(notification)
+
+    return dbc.Alert(
+        [
+            html.Strong(notification.message),
+            html.Br(),
+            html.Small(header),
+        ]
+    )
+
+
+def create_toast(notification: Notification) -> dbc.Toast:
+    """
+    Create a toast.
+
+    Args:
+        notification (Notification): Notification to display.
+
+    Returns:
+        dbc.Toast: Toast component.
+    """
+    header = format_notification_header(notification)
+
+    return dbc.Toast(
+        notification.message,
+        id={"type": "toast", "id": notification.id},
+        header=header,
+        is_open=True,
+        dismissable=True,
     )
