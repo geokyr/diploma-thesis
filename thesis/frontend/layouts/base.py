@@ -28,6 +28,7 @@ def create_base_layout() -> html.Div:
             dcc.Store(id="event-store", data="noop"),
             dcc.Store(id="user-source-store", data=None),
             dcc.Store(id="user-destination-store", data=None),
+            dcc.Store(id="notifications-store", data=[]),
             html.Header(
                 [
                     html.H1("Platform"),
