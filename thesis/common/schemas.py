@@ -1,7 +1,5 @@
 """Shared Pydantic schemas for API models across all platform services."""
 
-from datetime import datetime
-
 from pydantic import BaseModel, Field
 
 from thesis.common.enums import DriftState, MLTask, RetrainStatus, SimulationState
@@ -139,9 +137,15 @@ class Notification(BaseModel):
     """Notification for drift errors."""
 
     id: str = Field(..., description="ID of the notification")
-    timestamp: datetime = Field(..., description="Timestamp of the notification")
+    timestamp: int = Field(..., description="Simulation timestamp of the notification")
     ml_task: MLTask = Field(..., description="ML task of the notification")
     message: str = Field(..., description="Message of the notification")
+
+
+class NotificationFeed(BaseModel):
+    """Feed of notifications from the simulation."""
+
+    notifications: list[Notification] = Field(..., description="List of notifications")
 
 
 class PredictionSingleRequest(BaseModel):

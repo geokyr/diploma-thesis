@@ -6,7 +6,7 @@ from uuid import uuid4
 
 from thesis.common.config import NOTIFICATIONS_MAXLEN
 from thesis.common.enums import MLTask
-from thesis.common.schemas import Notification
+from thesis.common.schemas import Notification, NotificationFeed
 
 
 class NotificationStore:
@@ -35,15 +35,15 @@ class NotificationStore:
                 )
             )
 
-    async def get_all(self) -> list[Notification]:
+    async def get_all(self) -> NotificationFeed:
         """
         Get all notifications from the store.
 
         Returns:
-            list[Notification]: List of all notifications.
+            NotificationFeed: Feed of all notifications.
         """
         async with self._lock:
-            return list(self._store)
+            return NotificationFeed(notifications=list(self._store))
 
     async def reset(self) -> None:
         """Reset the notification store."""
