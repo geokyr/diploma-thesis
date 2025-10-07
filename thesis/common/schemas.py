@@ -134,12 +134,12 @@ class RecalibrateResponse(BaseModel):
 
 
 class Notification(BaseModel):
-    """Notification for drift errors."""
+    """Notification for simulation events."""
 
     id: str = Field(..., description="ID of the notification")
     timestamp: int = Field(..., description="Simulation timestamp of the notification")
-    ml_task: MLTask = Field(..., description="ML task of the notification")
     message: str = Field(..., description="Message of the notification")
+    ml_task: MLTask | None = Field(None, description="ML task of the notification")
 
 
 class NotificationFeed(BaseModel):

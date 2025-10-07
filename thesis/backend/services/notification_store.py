@@ -16,22 +16,22 @@ class NotificationStore:
         self._store: deque[Notification] = deque(maxlen=NOTIFICATIONS_MAXLEN)
         self._lock: asyncio.Lock = asyncio.Lock()
 
-    async def push(self, timestamp: int, ml_task: MLTask, message: str) -> None:
+    async def push(self, timestamp: int, message: str, ml_task: MLTask | None = None) -> None:
         """
-        Push a notification to the store for a given ML task.
+        Push a notification to the store.
 
         Args:
             timestamp (int): Simulation timestamp.
-            ml_task (MLTask): ML task.
             message (str): Notification message.
+            ml_task (MLTask | None): ML task, if applicable.
         """
         async with self._lock:
             self._store.append(
                 Notification(
                     id=str(uuid4()),
                     timestamp=timestamp,
-                    ml_task=ml_task,
                     message=message,
+                    ml_task=ml_task,
                 )
             )
 
