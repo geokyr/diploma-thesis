@@ -138,6 +138,7 @@ timelapse:
   collect_seconds: 7200
   metrics_maxlen: 1000
   notifications_maxlen: 100
+  toast_duration_seconds: 5
 
 predictor:
   time_start_column: time_start

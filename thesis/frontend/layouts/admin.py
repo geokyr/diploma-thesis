@@ -3,6 +3,7 @@
 import dash_bootstrap_components as dbc
 from dash import dcc, html
 
+from thesis.common.config import TOAST_DURATION_SECONDS
 from thesis.common.enums import DriftState, SimulationState
 from thesis.common.schemas import Notification
 from thesis.frontend.utils.format import format_notification_header
@@ -104,4 +105,5 @@ def create_toast(notification: Notification) -> dbc.Toast:
         header=header,
         is_open=True,
         dismissable=True,
+        duration=TOAST_DURATION_SECONDS * 1000,
     )
