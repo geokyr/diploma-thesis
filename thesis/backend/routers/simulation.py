@@ -3,9 +3,10 @@
 from fastapi import APIRouter, Request
 
 from thesis.backend.services.metrics_store import MetricsStore
+from thesis.backend.services.notification_store import NotificationStore
 from thesis.backend.services.simulation_manager import SimulationManager
 from thesis.common.enums import MLTask
-from thesis.common.schemas import MetricsResponse, SimulationSnapshot
+from thesis.common.schemas import MetricsResponse, NotificationFeed, SimulationSnapshot
 
 simulation_router = APIRouter()
 
@@ -16,7 +17,7 @@ async def start_simulation(request: Request) -> SimulationSnapshot:
     Start the simulation.
 
     Args:
-        request: Request object.
+        request (Request): Request object.
 
     Returns:
         SimulationSnapshot: Current snapshot of the simulation.
@@ -31,7 +32,7 @@ async def pause_simulation(request: Request) -> SimulationSnapshot:
     Pause the simulation.
 
     Args:
-        request: Request object.
+        request (Request): Request object.
 
     Returns:
         SimulationSnapshot: Current snapshot of the simulation.
@@ -46,7 +47,7 @@ async def resume_simulation(request: Request) -> SimulationSnapshot:
     Resume the simulation.
 
     Args:
-        request: Request object.
+        request (Request): Request object.
 
     Returns:
         SimulationSnapshot: Current snapshot of the simulation.
@@ -61,7 +62,7 @@ async def reset_simulation(request: Request) -> SimulationSnapshot:
     Reset the simulation.
 
     Args:
-        request: Request object.
+        request (Request): Request object.
 
     Returns:
         SimulationSnapshot: Current snapshot of the simulation.
@@ -76,7 +77,7 @@ async def get_simulation_snapshot(request: Request) -> SimulationSnapshot:
     Get the current snapshot of the simulation.
 
     Args:
-        request: Request object.
+        request (Request): Request object.
 
     Returns:
         SimulationSnapshot: Current snapshot of the simulation.
@@ -92,10 +93,25 @@ async def get_simulation_metrics(ml_task: MLTask, request: Request) -> MetricsRe
 
     Args:
         ml_task (MLTask): ML task.
-        request: Request object.
+        request (Request): Request object.
 
     Returns:
         MetricsResponse: Metrics of the simulation.
     """
     metrics_store: MetricsStore = request.app.state.metrics_store
     return await metrics_store.get_metrics(ml_task)
+
+
+@simulation_router.get("/notifications", response_model=NotificationFeed)
+async def get_simulation_notifications(request: Request) -> NotificationFeed:
+    """
+    Get all notifications of the simulation.
+
+    Args:
+        request (Request): Request object.
+
+    Returns:
+        NotificationFeed: Feed of all notifications.
+    """
+    notification_store: NotificationStore = request.app.state.notification_store
+    return await notification_store.get_all()
