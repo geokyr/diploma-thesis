@@ -1,4 +1,4 @@
-"""User tab layout components."""
+"""User interface layout components."""
 
 import dash_leaflet as dl
 from dash import html
@@ -8,10 +8,10 @@ from thesis.common.config import BBOX
 
 def create_user_layout() -> html.Div:
     """
-    Create the user tab layout with interactive map and prediction controls.
+    Create the user interface layout with interactive map and prediction controls.
 
     Returns:
-        html.Div: Complete user tab layout.
+        html.Div: Complete user interface layout.
     """
     bbox_bounds = [[BBOX[1], BBOX[0]], [BBOX[3], BBOX[2]]]
     return html.Div(

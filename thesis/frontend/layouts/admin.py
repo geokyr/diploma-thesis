@@ -1,4 +1,4 @@
-"""Admin tab layout components."""
+"""Admin dashboard layout components."""
 
 import dash_bootstrap_components as dbc
 from dash import dcc, html
@@ -10,10 +10,10 @@ from thesis.frontend.utils.format import format_notification_header
 
 def create_admin_layout() -> html.Div:
     """
-    Create the admin tab layout with simulation controls and ML task monitoring.
+    Create the admin dashboard layout with simulation controls and ML task monitoring.
 
     Returns:
-        html.Div: Complete admin tab layout.
+        html.Div: Complete admin dashboard layout.
     """
     return html.Div(
         [

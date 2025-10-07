@@ -20,15 +20,15 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
     """
 
     @app.callback(
-        Output("user-tab", "disabled"),
-        Output("user-tab-tooltip-container", "children"),
+        Output("user-interface-tab", "disabled"),
+        Output("user-interface-tab-tooltip-container", "children"),
         Input("snapshot-store", "data"),
     )
-    def toggle_user_tab_and_tooltip(
+    def toggle_user_interface_tab_and_tooltip(
         snapshot_data: dict[str, SimulationState | int | dict[MLTask, DriftInfo]],
     ) -> tuple[bool, dbc.Tooltip | None]:
         """
-        Enable or disable user tab and relevant tooltip based on simulation state.
+        Enable or disable user interface tab and relevant tooltip based on simulation state.
 
         Args:
             snapshot_data (dict[str, SimulationState | int | dict[MLTask, DriftInfo]]): Snapshot data.
@@ -44,7 +44,9 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
 
             tooltip = (
                 dbc.Tooltip(
-                    "Start a simulation and pause it to access the User Tab", target="user-tab", placement="top"
+                    "Start a simulation and pause it to access the User Interface",
+                    target="user-interface-tab",
+                    placement="top",
                 )
                 if tab_disabled
                 else None

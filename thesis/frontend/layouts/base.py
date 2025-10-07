@@ -37,17 +37,17 @@ def create_base_layout() -> html.Div:
                         id="main-tabs",
                         value="admin",
                         children=[
-                            dcc.Tab(label="Admin Tab", value="admin", children=[create_admin_layout()]),
+                            dcc.Tab(label="Admin Dashboard", value="admin", children=[create_admin_layout()]),
                             dcc.Tab(
-                                id="user-tab",
-                                label="User Tab",
+                                id="user-interface-tab",
+                                label="User Interface",
                                 value="user",
                                 disabled=True,
                                 children=[create_user_layout()],
                             ),
                         ],
                     ),
-                    html.Div(id="user-tab-tooltip-container"),
+                    html.Div(id="user-interface-tab-tooltip-container"),
                 ]
             ),
         ]
