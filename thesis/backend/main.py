@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from thesis.backend.routers.predict import predict_router
 from thesis.backend.routers.simulation import simulation_router
 from thesis.backend.services.metrics_store import MetricsStore
+from thesis.backend.services.notification_store import NotificationStore
 from thesis.backend.services.prediction_service import PredictionService
 from thesis.backend.services.simulation_manager import SimulationManager
 from thesis.backend.services.timelapse_driver import TimelapseDriver
@@ -22,11 +23,15 @@ logger = setup_logger(config.service, config.logs_dir)
 async def lifespan(app: FastAPI):
     try:
         metrics_store = MetricsStore()
-        timelapse_driver = TimelapseDriver(config=config, metrics_store=metrics_store)
+        notification_store = NotificationStore()
+        timelapse_driver = TimelapseDriver(
+            config=config, metrics_store=metrics_store, notification_store=notification_store
+        )
         simulation_manager = SimulationManager(timelapse_driver=timelapse_driver)
         prediction_service = PredictionService(timelapse_driver=timelapse_driver)
 
         app.state.metrics_store = metrics_store
+        app.state.notification_store = notification_store
         app.state.timelapse_driver = timelapse_driver
         app.state.simulation_manager = simulation_manager
         app.state.prediction_service = prediction_service
@@ -37,6 +42,7 @@ async def lifespan(app: FastAPI):
         prediction_service: PredictionService = getattr(app.state, "prediction_service", None)
         simulation_manager: SimulationManager = getattr(app.state, "simulation_manager", None)
         timelapse_driver: TimelapseDriver = getattr(app.state, "timelapse_driver", None)
+        notification_store: NotificationStore = getattr(app.state, "notification_store", None)
         metrics_store: MetricsStore = getattr(app.state, "metrics_store", None)
 
         if prediction_service is not None:
@@ -45,6 +51,8 @@ async def lifespan(app: FastAPI):
             await simulation_manager.clear()
         if timelapse_driver is not None:
             await timelapse_driver.clear()
+        if notification_store is not None:
+            await notification_store.clear()
         if metrics_store is not None:
             await metrics_store.clear()
 
@@ -54,6 +62,8 @@ async def lifespan(app: FastAPI):
             delattr(app.state, "simulation_manager")
         if hasattr(app.state, "timelapse_driver"):
             delattr(app.state, "timelapse_driver")
+        if hasattr(app.state, "notification_store"):
+            delattr(app.state, "notification_store")
         if hasattr(app.state, "metrics_store"):
             delattr(app.state, "metrics_store")
 
