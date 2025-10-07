@@ -28,7 +28,7 @@ class APIClient:
         Returns:
             SimulationSnapshot: The snapshot of the simulation.
         """
-        response = self._client.post("/simulation/start")
+        response = self._client.post("/control/start")
         response.raise_for_status()
         return SimulationSnapshot.model_validate(response.json())
 
@@ -39,7 +39,7 @@ class APIClient:
         Returns:
             SimulationSnapshot: The snapshot of the simulation.
         """
-        response = self._client.post("/simulation/pause")
+        response = self._client.post("/control/pause")
         response.raise_for_status()
         return SimulationSnapshot.model_validate(response.json())
 
@@ -50,7 +50,7 @@ class APIClient:
         Returns:
             SimulationSnapshot: The snapshot of the simulation.
         """
-        response = self._client.post("/simulation/resume")
+        response = self._client.post("/control/resume")
         response.raise_for_status()
         return SimulationSnapshot.model_validate(response.json())
 
@@ -61,7 +61,7 @@ class APIClient:
         Returns:
             SimulationSnapshot: The snapshot of the simulation.
         """
-        response = self._client.post("/simulation/reset")
+        response = self._client.post("/control/reset")
         response.raise_for_status()
         return SimulationSnapshot.model_validate(response.json())
 

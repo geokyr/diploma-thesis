@@ -1,12 +1,9 @@
-"""Prediction router."""
+"""Prediction router for trip predictions."""
 
 from fastapi import APIRouter, Request
 
 from thesis.backend.services.prediction_service import PredictionService
-from thesis.common.schemas import (
-    PredictionSingleRequest,
-    TripPredictionResponse,
-)
+from thesis.common.schemas import PredictionSingleRequest, TripPredictionResponse
 
 predict_router = APIRouter()
 
