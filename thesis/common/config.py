@@ -174,6 +174,8 @@ class TimelapseConfig:
     pause_poll_seconds: float
     client_timeout_seconds: int
     collect_seconds: int
+    metrics_maxlen: int
+    notifications_maxlen: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -357,6 +359,8 @@ INTERVAL_SECONDS = CONFIG.timelapse.interval_seconds
 PAUSE_POLL_SECONDS = CONFIG.timelapse.pause_poll_seconds
 HTTP_CLIENT_TIMEOUT_SECONDS = CONFIG.timelapse.client_timeout_seconds
 COLLECT_SECONDS = CONFIG.timelapse.collect_seconds
+METRICS_MAXLEN = CONFIG.timelapse.metrics_maxlen
+NOTIFICATIONS_MAXLEN = CONFIG.timelapse.notifications_maxlen
 
 TIME_START_COLUMN = CONFIG.predictor.time_start_column
 DEFAULT_VERSION = CONFIG.predictor.default_version
