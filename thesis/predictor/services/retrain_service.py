@@ -1,8 +1,8 @@
 """Retraining service for predictor."""
 
-import uuid
 from concurrent.futures import Future, ProcessPoolExecutor
 from pathlib import Path
+from uuid import uuid4
 
 from sklearn.base import clone
 
@@ -104,7 +104,7 @@ class RetrainService:
             end_timestamp,
         )
 
-        job_id = str(uuid.uuid4())
+        job_id = str(uuid4())
         self._jobs[job_id] = {
             "status": RetrainStatus.RUNNING,
             "version": version,
