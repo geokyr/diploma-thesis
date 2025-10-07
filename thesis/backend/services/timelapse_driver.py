@@ -253,9 +253,9 @@ class TimelapseDriver:
             start_timestamp, end_timestamp = self._advance_clock()
 
             if start_timestamp == 0:
-                await self._notification_store.push(start_timestamp, "Day 1 started - Normal conditions")
+                await self._notification_store.push(start_timestamp, "First day started with normal conditions")
             elif start_timestamp == 36000:
-                await self._notification_store.push(start_timestamp, "Day 2 started - Rain conditions")
+                await self._notification_store.push(start_timestamp, "Second day started with rain conditions")
 
             for ml_task in self.ml_tasks:
                 try:
