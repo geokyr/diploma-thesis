@@ -3,6 +3,7 @@
 import asyncio
 from collections import deque
 
+from thesis.common.config import METRICS_MAXLEN
 from thesis.common.enums import MLTask
 from thesis.common.schemas import MetricPoint, MetricsResponse
 
@@ -13,6 +14,7 @@ class MetricsStore:
     def __init__(self) -> None:
         self._store: dict[MLTask, deque[MetricPoint]] = {}
         self._lock: asyncio.Lock = asyncio.Lock()
+        self._maxlen: int = METRICS_MAXLEN
 
     async def push(self, ml_task: MLTask, timestamp: int, mae: float | None) -> None:
         """
@@ -25,7 +27,7 @@ class MetricsStore:
         """
         async with self._lock:
             if ml_task not in self._store:
-                self._store[ml_task] = deque()
+                self._store[ml_task] = deque(maxlen=self._maxlen)
             self._store[ml_task].append(MetricPoint(timestamp=timestamp, mae=mae))
 
     async def get_metrics(self, ml_task: MLTask) -> MetricsResponse:
@@ -40,7 +42,7 @@ class MetricsStore:
         """
         async with self._lock:
             if ml_task not in self._store:
-                self._store[ml_task] = deque()
+                self._store[ml_task] = deque(maxlen=self._maxlen)
             metric_points = list(self._store[ml_task])
         return MetricsResponse(metric_points=metric_points)
 
