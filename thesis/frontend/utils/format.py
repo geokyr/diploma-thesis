@@ -18,7 +18,7 @@ def format_simulation_timestamp(timestamp: int) -> str:
     hours = remaining_seconds // 3600
     minutes = (remaining_seconds % 3600) // 60
 
-    return f"Day {day} {hours:02d}:{minutes:02d}"
+    return f"Day {day:02d} {hours:02d}:{minutes:02d}"
 
 
 def format_notification_header(notification: Notification) -> str:
@@ -33,4 +33,4 @@ def format_notification_header(notification: Notification) -> str:
     """
     timestamp_str = format_simulation_timestamp(notification.timestamp)
 
-    return f"{notification.ml_task.upper()} - {timestamp_str}" if notification.ml_task else timestamp_str
+    return f"{timestamp_str} - {notification.ml_task.upper()}" if notification.ml_task else timestamp_str
