@@ -7,6 +7,7 @@ from thesis.common.logger import setup_logger
 from thesis.common.service import PlatformServiceConfig
 from thesis.frontend.callbacks.map import register_map_callbacks
 from thesis.frontend.callbacks.monitoring import register_monitoring_callbacks
+from thesis.frontend.callbacks.notifications import register_notification_callbacks
 from thesis.frontend.callbacks.simulation import register_simulation_callbacks
 from thesis.frontend.layouts.base import create_base_layout
 from thesis.frontend.utils.api_client import APIClient
@@ -24,6 +25,7 @@ app.layout = create_base_layout()
 
 register_simulation_callbacks(app, client)
 register_monitoring_callbacks(app, client)
+register_notification_callbacks(app, client)
 register_map_callbacks(app, client)
 
 
