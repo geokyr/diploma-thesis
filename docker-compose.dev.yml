@@ -21,31 +21,31 @@ services:
       - APP_DIR=/app
       - ENVIRONMENT=development
 
-  # predictor-fuel:
-  #   volumes:
-  #     - ./appdata/models:/app/models
-  #     - ./appdata/common:/app/common:ro
-  #     - ./appdata/data:/app/data:ro
-  #     - ./appdata/logs:/app/logs
-  #     - ./appdata/misc:/app/misc:ro
-  #     - ./thesis:/app/thesis
-  #   environment:
-  #     - SERVICE=predictor-fuel
-  #     - APP_DIR=/app
-  #     - ENVIRONMENT=development
+  predictor-fuel:
+    volumes:
+      - ./appdata/models:/app/models
+      - ./appdata/common:/app/common:ro
+      - ./appdata/data:/app/data:ro
+      - ./appdata/logs:/app/logs
+      - ./appdata/misc:/app/misc:ro
+      - ./thesis:/app/thesis
+    environment:
+      - SERVICE=predictor-fuel
+      - APP_DIR=/app
+      - ENVIRONMENT=development
 
-  # predictor-stops:
-  #   volumes:
-  #     - ./appdata/models:/app/models
-  #     - ./appdata/common:/app/common:ro
-  #     - ./appdata/data:/app/data:ro
-  #     - ./appdata/logs:/app/logs
-  #     - ./appdata/misc:/app/misc:ro
-  #     - ./thesis:/app/thesis
-  #   environment:
-  #     - SERVICE=predictor-stops
-  #     - APP_DIR=/app
-  #     - ENVIRONMENT=development
+  predictor-stops:
+    volumes:
+      - ./appdata/models:/app/models
+      - ./appdata/common:/app/common:ro
+      - ./appdata/data:/app/data:ro
+      - ./appdata/logs:/app/logs
+      - ./appdata/misc:/app/misc:ro
+      - ./thesis:/app/thesis
+    environment:
+      - SERVICE=predictor-stops
+      - APP_DIR=/app
+      - ENVIRONMENT=development
 
   drift:
     volumes:

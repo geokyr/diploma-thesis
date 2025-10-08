@@ -52,53 +52,53 @@ services:
       start_period: 30s
     restart: unless-stopped
 
-  # predictor-fuel:
-  #   container_name: predictor-fuel
-  #   build:
-  #     dockerfile: ./thesis/predictor/Dockerfile
-  #   ports:
-  #     - "8002:8002"
-  #   volumes:
-  #     - ./appdata/models:/app/models
-  #     - ./appdata/common:/app/common:ro
-  #     - ./appdata/data:/app/data:ro
-  #     - ./appdata/logs:/app/logs
-  #     - ./appdata/misc:/app/misc:ro
-  #   environment:
-  #     - SERVICE=predictor-fuel
-  #     - APP_DIR=/app
-  #     - ENVIRONMENT=production
-  #   healthcheck:
-  #     test: curl -f http://localhost:8002/health
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
-  #     start_period: 30s
-  #   restart: unless-stopped
+  predictor-fuel:
+    container_name: predictor-fuel
+    build:
+      dockerfile: ./thesis/predictor/Dockerfile
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./appdata/models:/app/models
+      - ./appdata/common:/app/common:ro
+      - ./appdata/data:/app/data:ro
+      - ./appdata/logs:/app/logs
+      - ./appdata/misc:/app/misc:ro
+    environment:
+      - SERVICE=predictor-fuel
+      - APP_DIR=/app
+      - ENVIRONMENT=production
+    healthcheck:
+      test: curl -f http://localhost:8002/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
 
-  # predictor-stops:
-  #   container_name: predictor-stops
-  #   build:
-  #     dockerfile: ./thesis/predictor/Dockerfile
-  #   ports:
-  #     - "8003:8003"
-  #   volumes:
-  #     - ./appdata/models:/app/models
-  #     - ./appdata/common:/app/common:ro
-  #     - ./appdata/data:/app/data:ro
-  #     - ./appdata/logs:/app/logs
-  #     - ./appdata/misc:/app/misc:ro
-  #   environment:
-  #     - SERVICE=predictor-stops
-  #     - APP_DIR=/app
-  #     - ENVIRONMENT=production
-  #   healthcheck:
-  #     test: curl -f http://localhost:8003/health
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
-  #     start_period: 30s
-  #   restart: unless-stopped
+  predictor-stops:
+    container_name: predictor-stops
+    build:
+      dockerfile: ./thesis/predictor/Dockerfile
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./appdata/models:/app/models
+      - ./appdata/common:/app/common:ro
+      - ./appdata/data:/app/data:ro
+      - ./appdata/logs:/app/logs
+      - ./appdata/misc:/app/misc:ro
+    environment:
+      - SERVICE=predictor-stops
+      - APP_DIR=/app
+      - ENVIRONMENT=production
+    healthcheck:
+      test: curl -f http://localhost:8003/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
 
   drift:
     container_name: drift
