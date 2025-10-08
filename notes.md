@@ -2,6 +2,7 @@
 
 ## To Do
 
+- Frontend
 - Docstrings
 - Type hints
 - Typed dicts
