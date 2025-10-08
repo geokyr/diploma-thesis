@@ -19,7 +19,7 @@ client = APIClient(config.backend_url)
 app: dash.Dash = dash.Dash(
     "Platform Frontend",
     suppress_callback_exceptions=True,
-    external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.BOOTSTRAP],
+    external_stylesheets=[dbc.themes.COSMO, dbc.icons.BOOTSTRAP],
 )
 app.layout = create_base_layout()
 
