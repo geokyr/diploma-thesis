@@ -255,7 +255,6 @@ def create_user_layout() -> html.Div:
                                                     "width": "100%",
                                                     "aspectRatio": "1.601",
                                                     "maxWidth": "1281px",
-                                                    "borderRadius": "0.3rem",
                                                 },
                                             ),
                                         ],
