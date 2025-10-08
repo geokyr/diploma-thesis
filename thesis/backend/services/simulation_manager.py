@@ -26,7 +26,10 @@ class SimulationManager:
                 state = self._state
                 if state == SimulationState.RUNNING:
                     try:
-                        await self._timelapse_driver.run_tick()
+                        should_continue = await self._timelapse_driver.run_tick()
+                        if not should_continue:
+                            async with self._lock:
+                                self._state = SimulationState.PAUSED
                     except asyncio.CancelledError:
                         raise
                     except Exception:

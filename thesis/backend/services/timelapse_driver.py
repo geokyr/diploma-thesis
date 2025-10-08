@@ -249,10 +249,19 @@ class TimelapseDriver:
         info.collecting = False
         info.job_id = None
 
-    async def run_tick(self) -> None:
-        """Run a tick of the simulation."""
+    async def run_tick(self) -> bool:
+        """
+        Run a tick of the simulation.
+
+        Returns:
+            bool: True if simulation should continue, False if data has ended.
+        """
         async with self._tick_lock:
             start_timestamp, end_timestamp = self._advance_clock()
+
+            if end_timestamp >= 72000:
+                await self._notification_store.push(start_timestamp, "Data exhausted", NotificationLevel.SUCCESS)
+                return False
 
             if start_timestamp == 0:
                 await self._notification_store.push(
@@ -314,6 +323,8 @@ class TimelapseDriver:
                             await self._notification_store.push(
                                 end_timestamp, "Retraining failed", NotificationLevel.DANGER, ml_task
                             )
+
+            return True
 
     async def reset(self) -> None:
         """Reset the timelapse driver."""
