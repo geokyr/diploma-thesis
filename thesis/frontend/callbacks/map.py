@@ -8,7 +8,7 @@ from thesis.common.config import BBOX
 from thesis.common.enums import MLTask, SimulationState
 from thesis.common.schemas import DriftInfo, SimulationSnapshot
 from thesis.frontend.utils.api_client import APIClient
-from thesis.frontend.utils.format import format_ml_task_title, format_ml_task_unit
+from thesis.frontend.utils.format import format_prediction_value
 
 
 def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
@@ -19,6 +19,24 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
         app (dash.Dash): The Dash app instance
         client (APIClient): API client for backend communication
     """
+
+    @app.callback(
+        Output("user-map", "invalidateSize"),
+        Input("main-tabs", "active_tab"),
+        State("user-map", "invalidateSize"),
+        prevent_initial_call=True,
+    )
+    def invalidate_map_size(active_tab: str, current_invalidate_size: int | None) -> int:
+        """
+        Trigger map size invalidation when switching to user tab.
+
+        Args:
+            active_tab (str): Currently active tab ID.
+
+        Returns:
+            int: Timestamp to force invalidateSize trigger.
+        """
+        return 1 if current_invalidate_size == 0 else 0
 
     @app.callback(
         Output("user-interface-tab", "disabled"),
@@ -61,6 +79,7 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
     @app.callback(
         Output("user-source-store", "data"),
         Output("user-destination-store", "data"),
+        Output("prediction-output", "children"),
         Input("user-map", "clickData"),
         Input("button-clear", "n_clicks"),
         State("user-source-store", "data"),
@@ -74,7 +93,7 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
         source_data: dict[str, float] | None,
         destination_data: dict[str, float] | None,
         snapshot_data: dict[str, SimulationState | int | dict[MLTask, DriftInfo]],
-    ) -> tuple[dict[str, float] | None, dict[str, float] | None]:
+    ) -> tuple[dict[str, float] | None, dict[str, float] | None, html.P]:
         """
         Handle map clicks to select source and destination points.
 
@@ -86,19 +105,72 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
             snapshot_data (dict[str, SimulationState | int | dict[MLTask, DriftInfo]]): Snapshot data.
 
         Returns:
-            tuple[dict[str, float] | None, dict[str, float] | None]: Updated source and destination data.
+            tuple[dict[str, float] | None, dict[str, float] | None, html.P]: Updated source, destination, and prediction output.
         """
+        default_prediction_output = [
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            html.I(className="bi bi-clock-fill me-2"),
+                            html.Span("Estimated Time of Arrival", className="fw-semibold"),
+                        ],
+                        width=8,
+                        className="d-flex align-items-center",
+                    ),
+                    dbc.Col(
+                        html.Span("-", id="prediction-eta", className="text-end d-block"),
+                        width=4,
+                    ),
+                ],
+                className="mb-2",
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            html.I(className="bi bi-fuel-pump-fill me-2"),
+                            html.Span("Fuel Consumption", className="fw-semibold"),
+                        ],
+                        width=8,
+                        className="d-flex align-items-center",
+                    ),
+                    dbc.Col(
+                        html.Span("-", id="prediction-fuel", className="text-end d-block"),
+                        width=4,
+                    ),
+                ],
+                className="mb-2",
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            html.I(className="bi bi-stoplights-fill me-2"),
+                            html.Span("Number of Stops", className="fw-semibold"),
+                        ],
+                        width=8,
+                        className="d-flex align-items-center",
+                    ),
+                    dbc.Col(
+                        html.Span("-", id="prediction-stops", className="text-end d-block"),
+                        width=4,
+                    ),
+                ],
+            ),
+        ]
+
         try:
             trigger = ctx.triggered_id
             if trigger == "button-clear":
-                return None, None
+                return None, None, default_prediction_output
 
             if not click_data or "latlng" not in click_data:
-                return no_update, no_update
+                return no_update, no_update, no_update
 
             latlng = click_data["latlng"]
             if "lat" not in latlng or "lng" not in latlng:
-                return no_update, no_update
+                return no_update, no_update, no_update
 
             latitude, longitude = float(latlng["lat"]), float(latlng["lng"])
 
@@ -106,19 +178,19 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
             if not (
                 minimum_latitude <= latitude <= maximum_latitude and minimum_longitude <= longitude <= maximum_longitude
             ):
-                return no_update, no_update
+                return no_update, no_update, no_update
 
             point = {"longitude": longitude, "latitude": latitude}
 
             if source_data is None:
-                return point, destination_data
+                return point, destination_data, no_update
             if destination_data is None:
-                return source_data, point
+                return source_data, point, no_update
 
-            return point, None
+            return point, None, no_update
 
         except Exception:
-            return no_update, no_update
+            return no_update, no_update, no_update
 
     @app.callback(
         Output("source-latitude", "children"),
@@ -233,13 +305,13 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
             return no_update
 
     @app.callback(
-        Output("prediction-output", "children"),
+        Output("prediction-output", "children", allow_duplicate=True),
         Input("button-predict", "n_clicks"),
         State("snapshot-store", "data"),
         State("ml-tasks-store", "data"),
         State("user-source-store", "data"),
         State("user-destination-store", "data"),
-        prevent_initial_call=True,
+        prevent_initial_call="initial_duplicate",
     )
     def run_prediction(
         n_predict: int,
@@ -273,32 +345,82 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
                     start_timestamp=snapshot.clock,
                 )
 
-                details = []
+                # Extract predictions or use defaults
+                eta_value = "-"
+                fuel_value = "-"
+                stops_value = "-"
 
-                if not response.predictions:
-                    details.append(html.Div("No predictions available. Predictor services may be unavailable."))
-                else:
-                    ordered_tasks = [MLTask.ETA.value, MLTask.FUEL.value, MLTask.STOPS.value]
-                    for ml_task in ordered_tasks:
-                        if ml_task in response.predictions:
-                            prediction_response = response.predictions[ml_task]
-                            if prediction_response.prediction is not None:
-                                title = format_ml_task_title(ml_task)
-                                unit = format_ml_task_unit(ml_task)
-                                value = prediction_response.prediction
-                                details.append(
-                                    html.Div(
-                                        [
-                                            html.Strong(f"{title}: "),
-                                            f"{value:.2f} {unit}",
-                                        ]
-                                    )
-                                )
+                if response.predictions:
+                    if MLTask.ETA.value in response.predictions:
+                        pred = response.predictions[MLTask.ETA.value]
+                        if pred.prediction is not None:
+                            eta_value = format_prediction_value(MLTask.ETA, pred.prediction)
+
+                    if MLTask.FUEL.value in response.predictions:
+                        pred = response.predictions[MLTask.FUEL.value]
+                        if pred.prediction is not None:
+                            fuel_value = format_prediction_value(MLTask.FUEL, pred.prediction)
+
+                    if MLTask.STOPS.value in response.predictions:
+                        pred = response.predictions[MLTask.STOPS.value]
+                        if pred.prediction is not None:
+                            stops_value = format_prediction_value(MLTask.STOPS, pred.prediction)
+
+                return [
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                [
+                                    html.I(className="bi bi-clock-fill me-2"),
+                                    html.Span("Estimated Time of Arrival", className="fw-semibold"),
+                                ],
+                                width=8,
+                                className="d-flex align-items-center",
+                            ),
+                            dbc.Col(
+                                html.Span(eta_value, id="prediction-eta", className="text-end d-block"),
+                                width=4,
+                            ),
+                        ],
+                        className="mb-2",
+                    ),
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                [
+                                    html.I(className="bi bi-fuel-pump-fill me-2"),
+                                    html.Span("Fuel Consumption", className="fw-semibold"),
+                                ],
+                                width=8,
+                                className="d-flex align-items-center",
+                            ),
+                            dbc.Col(
+                                html.Span(fuel_value, id="prediction-fuel", className="text-end d-block"),
+                                width=4,
+                            ),
+                        ],
+                        className="mb-2",
+                    ),
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                [
+                                    html.I(className="bi bi-stoplights-fill me-2"),
+                                    html.Span("Number of Stops", className="fw-semibold"),
+                                ],
+                                width=8,
+                                className="d-flex align-items-center",
+                            ),
+                            dbc.Col(
+                                html.Span(stops_value, id="prediction-stops", className="text-end d-block"),
+                                width=4,
+                            ),
+                        ],
+                    ),
+                ]
 
             except Exception:
                 return no_update
-
-            return html.Div(details)
 
         except Exception:
             return no_update
