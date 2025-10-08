@@ -3,9 +3,8 @@
 import dash_bootstrap_components as dbc
 from dash import dcc, html
 
-from thesis.common.enums import DriftState, SimulationState
 from thesis.common.schemas import Notification
-from thesis.frontend.utils.format import format_ml_task_title, format_notification_header, format_simulation_timestamp
+from thesis.frontend.utils.format import format_simulation_timestamp, get_ml_task_title
 
 
 def create_admin_layout() -> html.Div:
@@ -22,75 +21,217 @@ def create_admin_layout() -> html.Div:
                     dbc.Row(
                         [
                             dbc.Col(
-                                [
-                                    html.H4("Simulation Controls"),
-                                    dbc.Button("Start", id="button-start", n_clicks=0, disabled=True),
-                                    dbc.Button("Pause", id="button-toggle", n_clicks=0, disabled=True),
-                                    dbc.Button("Reset", id="button-reset", n_clicks=0, disabled=True),
-                                    # TODO: get default clock from store
-                                    html.Div(
-                                        [
-                                            html.Strong("Clock: "),
-                                            html.Span(format_simulation_timestamp(0), id="simulation-clock"),
-                                        ]
-                                    ),
-                                    # TODO: get default state from store
-                                    html.Div(
-                                        [
-                                            html.Strong("Status: "),
-                                            html.Span(SimulationState.IDLE, id="simulation-state"),
-                                        ]
-                                    ),
-                                ],
-                                width=6,
+                                dbc.Card(
+                                    [
+                                        dbc.CardHeader(
+                                            html.H5(
+                                                [html.I(className="bi bi-gear-fill me-2"), "Simulation Controls"],
+                                                className="mb-0 text-center",
+                                            )
+                                        ),
+                                        dbc.CardBody(
+                                            [
+                                                html.Div(
+                                                    [
+                                                        dbc.Button(
+                                                            html.Span(
+                                                                [html.I(className="bi bi-play-fill me-1"), "Start"],
+                                                                className="d-flex align-items-center justify-content-center",
+                                                            ),
+                                                            id="button-start",
+                                                            color="success",
+                                                            className="fw-semibold me-2",
+                                                            n_clicks=0,
+                                                            disabled=True,
+                                                        ),
+                                                        dbc.Button(
+                                                            html.Span(
+                                                                [html.I(className="bi bi-pause-fill me-1"), "Pause"],
+                                                                className="d-flex align-items-center justify-content-center",
+                                                            ),
+                                                            id="button-toggle",
+                                                            color="warning",
+                                                            className="fw-semibold me-2",
+                                                            n_clicks=0,
+                                                            disabled=True,
+                                                        ),
+                                                        dbc.Button(
+                                                            html.Span(
+                                                                [
+                                                                    html.I(
+                                                                        className="bi bi-arrow-counterclockwise me-1"
+                                                                    ),
+                                                                    "Reset",
+                                                                ],
+                                                                className="d-flex align-items-center justify-content-center",
+                                                            ),
+                                                            id="button-reset",
+                                                            color="danger",
+                                                            className="fw-semibold",
+                                                            n_clicks=0,
+                                                            disabled=True,
+                                                        ),
+                                                    ],
+                                                    className="d-flex justify-content-center align-items-center h-100",
+                                                ),
+                                            ],
+                                            className="d-flex justify-content-center align-items-center h-100",
+                                        ),
+                                    ],
+                                    className="h-100",
+                                ),
+                                width=3,
                             ),
                             dbc.Col(
-                                [
-                                    html.H4("Model Status"),
-                                    html.Div(id="ml-status-list", children=[html.Div("No predictors available")]),
-                                ],
+                                dbc.Card(
+                                    [
+                                        dbc.CardHeader(
+                                            html.H5(
+                                                [
+                                                    html.I(className="bi bi-clipboard-data-fill me-2"),
+                                                    "Simulation Snapshot",
+                                                ],
+                                                className="mb-0 text-center",
+                                            )
+                                        ),
+                                        dbc.CardBody(
+                                            [
+                                                html.Div(
+                                                    [
+                                                        html.Div(
+                                                            [
+                                                                html.Small(
+                                                                    "Time",
+                                                                    className="text-muted mb-1 d-block text-center",
+                                                                ),
+                                                                html.Div(
+                                                                    format_simulation_timestamp(0),
+                                                                    id="simulation-clock",
+                                                                    className="fw-semibold fs-5 text-center",
+                                                                ),
+                                                            ],
+                                                        ),
+                                                        html.Div(
+                                                            [
+                                                                html.Small(
+                                                                    "State",
+                                                                    className="text-muted d-block mb-1 text-center",
+                                                                ),
+                                                                html.Div(
+                                                                    dbc.Badge(
+                                                                        "Idle",
+                                                                        id="simulation-state",
+                                                                        color="secondary",
+                                                                        className="fs-6",
+                                                                        pill=True,
+                                                                    ),
+                                                                    className="text-center",
+                                                                ),
+                                                            ],
+                                                        ),
+                                                    ],
+                                                    className="d-flex justify-content-around h-100 align-items-center w-100",
+                                                ),
+                                            ],
+                                        ),
+                                    ],
+                                    className="h-100",
+                                ),
+                                width=3,
+                            ),
+                            dbc.Col(
+                                dbc.Card(
+                                    [
+                                        dbc.CardHeader(
+                                            html.H5(
+                                                [html.I(className="bi bi-activity me-2"), "Drift State"],
+                                                className="mb-0 text-center",
+                                            )
+                                        ),
+                                        dbc.CardBody(
+                                            [
+                                                html.Div(
+                                                    id="ml-status-list",
+                                                    children=[
+                                                        html.P("No predictors available", className="text-muted mb-0")
+                                                    ],
+                                                    className="d-flex justify-content-around h-100",
+                                                )
+                                            ],
+                                        ),
+                                    ],
+                                    className="h-100",
+                                ),
                                 width=6,
                             ),
                         ],
+                        className="mb-2",
                     ),
-                    html.Div(id="ml-cards", children=[html.Div("No predictors available")]),
+                    html.Div(id="ml-cards", children=[html.P("No predictors available", className="text-muted mb-0")]),
                 ],
                 width=9,
             ),
             dbc.Col(
-                [
-                    html.H3("Notifications", style={"marginBottom": "1rem"}),
-                    html.Div(
-                        id="notification-panel-content",
-                        children=[html.P("No notifications")],
-                    ),
-                ],
+                dbc.Card(
+                    [
+                        dbc.CardHeader(
+                            html.H5(
+                                [html.I(className="bi bi-bell-fill me-2"), "Notifications"],
+                                className="mb-0 text-center",
+                            )
+                        ),
+                        dbc.CardBody(
+                            id="notification-panel-content",
+                            children=[html.P("No notifications", className="text-muted mb-0")],
+                            style={"overflowY": "auto", "height": "100%"},
+                        ),
+                    ],
+                    className="h-100",
+                ),
                 width=3,
             ),
         ],
     )
 
 
-def create_ml_task_card(ml_task: str) -> html.Div:
+def create_ml_task_card(ml_task: str) -> dbc.Card:
     """
-    Create a card for a single ML task with drift state and metrics chart.
+    Create a card for a single ML task with metrics chart.
 
     Args:
         ml_task (str): ML task name.
 
     Returns:
-        html.Div: Card component for the ML task.
+        dbc.Card: Card component for the ML task.
     """
-    title = format_ml_task_title(ml_task)
+    from thesis.common.enums import MLTask
 
-    return html.Div(
+    title = get_ml_task_title(ml_task)
+
+    # Map ML tasks to icons
+    icon_map = {
+        MLTask.ETA.value: "bi-clock-fill",
+        MLTask.FUEL.value: "bi-fuel-pump-fill",
+        MLTask.STOPS.value: "bi-stoplights-fill",
+    }
+
+    icon_class = icon_map.get(ml_task, "bi-graph-up")
+
+    return dbc.Card(
         [
-            html.H4(title),
-            dcc.Graph(
-                id={"type": "mae-chart", "ml_task": ml_task},
-                config={"displayModeBar": False},
+            dbc.CardHeader(
+                html.H5(
+                    [html.I(className=f"bi {icon_class} me-2"), title],
+                    className="mb-0 text-center",
+                )
             ),
-        ]
+            dbc.CardBody(
+                [
+                    dcc.Graph(id={"type": "mae-chart", "ml_task": ml_task}),
+                ]
+            ),
+        ],
+        className="mb-2",
     )
 
 
@@ -104,13 +245,22 @@ def create_ml_status_item(ml_task: str) -> html.Div:
     Returns:
         html.Div: Status item component for the ML task.
     """
-    title = format_ml_task_title(ml_task)
+    title = get_ml_task_title(ml_task)
 
     return html.Div(
         [
-            html.Strong(f"{title}: "),
-            html.Span(DriftState.STABLE, id={"type": "drift-state", "ml_task": ml_task}),
-        ]
+            html.Small(title, className="text-muted d-block mb-1 text-center"),
+            html.Div(
+                dbc.Badge(
+                    "Stable",
+                    id={"type": "drift-state", "ml_task": ml_task},
+                    color="success",
+                    className="fs-6",
+                    pill=True,
+                ),
+                className="text-center",
+            ),
+        ],
     )
 
 
@@ -124,12 +274,19 @@ def create_alert(notification: Notification) -> dbc.Alert:
     Returns:
         dbc.Alert: Alert component.
     """
-    header = format_notification_header(notification)
+    time = format_simulation_timestamp(notification.timestamp)
+
+    message = notification.message
+    if notification.ml_task:
+        task_name = get_ml_task_title(notification.ml_task.value)
+        message = f"[{task_name}] {message}"
 
     return dbc.Alert(
         [
-            html.Strong(notification.message),
+            html.Strong(message),
             html.Br(),
-            html.Small(header),
-        ]
+            html.Small(time, className="text-muted"),
+        ],
+        color=notification.level.value,
+        className="mb-2",
     )
