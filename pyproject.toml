@@ -73,6 +73,7 @@ simulation = [
     "pyproj==3.7.2",
     "sumolib==1.24.0",
     "traci==1.24.0",
+    "rtree==1.4.1",
 ]
 
 drift = [
