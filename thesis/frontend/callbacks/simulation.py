@@ -1,11 +1,29 @@
 """Callbacks for simulation control and state management."""
 
-from dash import Input, Output, State, ctx, dash, no_update
+from dash import Input, Output, State, ctx, dash, html, no_update
 
 from thesis.common.enums import MLTask, SimulationState
 from thesis.common.schemas import DriftInfo, SimulationSnapshot
 from thesis.frontend.utils.api_client import APIClient
 from thesis.frontend.utils.format import format_simulation_timestamp
+
+
+def get_simulation_state_color(sim_state: SimulationState) -> str:
+    """
+    Get Bootstrap color for a simulation state.
+
+    Args:
+        sim_state (SimulationState): Simulation state.
+
+    Returns:
+        str: Bootstrap color name.
+    """
+    color_map = {
+        SimulationState.IDLE: "secondary",
+        SimulationState.RUNNING: "success",
+        SimulationState.PAUSED: "warning",
+    }
+    return color_map.get(sim_state, "secondary")
 
 
 def register_simulation_callbacks(app: dash.Dash, client: APIClient) -> None:
@@ -131,7 +149,7 @@ def register_simulation_callbacks(app: dash.Dash, client: APIClient) -> None:
     )
     def update_buttons(
         snapshot_data: dict[str, SimulationState | int | dict[MLTask, DriftInfo]], ml_tasks: list[str]
-    ) -> tuple[bool, str, bool, bool]:
+    ) -> tuple[bool, html.Span, bool, bool]:
         """
         Update button states based on simulation state.
 
@@ -140,45 +158,56 @@ def register_simulation_callbacks(app: dash.Dash, client: APIClient) -> None:
             ml_tasks (list[str]): List of ML tasks.
 
         Returns:
-            tuple[bool, str, bool, bool]: Flag for start button disabling, label for toggle button, flag for toggle button disabling, flag for reset button disabling.
+            tuple[bool, html.Span, bool, bool]: Flag for start button disabling, children for toggle button, flag for toggle button disabling, flag for reset button disabling.
         """
         try:
             snapshot = SimulationSnapshot.model_validate(snapshot_data)
             is_idle = snapshot.state == SimulationState.IDLE
-            is_running = snapshot.state == SimulationState.RUNNING
+            is_paused = snapshot.state == SimulationState.PAUSED
             no_tasks_available = not ml_tasks
 
             start_disabled = (not is_idle) or no_tasks_available
-            toggle_label = "Pause" if is_running else "Resume"
+            toggle_label = "Resume" if is_paused else "Pause"
+            toggle_icon = "bi bi-play-fill me-1" if is_paused else "bi bi-pause-fill me-1"
+            toggle_children = html.Span(
+                [html.I(className=toggle_icon), toggle_label],
+                className="d-flex align-items-center",
+            )
             toggle_disabled = is_idle
             reset_disabled = is_idle
 
-            return start_disabled, toggle_label, toggle_disabled, reset_disabled
+            return start_disabled, toggle_children, toggle_disabled, reset_disabled
 
         except Exception:
             return no_update, no_update, no_update, no_update
 
     @app.callback(
         Output("simulation-state", "children"),
+        Output("simulation-state", "color"),
+        Output("simulation-state", "className"),
         Output("simulation-clock", "children"),
         Input("snapshot-store", "data"),
     )
     def update_snapshot(
         snapshot_data: dict[str, SimulationState | int | dict[MLTask, DriftInfo]],
-    ) -> tuple[SimulationState, str]:
-        """Update the displayed simulation state and clock.
+    ) -> tuple[str, str, str, str]:
+        """Update the displayed simulation state, badge color, className, and clock.
 
         Args:
             snapshot_data (dict[str, SimulationState | int | dict[MLTask, DriftInfo]]): Snapshot data.
 
         Returns:
-            tuple[SimulationState, str]: Simulation state and formatted clock.
+            tuple[str, str, str, str]: Simulation state, badge color, className, and formatted clock.
         """
         try:
             snapshot = SimulationSnapshot.model_validate(snapshot_data)
             formatted_clock = format_simulation_timestamp(snapshot.clock)
 
-            return snapshot.state, formatted_clock
+            state_color = get_simulation_state_color(snapshot.state)
+            state_text = snapshot.state.value.capitalize()
+            state_text_class = "fs-6 text-dark" if snapshot.state == SimulationState.PAUSED else "fs-6"
+
+            return state_text, state_color, state_text_class, formatted_clock
 
         except Exception:
-            return no_update, no_update
+            return no_update, no_update, no_update, no_update
