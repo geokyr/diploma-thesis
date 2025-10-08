@@ -130,7 +130,7 @@ def create_user_layout() -> html.Div:
                                         ),
                                         id="button-clear",
                                         color="secondary",
-                                        class_name="fw-semibold",
+                                        className="fw-semibold",
                                         n_clicks=0,
                                     ),
                                     dbc.Button(
@@ -140,7 +140,7 @@ def create_user_layout() -> html.Div:
                                         ),
                                         id="button-predict",
                                         color="primary",
-                                        class_name="fw-semibold",
+                                        className="fw-semibold",
                                         n_clicks=0,
                                         disabled=True,
                                     ),
