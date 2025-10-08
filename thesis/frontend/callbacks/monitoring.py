@@ -8,7 +8,25 @@ from thesis.common.enums import DriftState, MLTask, SimulationState
 from thesis.common.schemas import DriftInfo, MetricsResponse
 from thesis.frontend.layouts.admin import create_ml_status_item, create_ml_task_card
 from thesis.frontend.utils.api_client import APIClient
-from thesis.frontend.utils.format import format_ml_task_unit, format_simulation_timestamp
+from thesis.frontend.utils.format import format_simulation_timestamp, get_ml_task_unit
+
+
+def get_drift_state_color(drift_state: DriftState) -> str:
+    """
+    Get Bootstrap color for a drift state.
+
+    Args:
+        drift_state (DriftState): Drift state.
+
+    Returns:
+        str: Bootstrap color name.
+    """
+    color_map = {
+        DriftState.STABLE: "success",
+        DriftState.DRIFTED: "danger",
+        DriftState.RETRAINING: "warning",
+    }
+    return color_map[drift_state]
 
 
 def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
@@ -36,11 +54,13 @@ def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
         """
         try:
             if not ml_tasks:
-                return [html.Div("No predictors available")]
+                return [html.Div("No predictors available", className="text-muted mb-0")]
 
             cards = []
             for ml_task in ml_tasks:
                 cards.append(create_ml_task_card(ml_task))
+
+            cards[-1].className = "mb-0"
 
             return cards
 
@@ -63,7 +83,7 @@ def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
         """
         try:
             if not ml_tasks:
-                return [html.Div("No predictors available")]
+                return [html.Div("No predictors available", className="text-muted mb-0")]
 
             items = []
             for ml_task in ml_tasks:
@@ -76,33 +96,40 @@ def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
 
     @app.callback(
         Output({"type": "drift-state", "ml_task": MATCH}, "children"),
+        Output({"type": "drift-state", "ml_task": MATCH}, "color"),
+        Output({"type": "drift-state", "ml_task": MATCH}, "className"),
         Input("snapshot-store", "data"),
         State({"type": "drift-state", "ml_task": MATCH}, "id"),
     )
     def update_drift_label(
         snapshot_data: dict[str, SimulationState | int | dict[MLTask, DriftInfo]], component_id: dict[str, str]
-    ) -> DriftState:
+    ) -> tuple[str, str, str]:
         """
-        Update drift state label for a specific ML task.
+        Update drift state label, color, and className for a specific ML task.
 
         Args:
             snapshot_data (dict[str, SimulationState | int | dict[MLTask, DriftInfo]]): Snapshot data.
             component_id (dict[str, str]): Component ID.
 
         Returns:
-            DriftState: Drift state.
+            tuple[str, str, str]: Drift state, badge color, and className.
         """
         try:
             ml_task = component_id["ml_task"]
             drift_info = snapshot_data["drift_info"]
 
             if ml_task in drift_info:
-                return drift_info[ml_task]["state"]
+                state = DriftState(drift_info[ml_task]["state"])
+                color = get_drift_state_color(state)
+                state_text = state.value.capitalize()
+                state_text_class = "fs-6 text-dark" if state == DriftState.RETRAINING else "fs-6"
 
-            return no_update
+                return state_text, color, state_text_class
+
+            return no_update, no_update, no_update
 
         except Exception:
-            return no_update
+            return no_update, no_update, no_update
 
     @app.callback(
         Output({"type": "mae-chart", "ml_task": MATCH}, "figure"),
@@ -132,8 +159,12 @@ def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
             figure = go.Figure()
             figure.add_trace(go.Scatter(x=timestamps, y=mae_values, mode="lines+markers"))
             figure.update_layout(
-                yaxis_title=f"Mean Absolute Error ({format_ml_task_unit(ml_task)})",
-                xaxis_title="Day and Time",
+                yaxis_title=f"MAE ({get_ml_task_unit(ml_task)})",
+                margin=dict(l=40, r=10, t=10, b=40),
+                height=250,
+                yaxis=dict(rangemode="tozero"),
+                xaxis=dict(showticklabels=len(timestamps) > 0),
+                xaxis_title="Time",
             )
 
             return figure
