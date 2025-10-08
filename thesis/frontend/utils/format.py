@@ -1,7 +1,6 @@
 """Utility functions for formatting."""
 
 from thesis.common.enums import MLTask
-from thesis.common.schemas import Notification
 
 _ML_TASK_TITLES = {
     MLTask.ETA: "Estimated Time of Arrival",
@@ -28,15 +27,15 @@ def format_simulation_timestamp(timestamp: int) -> str:
     """
     day = (timestamp // 36000) + 1
     remaining_seconds = timestamp % 36000
-    hours = remaining_seconds // 3600
+    hours = (remaining_seconds // 3600) + 8
     minutes = (remaining_seconds % 3600) // 60
 
     return f"Day {day:02d} - {hours:02d}:{minutes:02d}"
 
 
-def format_ml_task_title(ml_task: MLTask | str) -> str:
+def get_ml_task_title(ml_task: MLTask | str) -> str:
     """
-    Format ML task to its full title.
+    Get the full title of an ML task.
 
     Args:
         ml_task (MLTask | str): ML task enum or string value.
@@ -50,9 +49,9 @@ def format_ml_task_title(ml_task: MLTask | str) -> str:
     return _ML_TASK_TITLES[ml_task]
 
 
-def format_ml_task_unit(ml_task: MLTask | str) -> str:
+def get_ml_task_unit(ml_task: MLTask | str) -> str:
     """
-    Get the unit for an ML task.
+    Get the unit of an ML task.
 
     Args:
         ml_task (MLTask | str): ML task enum or string value.
@@ -66,16 +65,25 @@ def format_ml_task_unit(ml_task: MLTask | str) -> str:
     return _ML_TASK_UNITS[ml_task]
 
 
-def format_notification_header(notification: Notification) -> str:
+def format_prediction_value(ml_task: MLTask | str, value: float) -> str:
     """
-    Format notification header with ML task, if present, and timestamp.
+    Format a prediction value based on the ML task.
 
     Args:
-        notification (Notification): Notification to format.
+        ml_task (MLTask | str): ML task enum or string value.
+        value (float): Prediction value.
 
     Returns:
-        str: Formatted header string.
+        str: Formatted prediction value with appropriate unit.
     """
-    timestamp_str = format_simulation_timestamp(notification.timestamp)
+    if isinstance(ml_task, str):
+        ml_task = MLTask(ml_task)
 
-    return f"{timestamp_str} - {notification.ml_task.upper()}" if notification.ml_task else timestamp_str
+    if ml_task == MLTask.ETA:
+        output = f"{value:.2f}"
+    elif ml_task == MLTask.FUEL:
+        output = f"{value:.2f}"
+    elif ml_task == MLTask.STOPS:
+        output = f"{int(value)}"
+
+    return f"{output} {_ML_TASK_UNITS[ml_task]}"
