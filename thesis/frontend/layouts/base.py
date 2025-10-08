@@ -1,5 +1,6 @@
 """Base layout with stores, intervals, and main structure."""
 
+import dash_bootstrap_components as dbc
 from dash import dcc, html
 
 from thesis.common.config import INTERVAL_SECONDS
@@ -29,25 +30,40 @@ def create_base_layout() -> html.Div:
             dcc.Store(id="user-source-store", data=None),
             dcc.Store(id="user-destination-store", data=None),
             dcc.Store(id="notifications-store", data=[]),
-            html.Header(
+            dbc.Container(
                 [
-                    html.H1("Platform"),
-                    dcc.Tabs(
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                html.H1("Platform", className="mt-3 mb-3"),
+                                width=12,
+                            ),
+                        ]
+                    ),
+                    dbc.Tabs(
                         id="main-tabs",
-                        value="admin",
+                        active_tab="admin",
+                        className="nav-justified w-100",
                         children=[
-                            dcc.Tab(label="Admin Dashboard", value="admin", children=[create_admin_layout()]),
-                            dcc.Tab(
+                            dbc.Tab(
+                                label="Admin Dashboard",
+                                tab_id="admin",
+                                activeTabClassName="fw-bold",
+                                children=[html.Div(create_admin_layout(), className="mt-3")],
+                            ),
+                            dbc.Tab(
                                 id="user-interface-tab",
                                 label="User Interface",
-                                value="user",
+                                tab_id="user",
+                                activeTabClassName="fw-bold",
                                 disabled=True,
-                                children=[create_user_layout()],
+                                children=[html.Div(create_user_layout(), className="mt-3")],
                             ),
                         ],
                     ),
                     html.Div(id="user-interface-tab-tooltip-container"),
-                ]
+                ],
+                fluid=True,
             ),
         ]
     )
