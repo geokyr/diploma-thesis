@@ -5,7 +5,7 @@ from dash import dcc, html
 
 from thesis.common.enums import DriftState, SimulationState
 from thesis.common.schemas import Notification
-from thesis.frontend.utils.format import format_notification_header
+from thesis.frontend.utils.format import format_ml_task_title, format_notification_header, format_simulation_timestamp
 
 
 def create_admin_layout() -> html.Div:
@@ -19,36 +19,53 @@ def create_admin_layout() -> html.Div:
         [
             dbc.Col(
                 [
-                    html.Div(
+                    dbc.Row(
                         [
-                            html.H2("Simulation"),
-                            dbc.Button("Start", id="button-start", n_clicks=0, disabled=True),
-                            dbc.Button("Pause", id="button-toggle", n_clicks=0, disabled=True),
-                            dbc.Button("Reset", id="button-reset", n_clicks=0, disabled=True),
-                            html.Div(["Status: ", html.Span(SimulationState.IDLE, id="simulation-state")]),
-                            html.Div(["Clock: ", html.Span(0, id="simulation-clock")]),
-                        ]
+                            dbc.Col(
+                                [
+                                    html.H4("Simulation Controls"),
+                                    dbc.Button("Start", id="button-start", n_clicks=0, disabled=True),
+                                    dbc.Button("Pause", id="button-toggle", n_clicks=0, disabled=True),
+                                    dbc.Button("Reset", id="button-reset", n_clicks=0, disabled=True),
+                                    # TODO: get default clock from store
+                                    html.Div(
+                                        [
+                                            html.Strong("Clock: "),
+                                            html.Span(format_simulation_timestamp(0), id="simulation-clock"),
+                                        ]
+                                    ),
+                                    # TODO: get default state from store
+                                    html.Div(
+                                        [
+                                            html.Strong("Status: "),
+                                            html.Span(SimulationState.IDLE, id="simulation-state"),
+                                        ]
+                                    ),
+                                ],
+                                width=6,
+                            ),
+                            dbc.Col(
+                                [
+                                    html.H4("Model Status"),
+                                    html.Div(id="ml-status-list", children=[html.Div("No predictors available")]),
+                                ],
+                                width=6,
+                            ),
+                        ],
                     ),
-                    html.Div(
-                        [
-                            html.H3("ML Tasks"),
-                            html.Div(id="ml-cards", children=[html.Div("No predictors available")]),
-                        ]
-                    ),
+                    html.Div(id="ml-cards", children=[html.Div("No predictors available")]),
                 ],
+                width=9,
             ),
             dbc.Col(
                 [
+                    html.H3("Notifications", style={"marginBottom": "1rem"}),
                     html.Div(
-                        [
-                            html.H3("Notifications", style={"marginBottom": "1rem"}),
-                            html.Div(
-                                id="notification-panel-content",
-                                children=[html.P("No notifications")],
-                            ),
-                        ],
-                    )
+                        id="notification-panel-content",
+                        children=[html.P("No notifications")],
+                    ),
                 ],
+                width=3,
             ),
         ],
     )
@@ -64,11 +81,35 @@ def create_ml_task_card(ml_task: str) -> html.Div:
     Returns:
         html.Div: Card component for the ML task.
     """
+    title = format_ml_task_title(ml_task)
+
     return html.Div(
         [
-            html.H4(ml_task),
-            html.Div(["Drift: ", html.Span(DriftState.STABLE, id={"type": "drift-state", "ml_task": ml_task})]),
-            dcc.Graph(id={"type": "mae-chart", "ml_task": ml_task}),
+            html.H4(title),
+            dcc.Graph(
+                id={"type": "mae-chart", "ml_task": ml_task},
+                config={"displayModeBar": False},
+            ),
+        ]
+    )
+
+
+def create_ml_status_item(ml_task: str) -> html.Div:
+    """
+    Create a status item for a single ML task.
+
+    Args:
+        ml_task (str): ML task name.
+
+    Returns:
+        html.Div: Status item component for the ML task.
+    """
+    title = format_ml_task_title(ml_task)
+
+    return html.Div(
+        [
+            html.Strong(f"{title}: "),
+            html.Span(DriftState.STABLE, id={"type": "drift-state", "ml_task": ml_task}),
         ]
     )
 

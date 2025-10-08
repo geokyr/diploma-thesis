@@ -6,8 +6,9 @@ from dash.dependencies import MATCH
 
 from thesis.common.enums import DriftState, MLTask, SimulationState
 from thesis.common.schemas import DriftInfo, MetricsResponse
-from thesis.frontend.layouts.admin import create_ml_task_card
+from thesis.frontend.layouts.admin import create_ml_status_item, create_ml_task_card
 from thesis.frontend.utils.api_client import APIClient
+from thesis.frontend.utils.format import format_ml_task_unit, format_simulation_timestamp
 
 
 def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
@@ -42,6 +43,33 @@ def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
                 cards.append(create_ml_task_card(ml_task))
 
             return cards
+
+        except Exception:
+            return no_update
+
+    @app.callback(
+        Output("ml-status-list", "children"),
+        Input("ml-tasks-store", "data"),
+    )
+    def render_status_list(ml_tasks: list[str]) -> list[html.Div]:
+        """
+        Dynamically render status items for each available ML task.
+
+        Args:
+            ml_tasks (list[str]): List of ML tasks.
+
+        Returns:
+            list[html.Div]: List of status items for each ML task.
+        """
+        try:
+            if not ml_tasks:
+                return [html.Div("No predictors available")]
+
+            items = []
+            for ml_task in ml_tasks:
+                items.append(create_ml_status_item(ml_task))
+
+            return items
 
         except Exception:
             return no_update
@@ -98,12 +126,15 @@ def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
             ml_task = MLTask(component_id["ml_task"])
             metrics: MetricsResponse = client.simulation_metrics(ml_task)
 
-            timestamps = [point.timestamp for point in metrics.metric_points]
+            timestamps = [format_simulation_timestamp(point.timestamp) for point in metrics.metric_points]
             mae_values = [point.mae for point in metrics.metric_points]
 
             figure = go.Figure()
-            figure.add_trace(go.Scatter(x=timestamps[::-1], y=mae_values[::-1], mode="lines+markers"))
-            figure.update_layout(yaxis_title="MAE (s)", xaxis_title="Time (s)")
+            figure.add_trace(go.Scatter(x=timestamps, y=mae_values, mode="lines+markers"))
+            figure.update_layout(
+                yaxis_title=f"Mean Absolute Error ({format_ml_task_unit(ml_task)})",
+                xaxis_title="Day and Time",
+            )
 
             return figure
 

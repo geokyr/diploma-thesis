@@ -5,6 +5,7 @@ from dash import Input, Output, State, ctx, dash, no_update
 from thesis.common.enums import MLTask, SimulationState
 from thesis.common.schemas import DriftInfo, SimulationSnapshot
 from thesis.frontend.utils.api_client import APIClient
+from thesis.frontend.utils.format import format_simulation_timestamp
 
 
 def register_simulation_callbacks(app: dash.Dash, client: APIClient) -> None:
@@ -164,18 +165,20 @@ def register_simulation_callbacks(app: dash.Dash, client: APIClient) -> None:
     )
     def update_snapshot(
         snapshot_data: dict[str, SimulationState | int | dict[MLTask, DriftInfo]],
-    ) -> tuple[SimulationState, int]:
+    ) -> tuple[SimulationState, str]:
         """Update the displayed simulation state and clock.
 
         Args:
             snapshot_data (dict[str, SimulationState | int | dict[MLTask, DriftInfo]]): Snapshot data.
 
         Returns:
-            tuple[SimulationState, int]: Simulation state and clock.
+            tuple[SimulationState, str]: Simulation state and formatted clock.
         """
         try:
             snapshot = SimulationSnapshot.model_validate(snapshot_data)
-            return snapshot.state, snapshot.clock
+            formatted_clock = format_simulation_timestamp(snapshot.clock)
+
+            return snapshot.state, formatted_clock
 
         except Exception:
             return no_update, no_update

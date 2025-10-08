@@ -8,6 +8,7 @@ from thesis.common.config import BBOX
 from thesis.common.enums import MLTask, SimulationState
 from thesis.common.schemas import DriftInfo, SimulationSnapshot
 from thesis.frontend.utils.api_client import APIClient
+from thesis.frontend.utils.format import format_ml_task_title, format_ml_task_unit
 
 
 def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
@@ -263,24 +264,6 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
         try:
             snapshot = SimulationSnapshot.model_validate(snapshot_data)
 
-            details = [
-                html.H4("Trip Information"),
-                html.Div(
-                    [
-                        html.Strong("Source: "),
-                        f"({source_data['latitude']:.6f}, {source_data['longitude']:.6f})",
-                    ]
-                ),
-                html.Div(
-                    [
-                        html.Strong("Destination: "),
-                        f"({destination_data['latitude']:.6f}, {destination_data['longitude']:.6f})",
-                    ]
-                ),
-                html.Div([html.Strong("Clock: "), f"{snapshot.clock} seconds"]),
-                html.Hr(),
-            ]
-
             try:
                 response = client.predict_trip(
                     source_latitude=source_data["latitude"],
@@ -290,15 +273,27 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
                     start_timestamp=snapshot.clock,
                 )
 
-                details.append(html.H4("Predictions"))
+                details = []
 
                 if not response.predictions:
                     details.append(html.Div("No predictions available. Predictor services may be unavailable."))
                 else:
-                    for ml_task, prediction_response in response.predictions.items():
-                        if prediction_response.prediction is not None:
-                            value = prediction_response.prediction
-                            details.append(html.Div([html.Strong(f"{ml_task}: "), f"{value}"]))
+                    ordered_tasks = [MLTask.ETA.value, MLTask.FUEL.value, MLTask.STOPS.value]
+                    for ml_task in ordered_tasks:
+                        if ml_task in response.predictions:
+                            prediction_response = response.predictions[ml_task]
+                            if prediction_response.prediction is not None:
+                                title = format_ml_task_title(ml_task)
+                                unit = format_ml_task_unit(ml_task)
+                                value = prediction_response.prediction
+                                details.append(
+                                    html.Div(
+                                        [
+                                            html.Strong(f"{title}: "),
+                                            f"{value:.2f} {unit}",
+                                        ]
+                                    )
+                                )
 
             except Exception:
                 return no_update
