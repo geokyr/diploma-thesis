@@ -50,6 +50,10 @@ def create_base_layout() -> html.Div:
                         id="main-tabs",
                         active_tab="admin",
                         className="nav-justified",
+                        style={
+                            "backgroundColor": "#f8f8f8",
+                            "padding": "10px 10px 0 10px",
+                        },
                         children=[
                             dbc.Tab(
                                 label="Admin Dashboard",
