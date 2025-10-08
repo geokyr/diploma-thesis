@@ -91,3 +91,18 @@ class DriftDetectorType(StrEnum):
     PAGE_HINKLEY = "page_hinkley"
     KSWIN = "kswin"
     SPC = "spc"
+
+
+class NotificationLevel(StrEnum):
+    """
+    Notification levels.
+
+    Attributes:
+        SUCCESS: Success level.
+        WARNING: Warning level.
+        DANGER: Danger level.
+    """
+
+    SUCCESS = "success"
+    WARNING = "warning"
+    DANGER = "danger"

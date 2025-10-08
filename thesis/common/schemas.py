@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, Field
 
-from thesis.common.enums import DriftState, MLTask, RetrainStatus, SimulationState
+from thesis.common.enums import DriftState, MLTask, NotificationLevel, RetrainStatus, SimulationState
 from thesis.common.service import PlatformService
 
 
@@ -136,9 +136,9 @@ class RecalibrateResponse(BaseModel):
 class Notification(BaseModel):
     """Notification for simulation events."""
 
-    id: str = Field(..., description="ID of the notification")
     timestamp: int = Field(..., description="Simulation timestamp of the notification")
     message: str = Field(..., description="Message of the notification")
+    level: NotificationLevel = Field(..., description="Level of the notification")
     ml_task: MLTask | None = Field(None, description="ML task of the notification")
 
 

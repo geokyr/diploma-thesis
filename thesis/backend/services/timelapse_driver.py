@@ -8,7 +8,7 @@ import httpx
 from thesis.backend.services.metrics_store import MetricsStore
 from thesis.backend.services.notification_store import NotificationStore
 from thesis.common.config import COLLECT_SECONDS, HTTP_CLIENT_TIMEOUT_SECONDS, INTERVAL_SECONDS, SPEED_MULTIPLIER
-from thesis.common.enums import DriftState, MLTask, RetrainStatus
+from thesis.common.enums import DriftState, MLTask, NotificationLevel, RetrainStatus
 from thesis.common.schemas import (
     DriftErrorsRequest,
     DriftErrorsResponse,
@@ -236,12 +236,14 @@ class TimelapseDriver:
             success = await self._recalibrate_drift_detectors(ml_task, post_adaptation_errors)
             info.state = DriftState.STABLE if success else DriftState.DRIFTED
             if success:
-                await self._notification_store.push(self.clock, "Model updated", ml_task)
+                await self._notification_store.push(self.clock, "Model updated", NotificationLevel.SUCCESS, ml_task)
             else:
-                await self._notification_store.push(self.clock, "Recalibration failed", ml_task)
+                await self._notification_store.push(
+                    self.clock, "Recalibration failed", NotificationLevel.DANGER, ml_task
+                )
         else:
             info.state = DriftState.DRIFTED
-            await self._notification_store.push(self.clock, "Retraining failed", ml_task)
+            await self._notification_store.push(self.clock, "Retraining failed", NotificationLevel.DANGER, ml_task)
 
         info.start_timestamp = None
         info.collecting = False
@@ -253,9 +255,13 @@ class TimelapseDriver:
             start_timestamp, end_timestamp = self._advance_clock()
 
             if start_timestamp == 0:
-                await self._notification_store.push(start_timestamp, "First day started with normal conditions")
+                await self._notification_store.push(
+                    start_timestamp, "First day started with normal conditions", NotificationLevel.SUCCESS
+                )
             elif start_timestamp == 36000:
-                await self._notification_store.push(start_timestamp, "Second day started with rain conditions")
+                await self._notification_store.push(
+                    start_timestamp, "Second day started with rain conditions", NotificationLevel.SUCCESS
+                )
 
             for ml_task in self.ml_tasks:
                 try:
@@ -280,7 +286,9 @@ class TimelapseDriver:
                     info.state = DriftState.DRIFTED
                     info.start_timestamp = end_timestamp
                     info.collecting = True
-                    await self._notification_store.push(end_timestamp, "Drift detected", ml_task)
+                    await self._notification_store.push(
+                        end_timestamp, "Drift detected", NotificationLevel.DANGER, ml_task
+                    )
 
                 if info.collecting and info.start_timestamp is not None:
                     data_collected = (end_timestamp - info.start_timestamp) >= self._collect_seconds
@@ -290,7 +298,9 @@ class TimelapseDriver:
                         start_timestamp = info.start_timestamp - self._collect_seconds
                         start_timestamp = 0 if start_timestamp < 0 else start_timestamp
 
-                        await self._notification_store.push(end_timestamp, "Retraining model", ml_task)
+                        await self._notification_store.push(
+                            end_timestamp, "Retraining model", NotificationLevel.WARNING, ml_task
+                        )
                         job_id = await self._start_retrain(ml_task, start_timestamp, end_timestamp)
 
                         if job_id:
@@ -301,7 +311,9 @@ class TimelapseDriver:
                             info.start_timestamp = None
                             info.collecting = False
                             info.job_id = None
-                            await self._notification_store.push(end_timestamp, "Retraining failed", ml_task)
+                            await self._notification_store.push(
+                                end_timestamp, "Retraining failed", NotificationLevel.DANGER, ml_task
+                            )
 
     async def reset(self) -> None:
         """Reset the timelapse driver."""

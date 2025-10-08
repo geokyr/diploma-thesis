@@ -2,10 +2,9 @@
 
 import asyncio
 from collections import deque
-from uuid import uuid4
 
 from thesis.common.config import NOTIFICATIONS_MAXLEN
-from thesis.common.enums import MLTask
+from thesis.common.enums import MLTask, NotificationLevel
 from thesis.common.schemas import Notification, NotificationFeed
 
 
@@ -16,21 +15,22 @@ class NotificationStore:
         self._store: deque[Notification] = deque(maxlen=NOTIFICATIONS_MAXLEN)
         self._lock: asyncio.Lock = asyncio.Lock()
 
-    async def push(self, timestamp: int, message: str, ml_task: MLTask | None = None) -> None:
+    async def push(self, timestamp: int, message: str, level: NotificationLevel, ml_task: MLTask | None = None) -> None:
         """
         Push a notification to the store.
 
         Args:
             timestamp (int): Simulation timestamp.
             message (str): Notification message.
+            level (NotificationLevel): Notification level.
             ml_task (MLTask | None): ML task, if applicable.
         """
         async with self._lock:
             self._store.append(
                 Notification(
-                    id=str(uuid4()),
                     timestamp=timestamp,
                     message=message,
+                    level=level,
                     ml_task=ml_task,
                 )
             )
