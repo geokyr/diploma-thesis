@@ -257,20 +257,19 @@ class TimelapseDriver:
             bool: True if simulation should continue, False if data has ended.
         """
         async with self._tick_lock:
-            start_timestamp, end_timestamp = self._advance_clock()
-
-            if end_timestamp >= 72000:
-                await self._notification_store.push(start_timestamp, "Data exhausted", NotificationLevel.SUCCESS)
+            if self.clock == 0:
+                await self._notification_store.push(
+                    self.clock, "First day started with normal conditions", NotificationLevel.SUCCESS
+                )
+            elif self.clock == 36000:
+                await self._notification_store.push(
+                    self.clock, "Second day started with rain conditions", NotificationLevel.SUCCESS
+                )
+            elif self.clock == 72000:
+                await self._notification_store.push(self.clock, "Data has beenexhausted", NotificationLevel.SUCCESS)
                 return False
 
-            if start_timestamp == 0:
-                await self._notification_store.push(
-                    start_timestamp, "First day started with normal conditions", NotificationLevel.SUCCESS
-                )
-            elif start_timestamp == 36000:
-                await self._notification_store.push(
-                    start_timestamp, "Second day started with rain conditions", NotificationLevel.SUCCESS
-                )
+            start_timestamp, end_timestamp = self._advance_clock()
 
             for ml_task in self.ml_tasks:
                 try:
