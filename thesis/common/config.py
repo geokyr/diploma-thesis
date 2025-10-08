@@ -176,7 +176,6 @@ class TimelapseConfig:
     collect_seconds: int
     metrics_maxlen: int
     notifications_maxlen: int
-    toast_duration_seconds: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -362,7 +361,6 @@ HTTP_CLIENT_TIMEOUT_SECONDS = CONFIG.timelapse.client_timeout_seconds
 COLLECT_SECONDS = CONFIG.timelapse.collect_seconds
 METRICS_MAXLEN = CONFIG.timelapse.metrics_maxlen
 NOTIFICATIONS_MAXLEN = CONFIG.timelapse.notifications_maxlen
-TOAST_DURATION_SECONDS = CONFIG.timelapse.toast_duration_seconds
 
 TIME_START_COLUMN = CONFIG.predictor.time_start_column
 DEFAULT_VERSION = CONFIG.predictor.default_version

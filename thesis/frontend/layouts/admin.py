@@ -3,7 +3,6 @@
 import dash_bootstrap_components as dbc
 from dash import dcc, html
 
-from thesis.common.config import TOAST_DURATION_SECONDS
 from thesis.common.enums import DriftState, SimulationState
 from thesis.common.schemas import Notification
 from thesis.frontend.utils.format import format_notification_header
@@ -16,34 +15,42 @@ def create_admin_layout() -> html.Div:
     Returns:
         html.Div: Complete admin dashboard layout.
     """
-    return html.Div(
+    return dbc.Row(
         [
-            html.Div(
+            dbc.Col(
                 [
-                    html.H2("Simulation"),
-                    dbc.Button("Start", id="button-start", n_clicks=0, disabled=True),
-                    dbc.Button("Pause", id="button-toggle", n_clicks=0, disabled=True),
-                    dbc.Button("Reset", id="button-reset", n_clicks=0, disabled=True),
-                    dbc.Button("Notifications", id="notification-panel-toggle", n_clicks=0),
-                    html.Div(["Status: ", html.Span(SimulationState.IDLE, id="simulation-state")]),
-                    html.Div(["Clock: ", html.Span(0, id="simulation-clock")]),
-                ]
+                    html.Div(
+                        [
+                            html.H2("Simulation"),
+                            dbc.Button("Start", id="button-start", n_clicks=0, disabled=True),
+                            dbc.Button("Pause", id="button-toggle", n_clicks=0, disabled=True),
+                            dbc.Button("Reset", id="button-reset", n_clicks=0, disabled=True),
+                            html.Div(["Status: ", html.Span(SimulationState.IDLE, id="simulation-state")]),
+                            html.Div(["Clock: ", html.Span(0, id="simulation-clock")]),
+                        ]
+                    ),
+                    html.Div(
+                        [
+                            html.H3("ML Tasks"),
+                            html.Div(id="ml-cards", children=[html.Div("No predictors available")]),
+                        ]
+                    ),
+                ],
             ),
-            html.Div(
+            dbc.Col(
                 [
-                    html.H3("ML Tasks"),
-                    html.Div(id="ml-cards", children=[html.Div("No predictors available")]),
-                ]
+                    html.Div(
+                        [
+                            html.H3("Notifications", style={"marginBottom": "1rem"}),
+                            html.Div(
+                                id="notification-panel-content",
+                                children=[html.P("No notifications")],
+                            ),
+                        ],
+                    )
+                ],
             ),
-            html.Div(id="toast-container"),
-            dbc.Offcanvas(
-                html.P("No notifications"),
-                id="notification-panel-content",
-                title="Notifications",
-                is_open=False,
-                placement="end",
-            ),
-        ]
+        ],
     )
 
 
@@ -84,26 +91,4 @@ def create_alert(notification: Notification) -> dbc.Alert:
             html.Br(),
             html.Small(header),
         ]
-    )
-
-
-def create_toast(notification: Notification) -> dbc.Toast:
-    """
-    Create a toast.
-
-    Args:
-        notification (Notification): Notification to display.
-
-    Returns:
-        dbc.Toast: Toast component.
-    """
-    header = format_notification_header(notification)
-
-    return dbc.Toast(
-        notification.message,
-        id={"type": "toast", "id": notification.id},
-        header=header,
-        is_open=True,
-        dismissable=True,
-        duration=TOAST_DURATION_SECONDS * 1000,
     )
