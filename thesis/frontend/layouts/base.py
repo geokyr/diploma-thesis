@@ -35,8 +35,14 @@ def create_base_layout() -> html.Div:
                     dbc.Row(
                         [
                             dbc.Col(
-                                html.H1("Platform", className="mt-3 mb-3"),
+                                html.H1("Drift-Aware ML Platform", className="mt-2 mb-2"),
                                 width=12,
+                            ),
+                            dbc.Col(
+                                html.P(
+                                    "A Simulated Real-Time Framework for Performance Monitoring and Model Inference under Concept Drift",
+                                    className="text-muted mb-2",
+                                )
                             ),
                         ]
                     ),
@@ -48,16 +54,18 @@ def create_base_layout() -> html.Div:
                             dbc.Tab(
                                 label="Admin Dashboard",
                                 tab_id="admin",
-                                activeTabClassName="fw-bold",
-                                children=[html.Div(create_admin_layout(), className="mt-3")],
+                                label_style={"font-size": "20px"},
+                                active_tab_class_name="fw-semibold",
+                                children=[html.Div(create_admin_layout(), className="mt-2")],
                             ),
                             dbc.Tab(
                                 id="user-interface-tab",
                                 label="User Interface",
                                 tab_id="user",
-                                activeTabClassName="fw-bold",
+                                label_style={"font-size": "20px"},
+                                active_tab_class_name="fw-semibold",
                                 disabled=True,
-                                children=[html.Div(create_user_layout(), className="mt-3")],
+                                children=[html.Div(create_user_layout(), className="mt-2")],
                             ),
                         ],
                     ),
