@@ -160,12 +160,16 @@ def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
             figure.add_trace(go.Scatter(x=timestamps, y=mae_values, mode="lines+markers"))
             figure.update_layout(
                 template="seaborn",
+                xaxis_title="Time",
                 yaxis_title=f"MAE ({get_ml_task_unit(ml_task)})",
+                xaxis=dict(
+                    showticklabels=len(timestamps) > 0,
+                    tickangle=-15,
+                    nticks=10,
+                ),
+                yaxis=dict(showticklabels=len(mae_values) > 0),
                 margin=dict(l=40, r=10, t=10, b=40),
                 height=250,
-                yaxis=dict(rangemode="tozero"),
-                xaxis=dict(showticklabels=len(timestamps) > 0),
-                xaxis_title="Time",
             )
 
             return figure
