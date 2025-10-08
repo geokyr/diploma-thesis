@@ -59,7 +59,7 @@ def register_notification_callbacks(app: dash.Dash, client: APIClient) -> None:
         """
         try:
             if not notifications_data:
-                return [html.P("No notifications")]
+                return [html.P("No notifications", className="text-muted mb-0")]
 
             notifications = [Notification.model_validate(n) for n in notifications_data]
             notification_items = [create_alert(notification) for notification in reversed(notifications)]
