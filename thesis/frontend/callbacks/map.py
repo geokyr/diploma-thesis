@@ -63,7 +63,10 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
 
             tooltip = (
                 dbc.Tooltip(
-                    "Start a simulation and pause it to access the User Interface",
+                    [
+                        html.I(className="bi bi-info-circle-fill me-1"),
+                        "Start a simulation and pause it to access the User Interface",
+                    ],
                     target="user-interface-tab",
                     placement="top",
                 )
