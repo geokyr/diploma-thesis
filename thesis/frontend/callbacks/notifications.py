@@ -1,16 +1,13 @@
 """Callbacks for notification polling and display."""
 
-import logging
-
 import dash_bootstrap_components as dbc
-from dash import Input, Output, dash, html, no_update
+from dash import Input, Output, dash, no_update
 
 from thesis.common.enums import MLTask
 from thesis.common.schemas import Notification
 from thesis.frontend.layouts.admin import create_alert
 from thesis.frontend.utils.api_client import APIClient
-
-logger = logging.getLogger(__name__)
+from thesis.frontend.utils.constants import EMPTY_NOTIFICATIONS
 
 
 def register_notification_callbacks(app: dash.Dash, client: APIClient) -> None:
@@ -26,7 +23,7 @@ def register_notification_callbacks(app: dash.Dash, client: APIClient) -> None:
         Output("notifications-store", "data"),
         Input("simulation-interval", "n_intervals"),
     )
-    def poll_notifications(n_intervals: int) -> list[dict[str, str | int | MLTask | None]]:
+    def poll_notifications(n_intervals: int) -> list[dict[str, int | str | MLTask | None]]:
         """
         Poll backend for all notifications.
 
@@ -34,7 +31,7 @@ def register_notification_callbacks(app: dash.Dash, client: APIClient) -> None:
             n_intervals (int): Number of intervals triggered.
 
         Returns:
-            list[dict[str, str | int | MLTask | None]]: Notifications list.
+            list[dict[str, int | str | MLTask | None]]: Notifications list.
         """
         try:
             notification_feed = client.simulation_notifications()
@@ -47,19 +44,19 @@ def register_notification_callbacks(app: dash.Dash, client: APIClient) -> None:
         Output("notification-panel-content", "children"),
         Input("notifications-store", "data"),
     )
-    def update_notification_panel(notifications_data: list[dict[str, str | int | MLTask | None]]) -> list[dbc.Alert]:
+    def update_notification_panel(notifications_data: list[dict[str, int | str | MLTask | None]]) -> list[dbc.Alert]:
         """
         Update the notification panel content.
 
         Args:
-            notifications_data (list[dict[str, str | int | MLTask | None]]): List of notification data.
+            notifications_data (list[dict[str, int | str | MLTask | None]]): List of notification data.
 
         Returns:
             list[dbc.Alert]: Panel content.
         """
         try:
             if not notifications_data:
-                return [html.P("No notifications", className="text-muted mb-0")]
+                return EMPTY_NOTIFICATIONS
 
             notifications = [Notification.model_validate(n) for n in notifications_data]
             notification_items = [create_alert(notification) for notification in reversed(notifications)]

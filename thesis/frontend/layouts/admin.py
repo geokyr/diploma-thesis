@@ -5,6 +5,7 @@ from dash import dcc, html
 
 from thesis.common.enums import DriftState, SimulationState
 from thesis.common.schemas import Notification
+from thesis.frontend.utils.constants import EMPTY_NOTIFICATIONS, EMPTY_PREDICTORS
 from thesis.frontend.utils.formatting import format_simulation_timestamp, get_ml_task_icon, get_ml_task_title
 
 
@@ -129,9 +130,7 @@ def create_admin_layout() -> dbc.Row:
                                             [
                                                 html.Div(
                                                     id="ml-status-list",
-                                                    children=[
-                                                        html.P("No predictors available", className="text-muted mb-0")
-                                                    ],
+                                                    children=EMPTY_PREDICTORS,
                                                     className="d-flex align-items-center justify-content-around h-100",
                                                 )
                                             ],
@@ -144,7 +143,7 @@ def create_admin_layout() -> dbc.Row:
                         ],
                         className="mb-2",
                     ),
-                    html.Div(id="ml-cards", children=[html.P("No predictors available", className="text-muted mb-0")]),
+                    html.Div(id="ml-cards", children=EMPTY_PREDICTORS),
                 ],
                 width=9,
             ),
@@ -159,7 +158,7 @@ def create_admin_layout() -> dbc.Row:
                         ),
                         dbc.CardBody(
                             id="notification-panel-content",
-                            children=[html.P("No notifications", className="text-muted mb-0")],
+                            children=EMPTY_NOTIFICATIONS,
                             className="overflow-y-auto h-100",
                         ),
                     ],
