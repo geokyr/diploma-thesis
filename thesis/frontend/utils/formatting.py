@@ -14,23 +14,11 @@ _ML_TASK_UNITS = {
     MLTask.STOPS: "stops",
 }
 
-
-def format_simulation_timestamp(timestamp: int) -> str:
-    """
-    Format simulation timestamp.
-
-    Args:
-        timestamp (int): Simulation timestamp in seconds.
-
-    Returns:
-        str: Formatted timestamp string in "Day X HH:MM" format.
-    """
-    day = (timestamp // 36000) + 1
-    remaining_seconds = timestamp % 36000
-    hours = (remaining_seconds // 3600) + 8
-    minutes = (remaining_seconds % 3600) // 60
-
-    return f"Day {day:02d} - {hours:02d}:{minutes:02d}"
+_ML_TASK_ICONS = {
+    MLTask.ETA: "bi-clock-fill",
+    MLTask.FUEL: "bi-fuel-pump-fill",
+    MLTask.STOPS: "bi-stoplights-fill",
+}
 
 
 def get_ml_task_title(ml_task: MLTask | str) -> str:
@@ -63,6 +51,40 @@ def get_ml_task_unit(ml_task: MLTask | str) -> str:
         ml_task = MLTask(ml_task)
 
     return _ML_TASK_UNITS[ml_task]
+
+
+def get_ml_task_icon(ml_task: MLTask | str) -> str:
+    """
+    Get the icon of an ML task.
+
+    Args:
+        ml_task (MLTask | str): ML task enum or string value.
+
+    Returns:
+        str: Icon for the ML task.
+    """
+    if isinstance(ml_task, str):
+        ml_task = MLTask(ml_task)
+
+    return _ML_TASK_ICONS[ml_task]
+
+
+def format_simulation_timestamp(timestamp: int) -> str:
+    """
+    Format simulation timestamp.
+
+    Args:
+        timestamp (int): Simulation timestamp in seconds.
+
+    Returns:
+        str: Formatted timestamp string in "Day X HH:MM" format.
+    """
+    day = (timestamp // 36000) + 1
+    remaining_seconds = timestamp % 36000
+    hours = (remaining_seconds // 3600) + 8
+    minutes = (remaining_seconds % 3600) // 60
+
+    return f"Day {day:02d} - {hours:02d}:{minutes:02d}"
 
 
 def format_prediction_value(ml_task: MLTask | str, value: float) -> str:
