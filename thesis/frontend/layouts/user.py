@@ -5,6 +5,8 @@ import dash_leaflet as dl
 from dash import html
 
 from thesis.common.config import BBOX
+from thesis.common.enums import MLTask
+from thesis.frontend.utils.formatting import get_ml_task_icon
 
 
 def create_user_layout() -> dbc.Row:
@@ -147,58 +149,7 @@ def create_user_layout() -> dbc.Row:
                             ),
                             dbc.CardBody(
                                 id="prediction-output",
-                                children=[
-                                    dbc.Row(
-                                        [
-                                            dbc.Col(
-                                                [
-                                                    html.I(className="bi bi-clock-fill me-2"),
-                                                    html.Span("Estimated Time of Arrival", className="fw-semibold"),
-                                                ],
-                                                width=8,
-                                                className="d-flex align-items-center",
-                                            ),
-                                            dbc.Col(
-                                                html.Span("-", id="prediction-eta", className="text-end d-block"),
-                                                width=4,
-                                            ),
-                                        ],
-                                        className="mb-2",
-                                    ),
-                                    dbc.Row(
-                                        [
-                                            dbc.Col(
-                                                [
-                                                    html.I(className="bi bi-fuel-pump-fill me-2"),
-                                                    html.Span("Fuel Consumption", className="fw-semibold"),
-                                                ],
-                                                width=8,
-                                                className="d-flex align-items-center",
-                                            ),
-                                            dbc.Col(
-                                                html.Span("-", id="prediction-fuel", className="text-end d-block"),
-                                                width=4,
-                                            ),
-                                        ],
-                                        className="mb-2",
-                                    ),
-                                    dbc.Row(
-                                        [
-                                            dbc.Col(
-                                                [
-                                                    html.I(className="bi bi-stoplights-fill me-2"),
-                                                    html.Span("Number of Stops", className="fw-semibold"),
-                                                ],
-                                                width=8,
-                                                className="d-flex align-items-center",
-                                            ),
-                                            dbc.Col(
-                                                html.Span("-", id="prediction-stops", className="text-end d-block"),
-                                                width=4,
-                                            ),
-                                        ],
-                                    ),
-                                ],
+                                children=create_prediction_output(),
                             ),
                         ],
                     ),
@@ -240,3 +191,69 @@ def create_user_layout() -> dbc.Row:
             ),
         ],
     )
+
+
+def create_prediction_output(eta_value: str = "-", fuel_value: str = "-", stops_value: str = "-") -> list[dbc.Row]:
+    """
+    Create the prediction output layout with the given values.
+
+    Args:
+        eta_value (str): ETA value to display.
+        fuel_value (str): Fuel consumption value to display.
+        stops_value (str): Number of stops value to display.
+
+    Returns:
+        list[dbc.Row]: List of rows showing prediction labels with values.
+    """
+    return [
+        dbc.Row(
+            [
+                dbc.Col(
+                    [
+                        html.I(className=f"bi {get_ml_task_icon(MLTask.ETA)} me-2"),
+                        html.Span("Estimated Time of Arrival", className="fw-semibold"),
+                    ],
+                    width=8,
+                    className="d-flex align-items-center",
+                ),
+                dbc.Col(
+                    html.Span(eta_value, id="prediction-eta", className="text-end d-block"),
+                    width=4,
+                ),
+            ],
+            className="mb-2",
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    [
+                        html.I(className=f"bi {get_ml_task_icon(MLTask.FUEL)} me-2"),
+                        html.Span("Fuel Consumption", className="fw-semibold"),
+                    ],
+                    width=8,
+                    className="d-flex align-items-center",
+                ),
+                dbc.Col(
+                    html.Span(fuel_value, id="prediction-fuel", className="text-end d-block"),
+                    width=4,
+                ),
+            ],
+            className="mb-2",
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    [
+                        html.I(className=f"bi {get_ml_task_icon(MLTask.STOPS)} me-2"),
+                        html.Span("Number of Stops", className="fw-semibold"),
+                    ],
+                    width=8,
+                    className="d-flex align-items-center",
+                ),
+                dbc.Col(
+                    html.Span(stops_value, id="prediction-stops", className="text-end d-block"),
+                    width=4,
+                ),
+            ],
+        ),
+    ]

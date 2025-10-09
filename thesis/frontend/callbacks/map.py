@@ -7,8 +7,9 @@ from dash import Input, Output, State, ctx, dash, html, no_update
 from thesis.common.config import BBOX
 from thesis.common.enums import MLTask, SimulationState
 from thesis.common.schemas import DriftInfo, SimulationSnapshot
+from thesis.frontend.layouts.user import create_prediction_output
 from thesis.frontend.utils.api_client import APIClient
-from thesis.frontend.utils.format import format_prediction_value
+from thesis.frontend.utils.formatting import format_prediction_value
 
 
 def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
@@ -34,7 +35,7 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
             active_tab (str): Currently active tab ID.
 
         Returns:
-            int: Timestamp to force invalidateSize trigger.
+            int: Number to force invalidateSize trigger.
         """
         return 1 if current_invalidate_size == 0 else 0
 
@@ -64,7 +65,7 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
             tooltip = (
                 dbc.Tooltip(
                     [
-                        html.I(className="bi bi-info-circle-fill me-1"),
+                        html.I(className="bi bi-info-circle-fill me-2"),
                         "Start a simulation and pause it to access the User Interface",
                     ],
                     target="user-interface-tab",
@@ -110,63 +111,10 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
         Returns:
             tuple[dict[str, float] | None, dict[str, float] | None, html.P]: Updated source, destination, and prediction output.
         """
-        default_prediction_output = [
-            dbc.Row(
-                [
-                    dbc.Col(
-                        [
-                            html.I(className="bi bi-clock-fill me-2"),
-                            html.Span("Estimated Time of Arrival", className="fw-semibold"),
-                        ],
-                        width=8,
-                        className="d-flex align-items-center",
-                    ),
-                    dbc.Col(
-                        html.Span("-", id="prediction-eta", className="text-end d-block"),
-                        width=4,
-                    ),
-                ],
-                className="mb-2",
-            ),
-            dbc.Row(
-                [
-                    dbc.Col(
-                        [
-                            html.I(className="bi bi-fuel-pump-fill me-2"),
-                            html.Span("Fuel Consumption", className="fw-semibold"),
-                        ],
-                        width=8,
-                        className="d-flex align-items-center",
-                    ),
-                    dbc.Col(
-                        html.Span("-", id="prediction-fuel", className="text-end d-block"),
-                        width=4,
-                    ),
-                ],
-                className="mb-2",
-            ),
-            dbc.Row(
-                [
-                    dbc.Col(
-                        [
-                            html.I(className="bi bi-stoplights-fill me-2"),
-                            html.Span("Number of Stops", className="fw-semibold"),
-                        ],
-                        width=8,
-                        className="d-flex align-items-center",
-                    ),
-                    dbc.Col(
-                        html.Span("-", id="prediction-stops", className="text-end d-block"),
-                        width=4,
-                    ),
-                ],
-            ),
-        ]
-
         try:
             trigger = ctx.triggered_id
             if trigger == "button-clear":
-                return None, None, default_prediction_output
+                return None, None, create_prediction_output()
 
             if not click_data or "latlng" not in click_data:
                 return no_update, no_update, no_update
@@ -348,7 +296,6 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
                     start_timestamp=snapshot.clock,
                 )
 
-                # Extract predictions or use defaults
                 eta_value = "-"
                 fuel_value = "-"
                 stops_value = "-"
@@ -369,58 +316,7 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
                         if pred.prediction is not None:
                             stops_value = format_prediction_value(MLTask.STOPS, pred.prediction)
 
-                return [
-                    dbc.Row(
-                        [
-                            dbc.Col(
-                                [
-                                    html.I(className="bi bi-clock-fill me-2"),
-                                    html.Span("Estimated Time of Arrival", className="fw-semibold"),
-                                ],
-                                width=8,
-                                className="d-flex align-items-center",
-                            ),
-                            dbc.Col(
-                                html.Span(eta_value, id="prediction-eta", className="text-end d-block"),
-                                width=4,
-                            ),
-                        ],
-                        className="mb-2",
-                    ),
-                    dbc.Row(
-                        [
-                            dbc.Col(
-                                [
-                                    html.I(className="bi bi-fuel-pump-fill me-2"),
-                                    html.Span("Fuel Consumption", className="fw-semibold"),
-                                ],
-                                width=8,
-                                className="d-flex align-items-center",
-                            ),
-                            dbc.Col(
-                                html.Span(fuel_value, id="prediction-fuel", className="text-end d-block"),
-                                width=4,
-                            ),
-                        ],
-                        className="mb-2",
-                    ),
-                    dbc.Row(
-                        [
-                            dbc.Col(
-                                [
-                                    html.I(className="bi bi-stoplights-fill me-2"),
-                                    html.Span("Number of Stops", className="fw-semibold"),
-                                ],
-                                width=8,
-                                className="d-flex align-items-center",
-                            ),
-                            dbc.Col(
-                                html.Span(stops_value, id="prediction-stops", className="text-end d-block"),
-                                width=4,
-                            ),
-                        ],
-                    ),
-                ]
+                return create_prediction_output(eta_value=eta_value, fuel_value=fuel_value, stops_value=stops_value)
 
             except Exception:
                 return no_update
