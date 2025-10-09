@@ -43,36 +43,32 @@ def create_user_layout() -> dbc.Row:
                                                     html.Label(
                                                         "Latitude", className="small text-muted text-center d-block"
                                                     ),
-                                                    html.Div(
-                                                        dbc.Badge(
-                                                            "-",
-                                                            id="source-latitude",
-                                                            color="light",
-                                                            className="fs-6 text-dark",
-                                                            pill=True,
-                                                        ),
-                                                        className="text-center",
+                                                    dbc.Badge(
+                                                        "-",
+                                                        id="source-latitude",
+                                                        color="light",
+                                                        className="fs-6 text-dark",
+                                                        pill=True,
                                                     ),
                                                 ],
                                                 width=6,
+                                                className="text-center",
                                             ),
                                             dbc.Col(
                                                 [
                                                     html.Label(
                                                         "Longitude", className="small text-muted text-center d-block"
                                                     ),
-                                                    html.Div(
-                                                        dbc.Badge(
-                                                            "-",
-                                                            id="source-longitude",
-                                                            color="light",
-                                                            className="fs-6 text-dark",
-                                                            pill=True,
-                                                        ),
-                                                        className="text-center",
+                                                    dbc.Badge(
+                                                        "-",
+                                                        id="source-longitude",
+                                                        color="light",
+                                                        className="fs-6 text-dark",
+                                                        pill=True,
                                                     ),
                                                 ],
                                                 width=6,
+                                                className="text-center",
                                             ),
                                         ],
                                         className="mb-2",
@@ -85,36 +81,32 @@ def create_user_layout() -> dbc.Row:
                                                     html.Label(
                                                         "Latitude", className="small text-muted text-center d-block"
                                                     ),
-                                                    html.Div(
-                                                        dbc.Badge(
-                                                            "-",
-                                                            id="destination-latitude",
-                                                            color="light",
-                                                            className="fs-6 text-dark",
-                                                            pill=True,
-                                                        ),
-                                                        className="text-center",
+                                                    dbc.Badge(
+                                                        "-",
+                                                        id="destination-latitude",
+                                                        color="light",
+                                                        className="fs-6 text-dark",
+                                                        pill=True,
                                                     ),
                                                 ],
                                                 width=6,
+                                                className="text-center",
                                             ),
                                             dbc.Col(
                                                 [
                                                     html.Label(
                                                         "Longitude", className="small text-muted text-center d-block"
                                                     ),
-                                                    html.Div(
-                                                        dbc.Badge(
-                                                            "-",
-                                                            id="destination-longitude",
-                                                            color="light",
-                                                            className="fs-6 text-dark",
-                                                            pill=True,
-                                                        ),
-                                                        className="text-center",
+                                                    dbc.Badge(
+                                                        "-",
+                                                        id="destination-longitude",
+                                                        color="light",
+                                                        className="fs-6 text-dark",
+                                                        pill=True,
                                                     ),
                                                 ],
                                                 width=6,
+                                                className="text-center",
                                             ),
                                         ],
                                         className="mb-2",
@@ -123,20 +115,14 @@ def create_user_layout() -> dbc.Row:
                                     html.Div(
                                         [
                                             dbc.Button(
-                                                html.Span(
-                                                    [html.I(className="bi bi-trash-fill me-2"), "Clear"],
-                                                    className="d-flex align-items-center",
-                                                ),
+                                                [html.I(className="bi bi-trash-fill me-2"), "Clear"],
                                                 id="button-clear",
                                                 color="secondary",
                                                 className="fw-semibold me-2",
                                                 n_clicks=0,
                                             ),
                                             dbc.Button(
-                                                html.Span(
-                                                    [html.I(className="bi bi-send-fill me-2"), "Predict"],
-                                                    className="d-flex align-items-center",
-                                                ),
+                                                [html.I(className="bi bi-send-fill me-2"), "Predict"],
                                                 id="button-predict",
                                                 color="primary",
                                                 className="fw-semibold",
@@ -144,7 +130,7 @@ def create_user_layout() -> dbc.Row:
                                                 disabled=True,
                                             ),
                                         ],
-                                        className="d-flex align-items-center justify-content-center",
+                                        className="text-center",
                                     ),
                                 ]
                             ),
