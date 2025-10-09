@@ -1,6 +1,6 @@
 """Utility functions for formatting."""
 
-from thesis.common.enums import DriftState, MLTask
+from thesis.common.enums import DriftState, MLTask, SimulationState
 
 _ML_TASK_TITLES = {
     MLTask.ETA: "Estimated Time of Arrival",
@@ -24,6 +24,12 @@ _DRIFT_STATE_COLORS = {
     DriftState.STABLE: "success",
     DriftState.DRIFTED: "danger",
     DriftState.RETRAINING: "warning",
+}
+
+_SIMULATION_STATE_COLORS = {
+    SimulationState.IDLE: "secondary",
+    SimulationState.RUNNING: "success",
+    SimulationState.PAUSED: "warning",
 }
 
 
@@ -89,6 +95,22 @@ def get_drift_state_color(drift_state: DriftState | str) -> str:
         drift_state = DriftState(drift_state)
 
     return _DRIFT_STATE_COLORS[drift_state]
+
+
+def get_simulation_state_color(simulation_state: SimulationState | str) -> str:
+    """
+    Get the color of a simulation state.
+
+    Args:
+        simulation_state (SimulationState | str): Simulation state or string value.
+
+    Returns:
+        str: Color for the simulation state.
+    """
+    if isinstance(simulation_state, str):
+        simulation_state = SimulationState(simulation_state)
+
+    return _SIMULATION_STATE_COLORS[simulation_state]
 
 
 def format_simulation_timestamp(timestamp: int) -> str:

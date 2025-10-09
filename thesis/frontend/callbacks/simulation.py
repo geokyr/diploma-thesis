@@ -5,25 +5,7 @@ from dash import Input, Output, State, ctx, dash, html, no_update
 from thesis.common.enums import MLTask, SimulationState
 from thesis.common.schemas import DriftInfo, SimulationSnapshot
 from thesis.frontend.utils.api_client import APIClient
-from thesis.frontend.utils.format import format_simulation_timestamp
-
-
-def get_simulation_state_color(sim_state: SimulationState) -> str:
-    """
-    Get Bootstrap color for a simulation state.
-
-    Args:
-        sim_state (SimulationState): Simulation state.
-
-    Returns:
-        str: Bootstrap color name.
-    """
-    color_map = {
-        SimulationState.IDLE: "secondary",
-        SimulationState.RUNNING: "success",
-        SimulationState.PAUSED: "warning",
-    }
-    return color_map.get(sim_state, "secondary")
+from thesis.frontend.utils.formatting import format_simulation_timestamp, get_simulation_state_color
 
 
 def register_simulation_callbacks(app: dash.Dash, client: APIClient) -> None:
@@ -77,7 +59,8 @@ def register_simulation_callbacks(app: dash.Dash, client: APIClient) -> None:
         prevent_initial_call=True,
     )
     def update_event(n_start: int, n_toggle: int, n_reset: int) -> str:
-        """Capture which button was clicked and store the event.
+        """
+        Capture which button was clicked and store the event.
 
         Args:
             n_start (int): Number of clicks on the start button.
@@ -149,7 +132,7 @@ def register_simulation_callbacks(app: dash.Dash, client: APIClient) -> None:
     )
     def update_buttons(
         snapshot_data: dict[str, SimulationState | int | dict[MLTask, DriftInfo]], ml_tasks: list[str]
-    ) -> tuple[bool, html.Span, bool, bool]:
+    ) -> tuple[bool, list[html.I | str], bool, bool]:
         """
         Update button states based on simulation state.
 
@@ -158,21 +141,18 @@ def register_simulation_callbacks(app: dash.Dash, client: APIClient) -> None:
             ml_tasks (list[str]): List of ML tasks.
 
         Returns:
-            tuple[bool, html.Span, bool, bool]: Flag for start button disabling, children for toggle button, flag for toggle button disabling, flag for reset button disabling.
+            tuple[bool, list[html.I | str], bool, bool]: Flag for start button disabling, children for toggle button, flag for toggle button disabling, flag for reset button disabling.
         """
         try:
             snapshot = SimulationSnapshot.model_validate(snapshot_data)
             is_idle = snapshot.state == SimulationState.IDLE
             is_paused = snapshot.state == SimulationState.PAUSED
             no_tasks_available = not ml_tasks
+            toggle_label = "Resume" if is_paused else "Pause"
+            toggle_icon = "bi bi-play-fill me-2" if is_paused else "bi bi-pause-fill me-2"
 
             start_disabled = (not is_idle) or no_tasks_available
-            toggle_label = "Resume" if is_paused else "Pause"
-            toggle_icon = "bi bi-play-fill me-1" if is_paused else "bi bi-pause-fill me-1"
-            toggle_children = html.Span(
-                [html.I(className=toggle_icon), toggle_label],
-                className="d-flex align-items-center",
-            )
+            toggle_children = [html.I(className=toggle_icon), toggle_label]
             toggle_disabled = is_idle
             reset_disabled = is_idle
 
@@ -184,30 +164,29 @@ def register_simulation_callbacks(app: dash.Dash, client: APIClient) -> None:
     @app.callback(
         Output("simulation-state", "children"),
         Output("simulation-state", "color"),
-        Output("simulation-state", "className"),
         Output("simulation-clock", "children"),
         Input("snapshot-store", "data"),
     )
     def update_snapshot(
         snapshot_data: dict[str, SimulationState | int | dict[MLTask, DriftInfo]],
-    ) -> tuple[str, str, str, str]:
-        """Update the displayed simulation state, badge color, className, and clock.
+    ) -> tuple[str, str, str]:
+        """
+        Update the displayed simulation state, badge color, and clock.
 
         Args:
             snapshot_data (dict[str, SimulationState | int | dict[MLTask, DriftInfo]]): Snapshot data.
 
         Returns:
-            tuple[str, str, str, str]: Simulation state, badge color, className, and formatted clock.
+            tuple[str, str, str]: Simulation state, badge color, and formatted clock.
         """
         try:
             snapshot = SimulationSnapshot.model_validate(snapshot_data)
+
+            state_text = snapshot.state.value.capitalize()
+            state_color = get_simulation_state_color(snapshot.state)
             formatted_clock = format_simulation_timestamp(snapshot.clock)
 
-            state_color = get_simulation_state_color(snapshot.state)
-            state_text = snapshot.state.value.capitalize()
-            state_text_class = "fs-6 text-dark" if snapshot.state == SimulationState.PAUSED else "fs-6"
-
-            return state_text, state_color, state_text_class, formatted_clock
+            return state_text, state_color, formatted_clock
 
         except Exception:
-            return no_update, no_update, no_update, no_update
+            return no_update, no_update, no_update
