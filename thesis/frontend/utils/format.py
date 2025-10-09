@@ -82,6 +82,7 @@ def format_prediction_value(ml_task: MLTask | str, value: float) -> str:
     if ml_task == MLTask.ETA:
         seconds = int(value)
         minutes = seconds // 60
+        seconds = seconds % 60
         return f"{minutes:02d}m {seconds:02d}s"
 
     elif ml_task == MLTask.FUEL:
