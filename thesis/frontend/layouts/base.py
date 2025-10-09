@@ -33,43 +33,37 @@ def create_base_layout() -> html.Div:
             dbc.Container(
                 [
                     dbc.Row(
-                        [
-                            dbc.Col(
-                                html.H1("Drift-Aware ML Platform", className="mt-2 mb-2"),
-                                width=12,
-                            ),
-                            dbc.Col(
-                                html.P(
-                                    "A Simulated Real-Time Framework for Performance Monitoring and Model Inference under Concept Drift",
-                                    className="text-muted mb-2",
-                                )
-                            ),
-                        ]
+                        html.H1(
+                            "Drift-Aware ML Platform",
+                            className="mt-2 mb-2",
+                        ),
+                    ),
+                    dbc.Row(
+                        html.P(
+                            "A Simulated Real-Time Framework for Performance Monitoring and Model Inference under Concept Drift",
+                            className="text-muted mb-2",
+                        ),
                     ),
                     dbc.Tabs(
                         id="main-tabs",
                         active_tab="admin",
-                        className="nav-justified",
-                        style={
-                            "backgroundColor": "#f8f8f8",
-                            "padding": "10px 10px 0 10px",
-                        },
+                        className="nav-justified bg-light px-3 pt-3",
                         children=[
                             dbc.Tab(
                                 label="Admin Dashboard",
                                 tab_id="admin",
-                                label_style={"font-size": "20px"},
+                                label_class_name="fs-5",
                                 active_tab_class_name="fw-semibold",
                                 children=[html.Div(create_admin_layout(), className="mt-2")],
                             ),
                             dbc.Tab(
-                                id="user-interface-tab",
                                 label="User Interface",
                                 tab_id="user",
-                                label_style={"font-size": "20px"},
+                                label_class_name="fs-5",
                                 active_tab_class_name="fw-semibold",
-                                disabled=True,
                                 children=[html.Div(create_user_layout(), className="mt-2")],
+                                id="user-interface-tab",
+                                disabled=True,
                             ),
                         ],
                     ),
