@@ -133,6 +133,18 @@ class RecalibrateResponse(BaseModel):
     success: bool = Field(..., description="Whether the recalibration was successful")
 
 
+class DriftResetRequest(BaseModel):
+    """Request for resetting drift detection."""
+
+    ml_tasks: list[MLTask] = Field(..., description="List of ML tasks to reset drift detection for")
+
+
+class DriftResetResponse(BaseModel):
+    """Response for resetting drift detection."""
+
+    success: bool = Field(..., description="Whether the reset was successful")
+
+
 class Notification(BaseModel):
     """Notification for simulation events."""
 

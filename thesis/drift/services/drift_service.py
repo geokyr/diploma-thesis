@@ -8,7 +8,7 @@ from pathlib import Path
 
 from thesis.common.config import CONSENSUS_THRESHOLD, GRACE_PERIOD_SAMPLES, SMOOTHING_WINDOW_SAMPLES
 from thesis.common.enums import DriftDetectorType, DriftState, MLTask
-from thesis.common.schemas import DriftErrorsResponse, ErrorPoint, RecalibrateResponse
+from thesis.common.schemas import DriftErrorsResponse, DriftResetResponse, ErrorPoint, RecalibrateResponse
 from thesis.drift.services.detector_manager import DetectorManager
 
 logger = logging.getLogger(__name__)
@@ -176,18 +176,23 @@ class DriftService:
                 start_timestamp=snapshot.start_timestamp,
             )
 
-    async def reset_task(self, ml_task: MLTask) -> None:
+    async def reset_tasks(self, ml_tasks: list[MLTask]) -> DriftResetResponse:
         """
-        Reset drift detection for a specific ML task.
+        Reset drift detection for a list of ML tasks.
 
         Args:
-            ml_task (MLTask): ML task to reset.
+            ml_tasks (list[MLTask]): List of ML tasks to reset.
+
+        Returns:
+            DriftResetResponse: Response containing success status.
         """
         async with self._lock:
-            if ml_task in self._snapshots:
-                await self._initialize_task(ml_task)
+            for ml_task in ml_tasks:
+                if ml_task in self._snapshots:
+                    await self._initialize_task(ml_task)
+                    logger.info(f"Reset drift detection for {ml_task}")
 
-                logger.info(f"Reset drift detection for {ml_task}")
+            return DriftResetResponse(success=True)
 
     async def recalibrate_task(self, ml_task: MLTask, post_adaptation_errors: list[float]) -> RecalibrateResponse:
         """

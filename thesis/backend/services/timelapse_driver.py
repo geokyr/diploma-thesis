@@ -13,6 +13,8 @@ from thesis.common.schemas import (
     DriftErrorsRequest,
     DriftErrorsResponse,
     DriftInfo,
+    DriftResetRequest,
+    DriftResetResponse,
     ErrorPoint,
     PredictionBatchRequest,
     PredictionBatchResponse,
@@ -325,6 +327,26 @@ class TimelapseDriver:
 
             return True
 
+    async def _reset_drift_service(self) -> bool:
+        """
+        Reset the drift service for available ML tasks.
+
+        Returns:
+            bool: True if successful, False otherwise.
+        """
+        try:
+            url = f"{self._config.drift_url}/drift/reset"
+            payload = DriftResetRequest(ml_tasks=self.ml_tasks)
+
+            response = await self._client.post(url, json=payload.model_dump())
+            response.raise_for_status()
+            reset_response = DriftResetResponse.model_validate(response.json())
+
+            return reset_response.success
+
+        except Exception:
+            return False
+
     async def reset(self) -> None:
         """Reset the timelapse driver."""
         for task in self._retrain_tasks:
@@ -338,6 +360,7 @@ class TimelapseDriver:
         await self._notification_store.reset()
         self.clock = 0
         self._reset_drift_info()
+        await self._reset_drift_service()
 
     async def clear(self) -> None:
         """Clear the timelapse driver."""
