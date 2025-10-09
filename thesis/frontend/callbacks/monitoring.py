@@ -8,25 +8,8 @@ from thesis.common.enums import DriftState, MLTask, SimulationState
 from thesis.common.schemas import DriftInfo, MetricsResponse
 from thesis.frontend.layouts.admin import create_ml_status_item, create_ml_task_card
 from thesis.frontend.utils.api_client import APIClient
-from thesis.frontend.utils.format import format_simulation_timestamp, get_ml_task_unit
-
-
-def get_drift_state_color(drift_state: DriftState) -> str:
-    """
-    Get Bootstrap color for a drift state.
-
-    Args:
-        drift_state (DriftState): Drift state.
-
-    Returns:
-        str: Bootstrap color name.
-    """
-    color_map = {
-        DriftState.STABLE: "success",
-        DriftState.DRIFTED: "danger",
-        DriftState.RETRAINING: "warning",
-    }
-    return color_map[drift_state]
+from thesis.frontend.utils.constants import EMPTY_PREDICTORS
+from thesis.frontend.utils.formatting import format_simulation_timestamp, get_drift_state_color, get_ml_task_unit
 
 
 def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
@@ -37,35 +20,6 @@ def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
         app (dash.Dash): The Dash app instance
         client (APIClient): API client for backend communication
     """
-
-    @app.callback(
-        Output("ml-cards", "children"),
-        Input("ml-tasks-store", "data"),
-    )
-    def render_task_cards(ml_tasks: list[str]) -> list[html.Div]:
-        """
-        Dynamically render cards for each available ML task.
-
-        Args:
-            ml_tasks (list[str]): List of ML tasks.
-
-        Returns:
-            list[html.Div]: List of cards for each ML task.
-        """
-        try:
-            if not ml_tasks:
-                return [html.Div("No predictors available", className="text-muted mb-0")]
-
-            cards = []
-            for ml_task in ml_tasks:
-                cards.append(create_ml_task_card(ml_task))
-
-            cards[-1].className = "mb-0"
-
-            return cards
-
-        except Exception:
-            return no_update
 
     @app.callback(
         Output("ml-status-list", "children"),
@@ -83,7 +37,7 @@ def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
         """
         try:
             if not ml_tasks:
-                return [html.Div("No predictors available", className="text-muted mb-0")]
+                return EMPTY_PREDICTORS
 
             items = []
             for ml_task in ml_tasks:
@@ -95,24 +49,52 @@ def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
             return no_update
 
     @app.callback(
+        Output("ml-cards", "children"),
+        Input("ml-tasks-store", "data"),
+    )
+    def render_task_cards(ml_tasks: list[str]) -> list[html.Div]:
+        """
+        Dynamically render cards for each available ML task.
+
+        Args:
+            ml_tasks (list[str]): List of ML tasks.
+
+        Returns:
+            list[html.Div]: List of cards for each ML task.
+        """
+        try:
+            if not ml_tasks:
+                return EMPTY_PREDICTORS
+
+            cards = []
+            for ml_task in ml_tasks:
+                cards.append(create_ml_task_card(ml_task))
+
+            cards[-1].className = "mb-0"
+
+            return cards
+
+        except Exception:
+            return no_update
+
+    @app.callback(
         Output({"type": "drift-state", "ml_task": MATCH}, "children"),
         Output({"type": "drift-state", "ml_task": MATCH}, "color"),
-        Output({"type": "drift-state", "ml_task": MATCH}, "className"),
         Input("snapshot-store", "data"),
         State({"type": "drift-state", "ml_task": MATCH}, "id"),
     )
     def update_drift_label(
         snapshot_data: dict[str, SimulationState | int | dict[MLTask, DriftInfo]], component_id: dict[str, str]
-    ) -> tuple[str, str, str]:
+    ) -> tuple[str, str]:
         """
-        Update drift state label, color, and className for a specific ML task.
+        Update drift state label and color for a specific ML task.
 
         Args:
             snapshot_data (dict[str, SimulationState | int | dict[MLTask, DriftInfo]]): Snapshot data.
             component_id (dict[str, str]): Component ID.
 
         Returns:
-            tuple[str, str, str]: Drift state, badge color, and className.
+            tuple[str, str]: Drift state and badge color.
         """
         try:
             ml_task = component_id["ml_task"]
@@ -120,16 +102,15 @@ def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
 
             if ml_task in drift_info:
                 state = DriftState(drift_info[ml_task]["state"])
-                color = get_drift_state_color(state)
                 state_text = state.value.capitalize()
-                state_text_class = "fs-6 text-dark" if state == DriftState.RETRAINING else "fs-6"
+                color = get_drift_state_color(state)
 
-                return state_text, color, state_text_class
+                return state_text, color
 
-            return no_update, no_update, no_update
+            return no_update, no_update
 
         except Exception:
-            return no_update, no_update, no_update
+            return no_update, no_update
 
     @app.callback(
         Output({"type": "mae-chart", "ml_task": MATCH}, "figure"),
@@ -162,13 +143,9 @@ def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
                 template="seaborn",
                 xaxis_title="Time",
                 yaxis_title=f"MAE ({get_ml_task_unit(ml_task)})",
-                xaxis=dict(
-                    showticklabels=len(timestamps) > 0,
-                    tickangle=-15,
-                    nticks=10,
-                ),
+                xaxis=dict(showticklabels=len(timestamps) > 0, tickangle=-15, nticks=10),
                 yaxis=dict(showticklabels=len(mae_values) > 0),
-                margin=dict(l=40, r=10, t=10, b=40),
+                margin=dict(l=5, r=5, t=5, b=5),
                 height=250,
             )
 
