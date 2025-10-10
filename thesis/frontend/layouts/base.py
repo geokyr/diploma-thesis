@@ -47,7 +47,7 @@ def create_base_layout() -> html.Div:
                     dbc.Tabs(
                         id="main-tabs",
                         active_tab="admin",
-                        className="nav-justified bg-light px-3 pt-3",
+                        className="nav-justified mt-2",
                         children=[
                             dbc.Tab(
                                 label="Admin Dashboard",
