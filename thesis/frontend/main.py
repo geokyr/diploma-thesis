@@ -2,6 +2,7 @@ import atexit
 
 import dash
 import dash_bootstrap_components as dbc
+from dash_bootstrap_templates import load_figure_template
 
 from thesis.common.logger import setup_logger
 from thesis.common.service import PlatformServiceConfig
@@ -23,6 +24,7 @@ app: dash.Dash = dash.Dash(
 )
 app.layout = create_base_layout()
 
+load_figure_template("darkly")
 register_simulation_callbacks(app, client)
 register_monitoring_callbacks(app, client)
 register_notification_callbacks(app, client)
