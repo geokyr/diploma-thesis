@@ -4,6 +4,7 @@ import plotly.graph_objs as go
 from dash import Input, Output, State, dash, html, no_update
 from dash.dependencies import MATCH
 
+from thesis.common.config import SMOOTHING_WINDOW_SAMPLES
 from thesis.common.enums import DriftState, MLTask, SimulationState
 from thesis.common.schemas import DriftInfo, MetricsResponse
 from thesis.frontend.layouts.admin import create_ml_status_item, create_ml_task_card
@@ -139,6 +140,29 @@ def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
 
             figure = go.Figure()
             figure.add_trace(go.Scatter(x=timestamps, y=mae_values, mode="lines+markers"))
+
+            if len(metrics.metric_points) > 0:
+                drift_window_size = SMOOTHING_WINDOW_SAMPLES
+                running_samples = 0
+                drift_window_start_idx = len(metrics.metric_points)
+
+                for i in range(len(metrics.metric_points) - 1, -1, -1):
+                    running_samples += metrics.metric_points[i].n_samples
+                    if running_samples >= drift_window_size:
+                        drift_window_start_idx = i
+                        break
+                    drift_window_start_idx = i
+
+                if drift_window_start_idx < len(timestamps):
+                    figure.add_vrect(
+                        x0=timestamps[drift_window_start_idx],
+                        x1=timestamps[-1],
+                        fillcolor="dodgerblue",
+                        opacity=0.05,
+                        line_width=0,
+                        layer="below",
+                    )
+
             figure.update_layout(
                 xaxis_title="Time",
                 yaxis_title=f"MAE ({get_ml_task_unit(ml_task)})",

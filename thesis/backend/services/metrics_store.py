@@ -16,19 +16,20 @@ class MetricsStore:
         self._lock: asyncio.Lock = asyncio.Lock()
         self._maxlen: int = METRICS_MAXLEN
 
-    async def push(self, ml_task: MLTask, timestamp: int, mae: float | None) -> None:
+    async def push(self, ml_task: MLTask, timestamp: int, mae: float, n_samples: int) -> None:
         """
         Push a metric point to the store for a given ML task.
 
         Args:
             ml_task (MLTask): ML task.
             timestamp (int): Timestamp of the metric.
-            mae (float | None): Mean absolute error.
+            mae (float): Mean absolute error.
+            n_samples (int): Number of samples in this metric point.
         """
         async with self._lock:
             if ml_task not in self._store:
                 self._store[ml_task] = deque(maxlen=self._maxlen)
-            self._store[ml_task].append(MetricPoint(timestamp=timestamp, mae=mae))
+            self._store[ml_task].append(MetricPoint(timestamp=timestamp, mae=mae, n_samples=n_samples))
 
     async def get_metrics(self, ml_task: MLTask) -> MetricsResponse:
         """

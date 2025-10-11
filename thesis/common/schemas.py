@@ -55,7 +55,8 @@ class MetricPoint(BaseModel):
     """Metric point for metrics."""
 
     timestamp: int = Field(..., description="Timestamp of the metric")
-    mae: float | None = Field(None, description="Mean absolute error")
+    mae: float = Field(..., description="Mean absolute error")
+    n_samples: int = Field(..., description="Number of samples in this metric point")
 
 
 class MetricsRequest(BaseModel):

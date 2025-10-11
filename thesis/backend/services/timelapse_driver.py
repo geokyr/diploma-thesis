@@ -279,8 +279,9 @@ class TimelapseDriver:
                 except Exception:
                     continue
 
-                if batch.mae is not None:
-                    await self._metrics_store.push(ml_task, end_timestamp, batch.mae)
+                if batch.mae is not None and batch.error_points:
+                    n_samples = len(batch.error_points)
+                    await self._metrics_store.push(ml_task, end_timestamp, batch.mae, n_samples)
 
                 try:
                     drift_response = await self._check_for_drift(ml_task, batch.error_points)
