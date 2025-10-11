@@ -163,6 +163,16 @@ def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
                         layer="below",
                     )
 
+                    figure.add_annotation(
+                        text="Drift Detection Window",
+                        x=timestamps[drift_window_start_idx],
+                        y=max(mae_values) if mae_values else 0,
+                        showarrow=False,
+                        font=dict(size=12),
+                        bgcolor="dimgray",
+                        borderpad=5,
+                    )
+
             figure.update_layout(
                 xaxis_title="Time",
                 yaxis_title=f"MAE ({get_ml_task_unit(ml_task)})",
