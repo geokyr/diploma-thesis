@@ -67,21 +67,25 @@ class Predictor:
 
     def predict_single(
         self,
-        source_latitude: float,
-        source_longitude: float,
-        destination_latitude: float,
-        destination_longitude: float,
         start_timestamp: int,
+        source_x: float,
+        source_y: float,
+        destination_x: float,
+        destination_y: float,
+        distance: float,
+        edges: list[str],
     ) -> PredictionSingleResponse:
         """
         Predict a single trip.
 
         Args:
-            source_latitude (float): Source latitude.
-            source_longitude (float): Source longitude.
-            destination_latitude (float): Destination latitude.
-            destination_longitude (float): Destination longitude.
-            start_time (int): Trip start time.
+            start_timestamp (int): Trip start time.
+            source_x (float): Source x coordinate.
+            source_y (float): Source y coordinate.
+            destination_x (float): Destination x coordinate.
+            destination_y (float): Destination y coordinate.
+            distance (float): Trip distance in meters.
+            edges (list[str]): List of edge IDs along the trip.
 
         Returns:
             PredictionSingleResponse: Single trip prediction response.
@@ -90,15 +94,11 @@ class Predictor:
         trip_data = {}
 
         if self._ml_task == MLTask.ETA:
-            source_x, source_y = self._sumo_service.lonlat_to_xy(source_longitude, source_latitude)
-            destination, destination_y = self._sumo_service.lonlat_to_xy(destination_longitude, destination_latitude)
-            distance = self._sumo_service.calculate_trip_distance(source_x, source_y, destination, destination_y)
-
             # TODO: add columns to config
             trip_data = {
                 "source_x": [source_x],
                 "source_y": [source_y],
-                "destination_x": [destination],
+                "destination_x": [destination_x],
                 "destination_y": [destination_y],
                 TIME_START_COLUMN: [start_timestamp],
                 "distance": [distance],
@@ -117,7 +117,7 @@ class Predictor:
         destination_longitude: float,
     ) -> RoutePreviewResponse:
         """
-        Get route polyline for the given source and destination.
+        Get route polyline and all computed features for the given source and destination.
 
         Args:
             source_latitude (float): Source latitude.
@@ -126,13 +126,21 @@ class Predictor:
             destination_longitude (float): Destination longitude.
 
         Returns:
-            RoutePreviewResponse: Route polyline as list of (lat, lon) tuples.
+            RoutePreviewResponse: Route polyline and computed features.
         """
-        source_x, source_y = self._sumo_service.lonlat_to_xy(source_longitude, source_latitude)
-        destination_x, destination_y = self._sumo_service.lonlat_to_xy(destination_longitude, destination_latitude)
+        features = self._sumo_service.compute_trip_features(
+            source_latitude, source_longitude, destination_latitude, destination_longitude
+        )
 
-        route = self._sumo_service.route_lonlat_polyline(source_x, source_y, destination_x, destination_y)
-        return RoutePreviewResponse(route=route)
+        return RoutePreviewResponse(
+            source_x=features["source_x"],
+            source_y=features["source_y"],
+            destination_x=features["destination_x"],
+            destination_y=features["destination_y"],
+            distance=features["distance"],
+            edges=features["edges"],
+            route=features["route"],
+        )
 
     def clear(self) -> None:
         """Clear the predictor."""

@@ -45,11 +45,13 @@ def predict_single(req: PredictionSingleRequest, request: Request) -> Prediction
     """
     predictor: Predictor = request.app.state.predictor
     return predictor.predict_single(
-        req.source_latitude,
-        req.source_longitude,
-        req.destination_latitude,
-        req.destination_longitude,
         req.start_timestamp,
+        req.source_x,
+        req.source_y,
+        req.destination_x,
+        req.destination_y,
+        req.distance,
+        req.edges,
     )
 
 

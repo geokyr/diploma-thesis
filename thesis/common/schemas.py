@@ -163,11 +163,13 @@ class NotificationFeed(BaseModel):
 class PredictionSingleRequest(BaseModel):
     """Request for single prediction."""
 
-    source_latitude: float = Field(..., description="Source latitude")
-    source_longitude: float = Field(..., description="Source longitude")
-    destination_latitude: float = Field(..., description="Destination latitude")
-    destination_longitude: float = Field(..., description="Destination longitude")
     start_timestamp: int = Field(..., description="Trip start time")
+    source_x: float = Field(..., description="Source x coordinate")
+    source_y: float = Field(..., description="Source y coordinate")
+    destination_x: float = Field(..., description="Destination x coordinate")
+    destination_y: float = Field(..., description="Destination y coordinate")
+    distance: float = Field(..., description="Trip distance in meters")
+    edges: list[str] = Field(..., description="List of edge IDs along the trip")
 
 
 class PredictionSingleResponse(BaseModel):
@@ -194,4 +196,10 @@ class RoutePreviewRequest(BaseModel):
 class RoutePreviewResponse(BaseModel):
     """Response for route preview."""
 
+    source_x: float = Field(..., description="Source x coordinate")
+    source_y: float = Field(..., description="Source y coordinate")
+    destination_x: float = Field(..., description="Destination x coordinate")
+    destination_y: float = Field(..., description="Destination y coordinate")
+    distance: float = Field(..., description="Trip distance in meters")
+    edges: list[str] = Field(..., description="List of edge IDs along the trip")
     route: list[tuple[float, float]] = Field(..., description="Route polyline as list of (lat, lon) tuples")

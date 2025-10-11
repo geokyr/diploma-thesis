@@ -83,6 +83,7 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
     @app.callback(
         Output("user-source-store", "data"),
         Output("user-destination-store", "data"),
+        Output("user-route-features-store", "data"),
         Output("prediction-output", "children"),
         Input("user-map", "clickData"),
         Input("button-clear", "n_clicks"),
@@ -97,7 +98,7 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
         source_data: dict[str, float] | None,
         destination_data: dict[str, float] | None,
         snapshot_data: dict[str, SimulationState | int | dict[MLTask, DriftInfo]],
-    ) -> tuple[dict[str, float] | None, dict[str, float] | None, html.P]:
+    ) -> tuple[dict[str, float] | None, dict[str, float] | None, dict[str, float | list[str]] | None, html.P]:
         """
         Handle map clicks to select source and destination points.
 
@@ -109,19 +110,19 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
             snapshot_data (dict[str, SimulationState | int | dict[MLTask, DriftInfo]]): Snapshot data.
 
         Returns:
-            tuple[dict[str, float] | None, dict[str, float] | None, html.P]: Updated source, destination, and prediction output.
+            tuple[dict[str, float] | None, dict[str, float] | None, dict[str, float | list[str]] | None, html.P]: Updated source, destination, route features, and prediction output.
         """
         try:
             trigger = ctx.triggered_id
             if trigger == "button-clear":
-                return None, None, create_prediction_output()
+                return None, None, None, create_prediction_output()
 
             if not click_data or "latlng" not in click_data:
-                return no_update, no_update, no_update
+                return no_update, no_update, no_update, no_update
 
             latlng = click_data["latlng"]
             if "lat" not in latlng or "lng" not in latlng:
-                return no_update, no_update, no_update
+                return no_update, no_update, no_update, no_update
 
             latitude, longitude = float(latlng["lat"]), float(latlng["lng"])
 
@@ -129,19 +130,19 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
             if not (
                 minimum_latitude <= latitude <= maximum_latitude and minimum_longitude <= longitude <= maximum_longitude
             ):
-                return no_update, no_update, no_update
+                return no_update, no_update, no_update, no_update
 
             point = {"longitude": longitude, "latitude": latitude}
 
             if source_data is None:
-                return point, destination_data, no_update
+                return point, destination_data, None, no_update
             if destination_data is None:
-                return source_data, point, no_update
+                return source_data, point, None, no_update
 
-            return point, None, no_update
+            return point, None, None, no_update
 
         except Exception:
-            return no_update, no_update, no_update
+            return no_update, no_update, no_update, no_update
 
     @app.callback(
         Output("source-latitude", "children"),
@@ -177,12 +178,14 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
 
     @app.callback(
         Output("user-markers", "children"),
+        Output("user-route-features-store", "data", allow_duplicate=True),
         Input("user-source-store", "data"),
         Input("user-destination-store", "data"),
+        prevent_initial_call="initial_duplicate",
     )
     def update_map_markers(
         source_data: dict[str, float] | None, destination_data: dict[str, float] | None
-    ) -> list[dl.CircleMarker | dl.Polyline]:
+    ) -> tuple[list[dl.CircleMarker | dl.Polyline], dict[str, float | list[str]] | None]:
         """
         Update map markers for source and destination points and the actual route preview.
 
@@ -191,10 +194,12 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
             destination_data (dict[str, float] | None): Destination point data.
 
         Returns:
-            list[dl.CircleMarker | dl.Polyline]: List of map marker components.
+            tuple[list[dl.CircleMarker | dl.Polyline], dict[str, float | list[str]] | None]: List of map marker components and route features dict.
         """
         try:
             children = []
+            route_features = None
+
             if source_data is not None:
                 children.append(
                     dl.Marker(
@@ -220,6 +225,15 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
 
                     children.append(dl.Polyline(positions=route_response.route))
 
+                    route_features = {
+                        "source_x": route_response.source_x,
+                        "source_y": route_response.source_y,
+                        "destination_x": route_response.destination_x,
+                        "destination_y": route_response.destination_y,
+                        "distance": route_response.distance,
+                        "edges": route_response.edges,
+                    }
+
                 except Exception:
                     children.append(
                         dl.Polyline(
@@ -230,9 +244,9 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
                             dashArray="15, 15",
                         )
                     )
-            return children
+            return children, route_features
         except Exception:
-            return no_update
+            return no_update, no_update
 
     @app.callback(
         Output("button-predict", "disabled"),
@@ -273,6 +287,7 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
         State("ml-tasks-store", "data"),
         State("user-source-store", "data"),
         State("user-destination-store", "data"),
+        State("user-route-features-store", "data"),
         prevent_initial_call="initial_duplicate",
     )
     def run_prediction(
@@ -281,6 +296,7 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
         ml_tasks: list[str],
         source_data: dict[str, float] | None,
         destination_data: dict[str, float] | None,
+        route_features: dict[str, float | list[str]] | None,
     ) -> html.Div:
         """
         Execute prediction request when Predict button is clicked.
@@ -291,6 +307,7 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
             ml_tasks (list[str]): Available ML tasks.
             source_data (dict[str, float] | None): Source point data.
             destination_data (dict[str, float] | None): Destination point data.
+            route_features (dict[str, float | list[str]] | None): Pre-computed route features from preview.
 
         Returns:
             html.Div: Prediction results.
@@ -300,11 +317,13 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
 
             try:
                 response = client.predict_trip(
-                    source_latitude=source_data["latitude"],
-                    source_longitude=source_data["longitude"],
-                    destination_latitude=destination_data["latitude"],
-                    destination_longitude=destination_data["longitude"],
                     start_timestamp=snapshot.clock,
+                    source_x=route_features["source_x"],
+                    source_y=route_features["source_y"],
+                    destination_x=route_features["destination_x"],
+                    destination_y=route_features["destination_y"],
+                    distance=route_features["distance"],
+                    edges=route_features["edges"],
                 )
 
                 eta_value = "-"

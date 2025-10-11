@@ -136,31 +136,37 @@ class APIClient:
 
     def predict_trip(
         self,
-        source_latitude: float,
-        source_longitude: float,
-        destination_latitude: float,
-        destination_longitude: float,
         start_timestamp: int,
+        source_x: float,
+        source_y: float,
+        destination_x: float,
+        destination_y: float,
+        distance: float,
+        edges: list[str],
     ) -> TripPredictionResponse:
         """
         Predict trip metrics for a given trip.
 
         Args:
-            source_latitude (float): Source latitude.
-            source_longitude (float): Source longitude.
-            destination_latitude (float): Destination latitude.
-            destination_longitude (float): Destination longitude.
             start_timestamp (int): Trip start time.
+            source_x (float): Source x coordinate.
+            source_y (float): Source y coordinate.
+            destination_x (float): Destination x coordinate.
+            destination_y (float): Destination y coordinate.
+            distance (float): Trip distance in meters.
+            edges (list[str]): List of edge IDs along the trip.
 
         Returns:
             TripPredictionResponse: Predictions per ML task.
         """
         payload = PredictionSingleRequest(
-            source_latitude=source_latitude,
-            source_longitude=source_longitude,
-            destination_latitude=destination_latitude,
-            destination_longitude=destination_longitude,
             start_timestamp=start_timestamp,
+            source_x=source_x,
+            source_y=source_y,
+            destination_x=destination_x,
+            destination_y=destination_y,
+            distance=distance,
+            edges=edges,
         ).model_dump()
 
         response = self._client.post("/predict/trip", json=payload)
