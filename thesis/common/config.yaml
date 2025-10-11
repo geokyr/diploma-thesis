@@ -140,8 +140,15 @@ timelapse:
   notifications_maxlen: 100
 
 predictor:
-  time_start_column: time_start
   default_version: v1
+
+predictor_eta:
+  source_x_column: source_x
+  source_y_column: source_y
+  destination_x_column: destination_x
+  destination_y_column: destination_y
+  time_start_column: time_start
+  distance_column: distance
 
 drift:
   consensus_threshold: 4

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from thesis.common.config import TIME_START_COLUMN, TRIPS_PARQUET_FILENAME
+from thesis.common.config import TIME_START_COLUMN_ETA, TRIPS_PARQUET_FILENAME
 
 
 class DataLoader:
@@ -28,8 +28,8 @@ class DataLoader:
             self._data_path,
             filters=[
                 [
-                    (TIME_START_COLUMN, ">=", start_timestamp),
-                    (TIME_START_COLUMN, "<", end_timestamp),
+                    (TIME_START_COLUMN_ETA, ">=", start_timestamp),
+                    (TIME_START_COLUMN_ETA, "<", end_timestamp),
                 ]
             ],
         )

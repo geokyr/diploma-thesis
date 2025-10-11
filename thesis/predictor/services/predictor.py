@@ -6,7 +6,12 @@ from sklearn.base import BaseEstimator
 from sklearn.metrics import mean_absolute_error
 
 from thesis.common.config import (
-    TIME_START_COLUMN,
+    DESTINATION_X_COLUMN_ETA,
+    DESTINATION_Y_COLUMN_ETA,
+    DISTANCE_COLUMN_ETA,
+    SOURCE_X_COLUMN_ETA,
+    SOURCE_Y_COLUMN_ETA,
+    TIME_START_COLUMN_ETA,
 )
 from thesis.common.enums import MLTask
 from thesis.common.schemas import ErrorPoint, PredictionBatchResponse, PredictionSingleResponse, RoutePreviewResponse
@@ -53,7 +58,7 @@ class Predictor:
         X, y = split_features_and_target(df)
         y_pred = model.predict(X)
 
-        timestamps = X[TIME_START_COLUMN].astype(int).tolist()
+        timestamps = X[TIME_START_COLUMN_ETA].astype(int).tolist()
         abs_errors = (abs(y - y_pred)).tolist()
         mae = mean_absolute_error(y, y_pred)
 
@@ -94,14 +99,13 @@ class Predictor:
         trip_data = {}
 
         if self._ml_task == MLTask.ETA:
-            # TODO: add columns to config
             trip_data = {
-                "source_x": [source_x],
-                "source_y": [source_y],
-                "destination_x": [destination_x],
-                "destination_y": [destination_y],
-                TIME_START_COLUMN: [start_timestamp],
-                "distance": [distance],
+                SOURCE_X_COLUMN_ETA: [source_x],
+                SOURCE_Y_COLUMN_ETA: [source_y],
+                DESTINATION_X_COLUMN_ETA: [destination_x],
+                DESTINATION_Y_COLUMN_ETA: [destination_y],
+                TIME_START_COLUMN_ETA: [start_timestamp],
+                DISTANCE_COLUMN_ETA: [distance],
             }
 
         X = self._feature_calibrator.transform(pd.DataFrame(trip_data))

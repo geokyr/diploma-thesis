@@ -180,8 +180,17 @@ class TimelapseConfig:
 
 @dataclass(frozen=True, slots=True)
 class PredictorConfig:
-    time_start_column: str
     default_version: str
+
+
+@dataclass(frozen=True, slots=True)
+class PredictorEtaConfig:
+    source_x_column: str
+    source_y_column: str
+    destination_x_column: str
+    destination_y_column: str
+    time_start_column: str
+    distance_column: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -216,6 +225,7 @@ class Config:
     services: ServicesConfig
     timelapse: TimelapseConfig
     predictor: PredictorConfig
+    predictor_eta: PredictorEtaConfig
     drift: DriftConfig
 
 
@@ -237,6 +247,7 @@ def load_config(config_path: Path) -> Config:
             services=ServicesConfig(**data["services"]),
             timelapse=TimelapseConfig(**data["timelapse"]),
             predictor=PredictorConfig(**data["predictor"]),
+            predictor_eta=PredictorEtaConfig(**data["predictor_eta"]),
             drift=DriftConfig(**data["drift"]),
         )
 
@@ -362,8 +373,14 @@ COLLECT_SECONDS = CONFIG.timelapse.collect_seconds
 METRICS_MAXLEN = CONFIG.timelapse.metrics_maxlen
 NOTIFICATIONS_MAXLEN = CONFIG.timelapse.notifications_maxlen
 
-TIME_START_COLUMN = CONFIG.predictor.time_start_column
 DEFAULT_VERSION = CONFIG.predictor.default_version
+
+SOURCE_X_COLUMN_ETA = CONFIG.predictor_eta.source_x_column
+SOURCE_Y_COLUMN_ETA = CONFIG.predictor_eta.source_y_column
+DESTINATION_X_COLUMN_ETA = CONFIG.predictor_eta.destination_x_column
+DESTINATION_Y_COLUMN_ETA = CONFIG.predictor_eta.destination_y_column
+TIME_START_COLUMN_ETA = CONFIG.predictor_eta.time_start_column
+DISTANCE_COLUMN_ETA = CONFIG.predictor_eta.distance_column
 
 CONSENSUS_THRESHOLD = CONFIG.drift.consensus_threshold
 SMOOTHING_WINDOW_SAMPLES = CONFIG.drift.smoothing_window_samples
