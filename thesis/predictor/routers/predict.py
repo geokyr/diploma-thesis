@@ -7,6 +7,8 @@ from thesis.common.schemas import (
     PredictionBatchResponse,
     PredictionSingleRequest,
     PredictionSingleResponse,
+    RoutePreviewRequest,
+    RoutePreviewResponse,
 )
 from thesis.predictor.services.predictor import Predictor
 
@@ -48,4 +50,25 @@ def predict_single(req: PredictionSingleRequest, request: Request) -> Prediction
         req.destination_latitude,
         req.destination_longitude,
         req.start_timestamp,
+    )
+
+
+@predict_router.post("/route", response_model=RoutePreviewResponse)
+def get_route(req: RoutePreviewRequest, request: Request) -> RoutePreviewResponse:
+    """
+    Get route polyline for the given source and destination.
+
+    Args:
+        req (RoutePreviewRequest): Request for route preview.
+        request (Request): FastAPI request.
+
+    Returns:
+        RoutePreviewResponse: Route polyline as list of (lat, lon) tuples.
+    """
+    predictor: Predictor = request.app.state.predictor
+    return predictor.get_route(
+        req.source_latitude,
+        req.source_longitude,
+        req.destination_latitude,
+        req.destination_longitude,
     )

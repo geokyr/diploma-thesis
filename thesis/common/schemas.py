@@ -180,3 +180,18 @@ class TripPredictionResponse(BaseModel):
     """Response for trip prediction."""
 
     predictions: dict[MLTask, PredictionSingleResponse] = Field(..., description="Predictions per ML task")
+
+
+class RoutePreviewRequest(BaseModel):
+    """Request for route preview."""
+
+    source_latitude: float = Field(..., description="Source latitude")
+    source_longitude: float = Field(..., description="Source longitude")
+    destination_latitude: float = Field(..., description="Destination latitude")
+    destination_longitude: float = Field(..., description="Destination longitude")
+
+
+class RoutePreviewResponse(BaseModel):
+    """Response for route preview."""
+
+    route: list[tuple[float, float]] = Field(..., description="Route polyline as list of (lat, lon) tuples")

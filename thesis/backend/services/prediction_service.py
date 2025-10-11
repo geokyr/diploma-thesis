@@ -8,6 +8,8 @@ from thesis.common.enums import MLTask
 from thesis.common.schemas import (
     PredictionSingleRequest,
     PredictionSingleResponse,
+    RoutePreviewRequest,
+    RoutePreviewResponse,
     TripPredictionResponse,
 )
 
@@ -63,6 +65,37 @@ class PredictionService:
 
         except Exception:
             return PredictionSingleResponse(prediction=None)
+
+    async def preview_route(self, preview_request: RoutePreviewRequest) -> RoutePreviewResponse:
+        """
+        Get route preview for the given source and destination.
+
+        Args:
+            preview_request (RoutePreviewRequest): Route preview request.
+
+        Returns:
+            RoutePreviewResponse: Route polyline.
+        """
+        default_route = [
+            (preview_request.source_latitude, preview_request.source_longitude),
+            (preview_request.destination_latitude, preview_request.destination_longitude),
+        ]
+
+        available_tasks = self._timelapse_driver.ml_tasks
+        if not available_tasks:
+            return RoutePreviewResponse(route=default_route)
+
+        ml_task = available_tasks[0]
+        url = f"{self._timelapse_driver.predictor_urls[ml_task]}/predict/route"
+        payload = preview_request.model_dump()
+
+        try:
+            response = await self._client.post(url, json=payload)
+            response.raise_for_status()
+
+            return RoutePreviewResponse.model_validate(response.json())
+        except Exception:
+            return RoutePreviewResponse(route=default_route)
 
     async def clear(self) -> None:
         """Clear the prediction service."""

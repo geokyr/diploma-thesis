@@ -9,7 +9,7 @@ from thesis.common.config import (
     TIME_START_COLUMN,
 )
 from thesis.common.enums import MLTask
-from thesis.common.schemas import ErrorPoint, PredictionBatchResponse, PredictionSingleResponse
+from thesis.common.schemas import ErrorPoint, PredictionBatchResponse, PredictionSingleResponse, RoutePreviewResponse
 from thesis.eta.features import FeatureCalibrator, split_features_and_target
 from thesis.predictor.services.data_loader import DataLoader
 from thesis.predictor.services.model_manager import ModelManager
@@ -108,6 +108,31 @@ class Predictor:
         prediction = model.predict(X)[0]
 
         return PredictionSingleResponse(prediction=float(prediction))
+
+    def get_route(
+        self,
+        source_latitude: float,
+        source_longitude: float,
+        destination_latitude: float,
+        destination_longitude: float,
+    ) -> RoutePreviewResponse:
+        """
+        Get route polyline for the given source and destination.
+
+        Args:
+            source_latitude (float): Source latitude.
+            source_longitude (float): Source longitude.
+            destination_latitude (float): Destination latitude.
+            destination_longitude (float): Destination longitude.
+
+        Returns:
+            RoutePreviewResponse: Route polyline as list of (lat, lon) tuples.
+        """
+        source_x, source_y = self._sumo_service.lonlat_to_xy(source_longitude, source_latitude)
+        destination_x, destination_y = self._sumo_service.lonlat_to_xy(destination_longitude, destination_latitude)
+
+        route = self._sumo_service.route_lonlat_polyline(source_x, source_y, destination_x, destination_y)
+        return RoutePreviewResponse(route=route)
 
     def clear(self) -> None:
         """Clear the predictor."""

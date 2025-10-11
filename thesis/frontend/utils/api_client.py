@@ -9,6 +9,8 @@ from thesis.common.schemas import (
     MetricsResponse,
     NotificationFeed,
     PredictionSingleRequest,
+    RoutePreviewRequest,
+    RoutePreviewResponse,
     SimulationSnapshot,
     TripPredictionResponse,
 )
@@ -101,6 +103,36 @@ class APIClient:
         response = self._client.get("/simulation/notifications")
         response.raise_for_status()
         return NotificationFeed.model_validate(response.json())
+
+    def preview_route(
+        self,
+        source_latitude: float,
+        source_longitude: float,
+        destination_latitude: float,
+        destination_longitude: float,
+    ) -> RoutePreviewResponse:
+        """
+        Get route preview polyline for the given source and destination.
+
+        Args:
+            source_latitude (float): Source latitude.
+            source_longitude (float): Source longitude.
+            destination_latitude (float): Destination latitude.
+            destination_longitude (float): Destination longitude.
+
+        Returns:
+            RoutePreviewResponse: Route polyline as list of (lat, lon) tuples.
+        """
+        payload = RoutePreviewRequest(
+            source_latitude=source_latitude,
+            source_longitude=source_longitude,
+            destination_latitude=destination_latitude,
+            destination_longitude=destination_longitude,
+        ).model_dump()
+
+        response = self._client.post("/predict/preview", json=payload)
+        response.raise_for_status()
+        return RoutePreviewResponse.model_validate(response.json())
 
     def predict_trip(
         self,

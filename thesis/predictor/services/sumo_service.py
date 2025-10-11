@@ -1,5 +1,6 @@
 """SUMO service for SUMO network operations."""
 
+from functools import lru_cache
 from pathlib import Path
 
 import sumolib
@@ -100,3 +101,56 @@ class SumoService:
     def clear(self) -> None:
         """Clear the SUMO service."""
         self._network = None
+
+    @lru_cache(maxsize=2000)
+    def _edge_lonlat_shape(self, edge_id: str) -> list[tuple[float, float]]:
+        """
+        Return this edge's shape as a list of (lat, lon) tuples.
+
+        Args:
+            edge_id (str): The ID of the edge.
+
+        Returns:
+            list[tuple[float, float]]: The shape of the edge as a list of (lat, lon) tuples.
+        """
+        edge: sumolib.net.edge.Edge = self._network.getEdge(edge_id)
+        xy_shape: list[tuple[float, float]] = edge.getShape() or [
+            edge.getFromNode().getCoord(),
+            edge.getToNode().getCoord(),
+        ]
+        lonlat = [self._network.convertXY2LonLat(x, y) for (x, y) in xy_shape]
+        return [(lat, lon) for (lon, lat) in lonlat]
+
+    def route_lonlat_polyline(
+        self, source_x: float, source_y: float, destination_x: float, destination_y: float
+    ) -> list[tuple[float, float]]:
+        """
+        Compute shortest path and return a single polyline as a list of (lat, lon) tuples.
+
+        Args:
+            source_x (float): The x coordinate of the source point.
+            source_y (float): The y coordinate of the source point.
+            destination_x (float): The x coordinate of the destination point.
+            destination_y (float): The y coordinate of the destination point.
+
+        Returns:
+            list[tuple[float, float]]: The polyline as a list of (lat, lon) tuples.
+        """
+        edges, _ = self._get_shortest_path(source_x, source_y, destination_x, destination_y)
+        if not edges:
+            source_longitude, source_latitude = self._network.convertXY2LonLat(source_x, source_y)
+            destination_longitude, destination_latitude = self._network.convertXY2LonLat(destination_x, destination_y)
+            return [(source_latitude, source_longitude), (destination_latitude, destination_longitude)]
+
+        path: list[tuple[float, float]] = []
+        for i, edge in enumerate(edges):
+            segment = self._edge_lonlat_shape(edge.getID())
+            if i > 0 and path and segment:
+                if path[-1] == segment[0]:
+                    path.extend(segment[1:])
+                else:
+                    path.extend(segment)
+            else:
+                path.extend(segment)
+
+        return path

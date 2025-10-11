@@ -184,7 +184,7 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
         source_data: dict[str, float] | None, destination_data: dict[str, float] | None
     ) -> list[dl.CircleMarker | dl.Polyline]:
         """
-        Update map markers for source and destination points.
+        Update map markers for source and destination points and the actual route preview.
 
         Args:
             source_data (dict[str, float] | None): Source point data.
@@ -210,15 +210,26 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
                     )
                 )
             if source_data is not None and destination_data is not None:
-                children.append(
-                    dl.Polyline(
-                        positions=[
-                            [source_data["latitude"], source_data["longitude"]],
-                            [destination_data["latitude"], destination_data["longitude"]],
-                        ],
-                        dashArray="15, 15",
+                try:
+                    route_response = client.preview_route(
+                        source_latitude=source_data["latitude"],
+                        source_longitude=source_data["longitude"],
+                        destination_latitude=destination_data["latitude"],
+                        destination_longitude=destination_data["longitude"],
                     )
-                )
+
+                    children.append(dl.Polyline(positions=route_response.route))
+
+                except Exception:
+                    children.append(
+                        dl.Polyline(
+                            positions=[
+                                [source_data["latitude"], source_data["longitude"]],
+                                [destination_data["latitude"], destination_data["longitude"]],
+                            ],
+                            dashArray="15, 15",
+                        )
+                    )
             return children
         except Exception:
             return no_update
