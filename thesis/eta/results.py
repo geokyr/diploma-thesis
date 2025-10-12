@@ -19,7 +19,6 @@ from thesis.common.config import (
     RESULTS_FILENAME,
     TUNING_RESULTS_FILENAME,
 )
-from thesis.eta.experiment import ETAEvaluation
 from thesis.eta.models import ModelType
 
 logger = logging.getLogger(__name__)
@@ -360,12 +359,12 @@ def load_research_results() -> pd.DataFrame:
     """
     df = load_all_results()
 
-    evaluations = [evaluation.value for evaluation in ETAEvaluation]
-    evaluations.remove(ETAEvaluation.RESEARCH.value)
+    keywords = ["transform", "add", "research"]
+    pattern = "|".join(keywords)
 
-    filtered_df = df[~df["experiment"].isin(evaluations)]
+    filtered_df = df[df["experiment"].str.contains(pattern, case=False, regex=True)]
 
-    logger.info(f"Filtered to {len(filtered_df)} research experiment results (excluded evaluations: {evaluations})")
+    logger.info(f"Filtered to {len(filtered_df)} research experiment results")
 
     return filtered_df
 
