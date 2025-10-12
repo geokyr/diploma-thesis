@@ -1,29 +1,29 @@
 {
     "LinearRegression": {
-        "training_time": 0.006964199999856646,
-        "prediction_time": 0.0015333999999711523,
-        "evaluation_time": 0.0007310999999390333,
+        "training_time": 0.0038501000017276965,
+        "prediction_time": 0.0013476999993145,
+        "evaluation_time": 0.0007708999983151443,
         "mae": 34.551108390676205,
         "mape": 0.1624296145426244
     },
     "XGBRegressor": {
-        "training_time": 0.7946398000003683,
-        "prediction_time": 0.013745500000368338,
-        "evaluation_time": 0.00159680000069784,
+        "training_time": 0.7003487000001769,
+        "prediction_time": 0.014387300001544645,
+        "evaluation_time": 0.0011276000004727393,
         "mae": 31.441377639770508,
         "mape": 0.13912872970104218
     },
     "LGBMRegressor": {
-        "training_time": 2.8409130000000005,
-        "prediction_time": 0.020952100000613427,
-        "evaluation_time": 0.0016608999994787155,
+        "training_time": 1.6511971999971138,
+        "prediction_time": 0.02169070000309148,
+        "evaluation_time": 0.0012955000020156149,
         "mae": 31.324585688891496,
         "mape": 0.1370620216291223
     },
     "CatBoostRegressor": {
-        "training_time": 0.7993593999999575,
-        "prediction_time": 0.005194100000153412,
-        "evaluation_time": 0.0009973000005629729,
+        "training_time": 0.7293482999994012,
+        "prediction_time": 0.004909400002361508,
+        "evaluation_time": 0.001058599998941645,
         "mae": 31.614439240049048,
         "mape": 0.13829996868307579
     }
