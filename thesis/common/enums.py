@@ -18,6 +18,27 @@ class MLTask(StrEnum):
     STOPS = "stops"
 
 
+class FeatureGroup(StrEnum):
+    """
+    Feature groups.
+
+    Attributes:
+        TEMPORAL: Temporal features.
+        SPATIAL: Spatial features.
+        FOURIER: Fourier features.
+        CELL: Cell features.
+        CLUSTER: Cluster features.
+        PCA: PCA features.
+    """
+
+    TEMPORAL = "temporal"
+    SPATIAL = "spatial"
+    FOURIER = "fourier"
+    CELL = "cell"
+    CLUSTER = "cluster"
+    PCA = "pca"
+
+
 class DriftState(StrEnum):
     """
     Drift states.

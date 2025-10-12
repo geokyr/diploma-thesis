@@ -30,7 +30,7 @@ from thesis.common.config import (
     RANDOM_SEED_DEFAULT,
     RUSH_HOURS,
 )
-from thesis.common.enums import MLTask
+from thesis.common.enums import FeatureGroup, MLTask
 
 logger = logging.getLogger(__name__)
 
@@ -512,25 +512,28 @@ class FeatureCalibrator:
     Feature calibrator to fit on train trips and transform test and rain trips.
 
     Attributes:
-        distance_percentiles (np.ndarray): thresholds at configured percentiles
-        city_center_x (float): mean center x used for radial features
-        city_center_y (float): mean center y used for radial features
-        kmeans_source (KMeans): clustering on source coordinates
-        kmeans_destination (KMeans): clustering on destination coordinates
-        pca_coordinates (PCA): PCA on coordinates
+        feature_groups (list[FeatureGroup]): List of feature groups to apply
+        distance_percentiles (np.ndarray | None): Thresholds at configured percentiles
+        city_center_x (float | None): Mean center x used for radial features
+        city_center_y (float | None): Mean center y used for radial features
+        kmeans_source (KMeans | None): Clustering on source coordinates
+        kmeans_destination (KMeans | None): Clustering on destination coordinates
+        pca_coordinates (PCA | None): PCA on coordinates
     """
 
-    distance_percentiles: np.ndarray
-    city_center_x: float
-    city_center_y: float
-    kmeans_source: KMeans
-    kmeans_destination: KMeans
-    pca_coordinates: PCA
+    feature_groups: list[FeatureGroup]
+    distance_percentiles: np.ndarray | None = None
+    city_center_x: float | None = None
+    city_center_y: float | None = None
+    kmeans_source: KMeans | None = None
+    kmeans_destination: KMeans | None = None
+    pca_coordinates: PCA | None = None
 
     @classmethod
     def from_train_trips(
         cls,
         df: pd.DataFrame,
+        feature_groups: list[FeatureGroup] | None = None,
         percentile_thresholds: list[int] = PERCENTILE_THRESHOLDS,
         n_clusters: int = N_CLUSTERS,
         random_seed: int = RANDOM_SEED_DEFAULT,
@@ -541,6 +544,7 @@ class FeatureCalibrator:
 
         Args:
             df (pd.DataFrame): DataFrame with training trips.
+            feature_groups (list[FeatureGroup] | None): List of feature groups to fit and transform.
             percentile_thresholds (list[int]): Percentiles to use for distance features.
             n_clusters (int): Number of clusters for K-means clustering on coordinates.
             random_seed (int): Random seed for clustering and pca.
@@ -552,30 +556,52 @@ class FeatureCalibrator:
         Raises:
             ValueError: If the required columns are not found in the DataFrame.
         """
-        required_columns = ["source_x", "source_y", "destination_x", "destination_y", "distance"]
-        check_required_columns(df, required_columns, "calibration")
+        if feature_groups is None:
+            feature_groups = list(FeatureGroup)
 
-        distance_percentiles = np.percentile(df["distance"], percentile_thresholds)
+        distance_percentiles = None
+        city_center_x = None
+        city_center_y = None
+        kmeans_source = None
+        kmeans_destination = None
+        pca_coordinates = None
 
-        x_center = (df["source_x"] + df["destination_x"]) / 2
-        y_center = (df["source_y"] + df["destination_y"]) / 2
-        city_center_x = np.mean(x_center)
-        city_center_y = np.mean(y_center)
+        if FeatureGroup.SPATIAL in feature_groups:
+            required_columns = ["source_x", "source_y", "destination_x", "destination_y", "distance"]
+            check_required_columns(df, required_columns, "spatial calibration")
 
-        source_coordinates = df[["source_x", "source_y"]].to_numpy()
-        destination_coordinates = df[["destination_x", "destination_y"]].to_numpy()
-        kmeans_source = KMeans(n_clusters=n_clusters, random_state=random_seed)
-        kmeans_destination = KMeans(n_clusters=n_clusters, random_state=random_seed)
-        kmeans_source.fit(source_coordinates)
-        kmeans_destination.fit(destination_coordinates)
+            distance_percentiles = np.percentile(df["distance"], percentile_thresholds)
 
-        all_coordinates = np.vstack([source_coordinates, destination_coordinates])
-        pca_coordinates = PCA(n_components=n_components, random_state=random_seed)
-        pca_coordinates.fit(all_coordinates)
+            x_center = (df["source_x"] + df["destination_x"]) / 2
+            y_center = (df["source_y"] + df["destination_y"]) / 2
+            city_center_x = np.mean(x_center)
+            city_center_y = np.mean(y_center)
 
-        logger.info("New FeatureCalibrator fitted")
+        if FeatureGroup.CLUSTER in feature_groups:
+            required_columns = ["source_x", "source_y", "destination_x", "destination_y"]
+            check_required_columns(df, required_columns, "cluster calibration")
+
+            source_coordinates = df[["source_x", "source_y"]].to_numpy()
+            destination_coordinates = df[["destination_x", "destination_y"]].to_numpy()
+            kmeans_source = KMeans(n_clusters=n_clusters, random_state=random_seed)
+            kmeans_destination = KMeans(n_clusters=n_clusters, random_state=random_seed)
+            kmeans_source.fit(source_coordinates)
+            kmeans_destination.fit(destination_coordinates)
+
+        if FeatureGroup.PCA in feature_groups:
+            required_columns = ["source_x", "source_y", "destination_x", "destination_y"]
+            check_required_columns(df, required_columns, "pca calibration")
+
+            source_coordinates = df[["source_x", "source_y"]].to_numpy()
+            destination_coordinates = df[["destination_x", "destination_y"]].to_numpy()
+            all_coordinates = np.vstack([source_coordinates, destination_coordinates])
+            pca_coordinates = PCA(n_components=n_components, random_state=random_seed)
+            pca_coordinates.fit(all_coordinates)
+
+        logger.info(f"New FeatureCalibrator fitted with feature groups: {[fg.value for fg in feature_groups]}")
 
         return cls(
+            feature_groups=feature_groups,
             distance_percentiles=distance_percentiles,
             city_center_x=city_center_x,
             city_center_y=city_center_y,
@@ -597,15 +623,32 @@ class FeatureCalibrator:
         Raises:
             ValueError: If the required columns are not found in the DataFrame.
         """
-        df = add_all_features(
-            df,
-            distance_percentiles=self.distance_percentiles,
-            city_center_x=self.city_center_x,
-            city_center_y=self.city_center_y,
-            kmeans_source=self.kmeans_source,
-            kmeans_destination=self.kmeans_destination,
-            pca_coordinates=self.pca_coordinates,
-        )
+        if FeatureGroup.TEMPORAL in self.feature_groups:
+            df = add_temporal_features(df)
+
+        if FeatureGroup.SPATIAL in self.feature_groups:
+            df = add_spatial_features(
+                df,
+                distance_percentiles=self.distance_percentiles,
+                city_center_x=self.city_center_x,
+                city_center_y=self.city_center_y,
+            )
+
+        if FeatureGroup.FOURIER in self.feature_groups:
+            df = add_fourier_features(df)
+
+        if FeatureGroup.CELL in self.feature_groups:
+            df = add_cell_features(df)
+
+        if FeatureGroup.CLUSTER in self.feature_groups:
+            df = add_cluster_features(
+                df,
+                kmeans_source=self.kmeans_source,
+                kmeans_destination=self.kmeans_destination,
+            )
+
+        if FeatureGroup.PCA in self.feature_groups:
+            df = add_pca_features(df, pca_coordinates=self.pca_coordinates)
 
         return df
 
