@@ -362,7 +362,7 @@ def add_cell_features(df: pd.DataFrame, cell: int = CELL) -> pd.DataFrame:
     return df_cell
 
 
-def add_clustering_features(
+def add_cluster_features(
     df: pd.DataFrame,
     kmeans_source: KMeans | None = None,
     kmeans_destination: KMeans | None = None,
@@ -370,23 +370,23 @@ def add_clustering_features(
     random_seed: int = RANDOM_SEED_DEFAULT,
 ) -> pd.DataFrame:
     """
-    Add clustering features to the dataframe.
+    Add cluster features to the dataframe.
 
     Args:
         df (pd.DataFrame): DataFrame with trip data containing source_x, source_y, destination_x, destination_y columns.
-        kmeans_source (KMeans | None): KMeans object to use for source clustering.
-        kmeans_destination (KMeans | None): KMeans object to use for destination clustering.
+        kmeans_source (KMeans | None): KMeans object to use for source cluster.
+        kmeans_destination (KMeans | None): KMeans object to use for destination cluster.
         n_clusters (int): Number of clusters for K-means clustering on coordinates.
         random_seed (int): Random seed for clustering.
 
     Returns:
-        pd.DataFrame: DataFrame with added clustering features.
+        pd.DataFrame: DataFrame with added cluster features.
 
     Raises:
         ValueError: If the required columns are not found in the DataFrame.
     """
     required_columns = ["source_x", "source_y", "destination_x", "destination_y"]
-    check_required_columns(df, required_columns, "clustering")
+    check_required_columns(df, required_columns, "cluster")
 
     df_cluster = df.copy()
 
@@ -404,7 +404,7 @@ def add_clustering_features(
     else:
         df_cluster["destination_cluster"] = kmeans_destination.predict(destination_coordinates)
 
-    _log_feature_addition(df, df_cluster, "clustering")
+    _log_feature_addition(df, df_cluster, "cluster")
 
     return df_cluster
 
@@ -484,8 +484,8 @@ def add_all_features(
         coordinate_scale (float): Scale factor to normalize coordinates for fourier encoding.
         num_freqs (int): Number of frequency components to use for fourier encoding.
         cell (int): Size of the cell in meters.
-        kmeans_source (KMeans | None): KMeans object to use for source clustering.
-        kmeans_destination (KMeans | None): KMeans object to use for destination clustering.
+        kmeans_source (KMeans | None): KMeans object to use for source cluster.
+        kmeans_destination (KMeans | None): KMeans object to use for destination cluster.
         n_clusters (int): Number of clusters for K-means clustering on coordinates.
         random_seed (int): Random seed for clustering and pca.
         pca_coordinates (PCA | None): PCA object to use for pca.
@@ -501,7 +501,7 @@ def add_all_features(
     df = add_spatial_features(df, distance_percentiles, percentile_thresholds, city_center_x, city_center_y)
     df = add_fourier_features(df, coordinate_scale, num_freqs)
     df = add_cell_features(df, cell)
-    df = add_clustering_features(df, kmeans_source, kmeans_destination, n_clusters, random_seed)
+    df = add_cluster_features(df, kmeans_source, kmeans_destination, n_clusters, random_seed)
     df = add_pca_features(df, pca_coordinates, n_components, random_seed)
 
     return df
