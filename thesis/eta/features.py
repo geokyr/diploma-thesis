@@ -31,7 +31,6 @@ from thesis.common.config import (
     RUSH_HOURS,
 )
 from thesis.common.enums import MLTask
-from thesis.eta.models import ModelType
 
 logger = logging.getLogger(__name__)
 
@@ -505,102 +504,6 @@ def add_all_features(
     df = add_pca_features(df, pca_coordinates, n_components, random_seed)
 
     return df
-
-
-def identify_categorical_features(df: pd.DataFrame) -> list[str]:
-    """
-    Identify categorical features in the dataset based on feature names and characteristics.
-
-    Args:
-        df (pd.DataFrame): DataFrame with trip data.
-
-    Returns:
-        list[str]: List of categorical feature column names.
-    """
-    categorical_features = []
-
-    for col in df.columns:
-        if "cluster" in col:
-            categorical_features.append(col)
-        elif "cell" in col:
-            categorical_features.append(col)
-        elif "bin" in col:
-            categorical_features.append(col)
-        elif col.startswith("is_") and df[col].dtype in ["int64", "int32"]:
-            unique_vals = set(df[col].unique())
-            if unique_vals.issubset({0, 1}):
-                categorical_features.append(col)
-
-    return categorical_features
-
-
-def prepare_features_for_catboost(df: pd.DataFrame) -> tuple[pd.DataFrame, list[int]]:
-    """
-    Prepare features for CatBoost.
-
-    Args:
-        df (pd.DataFrame): DataFrame with trip data.
-
-    Returns:
-        tuple[pd.DataFrame, list[int]]: Tuple of prepared DataFrame and list of categorical feature indices.
-    """
-    df_prepared = df.copy()
-    categorical_features = identify_categorical_features(df_prepared)
-
-    categorical_indices = []
-    for col in categorical_features:
-        if col in df_prepared.columns:
-            categorical_indices.append(df_prepared.columns.get_loc(col))
-
-    logger.info(f"{ModelType.CATBOOST_REGRESSOR}: Identified {len(categorical_indices)} categorical features")
-    return df_prepared, categorical_indices
-
-
-def prepare_features_for_xgboost_lightgbm(df: pd.DataFrame, model_type: ModelType) -> pd.DataFrame:
-    """
-    Prepare features for XGBoost and LightGBM.
-
-    Args:
-        df (pd.DataFrame): DataFrame with trip data.
-        model_type (ModelType): Type of model for logging purposes.
-
-    Returns:
-        pd.DataFrame: Prepared DataFrame.
-    """
-    df_prepared = df.copy()
-    categorical_features = identify_categorical_features(df_prepared)
-
-    for col in categorical_features:
-        if col in df_prepared.columns:
-            df_prepared[col] = df_prepared[col].astype("category")
-
-    logger.info(f"{model_type}: Converted {len(categorical_features)} features to category dtype")
-    return df_prepared
-
-
-def optimize_features_for_model(df: pd.DataFrame, model_type: ModelType) -> tuple[pd.DataFrame, dict[str, list[int]]]:
-    """
-    Optimize features for a specific model and return appropriate fit_kwargs.
-
-    Args:
-        df (pd.DataFrame): DataFrame with trip data.
-        model_type (ModelType): Type of model.
-
-    Returns:
-        tuple[pd.DataFrame, dict[str, list[int]]]: Tuple of optimized DataFrame and fit_kwargs for the model.
-    """
-    if model_type == ModelType.CATBOOST_REGRESSOR:
-        df_opt, cat_indices = prepare_features_for_catboost(df)
-        fit_kwargs = {"cat_features": cat_indices} if cat_indices else {}
-        return df_opt, fit_kwargs
-
-    elif model_type in (ModelType.XGBOOST_REGRESSOR, ModelType.LIGHTGBM_REGRESSOR):
-        df_opt = prepare_features_for_xgboost_lightgbm(df, model_type)
-        return df_opt, {}
-
-    else:
-        logger.info(f"{model_type}: No specific optimization")
-        return df.copy(), {}
 
 
 @dataclass(frozen=True, slots=True)
