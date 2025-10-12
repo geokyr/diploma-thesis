@@ -100,7 +100,7 @@ features:
   rush_hours: [0, 1, 8, 9]
   percentile_thresholds: [25, 50, 75]
   num_freqs: 2
-  coordinate_scale: 1000.0
+  coordinate_scale: 1000
   cell: 100
   n_clusters: 20
   n_components: 2

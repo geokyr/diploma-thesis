@@ -297,14 +297,14 @@ def add_spatial_features(
 
 
 def add_fourier_features(
-    df: pd.DataFrame, coordinate_scale: float = COORDINATE_SCALE, num_freqs: int = NUM_FREQS
+    df: pd.DataFrame, coordinate_scale: int = COORDINATE_SCALE, num_freqs: int = NUM_FREQS
 ) -> pd.DataFrame:
     """
     Add fourier positional encoding features to the dataframe.
 
     Args:
         df (pd.DataFrame): DataFrame with trip data containing source_x, source_y, destination_x, destination_y columns.
-        coordinate_scale (float): Scale factor to normalize coordinates for fourier encoding.
+        coordinate_scale (int): Scale factor to normalize coordinates for fourier encoding.
         num_freqs (int): Number of frequency components to use for fourier encoding.
 
     Returns:
@@ -456,13 +456,14 @@ def add_pca_features(
     return df_pca
 
 
+# TODO: remove this wrapper
 def add_all_features(
     df: pd.DataFrame,
     distance_percentiles: np.ndarray | None = None,
     percentile_thresholds: list[int] = PERCENTILE_THRESHOLDS,
     city_center_x: float | None = None,
     city_center_y: float | None = None,
-    coordinate_scale: float = COORDINATE_SCALE,
+    coordinate_scale: int = COORDINATE_SCALE,
     num_freqs: int = NUM_FREQS,
     cell: int = CELL,
     kmeans_source: KMeans | None = None,
@@ -481,7 +482,7 @@ def add_all_features(
         percentile_thresholds (list[int]): Percentiles to use for distance features.
         city_center_x (float | None): Mean center x to use for radial features.
         city_center_y (float | None): Mean center y to use for radial features.
-        coordinate_scale (float): Scale factor to normalize coordinates for fourier encoding.
+        coordinate_scale (int): Scale factor to normalize coordinates for fourier encoding.
         num_freqs (int): Number of frequency components to use for fourier encoding.
         cell (int): Size of the cell in meters.
         kmeans_source (KMeans | None): KMeans object to use for source cluster.
@@ -534,7 +535,7 @@ class FeatureCalibrator:
     def from_train_trips(
         cls,
         df: pd.DataFrame,
-        feature_groups: tuple[FeatureGroup, ...] | None = None,
+        feature_groups: tuple[FeatureGroup, ...],
         percentile_thresholds: list[int] = PERCENTILE_THRESHOLDS,
         n_clusters: int = N_CLUSTERS,
         random_seed: int = RANDOM_SEED_DEFAULT,
@@ -545,7 +546,7 @@ class FeatureCalibrator:
 
         Args:
             df (pd.DataFrame): DataFrame with training trips.
-            feature_groups (list[FeatureGroup] | None): List of feature groups to fit and transform.
+            feature_groups (list[FeatureGroup]): List of feature groups to fit and transform.
             percentile_thresholds (list[int]): Percentiles to use for distance features.
             n_clusters (int): Number of clusters for K-means clustering on coordinates.
             random_seed (int): Random seed for clustering and pca.
@@ -557,9 +558,6 @@ class FeatureCalibrator:
         Raises:
             ValueError: If the required columns are not found in the DataFrame.
         """
-        if feature_groups is None:
-            feature_groups = tuple(FeatureGroup)
-
         distance_percentiles = None
         city_center_x = None
         city_center_y = None

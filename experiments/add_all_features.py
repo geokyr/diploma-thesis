@@ -1,4 +1,5 @@
 from thesis.common.data import generate_trips, load_fcd_dataset, preprocess_fcd_dataset
+from thesis.common.enums import FeatureGroup
 from thesis.common.logger import setup_logger
 from thesis.eta.data import ensure_dataset_is_valid
 from thesis.eta.experiment import ETAEvaluation, ETAExperiment
@@ -21,6 +22,7 @@ def main() -> None:
 
     _, y_split = split_features_and_target(trips_train_raw)
     skf, stratify_key = get_stratified_kfold_cv(y_split)
+    feature_groups = tuple(FeatureGroup)
     results = {}
 
     for model_type in ModelType:
@@ -30,7 +32,7 @@ def main() -> None:
             trips_train_fold_raw = trips_train_raw.iloc[train_index].copy()
             trips_validation_fold_raw = trips_train_raw.iloc[validation_index].copy()
 
-            calibrator = FeatureCalibrator.from_train_trips(trips_train_fold_raw)
+            calibrator = FeatureCalibrator.from_train_trips(trips_train_fold_raw, feature_groups=feature_groups)
 
             trips_train_fold = calibrator.transform(trips_train_fold_raw)
             trips_validation_fold = calibrator.transform(trips_validation_fold_raw)
@@ -49,7 +51,7 @@ def main() -> None:
         results[model_type] = build_cv_results(per_fold_results)
 
         logger.info(f"Training final {model_type} model on all training data")
-        final_calibrator = FeatureCalibrator.from_train_trips(trips_train_raw)
+        final_calibrator = FeatureCalibrator.from_train_trips(trips_train_raw, feature_groups=feature_groups)
         trips_train = final_calibrator.transform(trips_train_raw)
         X_train, y_train = split_features_and_target(trips_train)
 

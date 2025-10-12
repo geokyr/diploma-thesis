@@ -132,7 +132,7 @@ class FeaturesConfig:
     rush_hours: list[int]
     percentile_thresholds: list[int]
     num_freqs: int
-    coordinate_scale: float
+    coordinate_scale: int
     cell: int
     n_clusters: int
     n_components: int
