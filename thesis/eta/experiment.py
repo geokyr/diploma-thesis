@@ -61,7 +61,7 @@ class ETAExperiment:
     _FINAL_MODEL_DIR: ClassVar[Path] = OUTPUTS_DIR / FINAL_MODEL_DIRNAME / MODELS_DIRNAME
 
     def __post_init__(self) -> None:
-        for dir in [self.models_dir, self.logs_dir, self.results_dir]:
+        for dir in [self._DATA_DIR, self.models_dir, self.logs_dir, self.results_dir]:
             dir.mkdir(parents=True, exist_ok=True)
 
     def __repr__(self) -> str:
