@@ -111,8 +111,8 @@ models:
   verbose_lightgbm: -1
   verbose_catboost: 0
   enable_categorical: true
+  tree_method: hist
   allow_writing_files: false
-  max_cat_to_onehot: 2
   n_estimators: 100
   max_depth: 7
   learning_rate: 0.1

@@ -146,7 +146,7 @@ class ModelsConfig:
     verbose_catboost: int
     enable_categorical: bool
     allow_writing_files: bool
-    max_cat_to_onehot: int
+    tree_method: str
     n_estimators: int
     max_depth: int
     learning_rate: float
@@ -349,7 +349,7 @@ VERBOSE_LIGHTGBM = CONFIG.models.verbose_lightgbm
 VERBOSE_CATBOOST = CONFIG.models.verbose_catboost
 ENABLE_CATEGORICAL = CONFIG.models.enable_categorical
 ALLOW_WRITING_FILES = CONFIG.models.allow_writing_files
-MAX_CAT_TO_ONEHOT = CONFIG.models.max_cat_to_onehot
+TREE_METHOD = CONFIG.models.tree_method
 N_ESTIMATORS = CONFIG.models.n_estimators
 MAX_DEPTH = CONFIG.models.max_depth
 LEARNING_RATE = CONFIG.models.learning_rate
