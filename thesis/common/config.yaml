@@ -13,7 +13,8 @@ dirname:
   appdata: appdata
   misc: misc
   common: common
-  final_model: final_model
+  stable_models: baseline_stable
+  final_model: run_final_model
 
 filename:
   osm_data: osm_bbox.osm.xml.gz

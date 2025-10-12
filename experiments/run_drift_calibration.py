@@ -24,7 +24,7 @@ def main() -> None:
     X_train, y_train = split_features_and_target(trips_train)
 
     model_type = ModelType.LIGHTGBM_REGRESSOR
-    model = load_model(model_type, experiment.final_models_dir)
+    model = load_model(model_type, experiment.final_model_dir)
 
     predictions, _ = make_predictions(model, model_type, X_train)
     absolute_errors = compute_absolute_errors(y_train, predictions)

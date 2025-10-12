@@ -41,6 +41,7 @@ class DirnameConfig:
     appdata: str
     misc: str
     common: str
+    stable_models: str
     final_model: str
 
 
@@ -270,6 +271,7 @@ RESULTS_DIRNAME = CONFIG.dirname.results
 APPDATA_DIRNAME = CONFIG.dirname.appdata
 MISC_DIRNAME = CONFIG.dirname.misc
 COMMON_DIRNAME = CONFIG.dirname.common
+STABLE_MODELS_DIRNAME = CONFIG.dirname.stable_models
 FINAL_MODEL_DIRNAME = CONFIG.dirname.final_model
 
 OSM_DATA_FILENAME = CONFIG.filename.osm_data

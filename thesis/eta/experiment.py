@@ -15,6 +15,7 @@ from thesis.common.config import (
     OUTPUTS_DIR,
     RESULTS_DIRNAME,
     SIMULATION_DIR,
+    STABLE_MODELS_DIRNAME,
 )
 from thesis.simulation.scenario import SimulationScenario
 
@@ -56,8 +57,8 @@ class ETAExperiment:
     _TEST_PATH: ClassVar[Path] = _DATA_DIR / f"{SimulationScenario.TEST}{FCD_PARQUET_SUFFIX}"
     _RAIN_PATH: ClassVar[Path] = _DATA_DIR / f"{SimulationScenario.RAIN}{FCD_PARQUET_SUFFIX}"
 
-    _STABLE_MODELS_DIR: ClassVar[Path] = OUTPUTS_DIR / ETAEvaluation.STABLE / MODELS_DIRNAME
-    _FINAL_MODELS_DIR: ClassVar[Path] = OUTPUTS_DIR / FINAL_MODEL_DIRNAME / MODELS_DIRNAME
+    _STABLE_MODELS_DIR: ClassVar[Path] = OUTPUTS_DIR / STABLE_MODELS_DIRNAME / MODELS_DIRNAME
+    _FINAL_MODEL_DIR: ClassVar[Path] = OUTPUTS_DIR / FINAL_MODEL_DIRNAME / MODELS_DIRNAME
 
     def __post_init__(self) -> None:
         for dir in [self.models_dir, self.logs_dir, self.results_dir]:
@@ -77,7 +78,7 @@ class ETAExperiment:
             f"{self.test_path=}, "
             f"{self.rain_path=}, "
             f"{self.stable_models_dir=}, "
-            f"{self.final_models_dir=})"
+            f"{self.final_model_dir=})"
         )
 
     @property
@@ -126,6 +127,6 @@ class ETAExperiment:
         return self._STABLE_MODELS_DIR
 
     @property
-    def final_models_dir(self) -> Path:
-        """Directory for the final models."""
-        return self._FINAL_MODELS_DIR
+    def final_model_dir(self) -> Path:
+        """Directory for the final model."""
+        return self._FINAL_MODEL_DIR
