@@ -112,6 +112,7 @@ class ExternalConfig:
 
 @dataclass(frozen=True, slots=True)
 class EtaConfig:
+    target_column: str
     chunk_size: int
     min_duration: int
     min_distance: int
@@ -321,6 +322,7 @@ DEVICE_FRICTION_PROBABILITY = CONFIG.simulation.device_friction_probability
 
 ZENODO_DATASET_API_URL = CONFIG.external.zenodo_dataset_api_url
 
+TARGET_COLUMN = CONFIG.eta.target_column
 CHUNK_SIZE = CONFIG.eta.chunk_size
 MIN_DURATION = CONFIG.eta.min_duration
 MIN_DISTANCE = CONFIG.eta.min_distance

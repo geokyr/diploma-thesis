@@ -82,6 +82,7 @@ external:
   zenodo_dataset_api_url: https://zenodo.org/api/records/16950674
 
 eta:
+  target_column: duration
   chunk_size: 8192
   min_duration: 30
   min_distance: 200

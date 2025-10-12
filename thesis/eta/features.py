@@ -29,6 +29,7 @@ from thesis.common.config import (
     PROJECT_DIR,
     RANDOM_SEED_DEFAULT,
     RUSH_HOURS,
+    TARGET_COLUMN,
 )
 from thesis.common.enums import FeatureGroup, MLTask
 
@@ -72,14 +73,14 @@ def _log_feature_addition(df_original: pd.DataFrame, df_final: pd.DataFrame, fea
 
 
 def split_features_and_target(
-    df: pd.DataFrame, target_columns: list[str] = ["duration"]
+    df: pd.DataFrame, target_columns: list[str] = [TARGET_COLUMN]
 ) -> tuple[pd.DataFrame, pd.DataFrame | pd.Series]:
     """
     Split the features and the target.
 
     Args:
         df (pd.DataFrame): A DataFrame containing the prepared data.
-        target_columns (list[str]): List of column names to use as target, defaults to ["duration"].
+        target_columns (list[str]): List of column names to use as target.
 
     Returns:
         tuple[pd.DataFrame, pd.DataFrame | pd.Series]: A tuple containing the features and the target.
@@ -521,7 +522,7 @@ class FeatureCalibrator:
         pca_coordinates (PCA | None): PCA on coordinates
     """
 
-    feature_groups: list[FeatureGroup]
+    feature_groups: tuple[FeatureGroup, ...]
     distance_percentiles: np.ndarray | None = None
     city_center_x: float | None = None
     city_center_y: float | None = None
@@ -533,7 +534,7 @@ class FeatureCalibrator:
     def from_train_trips(
         cls,
         df: pd.DataFrame,
-        feature_groups: list[FeatureGroup] | None = None,
+        feature_groups: tuple[FeatureGroup, ...] | None = None,
         percentile_thresholds: list[int] = PERCENTILE_THRESHOLDS,
         n_clusters: int = N_CLUSTERS,
         random_seed: int = RANDOM_SEED_DEFAULT,
@@ -557,7 +558,7 @@ class FeatureCalibrator:
             ValueError: If the required columns are not found in the DataFrame.
         """
         if feature_groups is None:
-            feature_groups = list(FeatureGroup)
+            feature_groups = tuple(FeatureGroup)
 
         distance_percentiles = None
         city_center_x = None
@@ -597,8 +598,6 @@ class FeatureCalibrator:
             all_coordinates = np.vstack([source_coordinates, destination_coordinates])
             pca_coordinates = PCA(n_components=n_components, random_state=random_seed)
             pca_coordinates.fit(all_coordinates)
-
-        logger.info(f"New FeatureCalibrator fitted with feature groups: {[fg.value for fg in feature_groups]}")
 
         return cls(
             feature_groups=feature_groups,
