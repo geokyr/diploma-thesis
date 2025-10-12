@@ -1,175 +1,175 @@
 {
     "LinearRegression": {
-        "training_time": 0.003209680000145454,
-        "prediction_time": 0.0006579599998076446,
-        "evaluation_time": 0.0004964800013112835,
+        "training_time": 0.00314825999957975,
+        "prediction_time": 0.0006950800001504831,
+        "evaluation_time": 0.0005157000014150981,
         "mae": 31.464140323116517,
         "mape": 0.16113575105120964,
         "per_fold": [
             {
-                "training_time": 0.00337990000116406,
-                "prediction_time": 0.001165400000900263,
-                "evaluation_time": 0.0005363000018405728,
+                "training_time": 0.004164899997704197,
+                "prediction_time": 0.0006863000016892329,
+                "evaluation_time": 0.0005866000028618146,
                 "mae": 31.326420944356872,
                 "mape": 0.16244983379052794
             },
             {
-                "training_time": 0.0034589999995660037,
-                "prediction_time": 0.0005452000004879665,
-                "evaluation_time": 0.0004977000025974121,
+                "training_time": 0.0030888000001141336,
+                "prediction_time": 0.000646799999231007,
+                "evaluation_time": 0.0005367000012483913,
                 "mae": 32.15063711938491,
                 "mape": 0.1618191322782264
             },
             {
-                "training_time": 0.0031828999999561347,
-                "prediction_time": 0.0004923999986203853,
-                "evaluation_time": 0.0004332999997131992,
+                "training_time": 0.002790000002278248,
+                "prediction_time": 0.00046469999870168976,
+                "evaluation_time": 0.0005087000026833266,
                 "mae": 31.340766048067813,
                 "mape": 0.1593839525592193
             },
             {
-                "training_time": 0.0033876999987114687,
-                "prediction_time": 0.00047590000031050295,
-                "evaluation_time": 0.0004906000031041913,
+                "training_time": 0.0028048999993188772,
+                "prediction_time": 0.0009721000024001114,
+                "evaluation_time": 0.0004631000010704156,
                 "mae": 30.813801449882867,
                 "mape": 0.1600741378761576
             },
             {
-                "training_time": 0.0026389000013296027,
-                "prediction_time": 0.0006108999987191055,
-                "evaluation_time": 0.0005244999993010424,
+                "training_time": 0.0028926999984832946,
+                "prediction_time": 0.0007054999987303745,
+                "evaluation_time": 0.0004833999992115423,
                 "mae": 31.68907605389013,
                 "mape": 0.1619516987519168
             }
         ]
     },
     "XGBRegressor": {
-        "training_time": 0.5648687199995038,
-        "prediction_time": 0.0056455200006894305,
-        "evaluation_time": 0.0012232399989443366,
+        "training_time": 0.573445139999967,
+        "prediction_time": 0.004805799998575821,
+        "evaluation_time": 0.0008974399999715388,
         "mae": 27.912746810913085,
         "mape": 0.13593468070030212,
         "per_fold": [
             {
-                "training_time": 0.6401313000023947,
-                "prediction_time": 0.005437399999209447,
-                "evaluation_time": 0.001615900000615511,
+                "training_time": 0.6614566999996896,
+                "prediction_time": 0.004720999997516628,
+                "evaluation_time": 0.0009754999991855584,
                 "mae": 27.8016300201416,
                 "mape": 0.13709352910518646
             },
             {
-                "training_time": 0.5368109000010008,
-                "prediction_time": 0.005746899998484878,
-                "evaluation_time": 0.001095399999030633,
+                "training_time": 0.5422093999986828,
+                "prediction_time": 0.005646199999318924,
+                "evaluation_time": 0.0009862000006251037,
                 "mae": 28.469524383544922,
                 "mape": 0.13700135052204132
             },
             {
-                "training_time": 0.5581105999990541,
-                "prediction_time": 0.005258100001810817,
-                "evaluation_time": 0.0011281999977654777,
+                "training_time": 0.5466080000005604,
+                "prediction_time": 0.0041335999994771555,
+                "evaluation_time": 0.0008711999980732799,
                 "mae": 28.011606216430664,
                 "mape": 0.1350836604833603
             },
             {
-                "training_time": 0.5616223999968497,
-                "prediction_time": 0.005763500001194188,
-                "evaluation_time": 0.0011339999982737936,
+                "training_time": 0.5588882000010926,
+                "prediction_time": 0.0054462999978568405,
+                "evaluation_time": 0.0008129999987431802,
                 "mae": 27.19738006591797,
                 "mape": 0.13427650928497314
             },
             {
-                "training_time": 0.5276683999982197,
-                "prediction_time": 0.006021700002747821,
-                "evaluation_time": 0.0011426999990362674,
+                "training_time": 0.5580633999998099,
+                "prediction_time": 0.0040818999987095594,
+                "evaluation_time": 0.0008413000032305717,
                 "mae": 28.083593368530273,
                 "mape": 0.1362183541059494
             }
         ]
     },
     "LGBMRegressor": {
-        "training_time": 0.3860947399996803,
-        "prediction_time": 0.006192779999400955,
-        "evaluation_time": 0.0009688000005553477,
+        "training_time": 0.39859235999974774,
+        "prediction_time": 0.005585099999734666,
+        "evaluation_time": 0.0011956599992117845,
         "mae": 27.77856638290772,
         "mape": 0.13386450834222216,
         "per_fold": [
             {
-                "training_time": 1.4315333999984432,
-                "prediction_time": 0.006476599999587052,
-                "evaluation_time": 0.0009464000031584874,
+                "training_time": 1.4727634999981092,
+                "prediction_time": 0.005430899997008964,
+                "evaluation_time": 0.001715999998850748,
                 "mae": 27.690864046812553,
                 "mape": 0.1345676885846335
             },
             {
-                "training_time": 0.1252782000010484,
-                "prediction_time": 0.005639200000587152,
-                "evaluation_time": 0.0007814999989932403,
+                "training_time": 0.13096419999783393,
+                "prediction_time": 0.006256500000745291,
+                "evaluation_time": 0.0013543999993999023,
                 "mae": 28.30445312706006,
                 "mape": 0.1348808490700525
             },
             {
-                "training_time": 0.12181330000021262,
-                "prediction_time": 0.006144999999378342,
-                "evaluation_time": 0.0009138999994320329,
+                "training_time": 0.12696620000133407,
+                "prediction_time": 0.005604400001175236,
+                "evaluation_time": 0.0007951999978104141,
                 "mae": 27.844217587906023,
                 "mape": 0.13303809893390817
             },
             {
-                "training_time": 0.12480560000039986,
-                "prediction_time": 0.006087399997340981,
-                "evaluation_time": 0.001047199999447912,
+                "training_time": 0.13410840000142343,
+                "prediction_time": 0.005416299998614704,
+                "evaluation_time": 0.00095099999816739,
                 "mae": 27.1696970300278,
                 "mape": 0.1329163064793725
             },
             {
-                "training_time": 0.1270431999982975,
-                "prediction_time": 0.0066157000001112465,
-                "evaluation_time": 0.0011550000017450657,
+                "training_time": 0.12815950000003795,
+                "prediction_time": 0.0052174000011291355,
+                "evaluation_time": 0.001161700001830468,
                 "mae": 27.883600122732176,
                 "mape": 0.13391959864314415
             }
         ]
     },
     "CatBoostRegressor": {
-        "training_time": 0.5575000799995905,
-        "prediction_time": 0.003173160000005737,
-        "evaluation_time": 0.0007613200003106612,
+        "training_time": 0.5772162399996887,
+        "prediction_time": 0.003627579999738373,
+        "evaluation_time": 0.0007797399994160514,
         "mae": 28.230189696574108,
         "mape": 0.1357471575798822,
         "per_fold": [
             {
-                "training_time": 0.7442735000004177,
-                "prediction_time": 0.0022739999985788018,
-                "evaluation_time": 0.000713100002030842,
+                "training_time": 0.7040820000001986,
+                "prediction_time": 0.00340420000065933,
+                "evaluation_time": 0.0007200000000011642,
                 "mae": 28.13466321738662,
                 "mape": 0.13672909745583092
             },
             {
-                "training_time": 0.5083302999992156,
-                "prediction_time": 0.003920700000890065,
-                "evaluation_time": 0.0008215000016207341,
+                "training_time": 0.5414826000014727,
+                "prediction_time": 0.0032898999997996725,
+                "evaluation_time": 0.0007690999991609715,
                 "mae": 28.851851213786375,
                 "mape": 0.13677651294659912
             },
             {
-                "training_time": 0.5098509999988892,
-                "prediction_time": 0.0026781000015034806,
-                "evaluation_time": 0.000790699999924982,
+                "training_time": 0.545508899998822,
+                "prediction_time": 0.0037172999982431065,
+                "evaluation_time": 0.0009261000013793819,
                 "mae": 28.22278349765828,
                 "mape": 0.13455749361496042
             },
             {
-                "training_time": 0.5137523000012152,
-                "prediction_time": 0.0036999000003561378,
-                "evaluation_time": 0.0007541999984823633,
+                "training_time": 0.5469411999984004,
+                "prediction_time": 0.0035892999985662755,
+                "evaluation_time": 0.0007355999987339601,
                 "mae": 27.50422064506334,
                 "mape": 0.13430562717845906
             },
             {
-                "training_time": 0.5112932999982149,
-                "prediction_time": 0.0032930999987001996,
-                "evaluation_time": 0.000727099999494385,
+                "training_time": 0.5480664999995497,
+                "prediction_time": 0.00413720000142348,
+                "evaluation_time": 0.0007478999978047796,
                 "mae": 28.437429908975933,
                 "mape": 0.1363670567035615
             }
