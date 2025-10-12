@@ -359,7 +359,7 @@ def load_research_results() -> pd.DataFrame:
     """
     df = load_all_results()
 
-    keywords = ["transform", "add", "research"]
+    keywords = ["transform", "features", "research"]
     pattern = "|".join(keywords)
 
     filtered_df = df[df["experiment"].str.contains(pattern, case=False, regex=True)]

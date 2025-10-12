@@ -281,11 +281,11 @@ def add_spatial_features(
     df_spatial["source_distance_from_city_center"] = np.hypot(
         df_spatial["source_x"] - city_center_x, df_spatial["source_y"] - city_center_y
     )
-    df_spatial["dest_distance_from_city_center"] = np.hypot(
+    df_spatial["destination_distance_from_city_center"] = np.hypot(
         df_spatial["destination_x"] - city_center_x, df_spatial["destination_y"] - city_center_y
     )
     df_spatial["trip_centrality_change"] = (
-        df_spatial["dest_distance_from_city_center"] - df_spatial["source_distance_from_city_center"]
+        df_spatial["destination_distance_from_city_center"] - df_spatial["source_distance_from_city_center"]
     )
     df_spatial["trip_centrality"] = np.hypot(
         df_spatial["x_center"] - city_center_x, df_spatial["y_center"] - city_center_y
