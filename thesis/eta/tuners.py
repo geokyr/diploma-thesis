@@ -216,14 +216,14 @@ class XGBoostTunerFocused(BaseModelTuner):
     def suggest_hyperparameters(self, trial: optuna.Trial) -> dict[str, int | float]:
         """Suggest XGBoost hyperparameters for the current trial."""
         return {
-            "n_estimators": trial.suggest_int("n_estimators", 900, 1400, step=50),
+            "n_estimators": trial.suggest_int("n_estimators", 900, 1200, step=50),
             "max_depth": trial.suggest_int("max_depth", 6, 9),
-            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.05, log=True),
-            "subsample": trial.suggest_float("subsample", 0.55, 0.75),
-            "colsample_bytree": trial.suggest_float("colsample_bytree", 0.6, 1.0),
-            "colsample_bynode": trial.suggest_float("colsample_bynode", 0.6, 0.9),
-            "min_child_weight": trial.suggest_int("min_child_weight", 5, 14),
-            "gamma": trial.suggest_float("gamma", 1e-8, 1.0, log=True),
+            "learning_rate": trial.suggest_float("learning_rate", 0.02, 0.08, log=True),
+            "subsample": trial.suggest_float("subsample", 0.6, 0.9),
+            "colsample_bytree": trial.suggest_float("colsample_bytree", 0.6, 0.7),
+            "colsample_bynode": trial.suggest_float("colsample_bynode", 0.6, 0.85),
+            "min_child_weight": trial.suggest_int("min_child_weight", 8, 12),
+            "gamma": trial.suggest_float("gamma", 1e-8, 0.6, log=True),
             "reg_alpha": trial.suggest_float("reg_alpha", 1e-8, 1.0, log=True),
             "reg_lambda": trial.suggest_float("reg_lambda", 1e-8, 1.0, log=True),
         }
@@ -263,18 +263,18 @@ class LightGBMTunerFocused(BaseModelTuner):
     def suggest_hyperparameters(self, trial: optuna.Trial) -> dict[str, int | float]:
         """Suggest LightGBM hyperparameters for the current trial."""
         max_depth = trial.suggest_int("max_depth", 10, 14)
-        max_leaves = max(70, min(200, 2**max_depth))
+        max_leaves = max(100, min(170, 2**max_depth))
 
         return {
-            "n_estimators": trial.suggest_int("n_estimators", 900, 1400, step=50),
+            "n_estimators": trial.suggest_int("n_estimators", 900, 1200, step=50),
             "max_depth": max_depth,
-            "num_leaves": trial.suggest_int("num_leaves", 70, max_leaves),
-            "learning_rate": trial.suggest_float("learning_rate", 0.02, 0.07, log=True),
-            "subsample": trial.suggest_float("subsample", 0.60, 0.85),
-            "colsample_bytree": trial.suggest_float("colsample_bytree", 0.8, 1.0),
-            "min_child_samples": trial.suggest_int("min_child_samples", 20, 55),
-            "min_split_gain": trial.suggest_float("min_split_gain", 1e-8, 0.1, log=True),
-            "reg_alpha": 0.0,
+            "num_leaves": trial.suggest_int("num_leaves", 100, max_leaves),
+            "learning_rate": trial.suggest_float("learning_rate", 0.02, 0.05, log=True),
+            "subsample": trial.suggest_float("subsample", 0.9, 1.0),
+            "colsample_bytree": trial.suggest_float("colsample_bytree", 0.65, 0.8),
+            "min_child_samples": trial.suggest_int("min_child_samples", 35, 60),
+            "min_split_gain": trial.suggest_float("min_split_gain", 1e-8, 0.5, log=True),
+            "reg_alpha": trial.suggest_float("reg_alpha", 1e-8, 0.1, log=True),
             "reg_lambda": trial.suggest_float("reg_lambda", 1e-8, 0.1, log=True),
         }
 
@@ -310,16 +310,16 @@ class CatBoostTunerFocused(BaseModelTuner):
     def suggest_hyperparameters(self, trial: optuna.Trial) -> dict[str, int | float]:
         """Suggest CatBoost hyperparameters for the current trial."""
         return {
-            "n_estimators": trial.suggest_int("n_estimators", 900, 1400, step=50),
-            "max_depth": trial.suggest_int("max_depth", 6, 10),
-            "learning_rate": trial.suggest_float("learning_rate", 0.02, 0.1, log=True),
-            "subsample": trial.suggest_float("subsample", 0.65, 1.0),
-            "colsample_bylevel": trial.suggest_float("colsample_bylevel", 0.75, 1.0),
-            "l2_leaf_reg": trial.suggest_float("l2_leaf_reg", 1e-3, 10.0, log=True),
-            "random_strength": trial.suggest_float("random_strength", 0.0, 2.0),
-            "bagging_temperature": trial.suggest_float("bagging_temperature", 0.5, 4.5),
+            "n_estimators": trial.suggest_int("n_estimators", 900, 1200, step=50),
+            "max_depth": trial.suggest_int("max_depth", 8, 12),
+            "learning_rate": trial.suggest_float("learning_rate", 0.02, 0.08, log=True),
+            "subsample": trial.suggest_float("subsample", 0.9, 1.0),
+            "colsample_bylevel": trial.suggest_float("colsample_bylevel", 0.8, 1.0),
+            "l2_leaf_reg": trial.suggest_float("l2_leaf_reg", 1e-8, 1.0, log=True),
+            "random_strength": trial.suggest_float("random_strength", 0.0, 1.0),
+            "bagging_temperature": trial.suggest_float("bagging_temperature", 3.0, 5.5),
             "border_count": 255,
-            "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 20, 50),
+            "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 30, 45),
         }
 
 

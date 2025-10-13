@@ -717,7 +717,6 @@ def load_all_tuning_results() -> dict[ModelType, pd.DataFrame]:
 
     constant_parameters = {
         ModelType.CATBOOST_REGRESSOR: {"border_count": 255},
-        ModelType.LIGHTGBM_REGRESSOR: {"reg_alpha": 0.0},
     }
 
     final_results = {}
