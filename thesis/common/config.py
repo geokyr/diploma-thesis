@@ -62,6 +62,7 @@ class FilenameConfig:
     model: str
     metadata: str
     drift_detectors: str
+    feature_selection_results: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -155,7 +156,7 @@ class ModelsConfig:
     colsample_bytree: float
     n_trials: int
     direction: str
-    importance_type_lightgbm: str
+    importance_type: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -291,6 +292,7 @@ TRIPS_PARQUET_FILENAME = CONFIG.filename.trips_parquet
 MODEL_FILENAME = CONFIG.filename.model
 METADATA_FILENAME = CONFIG.filename.metadata
 DRIFT_DETECTORS_FILENAME = CONFIG.filename.drift_detectors
+FEATURE_SELECTION_RESULTS_FILENAME = CONFIG.filename.feature_selection_results
 
 TRIPS_SUFFIX = CONFIG.suffix.trips
 SUMOCFG_SUFFIX = CONFIG.suffix.sumocfg
@@ -360,7 +362,7 @@ SUBSAMPLE = CONFIG.models.subsample
 COLSAMPLE_BYTREE = CONFIG.models.colsample_bytree
 N_TRIALS = CONFIG.models.n_trials
 DIRECTION = CONFIG.models.direction
-IMPORTANCE_TYPE_LIGHTGBM = CONFIG.models.importance_type_lightgbm
+IMPORTANCE_TYPE = CONFIG.models.importance_type
 
 HOST = CONFIG.services.host
 ENVIRONMENT = CONFIG.services.environment

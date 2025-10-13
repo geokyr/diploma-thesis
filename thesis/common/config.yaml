@@ -32,7 +32,8 @@ filename:
   model: model.joblib
   metadata: metadata.json
   drift_detectors: drift_detectors.joblib
-
+  feature_selection_results: feature_selection_results.csv
+  
 suffix:
   trips: .trips.xml
   sumocfg: .sumocfg
@@ -121,7 +122,7 @@ models:
   colsample_bytree: 0.8
   n_trials: 100
   direction: minimize
-  importance_type_lightgbm: gain
+  importance_type: gain
 
 services:
   host: 0.0.0.0

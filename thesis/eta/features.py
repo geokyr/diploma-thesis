@@ -7,6 +7,7 @@ from pathlib import Path
 import joblib
 import numpy as np
 import pandas as pd
+from sklearn.base import BaseEstimator
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.pipeline import FunctionTransformer
@@ -18,6 +19,7 @@ from thesis.common.config import (
     CELL,
     COORDINATE_SCALE,
     FEATURE_CALIBRATOR_FILENAME,
+    FEATURE_SELECTION_RESULTS_FILENAME,
     MISC_DIRNAME,
     MORNING_CEILING,
     N_CLUSTERS,
@@ -32,6 +34,7 @@ from thesis.common.config import (
     TARGET_COLUMN,
 )
 from thesis.common.enums import FeatureGroup, MLTask
+from thesis.eta.models import ModelType
 
 logger = logging.getLogger(__name__)
 
@@ -703,3 +706,100 @@ class FeatureCalibrator:
             Path: Path to the feature calibrator directory.
         """
         return PROJECT_DIR / APPDATA_DIRNAME / MISC_DIRNAME / ml_task
+
+
+def get_gain_feature_importance(model: BaseEstimator, feature_names: list[str]) -> pd.DataFrame:
+    """
+    Get the gain feature importance of the model.
+
+    Args:
+        model (BaseEstimator): Model to get the gain feature importance of.
+        feature_names (list[str]): List of feature names.
+    """
+    gain_raw = model.feature_importances_
+
+    gain = np.asarray(gain_raw, dtype=float)
+    total_gain = gain.sum()
+    percentage_gain = (gain / total_gain * 100.0) if total_gain > 0 else np.zeros_like(gain)
+
+    return (
+        pd.DataFrame({"feature": feature_names, "importance": gain, "percentage": percentage_gain})
+        .sort_values("importance", ascending=False)
+        .reset_index(drop=True)
+    )
+
+
+def get_average_gain_feature_importance(per_fold_gain_feature_importances: list[pd.DataFrame]) -> pd.DataFrame:
+    """
+    Get the average gain feature importance across CV folds.
+
+    Args:
+        per_fold_gain_feature_importances (list[pd.DataFrame]): List of per fold gain feature importances.
+
+    Returns:
+        pd.DataFrame: Average gain feature importance.
+    """
+    per_fold_gain_feature_importances = pd.concat(per_fold_gain_feature_importances)
+
+    average_gain_feature_importance = (
+        per_fold_gain_feature_importances.groupby("feature")
+        .agg({"importance": "mean", "percentage": "mean"})
+        .reset_index()
+    )
+    average_gain_feature_importance.columns = ["feature", "importance_mean", "percentage_mean"]
+    average_gain_feature_importance = average_gain_feature_importance.sort_values(
+        "importance_mean", ascending=False
+    ).reset_index(drop=True)
+
+    logger.info(
+        f"Ranked features by average gain feature importance across CV folds\n{average_gain_feature_importance.to_string(index=False)}"
+    )
+
+    logger.info("Cumulative importance")
+    logger.info(f"  Top 10: {average_gain_feature_importance.head(10)['percentage_mean'].sum():5.1f}%")
+    logger.info(f"  Top 20: {average_gain_feature_importance.head(20)['percentage_mean'].sum():5.1f}%")
+    logger.info(f"  Top 30: {average_gain_feature_importance.head(30)['percentage_mean'].sum():5.1f}%")
+    logger.info(f"  Top 40: {average_gain_feature_importance.head(40)['percentage_mean'].sum():5.1f}%")
+    logger.info(f"  Top 50: {average_gain_feature_importance.head(50)['percentage_mean'].sum():5.1f}%")
+
+    return average_gain_feature_importance
+
+
+def combine_model_feature_importances(
+    model_importances: dict[ModelType, pd.DataFrame],
+) -> pd.DataFrame:
+    """
+    Combine feature importances from multiple models into a single DataFrame.
+
+    Args:
+        model_importances (dict[ModelType, pd.DataFrame]): Dictionary of model types and average gain feature importance DataFrames.
+
+    Returns:
+        pd.DataFrame: Combined feature importances with a ModelType column.
+    """
+    combined_results = []
+
+    for model_type, importance_df in model_importances.items():
+        df_copy = importance_df.copy()
+        df_copy.insert(0, "model", model_type)
+        combined_results.append(df_copy)
+
+    combined_df = pd.concat(combined_results, ignore_index=True)
+
+    logger.info(f"Combined feature importances from {len(model_importances)} models")
+
+    return combined_df
+
+
+def save_feature_selection_results(feature_selection_results: pd.DataFrame, results_dir: Path) -> None:
+    """
+    Save the feature selection results to the results directory.
+
+    Args:
+        feature_selection_results (pd.DataFrame): Feature selection results.
+        results_dir (Path): Directory to save the feature selection results to.
+    """
+    feature_selection_results_path = results_dir / FEATURE_SELECTION_RESULTS_FILENAME
+    feature_selection_results.to_csv(feature_selection_results_path, index=False)
+
+    logger.info(f"Feature selection results saved to {feature_selection_results_path}")
