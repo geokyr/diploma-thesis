@@ -6,10 +6,10 @@ from abc import ABC, abstractmethod
 import optuna
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
-from sklearn.pipeline import FunctionTransformer
 
 from thesis.common.config import DIRECTION, N_TRIALS, RANDOM_SEED_DEFAULT
-from thesis.eta.models import ModelType, create_model, wrap_with_transformed_target_regressor
+from thesis.eta.features import FeatureCalibratorETA, split_features_and_target
+from thesis.eta.models import ModelType, create_model
 from thesis.eta.pipeline import evaluate_predictions, make_predictions, train_model
 from thesis.eta.results import build_cv_results, build_model_results
 
@@ -25,12 +25,10 @@ class BaseModelTuner(ABC):
         n_trials (int): Number of optimization trials.
         random_seed (int): Random seed for reproducibility.
         direction (str): Optimization direction ("minimize" or "maximize").
-        X_train (pd.DataFrame | None): Training features.
-        y_train (pd.Series | None): Training targets.
+        trips_train_raw (pd.DataFrame | None): Training trips before feature engineering.
         skf (StratifiedKFold | None): StratifiedKFold object for cross-validation.
         stratify_key (pd.Series | None): Key for stratified cross-validation.
         study_name (str | None): Name for the study.
-        transformer (FunctionTransformer | None): Target transformer.
         fit_kwargs (dict): Additional fitting arguments.
     """
 
@@ -46,42 +44,34 @@ class BaseModelTuner(ABC):
         self.random_seed = random_seed
         self.direction = direction
 
-        self.X_train = None
-        self.y_train = None
+        self.trips_train_raw = None
         self.skf = None
         self.stratify_key = None
         self.study_name = None
-        self.transformer = None
         self.fit_kwargs = {}
 
     def setup_data(
         self,
-        X_train: pd.DataFrame,
-        y_train: pd.Series,
+        trips_train_raw: pd.DataFrame,
         skf: StratifiedKFold,
         stratify_key: pd.Series,
         study_name: str,
-        transformer: FunctionTransformer | None = None,
         **fit_kwargs,
     ) -> None:
         """
         Setup training data and cross-validation strategy.
 
         Args:
-            X_train (pd.DataFrame): Training features.
-            y_train (pd.Series): Training targets.
+            trips_train_raw (pd.DataFrame): Training trips before feature engineering.
             skf (StratifiedKFold): StratifiedKFold object for cross-validation.
             stratify_key (pd.Series): Key for stratified cross-validation.
             study_name (str): Name for the study.
-            transformer (FunctionTransformer | None): Target transformer (e.g., quantile transformer).
             **fit_kwargs: Additional fitting arguments.
         """
-        self.X_train = X_train
-        self.y_train = y_train
+        self.trips_train_raw = trips_train_raw
         self.skf = skf
         self.stratify_key = stratify_key
         self.study_name = study_name
-        self.transformer = transformer
         self.fit_kwargs = fit_kwargs
 
     @abstractmethod
@@ -111,19 +101,26 @@ class BaseModelTuner(ABC):
 
         logger.info(f"Starting trial {trial.number} with parameters: {hyperparams}")
 
-        base_model = create_model(self.model_type, random_seed=self.random_seed, **hyperparams)
-        model = wrap_with_transformed_target_regressor(base_model, self.transformer)
+        model = create_model(self.model_type, random_seed=self.random_seed, **hyperparams)
 
         per_fold_results = []
         fold_maes = []
 
-        for train_index, val_index in self.skf.split(self.X_train, self.stratify_key):
-            X_train_fold, X_val_fold = self.X_train.iloc[train_index], self.X_train.iloc[val_index]
-            y_train_fold, y_val_fold = self.y_train.iloc[train_index], self.y_train.iloc[val_index]
+        for train_index, validation_index in self.skf.split(self.trips_train_raw, self.stratify_key):
+            trips_train_fold_raw = self.trips_train_raw.iloc[train_index]
+            trips_validation_fold_raw = self.trips_train_raw.iloc[validation_index]
+
+            calibrator = FeatureCalibratorETA.from_train_trips(trips_train_fold_raw)
+
+            trips_train_fold = calibrator.transform(trips_train_fold_raw)
+            trips_validation_fold = calibrator.transform(trips_validation_fold_raw)
+
+            X_train_fold, y_train_fold = split_features_and_target(trips_train_fold)
+            X_validation_fold, y_validation_fold = split_features_and_target(trips_validation_fold)
 
             training_results = train_model(model, self.model_type, X_train_fold, y_train_fold, **self.fit_kwargs)
-            predictions, prediction_results = make_predictions(model, self.model_type, X_val_fold)
-            evaluation_results = evaluate_predictions(y_val_fold, predictions, self.model_type)
+            predictions, prediction_results = make_predictions(model, self.model_type, X_validation_fold)
+            evaluation_results = evaluate_predictions(y_validation_fold, predictions, self.model_type)
 
             fold_results = build_model_results(training_results, prediction_results, evaluation_results)
             per_fold_results.append(fold_results)
@@ -153,7 +150,7 @@ class BaseModelTuner(ABC):
         Returns:
             optuna.Study: Completed Optuna study.
         """
-        if self.X_train is None:
+        if self.trips_train_raw is None:
             raise ValueError("Data not setup. Call setup_data() first.")
 
         logger.info(f"Starting {self.model_type} hyperparameter tuning with {self.n_trials} trials")
@@ -328,29 +325,25 @@ class CatBoostTunerFocused(BaseModelTuner):
 
 def run_hyperparameter_tuning(
     tuner: BaseModelTuner,
-    X_train: pd.DataFrame,
-    y_train: pd.Series,
+    trips_train_raw: pd.DataFrame,
     skf: StratifiedKFold,
     stratify_key: pd.Series,
     study_name: str,
-    transformer: FunctionTransformer | None = None,
 ) -> optuna.Study:
     """
     Run hyperparameter tuning with the provided tuner.
 
     Args:
         tuner (BaseModelTuner): The tuner instance to use.
-        X_train (pd.DataFrame): Training features.
-        y_train (pd.Series): Training targets.
+        trips_train_raw (pd.DataFrame): Training trips before feature engineering.
         skf (StratifiedKFold): StratifiedKFold object for cross-validation.
         stratify_key (pd.Series): Key for stratified cross-validation.
         study_name (str): Name for the study.
-        transformer (FunctionTransformer | None): Target transformer (e.g., quantile transformer).
 
     Returns:
         optuna.Study: Completed Optuna study.
     """
-    tuner.setup_data(X_train, y_train, skf, stratify_key, study_name, transformer)
+    tuner.setup_data(trips_train_raw, skf, stratify_key, study_name)
     study = tuner.optimize()
     log_parameter_importance(study)
 
