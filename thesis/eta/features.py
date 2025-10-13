@@ -462,8 +462,8 @@ def add_pca_features(
 
     df_pca["source_pca_1"] = source_coordinates_pca[:, 0]
     df_pca["source_pca_2"] = source_coordinates_pca[:, 1]
-    df_pca["dest_pca_1"] = destination_coordinates_pca[:, 0]
-    df_pca["dest_pca_2"] = destination_coordinates_pca[:, 1]
+    df_pca["destination_pca_1"] = destination_coordinates_pca[:, 0]
+    df_pca["destination_pca_2"] = destination_coordinates_pca[:, 1]
 
     _log_feature_addition(df, df_pca, "pca")
 
@@ -1145,8 +1145,10 @@ def compare_correlated_features_pairs(
 
         if feature_1_final_score >= feature_2_final_score:
             keep, keep_index = feature_1, feature_1_final_index
+            drop, drop_index = feature_2, feature_2_final_index
         else:
             keep, keep_index = feature_2, feature_2_final_index
+            drop, drop_index = feature_1, feature_1_final_index
 
         rows.append(
             {
@@ -1159,6 +1161,8 @@ def compare_correlated_features_pairs(
                 "correlation": correlation,
                 "keep": keep,
                 "keep_index": keep_index,
+                "drop": drop,
+                "drop_index": drop_index,
             }
         )
 
@@ -1183,3 +1187,192 @@ def add_feature_categories(feature_ranking: pd.DataFrame) -> pd.DataFrame:
 
     feature_ranking["category"] = feature_ranking["feature"].map(feature_category_map).fillna("none")
     return feature_ranking
+
+
+@dataclass(frozen=True, slots=True)
+class FeatureCalibratorETA:
+    """
+    Feature calibrator for ETA model to fit on traip trips and transform all trips.
+
+    Attributes:
+        distance_percentiles (np.ndarray): Thresholds at configured percentiles for distance binning.
+        city_center_x (float): Mean center x coordinate used for radial distance features.
+        city_center_y (float): Mean center y coordinate used for radial distance features.
+        kmeans_source (KMeans): K-means clustering model fitted on source coordinates.
+        kmeans_destination (KMeans): K-means clustering model fitted on destination coordinates.
+        pca_coordinates (PCA): PCA model fitted on all coordinates.
+    """
+
+    distance_percentiles: np.ndarray
+    city_center_x: float
+    city_center_y: float
+    kmeans_source: KMeans
+    kmeans_destination: KMeans
+    pca_coordinates: PCA
+
+    @classmethod
+    def from_train_trips(
+        cls,
+        df: pd.DataFrame,
+        percentile_thresholds: list[int] = PERCENTILE_THRESHOLDS,
+        n_clusters: int = N_CLUSTERS,
+        n_components: int = N_COMPONENTS,
+        random_seed: int = RANDOM_SEED_DEFAULT,
+    ) -> "FeatureCalibratorETA":
+        """
+        Create and fit a FeatureCalibratorETA from training trips.
+
+        Args:
+            df (pd.DataFrame): DataFrame with training trips containing required columns.
+            percentile_thresholds (list[int]): Percentiles to use for distance features.
+            n_clusters (int): Number of clusters for K-means clustering on coordinates.
+            n_components (int): Number of components for PCA.
+            random_seed (int): Random seed for clustering and PCA.
+
+        Returns:
+            FeatureCalibratorETA: New fitted FeatureCalibratorETA.
+
+        Raises:
+            ValueError: If the required columns are not found in the DataFrame.
+        """
+        required_columns = ["source_x", "source_y", "destination_x", "destination_y", "distance"]
+        check_required_columns(df, required_columns, "FeatureCalibratorETA calibration")
+
+        distance_percentiles = np.percentile(df["distance"], percentile_thresholds)
+
+        x_center = (df["source_x"] + df["destination_x"]) / 2
+        y_center = (df["source_y"] + df["destination_y"]) / 2
+        city_center_x = float(np.mean(x_center))
+        city_center_y = float(np.mean(y_center))
+
+        source_coordinates = df[["source_x", "source_y"]].to_numpy()
+        destination_coordinates = df[["destination_x", "destination_y"]].to_numpy()
+
+        kmeans_source = KMeans(n_clusters=n_clusters, random_state=random_seed)
+        kmeans_source.fit(source_coordinates)
+
+        kmeans_destination = KMeans(n_clusters=n_clusters, random_state=random_seed)
+        kmeans_destination.fit(destination_coordinates)
+
+        all_coordinates = np.vstack([source_coordinates, destination_coordinates])
+        pca_coordinates = PCA(n_components=n_components, random_state=random_seed)
+        pca_coordinates.fit(all_coordinates)
+
+        logger.info("Calibrated FeatureCalibratorETA")
+
+        return cls(
+            distance_percentiles=distance_percentiles,
+            city_center_x=city_center_x,
+            city_center_y=city_center_y,
+            kmeans_source=kmeans_source,
+            kmeans_destination=kmeans_destination,
+            pca_coordinates=pca_coordinates,
+        )
+
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Apply calibrated feature engineering pipeline to trips.
+
+        Args:
+            df (pd.DataFrame): DataFrame with trips containing required columns.
+
+        Returns:
+            pd.DataFrame: DataFrame with all features added.
+
+        Raises:
+            ValueError: If the required columns are not found in the DataFrame.
+        """
+        required_columns = ["source_x", "source_y", "destination_x", "destination_y", "distance"]
+        check_required_columns(df, required_columns, "FeatureCalibratorETA transformation")
+
+        df_final = df.copy()
+
+        df_final["x_center"] = (df_final["source_x"] + df_final["destination_x"]) / 2
+        df_final["y_center"] = (df_final["source_y"] + df_final["destination_y"]) / 2
+
+        x_difference = df_final["destination_x"] - df_final["source_x"]
+        y_difference = df_final["destination_y"] - df_final["source_y"]
+
+        df_final["euclidean_distance"] = np.hypot(x_difference, y_difference)
+        df_final["detour_length"] = df_final["distance"] - df_final["euclidean_distance"]
+
+        df_final["is_short_distance"] = (df_final["distance"] <= self.distance_percentiles[0]).astype(int)
+        df_final["is_medium_distance"] = (
+            (df_final["distance"] > self.distance_percentiles[0])
+            & (df_final["distance"] <= self.distance_percentiles[2])
+        ).astype(int)
+        df_final["is_long_distance"] = (df_final["distance"] > self.distance_percentiles[2]).astype(int)
+
+        df_final["source_distance_from_city_center"] = np.hypot(
+            df_final["source_x"] - self.city_center_x, df_final["source_y"] - self.city_center_y
+        )
+        df_final["destination_distance_from_city_center"] = np.hypot(
+            df_final["destination_x"] - self.city_center_x, df_final["destination_y"] - self.city_center_y
+        )
+        df_final["trip_centrality"] = np.hypot(
+            df_final["x_center"] - self.city_center_x, df_final["y_center"] - self.city_center_y
+        )
+
+        source_coordinates = df_final[["source_x", "source_y"]].to_numpy()
+        destination_coordinates = df_final[["destination_x", "destination_y"]].to_numpy()
+
+        df_final["source_cluster"] = self.kmeans_source.predict(source_coordinates)
+        df_final["destination_cluster"] = self.kmeans_destination.predict(destination_coordinates)
+
+        source_pca = self.pca_coordinates.transform(source_coordinates)
+        destination_pca = self.pca_coordinates.transform(destination_coordinates)
+
+        df_final["source_pca_1"] = source_pca[:, 0]
+        df_final["source_pca_2"] = source_pca[:, 1]
+        df_final["destination_pca_1"] = destination_pca[:, 0]
+        df_final["destination_pca_2"] = destination_pca[:, 1]
+
+        logger.info(
+            f"Transformed {len(df_final)} samples with FeatureCalibratorETA, total features: {len(df_final.columns)}"
+        )
+
+        return df_final
+
+    def save(self, misc_dir: Path) -> None:
+        """
+        Save the FeatureCalibratorETA to the misc directory.
+
+        Args:
+            misc_dir (Path): Directory to save the FeatureCalibratorETA to.
+        """
+        misc_dir.mkdir(parents=True, exist_ok=True)
+        calibrator_path = misc_dir / FEATURE_CALIBRATOR_FILENAME
+        joblib.dump(self, calibrator_path)
+
+        logger.info(f"FeatureCalibratorETA saved to {calibrator_path}")
+
+    @classmethod
+    def load(cls, misc_dir: Path) -> "FeatureCalibratorETA":
+        """
+        Load the FeatureCalibratorETA from the misc directory.
+
+        Args:
+            misc_dir (Path): Directory to load the FeatureCalibratorETA from.
+
+        Returns:
+            FeatureCalibratorETA: Loaded FeatureCalibratorETA.
+
+        Raises:
+            FileNotFoundError: If the FeatureCalibratorETA file does not exist.
+            TypeError: If the loaded object is not a FeatureCalibratorETA.
+        """
+        calibrator_path = misc_dir / FEATURE_CALIBRATOR_FILENAME
+        if not calibrator_path.exists():
+            error_msg = f"FeatureCalibratorETA file not found: {calibrator_path}"
+            logger.error(error_msg)
+            raise FileNotFoundError(error_msg)
+
+        feature_calibrator = joblib.load(calibrator_path)
+        if not isinstance(feature_calibrator, cls):
+            error_msg = f"Loaded object is not a {cls.__name__}"
+            logger.error(error_msg)
+            raise TypeError(error_msg)
+
+        logger.info(f"FeatureCalibratorETA loaded from {calibrator_path}")
+
+        return feature_calibrator
