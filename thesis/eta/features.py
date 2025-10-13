@@ -7,6 +7,7 @@ from pathlib import Path
 import joblib
 import numpy as np
 import pandas as pd
+import shap
 from sklearn.base import BaseEstimator
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
@@ -914,3 +915,72 @@ def get_average_permutation_importance(per_fold_permutation_importances: list[pd
     logger.info(f"  Top 50: {average_permutation_importance.head(50)['percentage_mean'].sum():5.1f}%")
 
     return average_permutation_importance
+
+
+def get_shap_importance(model: BaseEstimator, X_validation: pd.DataFrame) -> pd.DataFrame:
+    """
+    Get the SHAP importance of the model.
+
+    Args:
+        model (BaseEstimator): Model to get the SHAP importance of.
+        X_validation (pd.DataFrame): Validation features.
+
+    Returns:
+        pd.DataFrame: SHAP importance with feature names and importance values.
+    """
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(X_validation)
+    shap_importances = np.abs(shap_values).mean(axis=0)
+
+    total_importance = shap_importances.sum()
+    percentage = (
+        (shap_importances / total_importance * 100.0) if total_importance > 0 else np.zeros_like(shap_importances)
+    )
+
+    return (
+        pd.DataFrame(
+            {
+                "feature": X_validation.columns,
+                "importance": shap_importances,
+                "percentage": percentage,
+            }
+        )
+        .sort_values("importance", ascending=False)
+        .reset_index(drop=True)
+    )
+
+
+def get_average_shap_importance(per_fold_shap_importances: list[pd.DataFrame]) -> pd.DataFrame:
+    """
+    Get the average SHAP importance across CV folds.
+
+    Args:
+        per_fold_shap_importances (list[pd.DataFrame]): List of per fold SHAP importances.
+
+    Returns:
+        pd.DataFrame: Average SHAP importance.
+    """
+    per_fold_shap_importances_combined = pd.concat(per_fold_shap_importances)
+
+    average_shap_importance = (
+        per_fold_shap_importances_combined.groupby("feature")
+        .agg({"importance": "mean", "percentage": "mean"})
+        .reset_index()
+    )
+    average_shap_importance.columns = ["feature", "importance_mean", "percentage_mean"]
+    average_shap_importance = average_shap_importance.sort_values("importance_mean", ascending=False).reset_index(
+        drop=True
+    )
+
+    logger.info(
+        f"Ranked features by average SHAP importance across CV folds\n{average_shap_importance.to_string(index=False)}"
+    )
+
+    logger.info("Cumulative importance")
+    logger.info(f"  Top 10: {average_shap_importance.head(10)['percentage_mean'].sum():5.1f}%")
+    logger.info(f"  Top 20: {average_shap_importance.head(20)['percentage_mean'].sum():5.1f}%")
+    logger.info(f"  Top 30: {average_shap_importance.head(30)['percentage_mean'].sum():5.1f}%")
+    logger.info(f"  Top 40: {average_shap_importance.head(40)['percentage_mean'].sum():5.1f}%")
+    logger.info(f"  Top 50: {average_shap_importance.head(50)['percentage_mean'].sum():5.1f}%")
+
+    return average_shap_importance
