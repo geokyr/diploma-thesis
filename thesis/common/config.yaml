@@ -105,6 +105,7 @@ features:
   cell: 100
   n_clusters: 20
   n_components: 2
+  correlation_threshold: 0.90
 
 models:
   objective_xgboost: reg:absoluteerror

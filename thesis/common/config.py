@@ -137,6 +137,7 @@ class FeaturesConfig:
     cell: int
     n_clusters: int
     n_components: int
+    correlation_threshold: float
 
 
 @dataclass(frozen=True, slots=True)
@@ -346,6 +347,7 @@ COORDINATE_SCALE = CONFIG.features.coordinate_scale
 CELL = CONFIG.features.cell
 N_CLUSTERS = CONFIG.features.n_clusters
 N_COMPONENTS = CONFIG.features.n_components
+CORRELATION_THRESHOLD = CONFIG.features.correlation_threshold
 
 OBJECTIVE_XGBOOST = CONFIG.models.objective_xgboost
 OBJECTIVE_LIGHTGBM = CONFIG.models.objective_lightgbm

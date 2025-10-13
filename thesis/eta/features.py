@@ -18,6 +18,7 @@ from thesis.common.config import (
     APPDATA_DIRNAME,
     CELL,
     COORDINATE_SCALE,
+    CORRELATION_THRESHOLD,
     FEATURE_CALIBRATOR_FILENAME,
     FEATURE_SELECTION_RESULTS_FILENAME,
     MISC_DIRNAME,
@@ -803,3 +804,40 @@ def save_feature_selection_results(feature_selection_results: pd.DataFrame, resu
     feature_selection_results.to_csv(feature_selection_results_path, index=False)
 
     logger.info(f"Feature selection results saved to {feature_selection_results_path}")
+
+
+def find_correlated_feature_pairs(X: pd.DataFrame, threshold: float = CORRELATION_THRESHOLD) -> pd.DataFrame:
+    """
+    Find correlated feature pairs in a DataFrame.
+
+    Args:
+        X (pd.DataFrame): DataFrame to find correlated feature pairs in.
+        threshold (float): Threshold for correlation.
+
+    Returns:
+        pd.DataFrame: DataFrame with correlated feature pairs.
+    """
+    correlation_matrix = X.corr().abs()
+    upper_triangle = correlation_matrix.where(np.triu(np.ones(correlation_matrix.shape), k=1).astype(bool))
+
+    correlated_feature_pairs = []
+    for column in upper_triangle.columns:
+        correlated = upper_triangle[column][upper_triangle[column] > threshold]
+        for index in correlated.index:
+            correlated_feature_pairs.append({"feature_1": column, "feature_2": index, "correlation": correlated[index]})
+
+    correlated_feature_pairs = pd.DataFrame(correlated_feature_pairs)
+
+    if len(correlated_feature_pairs) > 0:
+        logger.info(
+            f"Found {len(correlated_feature_pairs)} correlated feature pairs\n{correlated_feature_pairs.to_string(index=False)}"
+        )
+
+        all_correlated_features = set(
+            correlated_feature_pairs["feature_1"].tolist() + correlated_feature_pairs["feature_2"].tolist()
+        )
+        logger.info(f"{len(all_correlated_features)} unique features involved in high correlations")
+    else:
+        logger.info(f"No correlated feature pairs found with threshold {threshold}")
+
+    return correlated_feature_pairs
