@@ -10,6 +10,7 @@ import pandas as pd
 from sklearn.base import BaseEstimator
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
+from sklearn.inspection import permutation_importance
 from sklearn.pipeline import FunctionTransformer
 from sklearn.preprocessing import PowerTransformer, QuantileTransformer, StandardScaler
 
@@ -29,6 +30,9 @@ from thesis.common.config import (
     NOON_FLOOR,
     NUM_FREQS,
     PERCENTILE_THRESHOLDS,
+    PERMUTATION_IMPORTANCE_N_JOBS,
+    PERMUTATION_IMPORTANCE_N_REPEATS,
+    PERMUTATION_IMPORTANCE_SCORING,
     PROJECT_DIR,
     RANDOM_SEED_DEFAULT,
     RUSH_HOURS,
@@ -766,17 +770,17 @@ def get_average_gain_feature_importance(per_fold_gain_feature_importances: list[
     return average_gain_feature_importance
 
 
-def combine_model_feature_importances(
+def combine_feature_selection_results(
     model_importances: dict[ModelType, pd.DataFrame],
 ) -> pd.DataFrame:
     """
-    Combine feature importances from multiple models into a single DataFrame.
+    Combine feature selection results from multiple models into a single DataFrame.
 
     Args:
-        model_importances (dict[ModelType, pd.DataFrame]): Dictionary of model types and average gain feature importance DataFrames.
+        model_importances (dict[ModelType, pd.DataFrame]): Dictionary of model types and feature selection results DataFrames.
 
     Returns:
-        pd.DataFrame: Combined feature importances with a ModelType column.
+        pd.DataFrame: Combined feature selection results with a ModelType column.
     """
     combined_results = []
 
@@ -787,7 +791,7 @@ def combine_model_feature_importances(
 
     combined_df = pd.concat(combined_results, ignore_index=True)
 
-    logger.info(f"Combined feature importances from {len(model_importances)} models")
+    logger.info(f"Combined feature selection results from {len(model_importances)} models")
 
     return combined_df
 
@@ -841,3 +845,72 @@ def find_correlated_feature_pairs(X: pd.DataFrame, threshold: float = CORRELATIO
         logger.info(f"No correlated feature pairs found with threshold {threshold}")
 
     return correlated_feature_pairs
+
+
+def get_permutation_importance(
+    model: BaseEstimator,
+    X_validation: pd.DataFrame,
+    y_validation: pd.Series,
+    n_repeats: int = PERMUTATION_IMPORTANCE_N_REPEATS,
+    scoring: str = PERMUTATION_IMPORTANCE_SCORING,
+    n_jobs: int = PERMUTATION_IMPORTANCE_N_JOBS,
+    random_seed: int = RANDOM_SEED_DEFAULT,
+) -> pd.DataFrame:
+    """
+    Get the permutation importance of the model.
+
+    Args:
+        model (BaseEstimator): Model to get the permutation importance of.
+        X_validation (pd.DataFrame): Validation features.
+        y_validation (pd.Series): Validation target.
+        n_repeats (int): Number of repeats.
+        n_jobs (int): Number of jobs.
+        random_seed (int): Random seed.
+
+    Returns:
+        pd.DataFrame: Permutation importance.
+    """
+    permutation_importances = permutation_importance(
+        model, X_validation, y_validation, n_repeats=n_repeats, scoring=scoring, n_jobs=n_jobs, random_state=random_seed
+    )
+
+    return pd.DataFrame({"feature": X_validation.columns, "importance": permutation_importances.importances_mean})
+
+
+def get_average_permutation_importance(per_fold_permutation_importances: list[pd.DataFrame]) -> pd.DataFrame:
+    """
+    Get the average permutation importance across CV folds.
+
+    Args:
+        per_fold_permutation_importances (list[pd.DataFrame]): List of per fold permutation importances.
+
+    Returns:
+        pd.DataFrame: Average permutation importance.
+    """
+    per_fold_permutation_importances = pd.concat(per_fold_permutation_importances)
+
+    average_permutation_importance = (
+        per_fold_permutation_importances.groupby("feature").agg({"importance": "mean"}).reset_index()
+    )
+    average_permutation_importance.columns = ["feature", "importance_mean"]
+    average_permutation_importance["percentage_mean"] = (
+        average_permutation_importance["importance_mean"]
+        / average_permutation_importance["importance_mean"].sum()
+        * 100
+    )
+    average_permutation_importance = average_permutation_importance.sort_values(
+        "importance_mean", ascending=False
+    ).reset_index(drop=True)
+
+    logger.info(
+        f"Ranked features by average permutation importance across CV folds\n{average_permutation_importance.to_string(index=False)}"
+    )
+
+    logger.info("Cumulative importance")
+    logger.info(f"  Top 10: {average_permutation_importance.head(10)['percentage_mean'].sum():5.1f}%")
+    logger.info(f"  Top 20: {average_permutation_importance.head(20)['percentage_mean'].sum():5.1f}%")
+    logger.info(f"  Top 30: {average_permutation_importance.head(30)['percentage_mean'].sum():5.1f}%")
+    logger.info(f"  Top 40: {average_permutation_importance.head(40)['percentage_mean'].sum():5.1f}%")
+    logger.info(f"  Top 50: {average_permutation_importance.head(50)['percentage_mean'].sum():5.1f}%")
+
+    return average_permutation_importance

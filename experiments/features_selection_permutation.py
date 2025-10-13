@@ -6,8 +6,8 @@ from thesis.eta.experiment import ETAEvaluation, ETAExperiment
 from thesis.eta.features import (
     FeatureCalibrator,
     combine_feature_selection_results,
-    get_average_gain_feature_importance,
-    get_gain_feature_importance,
+    get_average_permutation_importance,
+    get_permutation_importance,
     save_feature_selection_results,
     split_features_and_target,
 )
@@ -31,30 +31,33 @@ def main() -> None:
     feature_groups = tuple(FeatureGroup)
     model_types = (ModelType.LIGHTGBM_REGRESSOR, ModelType.XGBOOST_REGRESSOR)
 
-    model_feature_importances = {}
+    model_permutation_importances = {}
 
     for model_type in model_types:
-        logger.info(f"Computing feature importance for {model_type}")
+        logger.info(f"Computing permutation importance for {model_type}")
 
-        per_fold_gain_feature_importances = []
+        per_fold_permutation_importances = []
 
-        for train_index, _ in skf.split(trips_train_raw, stratify_key):
+        for train_index, validation_index in skf.split(trips_train_raw, stratify_key):
             trips_train_fold_raw = trips_train_raw.iloc[train_index].copy()
+            trips_validation_fold_raw = trips_train_raw.iloc[validation_index].copy()
 
             calibrator = FeatureCalibrator.from_train_trips(trips_train_fold_raw, feature_groups=feature_groups)
             trips_train_fold = calibrator.transform(trips_train_fold_raw)
+            trips_validation_fold = calibrator.transform(trips_validation_fold_raw)
             X_train_fold, y_train_fold = split_features_and_target(trips_train_fold)
+            X_validation_fold, y_validation_fold = split_features_and_target(trips_validation_fold)
 
             model = create_model(model_type)
             train_model(model, model_type, X_train_fold, y_train_fold)
 
-            fold_gain_feature_importance = get_gain_feature_importance(model, X_train_fold.columns.tolist())
-            per_fold_gain_feature_importances.append(fold_gain_feature_importance)
+            fold_permutation_importance = get_permutation_importance(model, X_validation_fold, y_validation_fold)
+            per_fold_permutation_importances.append(fold_permutation_importance)
 
-        average_gain_feature_importance = get_average_gain_feature_importance(per_fold_gain_feature_importances)
-        model_feature_importances[model_type] = average_gain_feature_importance
+        average_permutation_importance = get_average_permutation_importance(per_fold_permutation_importances)
+        model_permutation_importances[model_type] = average_permutation_importance
 
-    feature_selection_results = combine_feature_selection_results(model_feature_importances)
+    feature_selection_results = combine_feature_selection_results(model_permutation_importances)
     save_feature_selection_results(feature_selection_results, experiment.results_dir)
 
 

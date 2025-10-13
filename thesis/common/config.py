@@ -138,6 +138,9 @@ class FeaturesConfig:
     n_clusters: int
     n_components: int
     correlation_threshold: float
+    permutation_importance_n_repeats: int
+    permutation_importance_scoring: str
+    permutation_importance_n_jobs: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -348,6 +351,9 @@ CELL = CONFIG.features.cell
 N_CLUSTERS = CONFIG.features.n_clusters
 N_COMPONENTS = CONFIG.features.n_components
 CORRELATION_THRESHOLD = CONFIG.features.correlation_threshold
+PERMUTATION_IMPORTANCE_N_REPEATS = CONFIG.features.permutation_importance_n_repeats
+PERMUTATION_IMPORTANCE_SCORING = CONFIG.features.permutation_importance_scoring
+PERMUTATION_IMPORTANCE_N_JOBS = CONFIG.features.permutation_importance_n_jobs
 
 OBJECTIVE_XGBOOST = CONFIG.models.objective_xgboost
 OBJECTIVE_LIGHTGBM = CONFIG.models.objective_lightgbm

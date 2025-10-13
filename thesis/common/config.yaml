@@ -106,6 +106,9 @@ features:
   n_clusters: 20
   n_components: 2
   correlation_threshold: 0.90
+  permutation_importance_n_repeats: 100
+  permutation_importance_scoring: "neg_mean_absolute_error"
+  permutation_importance_n_jobs: -1
 
 models:
   objective_xgboost: reg:absoluteerror
