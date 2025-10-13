@@ -121,6 +121,7 @@ models:
   colsample_bytree: 0.8
   n_trials: 100
   direction: minimize
+  importance_type_lightgbm: gain
 
 services:
   host: 0.0.0.0

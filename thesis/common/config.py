@@ -155,6 +155,7 @@ class ModelsConfig:
     colsample_bytree: float
     n_trials: int
     direction: str
+    importance_type_lightgbm: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -359,6 +360,7 @@ SUBSAMPLE = CONFIG.models.subsample
 COLSAMPLE_BYTREE = CONFIG.models.colsample_bytree
 N_TRIALS = CONFIG.models.n_trials
 DIRECTION = CONFIG.models.direction
+IMPORTANCE_TYPE_LIGHTGBM = CONFIG.models.importance_type_lightgbm
 
 HOST = CONFIG.services.host
 ENVIRONMENT = CONFIG.services.environment
