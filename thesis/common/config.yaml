@@ -105,10 +105,11 @@ features:
   cell: 100
   n_clusters: 20
   n_components: 2
-  correlation_threshold: 0.90
+  correlation_threshold: 0.95
   permutation_importance_n_repeats: 100
   permutation_importance_scoring: "neg_mean_absolute_error"
   permutation_importance_n_jobs: -1
+  ranking_alpha: 0.5
 
 models:
   objective_xgboost: reg:absoluteerror
@@ -171,3 +172,12 @@ drift:
   spc_n_std: 10
   spc_min_std: 1e-6
   spc_consecutive_violations_required: 1000
+
+feature_categories:
+  original: [source_x, source_y, destination_x, destination_y, time_start, distance]
+  temporal: [hour_bin, is_morning, is_noon, is_afternoon, is_rush_hour]
+  spatial: [x_center, y_center, x_difference, y_difference, euclidean_distance, route_efficiency, detour_length, trip_bearing, trip_bearing_sin, trip_bearing_cos, is_short_distance, is_medium_distance, is_long_distance, source_distance_from_city_center, destination_distance_from_city_center, trip_centrality_change, trip_centrality]
+  fourier: [source_x_sin_0, source_x_sin_1, source_x_cos_0, source_x_cos_1, source_y_sin_0, source_y_sin_1, source_y_cos_0, source_y_cos_1, destination_x_sin_0, destination_x_sin_1, destination_x_cos_0, destination_x_cos_1, destination_y_sin_0, destination_y_sin_1, destination_y_cos_0, destination_y_cos_1]
+  cell: [source_cell_x, source_cell_y, destination_cell_x, destination_cell_y]
+  cluster: [source_cluster, destination_cluster]
+  pca: [source_pca_1, source_pca_2, destination_pca_1, destination_pca_2]

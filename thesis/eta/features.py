@@ -1,7 +1,8 @@
 """Feature engineering and transformation utilities for ETA prediction."""
 
 import logging
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
+from functools import reduce
 from pathlib import Path
 
 import joblib
@@ -22,6 +23,7 @@ from thesis.common.config import (
     COORDINATE_SCALE,
     CORRELATION_THRESHOLD,
     FEATURE_CALIBRATOR_FILENAME,
+    FEATURE_CATEGORIES,
     FEATURE_SELECTION_RESULTS_FILENAME,
     MISC_DIRNAME,
     MORNING_CEILING,
@@ -30,12 +32,15 @@ from thesis.common.config import (
     NOON_CEILING,
     NOON_FLOOR,
     NUM_FREQS,
+    OUTPUTS_DIR,
     PERCENTILE_THRESHOLDS,
     PERMUTATION_IMPORTANCE_N_JOBS,
     PERMUTATION_IMPORTANCE_N_REPEATS,
     PERMUTATION_IMPORTANCE_SCORING,
     PROJECT_DIR,
     RANDOM_SEED_DEFAULT,
+    RANKING_ALPHA,
+    RESULTS_DIRNAME,
     RUSH_HOURS,
     TARGET_COLUMN,
 )
@@ -984,3 +989,197 @@ def get_average_shap_importance(per_fold_shap_importances: list[pd.DataFrame]) -
     logger.info(f"  Top 50: {average_shap_importance.head(50)['percentage_mean'].sum():5.1f}%")
 
     return average_shap_importance
+
+
+def load_feature_selection_results() -> dict[str, pd.DataFrame]:
+    """
+    Load the feature selection results from all directories.
+
+    Returns:
+        dict[str, pd.DataFrame]: Dictionary mapping experiment names to feature selection results DataFrames.
+    """
+    required_columns = {"model", "feature", "importance_mean", "percentage_mean"}
+    valid_results = {}
+
+    for subdir in OUTPUTS_DIR.iterdir():
+        experiment_name = subdir.name
+        if not subdir.is_dir() or not experiment_name.startswith("features_selection_"):
+            continue
+
+        feature_selection_results_path = subdir / RESULTS_DIRNAME / FEATURE_SELECTION_RESULTS_FILENAME
+
+        if not feature_selection_results_path.exists():
+            continue
+
+        df = pd.read_csv(feature_selection_results_path)
+
+        if required_columns.issubset(df.columns):
+            valid_results[experiment_name] = df
+            logger.info(f"Loaded feature selection results from {experiment_name}")
+
+    logger.info(f"Loaded {len(valid_results)} valid feature selection result files")
+
+    return valid_results
+
+
+def rank_feature_importance_results(feature_importance_results: pd.DataFrame, experiment_name: str) -> pd.DataFrame:
+    """
+    Rank the feature importance results.
+
+    Args:
+        feature_importance_results (pd.DataFrame): Feature importance results.
+        experiment_name (str): Experiment name.
+
+    Returns:
+        pd.DataFrame: Ranked feature importance results.
+    """
+    result_frames = []
+
+    for _, group in feature_importance_results.groupby("model"):
+        group = group.copy()
+
+        group[f"rank_{experiment_name}"] = group["percentage_mean"].rank(ascending=False, method="dense")
+
+        minimum_value = group["percentage_mean"].min()
+        maximum_value = group["percentage_mean"].max()
+        group[f"scaled_{experiment_name}"] = (group["percentage_mean"] - minimum_value) / (
+            maximum_value - minimum_value
+        )
+
+        result_frames.append(group)
+
+    return pd.concat(result_frames, ignore_index=True)
+
+
+def combine_feature_rankings(
+    feature_selection_results: dict[str, pd.DataFrame], alpha: float = RANKING_ALPHA
+) -> pd.DataFrame:
+    """
+    Combine multiple feature importance DataFrames into a single aggregated ranking.
+
+    Args:
+        feature_selection_results (dict[str, pd.DataFrame]): Dictionary mapping experiment names to feature selection results DataFrames .
+        alpha (float): Weight for scaled vs rank in final score.
+
+    Returns:
+        pd.DataFrame: Final ranking DataFrame.
+    """
+    ranked_dfs = []
+    for experiment_name, df in feature_selection_results.items():
+        ranked_dfs.append(rank_feature_importance_results(df, experiment_name))
+
+    merged_df = reduce(lambda left, right: pd.merge(left, right, on=["model", "feature"], how="outer"), ranked_dfs)
+
+    rank_cols = [column for column in merged_df.columns if column.startswith("rank_")]
+    scaled_cols = [column for column in merged_df.columns if column.startswith("scaled_")]
+    merged_df["average_rank_model"] = merged_df[rank_cols].mean(axis=1)
+    merged_df["average_scaled_model"] = merged_df[scaled_cols].mean(axis=1)
+
+    final_df = (
+        merged_df.groupby("feature")
+        .agg(final_rank=("average_rank_model", "mean"), final_scaled=("average_scaled_model", "mean"))
+        .reset_index()
+    )
+
+    minimum_rank, maximum_rank = final_df["final_rank"].min(), final_df["final_rank"].max()
+    final_df["normalized_rank"] = (
+        0.0 if maximum_rank == minimum_rank else (final_df["final_rank"] - minimum_rank) / (maximum_rank - minimum_rank)
+    )
+
+    final_df["final_score"] = alpha * final_df["final_scaled"] + (1 - alpha) * (1 - final_df["normalized_rank"])
+
+    columns = ["feature", "final_score", "final_rank", "final_scaled", "normalized_rank"]
+    other_columns = [column for column in final_df.columns if column not in columns]
+    final_df = final_df[columns + other_columns]
+    final_df = final_df.sort_values("final_score", ascending=False).reset_index(drop=True)
+
+    return final_df
+
+
+def load_feature_ranking_results() -> pd.DataFrame:
+    """
+    Load the feature ranking results.
+
+    Returns:
+        pd.DataFrame: Feature ranking results.
+    """
+    feature_ranking_results_path = (
+        OUTPUTS_DIR / "features_selection_ranking" / RESULTS_DIRNAME / FEATURE_SELECTION_RESULTS_FILENAME
+    )
+
+    if not feature_ranking_results_path.exists():
+        return pd.DataFrame()
+
+    df = pd.read_csv(feature_ranking_results_path)
+
+    return df
+
+
+def compare_correlated_features_pairs(
+    correlated_feature_pairs: pd.DataFrame, feature_ranking: pd.DataFrame
+) -> pd.DataFrame:
+    """
+    Compare correlated feature pairs against their ranking scores.
+
+    Args:
+        correlated_feature_pairs: DataFrame with correlated feature pairs.
+        feature_ranking: DataFrame with feature rankings.
+
+    Returns:
+        pd.DataFrame: DataFrame with correlated feature pairs comparison results.
+    """
+    feature_final_scores = dict(zip(feature_ranking["feature"], feature_ranking["final_score"]))
+    feature_index = dict(zip(feature_ranking["feature"], feature_ranking.index + 1))
+
+    rows = []
+    for row in correlated_feature_pairs.itertuples(index=False):
+        feature_1, feature_2, correlation = row.feature_1, row.feature_2, row.correlation
+        feature_1_final_score, feature_1_final_index = (
+            feature_final_scores.get(feature_1, -1),
+            feature_index.get(feature_1, -1),
+        )
+        feature_2_final_score, feature_2_final_index = (
+            feature_final_scores.get(feature_2, -1),
+            feature_index.get(feature_2, -1),
+        )
+
+        if feature_1_final_score >= feature_2_final_score:
+            keep, keep_index = feature_1, feature_1_final_index
+        else:
+            keep, keep_index = feature_2, feature_2_final_index
+
+        rows.append(
+            {
+                "feature_1": feature_1,
+                "feature_2": feature_2,
+                "feature_1_score": feature_1_final_score,
+                "feature_2_score": feature_2_final_score,
+                "feature_1_rank": feature_1_final_index,
+                "feature_2_rank": feature_2_final_index,
+                "correlation": correlation,
+                "keep": keep,
+                "keep_index": keep_index,
+            }
+        )
+
+    return pd.DataFrame(rows)
+
+
+def add_feature_categories(feature_ranking: pd.DataFrame) -> pd.DataFrame:
+    """
+    Add feature categories to the feature ranking.
+
+    Args:
+        feature_ranking: DataFrame with feature rankings.
+
+    Returns:
+        pd.DataFrame: DataFrame with feature categories.
+    """
+    feature_category_map = {}
+
+    for category, features in asdict(FEATURE_CATEGORIES).items():
+        for feature in features:
+            feature_category_map[feature] = category
+
+    feature_ranking["category"] = feature_ranking["feature"].map(feature_category_map).fillna("none")
+    return feature_ranking

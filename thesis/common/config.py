@@ -141,6 +141,7 @@ class FeaturesConfig:
     permutation_importance_n_repeats: int
     permutation_importance_scoring: str
     permutation_importance_n_jobs: int
+    ranking_alpha: float
 
 
 @dataclass(frozen=True, slots=True)
@@ -218,6 +219,17 @@ class DriftConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class FeatureCategoriesConfig:
+    original: list[str]
+    temporal: list[str]
+    spatial: list[str]
+    fourier: list[str]
+    cell: list[str]
+    cluster: list[str]
+    pca: list[str]
+
+
+@dataclass(frozen=True, slots=True)
 class Config:
     logging: LoggingConfig
     dirname: DirnameConfig
@@ -235,6 +247,7 @@ class Config:
     predictor: PredictorConfig
     predictor_eta: PredictorEtaConfig
     drift: DriftConfig
+    feature_categories: FeatureCategoriesConfig
 
 
 def load_config(config_path: Path) -> Config:
@@ -257,6 +270,7 @@ def load_config(config_path: Path) -> Config:
             predictor=PredictorConfig(**data["predictor"]),
             predictor_eta=PredictorEtaConfig(**data["predictor_eta"]),
             drift=DriftConfig(**data["drift"]),
+            feature_categories=FeatureCategoriesConfig(**data["feature_categories"]),
         )
 
 
@@ -354,6 +368,7 @@ CORRELATION_THRESHOLD = CONFIG.features.correlation_threshold
 PERMUTATION_IMPORTANCE_N_REPEATS = CONFIG.features.permutation_importance_n_repeats
 PERMUTATION_IMPORTANCE_SCORING = CONFIG.features.permutation_importance_scoring
 PERMUTATION_IMPORTANCE_N_JOBS = CONFIG.features.permutation_importance_n_jobs
+RANKING_ALPHA = CONFIG.features.ranking_alpha
 
 OBJECTIVE_XGBOOST = CONFIG.models.objective_xgboost
 OBJECTIVE_LIGHTGBM = CONFIG.models.objective_lightgbm
@@ -410,3 +425,5 @@ KSWIN_STAT_SIZE = CONFIG.drift.kswin_stat_size
 SPC_N_STD = CONFIG.drift.spc_n_std
 SPC_MIN_STD = CONFIG.drift.spc_min_std
 SPC_CONSECUTIVE_VIOLATIONS_REQUIRED = CONFIG.drift.spc_consecutive_violations_required
+
+FEATURE_CATEGORIES = CONFIG.feature_categories
