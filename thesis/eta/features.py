@@ -61,10 +61,10 @@ def check_required_columns(df: pd.DataFrame, required_columns: list[str], featur
     Raises:
         ValueError: If the required columns are not found in the DataFrame.
     """
-    if not all(column in df.columns for column in required_columns):
-        missing_columns = [column for column in required_columns if column not in df.columns]
+    missing_columns = [column for column in required_columns if column not in df.columns]
 
-        error_msg = f"{missing_columns} not found, while adding {feature_type} features"
+    if missing_columns:
+        error_msg = f"Missing columns {missing_columns} while adding {feature_type} features"
         logger.error(error_msg)
         raise ValueError(error_msg)
 
