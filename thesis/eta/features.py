@@ -469,58 +469,6 @@ def add_pca_features(
     return df_pca
 
 
-# TODO: remove this wrapper
-def add_all_features(
-    df: pd.DataFrame,
-    distance_percentiles: np.ndarray | None = None,
-    percentile_thresholds: list[int] = PERCENTILE_THRESHOLDS,
-    city_center_x: float | None = None,
-    city_center_y: float | None = None,
-    coordinate_scale: int = COORDINATE_SCALE,
-    num_freqs: int = NUM_FREQS,
-    cell: int = CELL,
-    kmeans_source: KMeans | None = None,
-    kmeans_destination: KMeans | None = None,
-    n_clusters: int = N_CLUSTERS,
-    random_seed: int = RANDOM_SEED_DEFAULT,
-    pca_coordinates: PCA | None = None,
-    n_components: int = N_COMPONENTS,
-) -> pd.DataFrame:
-    """
-    Add all features to the dataframe.
-
-    Args:
-        df (pd.DataFrame): DataFrame with trip data containing source_x, source_y, destination_x, destination_y, distance columns.
-        distance_percentiles (np.ndarray | None): Percentiles to use for distance features.
-        percentile_thresholds (list[int]): Percentiles to use for distance features.
-        city_center_x (float | None): Mean center x to use for radial features.
-        city_center_y (float | None): Mean center y to use for radial features.
-        coordinate_scale (int): Scale factor to normalize coordinates for fourier encoding.
-        num_freqs (int): Number of frequency components to use for fourier encoding.
-        cell (int): Size of the cell in meters.
-        kmeans_source (KMeans | None): KMeans object to use for source cluster.
-        kmeans_destination (KMeans | None): KMeans object to use for destination cluster.
-        n_clusters (int): Number of clusters for K-means clustering on coordinates.
-        random_seed (int): Random seed for clustering and pca.
-        pca_coordinates (PCA | None): PCA object to use for pca.
-        n_components (int): Number of components for pca.
-
-    Returns:
-        pd.DataFrame: DataFrame with added all features.
-
-    Raises:
-        ValueError: If the required columns are not found in the DataFrame.
-    """
-    df = add_temporal_features(df)
-    df = add_spatial_features(df, distance_percentiles, percentile_thresholds, city_center_x, city_center_y)
-    df = add_fourier_features(df, coordinate_scale, num_freqs)
-    df = add_cell_features(df, cell)
-    df = add_cluster_features(df, kmeans_source, kmeans_destination, n_clusters, random_seed)
-    df = add_pca_features(df, pca_coordinates, n_components, random_seed)
-
-    return df
-
-
 @dataclass(frozen=True, slots=True)
 class FeatureCalibrator:
     """
