@@ -1,9 +1,10 @@
 from thesis.common.data import generate_trips, load_fcd_dataset, preprocess_fcd_dataset
+from thesis.common.enums import MLTask
 from thesis.common.logger import setup_logger
 from thesis.eta.data import ensure_dataset_is_valid
 from thesis.eta.experiment import ETAEvaluation, ETAExperiment
 from thesis.eta.features import FeatureCalibratorETA, split_features_and_target
-from thesis.eta.models import ModelType, create_model, save_model
+from thesis.eta.models import ModelType, create_model, save_final_model, save_model
 from thesis.eta.pipeline import train_model
 
 
@@ -40,6 +41,7 @@ def main() -> None:
     model = create_model(model_type, **best_params)
     train_model(model, model_type, X_train, y_train)
     save_model(model, model_type, experiment.models_dir)
+    save_final_model(model, model_type, MLTask.ETA)
 
 
 if __name__ == "__main__":

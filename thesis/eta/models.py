@@ -1,6 +1,7 @@
 """Machine learning model definitions and factory functions for ETA prediction."""
 
 import inspect
+import json
 import logging
 from enum import StrEnum
 from pathlib import Path
@@ -17,21 +18,30 @@ from xgboost import XGBRegressor
 
 from thesis.common.config import (
     ALLOW_WRITING_FILES,
+    APPDATA_DIRNAME,
     COLSAMPLE_BYTREE,
+    DEFAULT_VERSION,
     ENABLE_CATEGORICAL,
+    END_TIME,
     IMPORTANCE_TYPE,
     LEARNING_RATE,
     LOSS_FUNCTION_CATBOOST,
     MAX_DEPTH,
+    METADATA_FILENAME,
+    MODEL_FILENAME,
+    MODELS_DIRNAME,
     N_ESTIMATORS,
     OBJECTIVE_LIGHTGBM,
     OBJECTIVE_XGBOOST,
+    PROJECT_DIR,
     RANDOM_SEED_DEFAULT,
+    START_TIME,
     SUBSAMPLE,
     TREE_METHOD,
     VERBOSE_CATBOOST,
     VERBOSE_LIGHTGBM,
 )
+from thesis.common.enums import MLTask
 
 logger = logging.getLogger(__name__)
 
@@ -293,3 +303,34 @@ def load_model(model_type: ModelType, models_dir: Path) -> BaseEstimator:
     logger.info(f"Model loaded from {model_path}")
 
     return model
+
+
+def save_final_model(model: BaseEstimator, model_type: ModelType, ml_task: MLTask) -> None:
+    """
+    Save the final model to the models directory.
+
+    Args:
+        model (BaseEstimator): Machine learning model to save.
+        model_type (ModelType): Type of the model.
+        ml_task (MLTask): ML task.
+    """
+    model_dir = PROJECT_DIR / APPDATA_DIRNAME / MODELS_DIRNAME / ml_task / DEFAULT_VERSION
+    model_dir.mkdir(parents=True, exist_ok=True)
+
+    model_path = model_dir / MODEL_FILENAME
+    joblib.dump(model, model_path)
+
+    metadata = {
+        "ml_task": ml_task,
+        "version": DEFAULT_VERSION,
+        "base_version": DEFAULT_VERSION,
+        "model": model_type,
+        "start_timestamp": -END_TIME,
+        "end_timestamp": START_TIME,
+    }
+    metadata_path = model_dir / METADATA_FILENAME
+
+    with open(metadata_path, "w") as f:
+        json.dump(metadata, f, indent=4)
+
+    logger.info(f"Final model and metadata saved to directory {model_dir}")
