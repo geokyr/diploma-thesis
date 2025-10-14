@@ -40,15 +40,15 @@ def check_required_columns(df: pd.DataFrame, required_columns: list[str], featur
     Args:
         df (pd.DataFrame): DataFrame to check.
         required_columns (list[str]): List of required column names.
-        feature_type (str): Type of features being added (for logging).
+        feature_type (str): Type of features being added for logging.
 
     Raises:
         ValueError: If the required columns are not found in the DataFrame.
     """
-    if not all(column in df.columns for column in required_columns):
-        missing_columns = [column for column in required_columns if column not in df.columns]
+    missing_columns = [column for column in required_columns if column not in df.columns]
 
-        error_msg = f"{missing_columns} not found, while adding {feature_type} features"
+    if missing_columns:
+        error_msg = f"Missing columns {missing_columns} while adding {feature_type} features"
         logger.error(error_msg)
         raise ValueError(error_msg)
 
@@ -114,9 +114,7 @@ def create_trip_features(df: pd.DataFrame) -> pd.DataFrame:
 
     trip_features.columns = ["_".join(col).strip() for col in trip_features.columns.values]
 
-    if "vehicle_fuel_sum" in trip_features.columns:
-        trip_features["vehicle_fuel_log_sum"] = np.log1p(trip_features["vehicle_fuel_sum"])
-
+    trip_features["vehicle_fuel_log_sum"] = np.log1p(trip_features["vehicle_fuel_sum"])
     trip_features.drop(columns=["vehicle_fuel_sum"], inplace=True)
 
     trip_features["trip_actual_distance"] = (
@@ -146,7 +144,7 @@ def fit_source_destination_kmeans(
     n_start_clusters: int = N_START_CLUSTERS,
     n_end_clusters: int = N_END_CLUSTERS,
     random_state: int = RANDOM_SEED_DEFAULT,
-) -> dict:
+) -> dict[str, KMeans | int]:
     """
     Fit KMeans clustering models for trip source and destination points.
 
@@ -157,7 +155,7 @@ def fit_source_destination_kmeans(
         random_state (int): Random state for reproducibility.
 
     Returns:
-        dict: Dictionary containing fitted KMeans models.
+        dict[str, KMeans | int]: Dictionary containing fitted KMeans models.
     """
     start_points = train_features[["vehicle_x_first", "vehicle_y_first"]].values
     end_points = train_features[["vehicle_x_last", "vehicle_y_last"]].values
@@ -176,7 +174,7 @@ def fit_source_destination_kmeans(
     }
 
 
-def add_start_end_clusters(trip_features: pd.DataFrame, models: dict) -> pd.DataFrame:
+def add_start_end_clusters(trip_features: pd.DataFrame, models: dict[str, KMeans | int]) -> pd.DataFrame:
     """
     Add one-hot encoded cluster features using fitted KMeans models.
 
@@ -225,7 +223,7 @@ class FeatureCalibratorFuel:
         n_end_clusters (int): Number of end location clusters.
     """
 
-    clustering_models: dict
+    clustering_models: dict[str, KMeans | int]
     feature_columns: list[str]
     n_start_clusters: int
     n_end_clusters: int
@@ -239,7 +237,7 @@ class FeatureCalibratorFuel:
         random_seed: int = RANDOM_SEED_DEFAULT,
     ) -> "FeatureCalibratorFuel":
         """
-        Create and fit a FeatureCalibratorFuel for fuel consumption prediction from training trips.
+        Create and fit a FeatureCalibratorFuel from training FCD data.
 
         Args:
             df (pd.DataFrame): DataFrame with training trips (FCD format).
@@ -248,7 +246,7 @@ class FeatureCalibratorFuel:
             random_seed (int): Random seed for reproducibility.
 
         Returns:
-            FeatureCalibratorFuel: New fitted calibrator.
+            FeatureCalibratorFuel: New fitted FeatureCalibratorFuel.
 
         Raises:
             ValueError: If required columns are not found in the DataFrame.
@@ -276,14 +274,8 @@ class FeatureCalibratorFuel:
         trip_features_with_clusters = add_start_end_clusters(trip_features, clustering_models)
 
         core_feature_cols = [c for c in CORE_FEATURES if c in trip_features_with_clusters.columns]
-        start_cluster_cols = [
-            c
-            for c in trip_features_with_clusters.columns
-            if c.startswith("start_cluster_") and not c.endswith("_label")
-        ]
-        end_cluster_cols = [
-            c for c in trip_features_with_clusters.columns if c.startswith("end_cluster_") and not c.endswith("_label")
-        ]
+        start_cluster_cols = [c for c in trip_features_with_clusters.columns if c.startswith("start_cluster_")]
+        end_cluster_cols = [c for c in trip_features_with_clusters.columns if c.startswith("end_cluster_")]
 
         feature_columns = core_feature_cols + start_cluster_cols + end_cluster_cols
         feature_columns = list(dict.fromkeys(feature_columns))
@@ -303,10 +295,10 @@ class FeatureCalibratorFuel:
             df (pd.DataFrame): DataFrame with FCD data or trip data.
 
         Returns:
-            pd.DataFrame: DataFrame with engineered features ready for modeling.
+            pd.DataFrame: DataFrame with all features added.
 
         Raises:
-            ValueError: If required columns are not found in the DataFrame.
+            ValueError: If the required columns are not found in the DataFrame.
         """
         if "trip_actual_distance" not in df.columns:
             if "hour_bin" not in df.columns:
