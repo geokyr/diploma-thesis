@@ -5,10 +5,10 @@ from thesis.common.data import (
     merge_test_and_rain_trips,
     preprocess_fcd_dataset,
 )
-from thesis.common.enums import MLTask
+from thesis.common.enums import ETAEvaluation, MLTask
 from thesis.common.logger import setup_logger
 from thesis.eta.data import ensure_dataset_is_valid
-from thesis.eta.experiment import ETAEvaluation, ETAExperiment
+from thesis.eta.experiment import ETAExperiment
 from thesis.eta.features import FeatureCalibratorETA
 
 

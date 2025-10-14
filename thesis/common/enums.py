@@ -3,6 +3,38 @@
 from enum import StrEnum
 
 
+class SimulationScenario(StrEnum):
+    """
+    Simulation Scenarios.
+
+    Attributes:
+        TRAIN: Train data on base network.
+        TEST: Test data on base network.
+        RAIN: Retrain/test data on rain network.
+    """
+
+    TRAIN = "train"
+    TEST = "test"
+    RAIN = "rain"
+
+
+class ETAEvaluation(StrEnum):
+    """
+    ETA Evaluations.
+
+    Attributes:
+        RESEARCH: Evaluate via cross-validation on training data.
+        STABLE: Evaluate on a clean, held-out test set.
+        DRIFT: Evaluate on drift-affected data to quantify degradation.
+        RETRAIN: Evaluate after retraining on drift-affected data to assess recovery.
+    """
+
+    RESEARCH = "research"
+    STABLE = "stable"
+    DRIFT = "drift"
+    RETRAIN = "retrain"
+
+
 class MLTask(StrEnum):
     """
     ML tasks.
@@ -16,6 +48,23 @@ class MLTask(StrEnum):
     ETA = "eta"
     FUEL = "fuel"
     STOPS = "stops"
+
+
+class ModelType(StrEnum):
+    """
+    Model Types.
+
+    Attributes:
+        LINEAR_REGRESSION: Linear Regression.
+        XGBOOST_REGRESSOR: XGBoost Regressor.
+        LIGHTGBM_REGRESSOR: LightGBM Regressor.
+        CATBOOST_REGRESSOR: CatBoost Regressor.
+    """
+
+    LINEAR_REGRESSION = "LinearRegression"
+    XGBOOST_REGRESSOR = "XGBRegressor"
+    LIGHTGBM_REGRESSOR = "LGBMRegressor"
+    CATBOOST_REGRESSOR = "CatBoostRegressor"
 
 
 class FeatureGroup(StrEnum):
@@ -67,6 +116,27 @@ class SimulationState(StrEnum):
     IDLE = "idle"
     RUNNING = "running"
     PAUSED = "paused"
+
+
+class PlatformService(StrEnum):
+    """
+    Platform services.
+
+    Attributes:
+        BACKEND: Backend service.
+        PREDICTOR_ETA: ETA predictor service.
+        PREDICTOR_FUEL: Fuel predictor service.
+        PREDICTOR_STOPS: Stops predictor service.
+        FRONTEND: Frontend service.
+        DRIFT: Drift service.
+    """
+
+    BACKEND = "backend"
+    PREDICTOR_ETA = "predictor-eta"
+    PREDICTOR_FUEL = "predictor-fuel"
+    PREDICTOR_STOPS = "predictor-stops"
+    FRONTEND = "frontend"
+    DRIFT = "drift"
 
 
 class PlatformServiceStatus(StrEnum):

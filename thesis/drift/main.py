@@ -3,10 +3,10 @@ from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI
 
-from thesis.common.enums import PlatformServiceStatus
+from thesis.common.enums import PlatformService, PlatformServiceStatus
 from thesis.common.logger import setup_logger
 from thesis.common.schemas import HealthResponse
-from thesis.common.service import PlatformService, PlatformServiceConfig
+from thesis.common.service import PlatformServiceConfig
 from thesis.drift.routers.drift import drift_router
 from thesis.drift.services.drift_service import DriftService
 

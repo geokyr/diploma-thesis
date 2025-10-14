@@ -19,7 +19,7 @@ from thesis.common.config import (
     RESULTS_FILENAME,
     TUNING_RESULTS_FILENAME,
 )
-from thesis.eta.models import ModelType
+from thesis.common.enums import ModelType
 
 logger = logging.getLogger(__name__)
 

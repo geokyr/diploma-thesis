@@ -1,3 +1,4 @@
+from thesis.common.enums import SimulationScenario
 from thesis.common.logger import setup_logger
 from thesis.simulation.experiment import SimulationExperiment
 from thesis.simulation.pipeline import (
@@ -11,7 +12,7 @@ from thesis.simulation.pipeline import (
     simulate_scenario,
     write_gui_settings_file,
 )
-from thesis.simulation.scenario import SimulationScenario, SimulationScenarioConfig
+from thesis.simulation.scenario import SimulationScenarioConfig
 
 
 def main() -> None:

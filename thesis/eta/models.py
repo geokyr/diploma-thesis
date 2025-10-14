@@ -3,7 +3,6 @@
 import inspect
 import json
 import logging
-from enum import StrEnum
 from pathlib import Path
 from typing import Callable
 
@@ -41,26 +40,9 @@ from thesis.common.config import (
     VERBOSE_CATBOOST,
     VERBOSE_LIGHTGBM,
 )
-from thesis.common.enums import MLTask
+from thesis.common.enums import MLTask, ModelType
 
 logger = logging.getLogger(__name__)
-
-
-class ModelType(StrEnum):
-    """
-    Model Types.
-
-    Attributes:
-        LINEAR_REGRESSION: Linear Regression.
-        XGBOOST_REGRESSOR: XGBoost Regressor.
-        LIGHTGBM_REGRESSOR: LightGBM Regressor.
-        CATBOOST_REGRESSOR: CatBoost Regressor.
-    """
-
-    LINEAR_REGRESSION = "LinearRegression"
-    XGBOOST_REGRESSOR = "XGBRegressor"
-    LIGHTGBM_REGRESSOR = "LGBMRegressor"
-    CATBOOST_REGRESSOR = "CatBoostRegressor"
 
 
 MODEL_REGISTRY: dict[ModelType, Callable[..., BaseEstimator]] = {}

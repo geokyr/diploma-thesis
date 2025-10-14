@@ -13,7 +13,7 @@ from sklearn.metrics import (
 from sklearn.model_selection import StratifiedKFold
 
 from thesis.common.config import N_BINS, N_SPLITS, RANDOM_SEED_DEFAULT
-from thesis.eta.models import ModelType
+from thesis.common.enums import ModelType
 from thesis.eta.results import EvaluationResults, PredictionResults, TrainingResults
 
 logger = logging.getLogger(__name__)

@@ -8,8 +8,9 @@ import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 
 from thesis.common.config import DIRECTION, N_FOCUSED_TRIALS, N_TRIALS, RANDOM_SEED_DEFAULT
+from thesis.common.enums import ModelType
 from thesis.eta.features import FeatureCalibratorETA, split_features_and_target
-from thesis.eta.models import ModelType, create_model
+from thesis.eta.models import create_model
 from thesis.eta.pipeline import evaluate_predictions, make_predictions, train_model
 from thesis.eta.results import build_cv_results, build_model_results
 

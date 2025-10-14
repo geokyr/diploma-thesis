@@ -2,7 +2,6 @@
 
 import logging
 from dataclasses import dataclass
-from enum import StrEnum
 from pathlib import Path
 from typing import ClassVar
 
@@ -23,23 +22,9 @@ from thesis.common.config import (
     TRAFFIC_GENERATION_PERIODS_STD,
     TRIPS_SUFFIX,
 )
+from thesis.common.enums import SimulationScenario
 
 logger = logging.getLogger(__name__)
-
-
-class SimulationScenario(StrEnum):
-    """
-    Simulation Scenarios.
-
-    Attributes:
-        TRAIN: Train data on base network.
-        TEST: Test data on base network.
-        RAIN: Retrain/test data on rain network.
-    """
-
-    TRAIN = "train"
-    TEST = "test"
-    RAIN = "rain"
 
 
 @dataclass(frozen=True, slots=True)

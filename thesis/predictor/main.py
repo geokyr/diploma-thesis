@@ -3,10 +3,10 @@ from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI
 
-from thesis.common.enums import PlatformServiceStatus
+from thesis.common.enums import PlatformService, PlatformServiceStatus
 from thesis.common.logger import setup_logger
 from thesis.common.schemas import HealthResponse
-from thesis.common.service import PlatformService, PlatformServiceConfig
+from thesis.common.service import PlatformServiceConfig
 from thesis.predictor.routers.predict import predict_router
 from thesis.predictor.routers.retrain import retrain_router
 from thesis.predictor.services.data_loader import DataLoader

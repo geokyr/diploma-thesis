@@ -1,8 +1,8 @@
 from thesis.common.data import generate_trips, load_fcd_dataset, preprocess_fcd_dataset
-from thesis.common.enums import FeatureGroup
+from thesis.common.enums import ETAEvaluation, FeatureGroup
 from thesis.common.logger import setup_logger
 from thesis.eta.data import ensure_dataset_is_valid
-from thesis.eta.experiment import ETAEvaluation, ETAExperiment
+from thesis.eta.experiment import ETAExperiment
 from thesis.eta.features import (
     FeatureCalibrator,
     compare_correlated_features_pairs,

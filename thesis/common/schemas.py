@@ -2,8 +2,7 @@
 
 from pydantic import BaseModel, Field
 
-from thesis.common.enums import DriftState, MLTask, NotificationLevel, RetrainStatus, SimulationState
-from thesis.common.service import PlatformService
+from thesis.common.enums import DriftState, MLTask, NotificationLevel, PlatformService, RetrainStatus, SimulationState
 
 
 class HealthResponse(BaseModel):

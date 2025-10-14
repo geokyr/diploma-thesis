@@ -11,10 +11,10 @@ from thesis.backend.services.notification_store import NotificationStore
 from thesis.backend.services.prediction_service import PredictionService
 from thesis.backend.services.simulation_manager import SimulationManager
 from thesis.backend.services.timelapse_driver import TimelapseDriver
-from thesis.common.enums import PlatformServiceStatus
+from thesis.common.enums import PlatformService, PlatformServiceStatus
 from thesis.common.logger import setup_logger
 from thesis.common.schemas import HealthResponse
-from thesis.common.service import PlatformService, PlatformServiceConfig
+from thesis.common.service import PlatformServiceConfig
 
 config = PlatformServiceConfig()
 logger = setup_logger(config.service, config.logs_dir)

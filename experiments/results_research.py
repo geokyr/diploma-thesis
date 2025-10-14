@@ -1,5 +1,6 @@
+from thesis.common.enums import ETAEvaluation
 from thesis.common.logger import setup_logger
-from thesis.eta.experiment import ETAEvaluation, ETAExperiment
+from thesis.eta.experiment import ETAExperiment
 from thesis.eta.results import (
     load_research_results_without_baselines,
     run_metric_analysis,

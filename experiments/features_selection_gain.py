@@ -1,8 +1,8 @@
 from thesis.common.data import generate_trips, load_fcd_dataset, preprocess_fcd_dataset
-from thesis.common.enums import FeatureGroup
+from thesis.common.enums import ETAEvaluation, FeatureGroup, ModelType
 from thesis.common.logger import setup_logger
 from thesis.eta.data import ensure_dataset_is_valid
-from thesis.eta.experiment import ETAEvaluation, ETAExperiment
+from thesis.eta.experiment import ETAExperiment
 from thesis.eta.features import (
     FeatureCalibrator,
     combine_feature_selection_results,
@@ -11,7 +11,7 @@ from thesis.eta.features import (
     save_feature_selection_results,
     split_features_and_target,
 )
-from thesis.eta.models import ModelType, create_model
+from thesis.eta.models import create_model
 from thesis.eta.pipeline import get_stratified_kfold_cv, train_model
 
 

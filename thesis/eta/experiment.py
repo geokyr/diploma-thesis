@@ -2,7 +2,6 @@
 
 import logging
 from dataclasses import dataclass
-from enum import StrEnum
 from pathlib import Path
 from typing import ClassVar
 
@@ -17,26 +16,9 @@ from thesis.common.config import (
     SIMULATION_DIR,
     STABLE_MODELS_DIRNAME,
 )
-from thesis.simulation.scenario import SimulationScenario
+from thesis.common.enums import ETAEvaluation, SimulationScenario
 
 logger = logging.getLogger(__name__)
-
-
-class ETAEvaluation(StrEnum):
-    """
-    ETA Evaluations.
-
-    Attributes:
-        RESEARCH: Evaluate via cross-validation on training data.
-        STABLE: Evaluate on a clean, held-out test set.
-        DRIFT: Evaluate on drift-affected data to quantify degradation.
-        RETRAIN: Evaluate after retraining on drift-affected data to assess recovery.
-    """
-
-    RESEARCH = "research"
-    STABLE = "stable"
-    DRIFT = "drift"
-    RETRAIN = "retrain"
 
 
 @dataclass(frozen=True, slots=True)

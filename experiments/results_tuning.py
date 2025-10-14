@@ -1,5 +1,6 @@
+from thesis.common.enums import ETAEvaluation
 from thesis.common.logger import setup_logger
-from thesis.eta.experiment import ETAEvaluation, ETAExperiment
+from thesis.eta.experiment import ETAExperiment
 from thesis.eta.results import (
     load_all_tuning_results,
     plot_parameters_vs_mae,

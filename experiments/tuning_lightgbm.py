@@ -1,9 +1,10 @@
 from thesis.common.data import generate_trips, load_fcd_dataset, preprocess_fcd_dataset
+from thesis.common.enums import ETAEvaluation, ModelType
 from thesis.common.logger import setup_logger
 from thesis.eta.data import ensure_dataset_is_valid
-from thesis.eta.experiment import ETAEvaluation, ETAExperiment
+from thesis.eta.experiment import ETAExperiment
 from thesis.eta.features import FeatureCalibratorETA, split_features_and_target
-from thesis.eta.models import ModelType, create_model, save_model
+from thesis.eta.models import create_model, save_model
 from thesis.eta.pipeline import get_stratified_kfold_cv, train_model
 from thesis.eta.results import build_tuning_results, save_tuning_results
 from thesis.eta.tuners import LightGBMTuner, run_hyperparameter_tuning

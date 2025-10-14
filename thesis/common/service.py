@@ -2,7 +2,6 @@
 
 import os
 from dataclasses import dataclass
-from enum import StrEnum
 from pathlib import Path
 
 from thesis.common.config import (
@@ -22,28 +21,7 @@ from thesis.common.config import (
     PORT_PREDICTOR_STOPS,
     PROJECT_DIR,
 )
-from thesis.common.enums import MLTask
-
-
-class PlatformService(StrEnum):
-    """
-    Platform services.
-
-    Attributes:
-        BACKEND: Backend service.
-        PREDICTOR_ETA: ETA predictor service.
-        PREDICTOR_FUEL: Fuel predictor service.
-        PREDICTOR_STOPS: Stops predictor service.
-        FRONTEND: Frontend service.
-        DRIFT: Drift service.
-    """
-
-    BACKEND = "backend"
-    PREDICTOR_ETA = "predictor-eta"
-    PREDICTOR_FUEL = "predictor-fuel"
-    PREDICTOR_STOPS = "predictor-stops"
-    FRONTEND = "frontend"
-    DRIFT = "drift"
+from thesis.common.enums import MLTask, PlatformService
 
 
 @dataclass(frozen=True, slots=True)

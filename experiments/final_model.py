@@ -1,10 +1,10 @@
 from thesis.common.data import generate_trips, load_fcd_dataset, preprocess_fcd_dataset
-from thesis.common.enums import MLTask
+from thesis.common.enums import ETAEvaluation, MLTask, ModelType
 from thesis.common.logger import setup_logger
 from thesis.eta.data import ensure_dataset_is_valid
-from thesis.eta.experiment import ETAEvaluation, ETAExperiment
+from thesis.eta.experiment import ETAExperiment
 from thesis.eta.features import FeatureCalibratorETA, split_features_and_target
-from thesis.eta.models import ModelType, create_model, save_final_model, save_model
+from thesis.eta.models import create_model, save_final_model, save_model
 from thesis.eta.pipeline import train_model
 
 

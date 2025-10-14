@@ -44,8 +44,7 @@ from thesis.common.config import (
     RUSH_HOURS,
     TARGET_COLUMN_ETA,
 )
-from thesis.common.enums import FeatureGroup, MLTask
-from thesis.eta.models import ModelType
+from thesis.common.enums import FeatureGroup, MLTask, ModelType
 
 logger = logging.getLogger(__name__)
 
