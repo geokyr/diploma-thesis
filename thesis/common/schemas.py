@@ -84,14 +84,6 @@ class DriftErrorsResponse(BaseModel):
     start_timestamp: int = Field(..., description="Start timestamp of the state")
 
 
-class DriftSetRequest(BaseModel):
-    """Request to set drift state."""
-
-    ml_task: MLTask = Field(..., description="ML task")
-    state: DriftState = Field(..., description="Drift state to set")
-    start_timestamp: int = Field(..., description="Start timestamp for the state")
-
-
 class RetrainRequest(BaseModel):
     """Request for retraining."""
 
@@ -101,12 +93,6 @@ class RetrainRequest(BaseModel):
 
 class RetrainResponse(BaseModel):
     """Response for retraining."""
-
-    job_id: str = Field(..., description="Job ID")
-
-
-class RetrainStatusRequest(BaseModel):
-    """Request for retraining status."""
 
     job_id: str = Field(..., description="Job ID")
 
