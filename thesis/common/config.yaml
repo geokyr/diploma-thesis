@@ -126,6 +126,7 @@ models:
   subsample: 0.8
   colsample_bytree: 0.8
   n_trials: 100
+  n_focused_trials: 50
   direction: minimize
   importance_type: gain
 

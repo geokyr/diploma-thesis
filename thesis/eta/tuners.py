@@ -7,7 +7,7 @@ import optuna
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 
-from thesis.common.config import DIRECTION, N_TRIALS, RANDOM_SEED_DEFAULT
+from thesis.common.config import DIRECTION, N_FOCUSED_TRIALS, N_TRIALS, RANDOM_SEED_DEFAULT
 from thesis.eta.features import FeatureCalibratorETA, split_features_and_target
 from thesis.eta.models import ModelType, create_model
 from thesis.eta.pipeline import evaluate_predictions, make_predictions, train_model
@@ -211,7 +211,7 @@ class XGBoostTunerFocused(BaseModelTuner):
     """XGBoost class for focused model hyperparameter tuning using Optuna."""
 
     def __init__(self, **kwargs):
-        super().__init__(ModelType.XGBOOST_REGRESSOR, **kwargs)
+        super().__init__(ModelType.XGBOOST_REGRESSOR, n_trials=N_FOCUSED_TRIALS, **kwargs)
 
     def suggest_hyperparameters(self, trial: optuna.Trial) -> dict[str, int | float]:
         """Suggest XGBoost hyperparameters for the current trial."""
@@ -258,7 +258,7 @@ class LightGBMTunerFocused(BaseModelTuner):
     """LightGBM class for focused model hyperparameter tuning using Optuna."""
 
     def __init__(self, **kwargs):
-        super().__init__(ModelType.LIGHTGBM_REGRESSOR, **kwargs)
+        super().__init__(ModelType.LIGHTGBM_REGRESSOR, n_trials=N_FOCUSED_TRIALS, **kwargs)
 
     def suggest_hyperparameters(self, trial: optuna.Trial) -> dict[str, int | float]:
         """Suggest LightGBM hyperparameters for the current trial."""
@@ -305,7 +305,7 @@ class CatBoostTunerFocused(BaseModelTuner):
     """CatBoost class for focused model hyperparameter tuning using Optuna."""
 
     def __init__(self, **kwargs):
-        super().__init__(ModelType.CATBOOST_REGRESSOR, **kwargs)
+        super().__init__(ModelType.CATBOOST_REGRESSOR, n_trials=N_FOCUSED_TRIALS, **kwargs)
 
     def suggest_hyperparameters(self, trial: optuna.Trial) -> dict[str, int | float]:
         """Suggest CatBoost hyperparameters for the current trial."""
