@@ -715,17 +715,8 @@ def load_all_tuning_results() -> dict[ModelType, pd.DataFrame]:
         else:
             results[model] = pd.concat([results[model], df])
 
-    constant_parameters = {
-        ModelType.CATBOOST_REGRESSOR: {"border_count": 255},
-    }
-
     final_results = {}
     for model, df in results.items():
-        if model in constant_parameters:
-            for parameter, value in constant_parameters[model].items():
-                if parameter in df.columns:
-                    df[parameter] = df[parameter].fillna(value)
-
         final_results[model] = df.reset_index(drop=True)
 
     logger.info(f"Loaded tuning results for {len(final_results)} models")
