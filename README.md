@@ -33,14 +33,19 @@ uv run simulation/simulation.py
 ```
 
 ## Project Structure
+- `appdata/` - Application data for the platform
 - `experiments/` - Machine learning experiments
+- `outputs/` - Outputs from the experiments
 - `presentation/` - Presentation files and figures
 - `resources/` - Various documents and images about the project
 - `simulation/` - Simulation related files including the sumo network files
 - `thesis/` - Python code package for the project
   - `backend/` - FastAPI backend service
   - `common/` - Common modules and config
+  - `drift/` - Drift service
   - `eta/` - Machine learning task
   - `frontend/` - Dash frontend service
-  - `predictor/` - Predictor services
+  - `fuel/` - Machine learning task
+  - `predictor/` - Predictor service
   - `simulation/` - Simulation pipeline
+  - `stops/` - Machine learning task
