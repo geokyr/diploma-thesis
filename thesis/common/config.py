@@ -42,7 +42,6 @@ class DirnameConfig:
     misc: str
     common: str
     stable_models: str
-    final_model: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -61,7 +60,6 @@ class FilenameConfig:
     trips_parquet: str
     model: str
     metadata: str
-    drift_detectors: str
     feature_selection_results: str
 
 
@@ -306,7 +304,6 @@ APPDATA_DIRNAME = CONFIG.dirname.appdata
 MISC_DIRNAME = CONFIG.dirname.misc
 COMMON_DIRNAME = CONFIG.dirname.common
 STABLE_MODELS_DIRNAME = CONFIG.dirname.stable_models
-FINAL_MODEL_DIRNAME = CONFIG.dirname.final_model
 
 OSM_DATA_FILENAME = CONFIG.filename.osm_data
 GUI_SETTINGS_FILENAME = CONFIG.filename.gui_settings
@@ -322,7 +319,6 @@ FEATURE_CALIBRATOR_FILENAME = CONFIG.filename.feature_calibrator
 TRIPS_PARQUET_FILENAME = CONFIG.filename.trips_parquet
 MODEL_FILENAME = CONFIG.filename.model
 METADATA_FILENAME = CONFIG.filename.metadata
-DRIFT_DETECTORS_FILENAME = CONFIG.filename.drift_detectors
 FEATURE_SELECTION_RESULTS_FILENAME = CONFIG.filename.feature_selection_results
 
 TRIPS_SUFFIX = CONFIG.suffix.trips

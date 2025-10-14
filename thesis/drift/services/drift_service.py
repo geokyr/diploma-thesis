@@ -4,7 +4,6 @@ import asyncio
 import logging
 from collections import deque
 from dataclasses import dataclass
-from pathlib import Path
 
 from thesis.common.config import CONSENSUS_THRESHOLD, GRACE_PERIOD_SAMPLES, SMOOTHING_WINDOW_SAMPLES
 from thesis.common.enums import DriftDetectorType, DriftState, MLTask
@@ -41,8 +40,7 @@ class DriftSnapshot:
 class DriftService:
     """Drift detection service for ML tasks."""
 
-    def __init__(self, misc_dir: Path) -> None:
-        self._misc_dir: Path = misc_dir
+    def __init__(self) -> None:
         self._consensus_threshold: int = CONSENSUS_THRESHOLD
         self._smoothing_window: int = SMOOTHING_WINDOW_SAMPLES
         self._grace_period_samples: int = GRACE_PERIOD_SAMPLES
@@ -55,16 +53,8 @@ class DriftService:
 
         Args:
             ml_task (MLTask): ML task to initialize.
-
-        Raises:
-            FileNotFoundError: If calibrated drift detectors not found.
-            RuntimeError: If drift detectors loaded but empty.
         """
-        detector_manager = DetectorManager(self._misc_dir, ml_task, self._smoothing_window)
-        detector_manager.load()
-
-        if not detector_manager.drift_detectors:
-            raise RuntimeError(f"Drift detectors loaded but empty for {ml_task}")
+        detector_manager = DetectorManager(self._smoothing_window)
 
         self._snapshots[ml_task] = DriftSnapshot(
             state=DriftState.STABLE,

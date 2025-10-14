@@ -14,7 +14,6 @@ dirname:
   misc: misc
   common: common
   stable_models: baseline_stable
-  final_model: run_final_model
 
 filename:
   osm_data: osm_bbox.osm.xml.gz
@@ -31,7 +30,6 @@ filename:
   trips_parquet: trips.parquet
   model: model.joblib
   metadata: metadata.json
-  drift_detectors: drift_detectors.joblib
   feature_selection_results: feature_selection_results.csv
   
 suffix:

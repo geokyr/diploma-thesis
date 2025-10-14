@@ -1,9 +1,7 @@
 """Manages drift detectors for a specific ML task."""
 
 import logging
-from pathlib import Path
 
-import joblib
 import numpy as np
 import pandas as pd
 from river.drift import ADWIN, KSWIN, PageHinkley
@@ -11,7 +9,6 @@ from river.drift import ADWIN, KSWIN, PageHinkley
 from thesis.common.config import (
     ALPHA_CANDIDATES,
     DELTA_CANDIDATES,
-    DRIFT_DETECTORS_FILENAME,
     GRACE_PERIOD_SAMPLES,
     KSWIN_STAT_SIZE,
     KSWIN_WINDOW_SIZE,
@@ -21,7 +18,7 @@ from thesis.common.config import (
     SPC_N_STD,
     THRESHOLD_CANDIDATES,
 )
-from thesis.common.enums import DriftDetectorType, MLTask
+from thesis.common.enums import DriftDetectorType
 
 logger = logging.getLogger(__name__)
 
@@ -101,8 +98,7 @@ class DetectorManager:
         drift_detectors (dict[DriftDetectorType, ADWIN | PageHinkley | KSWIN | SPCDetector]): Dictionary of all drift detectors.
     """
 
-    def __init__(self, misc_dir: Path, ml_task: MLTask, smoothing_window: int) -> None:
-        self._drift_detectors_path = misc_dir / ml_task / DRIFT_DETECTORS_FILENAME
+    def __init__(self, smoothing_window: int) -> None:
         self._smoothing_window = smoothing_window
         self.drift_detectors: dict[DriftDetectorType, ADWIN | PageHinkley | KSWIN | SPCDetector] = {}
 
@@ -221,24 +217,6 @@ class DetectorManager:
             DriftDetectorType.KSWIN: kswin,
             DriftDetectorType.SPC: spc,
         }
-
-    def save(self) -> None:
-        """Save current drift detectors."""
-        joblib.dump(self.drift_detectors, self._drift_detectors_path)
-        logger.info(f"Saved drift detectors to {self._drift_detectors_path}")
-
-    def load(self) -> None:
-        """
-        Load the drift detectors.
-
-        Raises:
-            FileNotFoundError: If the drift detectors file does not exist.
-        """
-        if not self._drift_detectors_path.exists():
-            raise FileNotFoundError(f"Drift detectors file not found: {self._drift_detectors_path}")
-
-        self.drift_detectors = joblib.load(self._drift_detectors_path)
-        logger.info(f"Loaded drift detectors from {self._drift_detectors_path}")
 
     def clear(self) -> None:
         """Clear the detector manager."""

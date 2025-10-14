@@ -17,7 +17,7 @@ logger = setup_logger(config.service, config.logs_dir)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
-        drift_service = DriftService(misc_dir=config.misc_dir)
+        drift_service = DriftService()
 
         app.state.drift_service = drift_service
         yield

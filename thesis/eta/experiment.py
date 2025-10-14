@@ -8,7 +8,6 @@ from typing import ClassVar
 from thesis.common.config import (
     DATA_DIRNAME,
     FCD_PARQUET_SUFFIX,
-    FINAL_MODEL_DIRNAME,
     LOGS_DIRNAME,
     MODELS_DIRNAME,
     OUTPUTS_DIR,
@@ -40,7 +39,6 @@ class ETAExperiment:
     _RAIN_PATH: ClassVar[Path] = _DATA_DIR / f"{SimulationScenario.RAIN}{FCD_PARQUET_SUFFIX}"
 
     _STABLE_MODELS_DIR: ClassVar[Path] = OUTPUTS_DIR / STABLE_MODELS_DIRNAME / MODELS_DIRNAME
-    _FINAL_MODEL_DIR: ClassVar[Path] = OUTPUTS_DIR / FINAL_MODEL_DIRNAME / MODELS_DIRNAME
 
     def __post_init__(self) -> None:
         for dir in [self._DATA_DIR, self.models_dir, self.logs_dir, self.results_dir]:
@@ -59,8 +57,7 @@ class ETAExperiment:
             f"{self.train_path=}, "
             f"{self.test_path=}, "
             f"{self.rain_path=}, "
-            f"{self.stable_models_dir=}, "
-            f"{self.final_model_dir=})"
+            f"{self.stable_models_dir=})"
         )
 
     @property
@@ -107,8 +104,3 @@ class ETAExperiment:
     def stable_models_dir(self) -> Path:
         """Directory for the stable models."""
         return self._STABLE_MODELS_DIR
-
-    @property
-    def final_model_dir(self) -> Path:
-        """Directory for the final model."""
-        return self._FINAL_MODEL_DIR
