@@ -6,7 +6,7 @@ from dash import html
 
 from thesis.common.config import BBOX
 from thesis.common.enums import MLTask
-from thesis.frontend.utils.formatting import get_ml_task_icon
+from thesis.frontend.utils.formatting import get_ml_task_icon, get_ml_task_title
 
 
 def create_user_layout() -> dbc.Row:
@@ -193,67 +193,47 @@ def create_user_layout() -> dbc.Row:
     )
 
 
-def create_prediction_output(eta_value: str = "-", fuel_value: str = "-", stops_value: str = "-") -> list[dbc.Row]:
+def create_prediction_output(
+    ml_tasks: list[str] | None = None, predictions: dict[str, str] | None = None
+) -> list[dbc.Row]:
     """
-    Create the prediction output layout with the given values.
+    Create the prediction output layout dynamically based on available ML tasks.
 
     Args:
-        eta_value (str): ETA value to display.
-        fuel_value (str): Fuel consumption value to display.
-        stops_value (str): Number of stops value to display.
+        ml_tasks (list[str] | None): List of available ML task strings.
+        predictions (dict[str, str] | None): Dictionary mapping ML task strings to prediction values.
 
     Returns:
         list[dbc.Row]: List of rows showing prediction labels with values.
     """
-    return [
-        dbc.Row(
+    if ml_tasks is None:
+        ml_tasks = [MLTask.ETA.value, MLTask.FUEL.value, MLTask.STOPS.value]
+
+    if predictions is None:
+        predictions = {}
+
+    rows = []
+    for i, ml_task_str in enumerate(ml_tasks):
+        ml_task = MLTask(ml_task_str)
+        value = predictions[ml_task_str] if ml_task_str in predictions else "-"
+
+        row = dbc.Row(
             [
                 dbc.Col(
                     [
-                        html.I(className=f"bi {get_ml_task_icon(MLTask.ETA)} me-2"),
-                        html.Span("Estimated Time of Arrival", className="fw-semibold"),
+                        html.I(className=f"bi {get_ml_task_icon(ml_task)} me-2"),
+                        html.Span(get_ml_task_title(ml_task), className="fw-semibold"),
                     ],
                     width=8,
                     className="d-flex align-items-center",
                 ),
                 dbc.Col(
-                    html.Span(eta_value, id="prediction-eta", className="text-end d-block"),
+                    html.Span(value, id=f"prediction-{ml_task_str}", className="text-end d-block"),
                     width=4,
                 ),
             ],
-            className="mb-2",
-        ),
-        dbc.Row(
-            [
-                dbc.Col(
-                    [
-                        html.I(className=f"bi {get_ml_task_icon(MLTask.FUEL)} me-2"),
-                        html.Span("Fuel Consumption", className="fw-semibold"),
-                    ],
-                    width=8,
-                    className="d-flex align-items-center",
-                ),
-                dbc.Col(
-                    html.Span(fuel_value, id="prediction-fuel", className="text-end d-block"),
-                    width=4,
-                ),
-            ],
-            className="mb-2",
-        ),
-        dbc.Row(
-            [
-                dbc.Col(
-                    [
-                        html.I(className=f"bi {get_ml_task_icon(MLTask.STOPS)} me-2"),
-                        html.Span("Number of Stops", className="fw-semibold"),
-                    ],
-                    width=8,
-                    className="d-flex align-items-center",
-                ),
-                dbc.Col(
-                    html.Span(stops_value, id="prediction-stops", className="text-end d-block"),
-                    width=4,
-                ),
-            ],
-        ),
-    ]
+            className="mb-2" if i < len(ml_tasks) - 1 else "",
+        )
+        rows.append(row)
+
+    return rows

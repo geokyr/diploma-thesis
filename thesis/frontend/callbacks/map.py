@@ -40,6 +40,26 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
         return 1 if current_invalidate_size == 0 else 0
 
     @app.callback(
+        Output("prediction-output", "children", allow_duplicate=True),
+        Input("ml-tasks-store", "data"),
+        prevent_initial_call="initial_duplicate",
+    )
+    def render_prediction_output(ml_tasks: list[str]) -> list[dbc.Row]:
+        """
+        Dynamically render prediction output structure based on available ML tasks.
+
+        Args:
+            ml_tasks (list[str]): List of available ML task strings.
+
+        Returns:
+            list[dbc.Row]: Prediction output rows.
+        """
+        try:
+            return create_prediction_output(ml_tasks=ml_tasks if ml_tasks else None)
+        except Exception:
+            return no_update
+
+    @app.callback(
         Output("user-interface-tab", "disabled"),
         Output("user-interface-tab-tooltip-container", "children"),
         Input("snapshot-store", "data"),
@@ -334,27 +354,14 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
                     maximum_y=route_features["maximum_y"],
                 )
 
-                eta_value = "-"
-                fuel_value = "-"
-                stops_value = "-"
-
+                predictions = {}
                 if response.predictions:
-                    if MLTask.ETA.value in response.predictions:
-                        pred = response.predictions[MLTask.ETA.value]
+                    for ml_task_str, pred in response.predictions.items():
                         if pred.prediction is not None:
-                            eta_value = format_prediction_value(MLTask.ETA, pred.prediction)
+                            ml_task = MLTask(ml_task_str)
+                            predictions[ml_task_str] = format_prediction_value(ml_task, pred.prediction)
 
-                    if MLTask.FUEL.value in response.predictions:
-                        pred = response.predictions[MLTask.FUEL.value]
-                        if pred.prediction is not None:
-                            fuel_value = format_prediction_value(MLTask.FUEL, pred.prediction)
-
-                    if MLTask.STOPS.value in response.predictions:
-                        pred = response.predictions[MLTask.STOPS.value]
-                        if pred.prediction is not None:
-                            stops_value = format_prediction_value(MLTask.STOPS, pred.prediction)
-
-                return create_prediction_output(eta_value=eta_value, fuel_value=fuel_value, stops_value=stops_value)
+                return create_prediction_output(ml_tasks=ml_tasks, predictions=predictions)
 
             except Exception:
                 return no_update
