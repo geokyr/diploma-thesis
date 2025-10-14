@@ -138,6 +138,9 @@ def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
             timestamps = [format_simulation_timestamp(point.timestamp) for point in metrics.metric_points]
             mae_values = [point.mae for point in metrics.metric_points]
 
+            if ml_task == MLTask.FUEL:
+                mae_values = [value / 740000 for value in mae_values]
+
             figure = go.Figure()
             figure.add_trace(go.Scatter(x=timestamps, y=mae_values, mode="lines+markers"))
 

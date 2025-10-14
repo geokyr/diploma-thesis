@@ -171,6 +171,10 @@ class PredictionSingleRequest(BaseModel):
     destination_y: float = Field(..., description="Destination y coordinate")
     distance: float = Field(..., description="Trip distance in meters")
     edges: list[str] = Field(..., description="List of edge IDs along the trip")
+    minimum_x: float = Field(..., description="Minimum x coordinate along the route")
+    maximum_x: float = Field(..., description="Maximum x coordinate along the route")
+    minimum_y: float = Field(..., description="Minimum y coordinate along the route")
+    maximum_y: float = Field(..., description="Maximum y coordinate along the route")
 
 
 class PredictionSingleResponse(BaseModel):
@@ -204,3 +208,7 @@ class RoutePreviewResponse(BaseModel):
     distance: float = Field(..., description="Trip distance in meters")
     edges: list[str] = Field(..., description="List of edge IDs along the trip")
     route: list[tuple[float, float]] = Field(..., description="Route polyline as list of (lat, lon) tuples")
+    minimum_x: float = Field(..., description="Minimum x coordinate along the route")
+    maximum_x: float = Field(..., description="Maximum x coordinate along the route")
+    minimum_y: float = Field(..., description="Minimum y coordinate along the route")
+    maximum_y: float = Field(..., description="Maximum y coordinate along the route")

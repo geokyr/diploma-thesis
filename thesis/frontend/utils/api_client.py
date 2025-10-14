@@ -143,6 +143,10 @@ class APIClient:
         destination_y: float,
         distance: float,
         edges: list[str],
+        minimum_x: float,
+        maximum_x: float,
+        minimum_y: float,
+        maximum_y: float,
     ) -> TripPredictionResponse:
         """
         Predict trip metrics for a given trip.
@@ -155,6 +159,10 @@ class APIClient:
             destination_y (float): Destination y coordinate.
             distance (float): Trip distance in meters.
             edges (list[str]): List of edge IDs along the trip.
+            minimum_x (float): Minimum x coordinate along the route.
+            maximum_x (float): Maximum x coordinate along the route.
+            minimum_y (float): Minimum y coordinate along the route.
+            maximum_y (float): Maximum y coordinate along the route.
 
         Returns:
             TripPredictionResponse: Predictions per ML task.
@@ -167,6 +175,10 @@ class APIClient:
             destination_y=destination_y,
             distance=distance,
             edges=edges,
+            minimum_x=minimum_x,
+            maximum_x=maximum_x,
+            minimum_y=minimum_y,
+            maximum_y=maximum_y,
         ).model_dump()
 
         response = self._client.post("/predict/trip", json=payload)

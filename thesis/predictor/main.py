@@ -23,38 +23,38 @@ logger = setup_logger(config.service, config.logs_dir)
 async def lifespan(app: FastAPI):
     try:
         sumo_service = SumoService(common_dir=config.common_dir)
-        data_loader = DataLoader(data_dir=config.data_dir)
         model_manager = ModelManager(models_dir=config.models_dir)
-        retrain_service = RetrainService(data_dir=config.data_dir, model_manager=model_manager)
+        data_loader = DataLoader(data_dir=config.data_dir, ml_task=config.ml_task)
+        retrain_service = RetrainService(data_dir=config.data_dir, model_manager=model_manager, ml_task=config.ml_task)
         predictor = Predictor(
             ml_task=config.ml_task,
             misc_dir=config.misc_dir,
-            data_loader=data_loader,
             model_manager=model_manager,
+            data_loader=data_loader,
             sumo_service=sumo_service,
         )
 
         app.state.sumo_service = sumo_service
-        app.state.data_loader = data_loader
         app.state.model_manager = model_manager
+        app.state.data_loader = data_loader
         app.state.retrain_service = retrain_service
         app.state.predictor = predictor
         yield
     finally:
         predictor: Predictor = getattr(app.state, "predictor", None)
         retrain_service: RetrainService = getattr(app.state, "retrain_service", None)
-        model_manager: ModelManager = getattr(app.state, "model_manager", None)
         data_loader: DataLoader = getattr(app.state, "data_loader", None)
+        model_manager: ModelManager = getattr(app.state, "model_manager", None)
         sumo_service: SumoService = getattr(app.state, "sumo_service", None)
 
         if predictor is not None:
             predictor.clear()
         if retrain_service is not None:
             retrain_service.clear()
-        if model_manager is not None:
-            model_manager.clear()
         if data_loader is not None:
             data_loader.clear()
+        if model_manager is not None:
+            model_manager.clear()
         if sumo_service is not None:
             sumo_service.clear()
 
@@ -62,10 +62,10 @@ async def lifespan(app: FastAPI):
             delattr(app.state, "predictor")
         if hasattr(app.state, "retrain_service"):
             delattr(app.state, "retrain_service")
-        if hasattr(app.state, "model_manager"):
-            delattr(app.state, "model_manager")
         if hasattr(app.state, "data_loader"):
             delattr(app.state, "data_loader")
+        if hasattr(app.state, "model_manager"):
+            delattr(app.state, "model_manager")
         if hasattr(app.state, "sumo_service"):
             delattr(app.state, "sumo_service")
 

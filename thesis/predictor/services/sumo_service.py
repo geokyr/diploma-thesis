@@ -212,6 +212,16 @@ class SumoService:
                 path, source_latitude, source_longitude, destination_latitude, destination_longitude
             )
 
+        route_x_coords = []
+        route_y_coords = []
+        for lat, lon in route:
+            x, y = self._lonlat_to_xy(lon, lat)
+            route_x_coords.append(x)
+            route_y_coords.append(y)
+
+        minimum_x, maximum_x = min(route_x_coords), max(route_x_coords)
+        minimum_y, maximum_y = min(route_y_coords), max(route_y_coords)
+
         return {
             "source_x": source_x,
             "source_y": source_y,
@@ -220,6 +230,10 @@ class SumoService:
             "distance": distance,
             "edges": edges,
             "route": route,
+            "minimum_x": minimum_x,
+            "maximum_x": maximum_x,
+            "minimum_y": minimum_y,
+            "maximum_y": maximum_y,
         }
 
     def clear(self) -> None:

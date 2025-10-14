@@ -182,3 +182,11 @@ feature_categories:
   cell: [source_cell_x, source_cell_y, destination_cell_x, destination_cell_y]
   cluster: [source_cluster, destination_cluster]
   pca: [source_pca_1, source_pca_2, destination_pca_1, destination_pca_2]
+
+fuel:
+  time_start_column: timestep_time_min
+  target_column: vehicle_fuel_log_sum
+  min_trip_points: 30
+  n_start_clusters: 10
+  n_end_clusters: 10
+  start_hour_max: 10

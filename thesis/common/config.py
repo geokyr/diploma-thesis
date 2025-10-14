@@ -231,6 +231,16 @@ class FeatureCategoriesConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class FuelConfig:
+    time_start_column: str
+    target_column: str
+    min_trip_points: int
+    n_start_clusters: int
+    n_end_clusters: int
+    start_hour_max: int
+
+
+@dataclass(frozen=True, slots=True)
 class Config:
     logging: LoggingConfig
     dirname: DirnameConfig
@@ -249,6 +259,7 @@ class Config:
     predictor_eta: PredictorEtaConfig
     drift: DriftConfig
     feature_categories: FeatureCategoriesConfig
+    fuel: FuelConfig
 
 
 def load_config(config_path: Path) -> Config:
@@ -272,6 +283,7 @@ def load_config(config_path: Path) -> Config:
             predictor_eta=PredictorEtaConfig(**data["predictor_eta"]),
             drift=DriftConfig(**data["drift"]),
             feature_categories=FeatureCategoriesConfig(**data["feature_categories"]),
+            fuel=FuelConfig(**data["fuel"]),
         )
 
 
@@ -344,7 +356,7 @@ DEVICE_FRICTION_PROBABILITY = CONFIG.simulation.device_friction_probability
 
 ZENODO_DATASET_API_URL = CONFIG.external.zenodo_dataset_api_url
 
-TARGET_COLUMN = CONFIG.eta.target_column
+TARGET_COLUMN_ETA = CONFIG.eta.target_column
 CHUNK_SIZE = CONFIG.eta.chunk_size
 MIN_DURATION = CONFIG.eta.min_duration
 MIN_DISTANCE = CONFIG.eta.min_distance
@@ -429,3 +441,10 @@ SPC_MIN_STD = CONFIG.drift.spc_min_std
 SPC_CONSECUTIVE_VIOLATIONS_REQUIRED = CONFIG.drift.spc_consecutive_violations_required
 
 FEATURE_CATEGORIES = CONFIG.feature_categories
+
+TIME_START_COLUMN_FUEL = CONFIG.fuel.time_start_column
+TARGET_COLUMN_FUEL = CONFIG.fuel.target_column
+MIN_TRIP_POINTS = CONFIG.fuel.min_trip_points
+N_START_CLUSTERS = CONFIG.fuel.n_start_clusters
+N_END_CLUSTERS = CONFIG.fuel.n_end_clusters
+START_HOUR_MAX = CONFIG.fuel.start_hour_max

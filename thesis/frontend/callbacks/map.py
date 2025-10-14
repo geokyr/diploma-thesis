@@ -232,6 +232,10 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
                         "destination_y": route_response.destination_y,
                         "distance": route_response.distance,
                         "edges": route_response.edges,
+                        "minimum_x": route_response.minimum_x,
+                        "maximum_x": route_response.maximum_x,
+                        "minimum_y": route_response.minimum_y,
+                        "maximum_y": route_response.maximum_y,
                     }
 
                 except Exception:
@@ -324,6 +328,10 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
                     destination_y=route_features["destination_y"],
                     distance=route_features["distance"],
                     edges=route_features["edges"],
+                    minimum_x=route_features["minimum_x"],
+                    maximum_x=route_features["maximum_x"],
+                    minimum_y=route_features["minimum_y"],
+                    maximum_y=route_features["maximum_y"],
                 )
 
                 eta_value = "-"

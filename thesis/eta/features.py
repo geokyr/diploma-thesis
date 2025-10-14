@@ -42,7 +42,7 @@ from thesis.common.config import (
     RANKING_ALPHA,
     RESULTS_DIRNAME,
     RUSH_HOURS,
-    TARGET_COLUMN,
+    TARGET_COLUMN_ETA,
 )
 from thesis.common.enums import FeatureGroup, MLTask
 from thesis.eta.models import ModelType
@@ -87,7 +87,7 @@ def _log_feature_addition(df_original: pd.DataFrame, df_final: pd.DataFrame, fea
 
 
 def split_features_and_target(
-    df: pd.DataFrame, target_columns: list[str] = [TARGET_COLUMN]
+    df: pd.DataFrame, target_columns: list[str] = [TARGET_COLUMN_ETA]
 ) -> tuple[pd.DataFrame, pd.DataFrame | pd.Series]:
     """
     Split the features and the target.

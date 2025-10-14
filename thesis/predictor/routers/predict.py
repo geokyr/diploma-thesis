@@ -52,6 +52,10 @@ def predict_single(req: PredictionSingleRequest, request: Request) -> Prediction
         req.destination_y,
         req.distance,
         req.edges,
+        req.minimum_x,
+        req.maximum_x,
+        req.minimum_y,
+        req.maximum_y,
     )
 
 
