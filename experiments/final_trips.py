@@ -9,7 +9,7 @@ from thesis.common.enums import MLTask
 from thesis.common.logger import setup_logger
 from thesis.eta.data import ensure_dataset_is_valid
 from thesis.eta.experiment import ETAEvaluation, ETAExperiment
-from thesis.eta.features import FeatureCalibrator
+from thesis.eta.features import FeatureCalibratorETA
 
 
 def main() -> None:
@@ -33,7 +33,7 @@ def main() -> None:
     fcd_rain = preprocess_fcd_dataset(fcd_rain_raw)
     trips_rain = generate_trips(fcd_rain)
 
-    calibrator = FeatureCalibrator.from_train_trips(trips_train)
+    calibrator = FeatureCalibratorETA.from_train_trips(trips_train)
     feature_calibrator_dir = calibrator.get_feature_calibrator_dir(MLTask.ETA)
     calibrator.save(feature_calibrator_dir)
 

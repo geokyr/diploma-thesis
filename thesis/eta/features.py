@@ -1376,3 +1376,15 @@ class FeatureCalibratorETA:
         logger.info(f"FeatureCalibratorETA loaded from {calibrator_path}")
 
         return feature_calibrator
+
+    def get_feature_calibrator_dir(self, ml_task: MLTask) -> Path:
+        """
+        Get the path to the feature calibrator directory.
+
+        Args:
+            ml_task (MLTask): ML task.
+
+        Returns:
+            Path: Path to the feature calibrator directory.
+        """
+        return PROJECT_DIR / APPDATA_DIRNAME / MISC_DIRNAME / ml_task
