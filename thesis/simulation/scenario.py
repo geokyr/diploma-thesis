@@ -71,7 +71,7 @@ class SimulationScenarioConfig:
     @property
     def network_path(self) -> Path:
         """Path to the network file."""
-        return self.simulation_dir / self._NETWORK_PATHS[self.scenario]
+        return self.simulation_dir / SimulationScenarioConfig._NETWORK_PATHS[self.scenario]
 
     @property
     def trips_path(self) -> Path:
@@ -99,7 +99,7 @@ class SimulationScenarioConfig:
     @property
     def random_seed(self) -> int:
         """Random seed."""
-        return self._RANDOM_SEEDS[self.scenario]
+        return SimulationScenarioConfig._RANDOM_SEEDS[self.scenario]
 
     @property
     def fcd_parquet_path(self) -> Path:

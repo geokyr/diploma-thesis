@@ -3,6 +3,7 @@
 import logging
 from dataclasses import dataclass
 from pathlib import Path
+from typing import ClassVar
 
 import joblib
 import numpy as np
@@ -20,27 +21,6 @@ from thesis.common.config import (
 )
 
 logger = logging.getLogger(__name__)
-
-_CORE_FEATURES = [
-    "timestep_time_min",
-    "start_hour",
-    "vehicle_x_first",
-    "vehicle_y_first",
-    "vehicle_x_last",
-    "vehicle_y_last",
-    "trip_actual_distance",
-    "spatial_extent",
-    "straight_line_distance",
-]
-
-_REQUIRED_COLUMNS = [
-    "vehicle_id",
-    "timestep_time",
-    "vehicle_x",
-    "vehicle_y",
-    "vehicle_odometer",
-    "vehicle_fuel",
-]
 
 
 @dataclass(frozen=True, slots=True)
@@ -253,6 +233,27 @@ class FeatureCalibratorFuel:
         n_end_clusters (int): Number of end location clusters.
     """
 
+    _CORE_FEATURES: ClassVar[list[str]] = [
+        "timestep_time_min",
+        "start_hour",
+        "vehicle_x_first",
+        "vehicle_y_first",
+        "vehicle_x_last",
+        "vehicle_y_last",
+        "trip_actual_distance",
+        "spatial_extent",
+        "straight_line_distance",
+    ]
+
+    _REQUIRED_COLUMNS: ClassVar[list[str]] = [
+        "vehicle_id",
+        "timestep_time",
+        "vehicle_x",
+        "vehicle_y",
+        "vehicle_odometer",
+        "vehicle_fuel",
+    ]
+
     clustering_models: KMeansModels
     feature_columns: list[str]
     n_start_clusters: int
@@ -282,7 +283,7 @@ class FeatureCalibratorFuel:
             ValueError: If required columns are not found in the DataFrame.
         """
 
-        check_required_columns(df, _REQUIRED_COLUMNS, "FeatureCalibratorFuel calibration")
+        check_required_columns(df, FeatureCalibratorFuel._REQUIRED_COLUMNS, "FeatureCalibratorFuel calibration")
 
         df = add_time_features(df)
 
@@ -294,7 +295,9 @@ class FeatureCalibratorFuel:
         clustering_models = fit_source_destination_kmeans(trip_features, n_start_clusters, n_end_clusters, random_seed)
         trip_features_with_clusters = add_start_end_clusters(trip_features, clustering_models)
 
-        core_feature_cols = [c for c in _CORE_FEATURES if c in trip_features_with_clusters.columns]
+        core_feature_cols = [
+            c for c in FeatureCalibratorFuel._CORE_FEATURES if c in trip_features_with_clusters.columns
+        ]
         start_cluster_cols = [c for c in trip_features_with_clusters.columns if c.startswith("start_cluster_")]
         end_cluster_cols = [c for c in trip_features_with_clusters.columns if c.startswith("end_cluster_")]
 
@@ -324,7 +327,7 @@ class FeatureCalibratorFuel:
             ValueError: If the required columns are not found in the DataFrame.
         """
         if "trip_actual_distance" not in df.columns:
-            check_required_columns(df, _REQUIRED_COLUMNS, "FeatureCalibratorFuel transformation")
+            check_required_columns(df, FeatureCalibratorFuel._REQUIRED_COLUMNS, "FeatureCalibratorFuel transformation")
 
             df = add_time_features(df)
 

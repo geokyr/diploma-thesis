@@ -3,6 +3,7 @@
 import os
 from dataclasses import dataclass
 from pathlib import Path
+from typing import ClassVar
 
 from thesis.common.config import (
     APPDATA_DIRNAME,
@@ -28,7 +29,7 @@ from thesis.common.enums import MLTask, PlatformService
 class PlatformServiceConfig:
     """A platform service config."""
 
-    _PORTS = {
+    _PORTS: ClassVar[dict[PlatformService, int]] = {
         PlatformService.BACKEND: PORT_BACKEND,
         PlatformService.PREDICTOR_ETA: PORT_PREDICTOR_ETA,
         PlatformService.PREDICTOR_FUEL: PORT_PREDICTOR_FUEL,
@@ -37,7 +38,7 @@ class PlatformServiceConfig:
         PlatformService.DRIFT: PORT_DRIFT,
     }
 
-    _ML_TASKS = {
+    _ML_TASKS: ClassVar[dict[PlatformService, MLTask | None]] = {
         PlatformService.BACKEND: None,
         PlatformService.PREDICTOR_ETA: MLTask.ETA,
         PlatformService.PREDICTOR_FUEL: MLTask.FUEL,
@@ -47,7 +48,7 @@ class PlatformServiceConfig:
     }
 
     def __post_init__(self) -> None:
-        for dir in [
+        for directory in [
             self.app_dir,
             self.common_dir,
             self.logs_dir,
@@ -55,7 +56,7 @@ class PlatformServiceConfig:
             self.models_dir,
             self.misc_dir,
         ]:
-            dir.mkdir(parents=True, exist_ok=True)
+            directory.mkdir(parents=True, exist_ok=True)
 
     def __repr__(self) -> str:
         return (
@@ -86,12 +87,12 @@ class PlatformServiceConfig:
     @property
     def port(self) -> int:
         """Port for the platform service."""
-        return self._PORTS[self.service]
+        return PlatformServiceConfig._PORTS[self.service]
 
     @property
     def ml_task(self) -> MLTask | None:
         """ML task for the predictor if applicable."""
-        return self._ML_TASKS[self.service]
+        return PlatformServiceConfig._ML_TASKS[self.service]
 
     @property
     def host(self) -> str:

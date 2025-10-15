@@ -28,8 +28,8 @@ class SimulationExperiment:
     simulation_dir: Path = SIMULATION_DIR
 
     def __post_init__(self) -> None:
-        for dir in [self.data_dir, self.logs_dir, self.plots_dir]:
-            dir.mkdir(parents=True, exist_ok=True)
+        for directory in [self.data_dir, self.logs_dir, self.plots_dir]:
+            directory.mkdir(parents=True, exist_ok=True)
 
     def __repr__(self) -> str:
         return (

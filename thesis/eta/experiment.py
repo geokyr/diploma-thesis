@@ -41,8 +41,8 @@ class ETAExperiment:
     _STABLE_MODELS_DIR: ClassVar[Path] = OUTPUTS_DIR / STABLE_MODELS_DIRNAME / MODELS_DIRNAME
 
     def __post_init__(self) -> None:
-        for dir in [self._DATA_DIR, self.models_dir, self.logs_dir, self.results_dir]:
-            dir.mkdir(parents=True, exist_ok=True)
+        for directory in [ETAExperiment._DATA_DIR, self.models_dir, self.logs_dir, self.results_dir]:
+            directory.mkdir(parents=True, exist_ok=True)
 
     def __repr__(self) -> str:
         return (
@@ -88,19 +88,19 @@ class ETAExperiment:
     @property
     def train_path(self) -> Path:
         """Path to the train fcd parquet file."""
-        return self._TRAIN_PATH
+        return ETAExperiment._TRAIN_PATH
 
     @property
     def test_path(self) -> Path:
         """Path to the test fcd parquet file."""
-        return self._TEST_PATH
+        return ETAExperiment._TEST_PATH
 
     @property
     def rain_path(self) -> Path:
         """Path to the rain fcd parquet file."""
-        return self._RAIN_PATH
+        return ETAExperiment._RAIN_PATH
 
     @property
     def stable_models_dir(self) -> Path:
         """Directory for the stable models."""
-        return self._STABLE_MODELS_DIR
+        return ETAExperiment._STABLE_MODELS_DIR
