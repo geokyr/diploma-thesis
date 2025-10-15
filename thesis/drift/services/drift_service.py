@@ -5,7 +5,11 @@ import logging
 from collections import deque
 from dataclasses import dataclass
 
-from thesis.common.config import CONSENSUS_THRESHOLD, GRACE_PERIOD_SAMPLES, SMOOTHING_WINDOW_SAMPLES
+from thesis.common.config import (
+    CALIBRATION_WINDOW_SAMPLES,
+    CONSENSUS_THRESHOLD,
+    SMOOTHING_WINDOW_SAMPLES,
+)
 from thesis.common.enums import DriftDetectorType, DriftState, MLTask
 from thesis.common.schemas import DriftErrorsResponse, DriftResetResponse, ErrorPoint, RecalibrateResponse
 from thesis.drift.services.detector_manager import DetectorManager
@@ -26,6 +30,8 @@ class DriftSnapshot:
         samples_seen (int): Number of samples processed.
         fired_detectors (set[DriftDetectorType]): Set of drift detector types that have fired.
         running_sum (float): Running sum of errors.
+        calibration_errors (list[float]): Collected errors during calibration phase.
+        calibration_window_samples (int): Required samples for calibration.
     """
 
     state: DriftState
@@ -35,6 +41,8 @@ class DriftSnapshot:
     samples_seen: int
     fired_detectors: set[DriftDetectorType]
     running_sum: float
+    calibration_errors: list[float]
+    calibration_window_samples: int
 
 
 class DriftService:
@@ -42,8 +50,6 @@ class DriftService:
 
     def __init__(self) -> None:
         self._consensus_threshold: int = CONSENSUS_THRESHOLD
-        self._smoothing_window: int = SMOOTHING_WINDOW_SAMPLES
-        self._grace_period_samples: int = GRACE_PERIOD_SAMPLES
         self._lock: asyncio.Lock = asyncio.Lock()
         self._snapshots: dict[MLTask, DriftSnapshot] = {}
 
@@ -54,16 +60,18 @@ class DriftService:
         Args:
             ml_task (MLTask): ML task to initialize.
         """
-        detector_manager = DetectorManager(self._smoothing_window)
+        detector_manager = DetectorManager(SMOOTHING_WINDOW_SAMPLES)
 
         self._snapshots[ml_task] = DriftSnapshot(
-            state=DriftState.STABLE,
+            state=DriftState.CALIBRATING,
             start_timestamp=0,
             detector_manager=detector_manager,
-            error_history=deque(maxlen=self._smoothing_window),
+            error_history=deque(maxlen=SMOOTHING_WINDOW_SAMPLES),
             samples_seen=0,
             fired_detectors=set(),
             running_sum=0.0,
+            calibration_errors=[],
+            calibration_window_samples=CALIBRATION_WINDOW_SAMPLES,
         )
 
         logger.info(f"Initialized drift detection for {ml_task}")
@@ -113,16 +121,33 @@ class DriftService:
                 )
 
             for error_point in error_points:
-                smoothed_error = self._append_and_smooth_error(snapshot, error_point.error)
+                if snapshot.state == DriftState.CALIBRATING:
+                    snapshot.calibration_errors.append(error_point.error)
+                    snapshot.samples_seen += 1
 
-                in_grace_period = snapshot.samples_seen <= self._grace_period_samples
+                    if len(snapshot.calibration_errors) >= snapshot.calibration_window_samples:
+                        snapshot.detector_manager.calibrate(snapshot.calibration_errors)
+
+                        snapshot.state = DriftState.STABLE
+                        snapshot.start_timestamp = error_point.timestamp
+                        snapshot.error_history.clear()
+                        snapshot.samples_seen = 0
+                        snapshot.fired_detectors = set()
+                        snapshot.running_sum = 0.0
+                        snapshot.calibration_errors = []
+
+                        logger.info(f"[{ml_task}] Transitioned to STABLE state. Detectors are now active.")
+
+                    continue
+
+                smoothed_error = self._append_and_smooth_error(snapshot, error_point.error)
 
                 drift_detectors = snapshot.detector_manager.drift_detectors
                 for drift_detector_type, drift_detector in drift_detectors.items():
-                    drift_detector.update(smoothed_error)
-
-                    if in_grace_period:
-                        continue
+                    if drift_detector_type != DriftDetectorType.KSWIN:
+                        drift_detector.update(smoothed_error)
+                    else:
+                        drift_detector.update(error_point.error)
 
                     if drift_detector.drift_detected and drift_detector_type not in snapshot.fired_detectors:
                         snapshot.fired_detectors.add(drift_detector_type)
@@ -184,13 +209,12 @@ class DriftService:
 
             return DriftResetResponse(success=True)
 
-    async def recalibrate_task(self, ml_task: MLTask, post_adaptation_errors: list[float]) -> RecalibrateResponse:
+    async def recalibrate_task(self, ml_task: MLTask) -> RecalibrateResponse:
         """
         Recalibrate drift detectors after model adaptation.
 
         Args:
             ml_task (MLTask): ML task to recalibrate.
-            post_adaptation_errors (list[float]): Post-adaptation errors from retrained model.
 
         Returns:
             RecalibrateResponse: Recalibration success status.
@@ -198,11 +222,7 @@ class DriftService:
         async with self._lock:
             await self._initialize_task(ml_task)
 
-            snapshot = self._snapshots[ml_task]
-            detector_manager = snapshot.detector_manager
-            detector_manager.calibrate(post_adaptation_errors)
-
-            logger.info(f"Recalibrated drift detectors for {ml_task}")
+            logger.info(f"[{ml_task}] Reinitialized to CALIBRATING state after model adaptation.")
 
             return RecalibrateResponse(success=True)
 

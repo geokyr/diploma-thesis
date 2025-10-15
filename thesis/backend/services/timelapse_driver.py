@@ -63,7 +63,7 @@ class TimelapseDriver:
     def _reset_drift_info(self) -> None:
         """Reset the drift info."""
         self.drift_info = {
-            ml_task: DriftInfo(state=DriftState.STABLE, start_timestamp=None, collecting=False, job_id=None)
+            ml_task: DriftInfo(state=DriftState.CALIBRATING, start_timestamp=None, collecting=False, job_id=None)
             for ml_task in self.ml_tasks
         }
 
@@ -175,7 +175,7 @@ class TimelapseDriver:
         except Exception:
             return None
 
-    async def _poll_retrain(self, task: MLTask, job_id: str) -> tuple[RetrainStatus, list[float] | None]:
+    async def _poll_retrain(self, task: MLTask, job_id: str) -> RetrainStatus:
         """
         Poll the retrain status for a given ML task and job ID.
 
@@ -184,7 +184,7 @@ class TimelapseDriver:
             job_id (str): Job ID.
 
         Returns:
-            tuple[RetrainStatus, list[float] | None]: Status of the retrain and post-adaptation errors.
+            RetrainStatus: Status of the retrain job.
         """
         url = f"{self.predictor_urls[task]}/retrain/status/{job_id}"
         try:
@@ -194,25 +194,24 @@ class TimelapseDriver:
                 status_response = RetrainStatusResponse.model_validate(response.json())
 
                 if status_response.status in (RetrainStatus.COMPLETED, RetrainStatus.FAILED):
-                    return status_response.status, status_response.post_adaptation_errors
+                    return status_response.status
 
                 await asyncio.sleep(self.interval_seconds)
         except Exception:
-            return RetrainStatus.FAILED, None
+            return RetrainStatus.FAILED
 
-    async def _recalibrate_drift_detectors(self, ml_task: MLTask, post_adaptation_errors: list[float]) -> bool:
+    async def _recalibrate_drift_detectors(self, ml_task: MLTask) -> bool:
         """
-        Recalibrate drift detectors with post-adaptation errors.
+        Recalibrate drift detectors after model adaptation.
 
         Args:
             ml_task (MLTask): ML task.
-            post_adaptation_errors (list[float]): Post-adaptation errors from retrained model.
 
         Returns:
             bool: True if successful, False otherwise.
         """
         url = f"{self._config.drift_url}/drift/recalibrate"
-        payload = RecalibrateRequest(ml_task=ml_task, post_adaptation_errors=post_adaptation_errors).model_dump()
+        payload = RecalibrateRequest(ml_task=ml_task).model_dump()
         try:
             response = await self._client.post(url, json=payload)
             response.raise_for_status()
@@ -232,13 +231,15 @@ class TimelapseDriver:
         info = self.drift_info[ml_task]
         info.job_id = job_id
 
-        status, post_adaptation_errors = await self._poll_retrain(ml_task, job_id)
+        status = await self._poll_retrain(ml_task, job_id)
 
-        if status == RetrainStatus.COMPLETED and post_adaptation_errors:
-            success = await self._recalibrate_drift_detectors(ml_task, post_adaptation_errors)
-            info.state = DriftState.STABLE if success else DriftState.DRIFTED
+        if status == RetrainStatus.COMPLETED:
+            success = await self._recalibrate_drift_detectors(ml_task)
+            info.state = DriftState.CALIBRATING if success else DriftState.DRIFTED
             if success:
-                await self._notification_store.push(self.clock, "Model updated", NotificationLevel.SUCCESS, ml_task)
+                await self._notification_store.push(
+                    self.clock, "Model updated, collecting calibration data", NotificationLevel.SUCCESS, ml_task
+                )
             else:
                 await self._notification_store.push(
                     self.clock, "Recalibration failed", NotificationLevel.DANGER, ml_task
@@ -268,7 +269,7 @@ class TimelapseDriver:
                     self.clock, "Second day started with rain conditions", NotificationLevel.SUCCESS
                 )
             elif self.clock == 72000:
-                await self._notification_store.push(self.clock, "Data has beenexhausted", NotificationLevel.SUCCESS)
+                await self._notification_store.push(self.clock, "Data has been exhausted", NotificationLevel.SUCCESS)
                 return False
 
             start_timestamp, end_timestamp = self._advance_clock()
@@ -293,7 +294,17 @@ class TimelapseDriver:
 
                 info = self.drift_info[ml_task]
 
-                if drift_response.state == DriftState.DRIFTED and not info.collecting:
+                if drift_response.state == DriftState.STABLE and info.state == DriftState.CALIBRATING:
+                    info.state = DriftState.STABLE
+                    await self._notification_store.push(
+                        end_timestamp, "Calibration complete, monitoring active", NotificationLevel.SUCCESS, ml_task
+                    )
+
+                if (
+                    drift_response.state == DriftState.DRIFTED
+                    and info.state == DriftState.STABLE
+                    and not info.collecting
+                ):
                     info.state = DriftState.DRIFTED
                     info.start_timestamp = end_timestamp
                     info.collecting = True

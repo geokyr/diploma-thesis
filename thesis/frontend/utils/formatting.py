@@ -21,6 +21,7 @@ _ML_TASK_ICONS = {
 }
 
 _DRIFT_STATE_COLORS = {
+    DriftState.CALIBRATING: "info",
     DriftState.STABLE: "success",
     DriftState.DRIFTED: "danger",
     DriftState.RETRAINING: "warning",

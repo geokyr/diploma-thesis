@@ -10,7 +10,7 @@ from thesis.common.enums import MLTask, RetrainStatus
 from thesis.common.schemas import RetrainResponse, RetrainStatusResponse
 from thesis.eta.features import split_features_and_target
 from thesis.eta.models import get_retraining_kwargs
-from thesis.eta.pipeline import compute_absolute_errors, train_model
+from thesis.eta.pipeline import train_model
 from thesis.predictor.services.data_loader import DataLoader
 from thesis.predictor.services.model_manager import ModelManager
 from thesis.predictor.services.predictor import _TARGET_COLUMN_MAP
@@ -24,7 +24,7 @@ def _retrain_job(
     version: str,
     start_timestamp: int,
     end_timestamp: int,
-) -> list[float] | None:
+) -> bool:
     """
     Retrain job.
 
@@ -38,18 +38,18 @@ def _retrain_job(
         end_timestamp (int): End timestamp.
 
     Returns:
-        list[float] | None: Post-adaptation absolute errors on training data.
+        bool: True if retraining succeeded, False otherwise.
     """
     job_model_manager = ModelManager(models_dir=models_dir)
     job_data_loader = DataLoader(data_dir=data_dir, ml_task=ml_task)
 
     loaded_ok = job_model_manager.load(base_version)
     if not loaded_ok:
-        return None
+        return False
 
     df = job_data_loader.load_window(start_timestamp=start_timestamp, end_timestamp=end_timestamp)
     if df.empty:
-        return None
+        return False
 
     X, y = split_features_and_target(df, target_columns=[_TARGET_COLUMN_MAP[ml_task]])
 
@@ -70,10 +70,7 @@ def _retrain_job(
 
     job_model_manager.save(model, version, metadata)
 
-    y_pred = model.predict(X)
-    absolute_errors = compute_absolute_errors(y.values, y_pred).tolist()
-
-    return absolute_errors
+    return True
 
 
 class RetrainService:
@@ -84,7 +81,7 @@ class RetrainService:
         self._model_manager = model_manager
         self._ml_task = ml_task
         self._executor = ProcessPoolExecutor()
-        self._jobs: dict[str, dict[str, RetrainStatus | str | Future | list[float] | None]] = {}
+        self._jobs: dict[str, dict[str, RetrainStatus | str | Future]] = {}
 
     def start(self, start_timestamp: int, end_timestamp: int) -> RetrainResponse:
         """
@@ -112,7 +109,6 @@ class RetrainService:
             "status": RetrainStatus.RUNNING,
             "version": version,
             "future": future,
-            "post_adaptation_errors": None,
         }
 
         def _on_done(future: Future) -> None:
@@ -123,11 +119,10 @@ class RetrainService:
                 future (Future): Future.
             """
             try:
-                post_adaptation_errors = future.result()
+                success = future.result()
                 loaded_ok = self._model_manager.load(version)
-                if loaded_ok and post_adaptation_errors is not None:
+                if loaded_ok and success:
                     self._jobs[job_id]["status"] = RetrainStatus.COMPLETED
-                    self._jobs[job_id]["post_adaptation_errors"] = post_adaptation_errors
                 else:
                     self._jobs[job_id]["status"] = RetrainStatus.FAILED
             except Exception:
@@ -139,21 +134,20 @@ class RetrainService:
 
     def get_status(self, job_id: str) -> RetrainStatusResponse:
         """
-        Get status and post-adaptation errors of a retraining job.
+        Get status of a retraining job.
 
         Args:
             job_id (str): Job ID.
 
         Returns:
-            RetrainStatusResponse: Status and post-adaptation errors.
+            RetrainStatusResponse: Status of the retraining job.
         """
         if job_id not in self._jobs:
-            return RetrainStatusResponse(status=RetrainStatus.FAILED, post_adaptation_errors=None)
+            return RetrainStatusResponse(status=RetrainStatus.FAILED)
 
         job = self._jobs[job_id]
         status = RetrainStatus(job["status"])
-        post_adaptation_errors = job.get("post_adaptation_errors") if status == RetrainStatus.COMPLETED else None
-        return RetrainStatusResponse(status=status, post_adaptation_errors=post_adaptation_errors)
+        return RetrainStatusResponse(status=status)
 
     def clear(self) -> None:
         """Clear the retraining service."""

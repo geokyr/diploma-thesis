@@ -93,11 +93,13 @@ class DriftState(StrEnum):
     Drift states.
 
     Attributes:
+        CALIBRATING: Calibration state.
         STABLE: Stable state.
         DRIFTED: Drifted state.
         RETRAINING: Retraining state.
     """
 
+    CALIBRATING = "calibrating"
     STABLE = "stable"
     DRIFTED = "drifted"
     RETRAINING = "retraining"

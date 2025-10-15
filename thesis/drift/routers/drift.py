@@ -52,14 +52,14 @@ async def recalibrate_detectors(req: RecalibrateRequest, request: Request) -> Re
     Recalibrate drift detectors after model adaptation.
 
     Args:
-        req (RecalibrateRequest): Request containing ML task and post-adaptation errors.
+        req (RecalibrateRequest): Request containing ML task.
         request (Request): FastAPI request.
 
     Returns:
         RecalibrateResponse: Recalibration success status.
     """
     drift_service: DriftService = request.app.state.drift_service
-    return await drift_service.recalibrate_task(req.ml_task, req.post_adaptation_errors)
+    return await drift_service.recalibrate_task(req.ml_task)
 
 
 @drift_router.post("/reset", response_model=DriftResetResponse)

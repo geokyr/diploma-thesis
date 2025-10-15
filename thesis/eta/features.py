@@ -1274,6 +1274,9 @@ class FeatureCalibratorETA:
         df_final["destination_pca_1"] = destination_pca[:, 0]
         df_final["destination_pca_2"] = destination_pca[:, 1]
 
+        df_final = df_final.sort_values("time_start", ignore_index=True)
+        df_final.reset_index(drop=True, inplace=True)
+
         logger.info(
             f"Transformed {len(df_final)} samples with FeatureCalibratorETA, total features: {len(df_final.columns)}"
         )

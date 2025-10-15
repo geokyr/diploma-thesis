@@ -206,15 +206,15 @@ class DriftConfig:
     consensus_threshold: int
     smoothing_window_samples: int
     grace_period_samples: int
-    delta_candidates: list[float]
-    threshold_candidates: list[float]
-    alpha_candidates: list[float]
-    page_hinkley_delta: float
-    kswin_window_size: int
-    kswin_stat_size: int
-    spc_n_std: int
+    calibration_window_samples: int
+    adwin_delta_candidates: list[float]
+    page_hinkley_delta_candidates: list[float]
+    page_hinkley_threshold_candidates: list[float]
+    kswin_alpha_candidates: list[float]
+    kswin_window_size_stat_size_configs: list[list[int]]
+    spc_n_std_candidates: list[float]
     spc_min_std: float
-    spc_consecutive_violations_required: int
+    spc_consecutive_violations_required_multiplier_configs: list[list[int]]
 
 
 @dataclass(frozen=True, slots=True)
@@ -427,15 +427,17 @@ DISTANCE_COLUMN_ETA = CONFIG.predictor_eta.distance_column
 CONSENSUS_THRESHOLD = CONFIG.drift.consensus_threshold
 SMOOTHING_WINDOW_SAMPLES = CONFIG.drift.smoothing_window_samples
 GRACE_PERIOD_SAMPLES = CONFIG.drift.grace_period_samples
-DELTA_CANDIDATES = CONFIG.drift.delta_candidates
-THRESHOLD_CANDIDATES = CONFIG.drift.threshold_candidates
-ALPHA_CANDIDATES = CONFIG.drift.alpha_candidates
-PAGE_HINKLEY_DELTA = CONFIG.drift.page_hinkley_delta
-KSWIN_WINDOW_SIZE = CONFIG.drift.kswin_window_size
-KSWIN_STAT_SIZE = CONFIG.drift.kswin_stat_size
-SPC_N_STD = CONFIG.drift.spc_n_std
+CALIBRATION_WINDOW_SAMPLES = CONFIG.drift.calibration_window_samples
+ADWIN_DELTA_CANDIDATES = CONFIG.drift.adwin_delta_candidates
+PAGE_HINKLEY_DELTA_CANDIDATES = CONFIG.drift.page_hinkley_delta_candidates
+PAGE_HINKLEY_THRESHOLD_CANDIDATES = CONFIG.drift.page_hinkley_threshold_candidates
+KSWIN_ALPHA_CANDIDATES = CONFIG.drift.kswin_alpha_candidates
+KSWIN_WINDOW_SIZE_STAT_SIZE_CONFIGS = CONFIG.drift.kswin_window_size_stat_size_configs
+SPC_N_STD_CANDIDATES = CONFIG.drift.spc_n_std_candidates
 SPC_MIN_STD = CONFIG.drift.spc_min_std
-SPC_CONSECUTIVE_VIOLATIONS_REQUIRED = CONFIG.drift.spc_consecutive_violations_required
+SPC_CONSECUTIVE_VIOLATIONS_REQUIRED_MULTIPLIER_CONFIGS = (
+    CONFIG.drift.spc_consecutive_violations_required_multiplier_configs
+)
 
 FEATURE_CATEGORIES = CONFIG.feature_categories
 

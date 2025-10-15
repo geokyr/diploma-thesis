@@ -144,38 +144,6 @@ def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
             figure = go.Figure()
             figure.add_trace(go.Scatter(x=timestamps, y=mae_values, mode="lines+markers"))
 
-            if len(metrics.metric_points) > 0:
-                drift_window_size = SMOOTHING_WINDOW_SAMPLES
-                running_samples = 0
-                drift_window_start_idx = len(metrics.metric_points)
-
-                for i in range(len(metrics.metric_points) - 1, -1, -1):
-                    running_samples += metrics.metric_points[i].n_samples
-                    if running_samples >= drift_window_size:
-                        drift_window_start_idx = i
-                        break
-                    drift_window_start_idx = i
-
-                if drift_window_start_idx < len(timestamps):
-                    figure.add_vrect(
-                        x0=timestamps[drift_window_start_idx],
-                        x1=timestamps[-1],
-                        fillcolor="dodgerblue",
-                        opacity=0.05,
-                        line_width=0,
-                        layer="below",
-                    )
-
-                    figure.add_annotation(
-                        text="Drift Detection Window",
-                        x=timestamps[drift_window_start_idx],
-                        y=max(mae_values) if mae_values else 0,
-                        showarrow=False,
-                        font=dict(size=12),
-                        bgcolor="dimgray",
-                        borderpad=5,
-                    )
-
             figure.update_layout(
                 xaxis_title="Time",
                 yaxis_title=f"MAE ({get_ml_task_unit(ml_task)})",
@@ -184,6 +152,43 @@ def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
                 margin=dict(l=5, r=5, t=5, b=5),
                 height=250,
             )
+
+            drift_info = snapshot_data.get("drift_info", {})
+            current_state = DriftState(drift_info[ml_task.value]["state"])
+
+            if current_state != DriftState.STABLE or len(metrics.metric_points) <= 0:
+                return figure
+
+            drift_window_size = SMOOTHING_WINDOW_SAMPLES
+            running_samples = 0
+            drift_window_start_idx = len(metrics.metric_points)
+
+            for i in range(len(metrics.metric_points) - 1, -1, -1):
+                running_samples += metrics.metric_points[i].n_samples
+                if running_samples >= drift_window_size:
+                    drift_window_start_idx = i
+                    break
+                drift_window_start_idx = i
+
+            if drift_window_start_idx < len(timestamps):
+                figure.add_vrect(
+                    x0=timestamps[drift_window_start_idx],
+                    x1=timestamps[-1],
+                    fillcolor="dodgerblue",
+                    opacity=0.05,
+                    line_width=0,
+                    layer="below",
+                )
+
+                figure.add_annotation(
+                    text="Drift Detection Window",
+                    x=timestamps[drift_window_start_idx],
+                    y=max(mae_values) if mae_values else 0,
+                    showarrow=False,
+                    font=dict(size=12),
+                    bgcolor="dimgray",
+                    borderpad=5,
+                )
 
             return figure
 

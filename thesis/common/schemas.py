@@ -101,16 +101,12 @@ class RetrainStatusResponse(BaseModel):
     """Response for retraining status."""
 
     status: RetrainStatus = Field(..., description="Status of the job")
-    post_adaptation_errors: list[float] | None = Field(
-        None, description="Post-adaptation errors from retrained model (only available when status is COMPLETED)"
-    )
 
 
 class RecalibrateRequest(BaseModel):
     """Request for recalibrating drift detectors."""
 
     ml_task: MLTask = Field(..., description="ML task")
-    post_adaptation_errors: list[float] = Field(..., description="Post-adaptation errors from retrained model")
 
 
 class RecalibrateResponse(BaseModel):
