@@ -236,6 +236,7 @@ class FuelConfig:
     n_start_clusters: int
     n_end_clusters: int
     start_hour_max: int
+    n_init: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -444,3 +445,4 @@ MIN_TRIP_POINTS = CONFIG.fuel.min_trip_points
 N_START_CLUSTERS = CONFIG.fuel.n_start_clusters
 N_END_CLUSTERS = CONFIG.fuel.n_end_clusters
 START_HOUR_MAX = CONFIG.fuel.start_hour_max
+N_INIT = CONFIG.fuel.n_init

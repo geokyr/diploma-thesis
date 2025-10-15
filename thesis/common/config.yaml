@@ -187,4 +187,5 @@ fuel:
   min_trip_points: 30
   n_start_clusters: 10
   n_end_clusters: 10
+  n_init: 10
   start_hour_max: 10

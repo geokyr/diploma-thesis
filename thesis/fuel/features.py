@@ -1,4 +1,4 @@
-"""Feature engineering and transformation utilities for fuel consumption prediction."""
+"""Feature engineering and transformation utilities for Fuel Consumption prediction."""
 
 import logging
 from dataclasses import dataclass
@@ -13,12 +13,15 @@ from thesis.common.config import (
     FEATURE_CALIBRATOR_FILENAME,
     MIN_TRIP_POINTS,
     N_END_CLUSTERS,
+    N_INIT,
     N_START_CLUSTERS,
     RANDOM_SEED_DEFAULT,
     START_HOUR_MAX,
 )
 
-CORE_FEATURES = [
+logger = logging.getLogger(__name__)
+
+_CORE_FEATURES = [
     "timestep_time_min",
     "start_hour",
     "vehicle_x_first",
@@ -30,7 +33,22 @@ CORE_FEATURES = [
     "straight_line_distance",
 ]
 
-logger = logging.getLogger(__name__)
+_REQUIRED_COLUMNS = [
+    "vehicle_id",
+    "timestep_time",
+    "vehicle_x",
+    "vehicle_y",
+    "vehicle_odometer",
+    "vehicle_fuel",
+]
+
+
+@dataclass(frozen=True, slots=True)
+class KMeansModels:
+    start_kmeans: KMeans
+    end_kmeans: KMeans
+    n_start_clusters: int
+    n_end_clusters: int
 
 
 def check_required_columns(df: pd.DataFrame, required_columns: list[str], feature_type: str) -> None:
@@ -65,7 +83,11 @@ def add_time_features(df: pd.DataFrame) -> pd.DataFrame:
     """
     df = df.sort_values(["vehicle_id", "timestep_time"])
     df["hour_bin"] = (df["timestep_time"] // 3600).astype(int)
-    return df.fillna(0)
+    df = df.fillna(0)
+
+    logger.info(f"Added time features to {len(df)} rows")
+
+    return df
 
 
 def create_trips_simple(df: pd.DataFrame, min_trip_points: int = MIN_TRIP_POINTS) -> pd.DataFrame:
@@ -87,6 +109,8 @@ def create_trips_simple(df: pd.DataFrame, min_trip_points: int = MIN_TRIP_POINTS
     valid_ids = counts[counts >= min_trip_points].index
 
     df_out = df[df["vehicle_id"].isin(valid_ids)].copy()
+
+    logger.info(f"Created {len(df_out)} trips")
 
     return df_out
 
@@ -111,7 +135,6 @@ def create_trip_features(df: pd.DataFrame) -> pd.DataFrame:
             "vehicle_fuel": ["sum"],
         }
     )
-
     trip_features.columns = ["_".join(col).strip() for col in trip_features.columns.values]
 
     trip_features["vehicle_fuel_log_sum"] = np.log1p(trip_features["vehicle_fuel_sum"])
@@ -121,6 +144,7 @@ def create_trip_features(df: pd.DataFrame) -> pd.DataFrame:
         trip_features["vehicle_odometer_max"] - trip_features["vehicle_odometer_min"]
     )
     trip_features.drop(columns=["vehicle_odometer_max", "vehicle_odometer_min"], inplace=True)
+
     trip_features["start_hour"] = trip_features["hour_bin_first"] % 24
     trip_features.drop(columns=["hour_bin_first"], inplace=True)
 
@@ -134,8 +158,10 @@ def create_trip_features(df: pd.DataFrame) -> pd.DataFrame:
         + (trip_features["vehicle_y_max"] - trip_features["vehicle_y_min"]) ** 2
     )
     trip_features.drop(columns=["vehicle_x_max", "vehicle_x_min", "vehicle_y_max", "vehicle_y_min"], inplace=True)
-
     trip_features.reset_index(inplace=True)
+
+    logger.info(f"Created trip features for {len(trip_features)} trips")
+
     return trip_features
 
 
@@ -144,7 +170,7 @@ def fit_source_destination_kmeans(
     n_start_clusters: int = N_START_CLUSTERS,
     n_end_clusters: int = N_END_CLUSTERS,
     random_state: int = RANDOM_SEED_DEFAULT,
-) -> dict[str, KMeans | int]:
+) -> KMeansModels:
     """
     Fit KMeans clustering models for trip source and destination points.
 
@@ -155,32 +181,34 @@ def fit_source_destination_kmeans(
         random_state (int): Random state for reproducibility.
 
     Returns:
-        dict[str, KMeans | int]: Dictionary containing fitted KMeans models.
+        KMeansModels: Dictionary containing fitted KMeans models.
     """
     start_points = train_features[["vehicle_x_first", "vehicle_y_first"]].values
     end_points = train_features[["vehicle_x_last", "vehicle_y_last"]].values
 
-    start_kmeans = KMeans(n_clusters=n_start_clusters, random_state=random_state, n_init=10)
+    start_kmeans = KMeans(n_clusters=n_start_clusters, random_state=random_state, n_init=N_INIT)
     start_kmeans.fit(start_points)
 
-    end_kmeans = KMeans(n_clusters=n_end_clusters, random_state=random_state, n_init=10)
+    end_kmeans = KMeans(n_clusters=n_end_clusters, random_state=random_state, n_init=N_INIT)
     end_kmeans.fit(end_points)
 
-    return {
-        "start_kmeans": start_kmeans,
-        "end_kmeans": end_kmeans,
-        "n_start_clusters": n_start_clusters,
-        "n_end_clusters": n_end_clusters,
-    }
+    logger.info(f"Fitted KMeans models for {len(train_features)} trips")
+
+    return KMeansModels(
+        start_kmeans=start_kmeans,
+        end_kmeans=end_kmeans,
+        n_start_clusters=n_start_clusters,
+        n_end_clusters=n_end_clusters,
+    )
 
 
-def add_start_end_clusters(trip_features: pd.DataFrame, models: dict[str, KMeans | int]) -> pd.DataFrame:
+def add_start_end_clusters(trip_features: pd.DataFrame, models: KMeansModels) -> pd.DataFrame:
     """
     Add one-hot encoded cluster features using fitted KMeans models.
 
     Args:
         trip_features (pd.DataFrame): Trip features DataFrame.
-        models (dict): Dictionary containing fitted KMeans models.
+        models (KMeansModels): Dictionary containing fitted KMeans models.
 
     Returns:
         pd.DataFrame: DataFrame with added one-hot encoded cluster columns.
@@ -190,11 +218,11 @@ def add_start_end_clusters(trip_features: pd.DataFrame, models: dict[str, KMeans
     start_points = features_with_clusters[["vehicle_x_first", "vehicle_y_first"]].values
     end_points = features_with_clusters[["vehicle_x_last", "vehicle_y_last"]].values
 
-    start_clusters = models["start_kmeans"].predict(start_points)
-    end_clusters = models["end_kmeans"].predict(end_points)
+    start_clusters = models.start_kmeans.predict(start_points)
+    end_clusters = models.end_kmeans.predict(end_points)
 
-    n_start = models["n_start_clusters"]
-    n_end = models["n_end_clusters"]
+    n_start = models.n_start_clusters
+    n_end = models.n_end_clusters
 
     start_onehot = np.zeros((len(start_clusters), n_start), dtype=int)
     start_onehot[np.arange(len(start_clusters)), start_clusters] = 1
@@ -208,6 +236,8 @@ def add_start_end_clusters(trip_features: pd.DataFrame, models: dict[str, KMeans
 
     features_with_clusters = pd.concat([features_with_clusters, start_encoded_df, end_encoded_df], axis=1)
 
+    logger.info(f"Added start and end clusters for {len(features_with_clusters)} trips")
+
     return features_with_clusters
 
 
@@ -217,13 +247,13 @@ class FeatureCalibratorFuel:
     Feature calibrator to fit on train trips and transform test and rain trips for fuel consumption prediction.
 
     Attributes:
-        clustering_models (dict): Dictionary containing fitted KMeans models for spatial clustering.
+        clustering_models (KMeansModels): Dictionary containing fitted KMeans models for spatial clustering.
         feature_columns (list[str]): List of feature column names used for modeling.
         n_start_clusters (int): Number of start location clusters.
         n_end_clusters (int): Number of end location clusters.
     """
 
-    clustering_models: dict[str, KMeans | int]
+    clustering_models: KMeansModels
     feature_columns: list[str]
     n_start_clusters: int
     n_end_clusters: int
@@ -251,34 +281,27 @@ class FeatureCalibratorFuel:
         Raises:
             ValueError: If required columns are not found in the DataFrame.
         """
-        required_columns = [
-            "vehicle_id",
-            "timestep_time",
-            "vehicle_x",
-            "vehicle_y",
-            "vehicle_odometer",
-            "vehicle_fuel",
-            "hour_bin",
-        ]
 
-        if "hour_bin" not in df.columns:
-            df = add_time_features(df)
+        check_required_columns(df, _REQUIRED_COLUMNS, "FeatureCalibratorFuel calibration")
 
-        check_required_columns(df, required_columns, "FCD processing")
+        df = add_time_features(df)
 
         df_with_trips = create_trips_simple(df, min_trip_points=MIN_TRIP_POINTS)
         trip_features = create_trip_features(df_with_trips)
+
         trip_features = trip_features[trip_features["start_hour"] < START_HOUR_MAX]
 
         clustering_models = fit_source_destination_kmeans(trip_features, n_start_clusters, n_end_clusters, random_seed)
         trip_features_with_clusters = add_start_end_clusters(trip_features, clustering_models)
 
-        core_feature_cols = [c for c in CORE_FEATURES if c in trip_features_with_clusters.columns]
+        core_feature_cols = [c for c in _CORE_FEATURES if c in trip_features_with_clusters.columns]
         start_cluster_cols = [c for c in trip_features_with_clusters.columns if c.startswith("start_cluster_")]
         end_cluster_cols = [c for c in trip_features_with_clusters.columns if c.startswith("end_cluster_")]
 
         feature_columns = core_feature_cols + start_cluster_cols + end_cluster_cols
         feature_columns = list(dict.fromkeys(feature_columns))
+
+        logger.info(f"Created FeatureCalibratorFuel with {len(feature_columns)} features")
 
         return cls(
             clustering_models=clustering_models,
@@ -301,19 +324,9 @@ class FeatureCalibratorFuel:
             ValueError: If the required columns are not found in the DataFrame.
         """
         if "trip_actual_distance" not in df.columns:
-            if "hour_bin" not in df.columns:
-                df = add_time_features(df)
+            check_required_columns(df, _REQUIRED_COLUMNS, "FeatureCalibratorFuel transformation")
 
-            required_columns = [
-                "vehicle_id",
-                "timestep_time",
-                "vehicle_x",
-                "vehicle_y",
-                "vehicle_odometer",
-                "vehicle_fuel",
-                "hour_bin",
-            ]
-            check_required_columns(df, required_columns, "FCD processing in transform")
+            df = add_time_features(df)
 
             df_with_trips = create_trips_simple(df, min_trip_points=MIN_TRIP_POINTS)
             trip_features = create_trip_features(df_with_trips)
@@ -334,20 +347,21 @@ class FeatureCalibratorFuel:
                 (trip_features["maximum_x"] - trip_features["minimum_x"]) ** 2
                 + (trip_features["maximum_y"] - trip_features["minimum_y"]) ** 2
             )
-
         trip_features.drop(columns=["minimum_x", "maximum_x", "minimum_y", "maximum_y"], inplace=True, errors="ignore")
 
         trip_features = trip_features[trip_features["start_hour"] < START_HOUR_MAX]
+
         trip_features_with_clusters = add_start_end_clusters(trip_features, self.clustering_models)
 
         available_features = [c for c in self.feature_columns if c in trip_features_with_clusters.columns]
-        cols = list(available_features)
 
         for tgt in ["vehicle_fuel_log_sum"]:
             if tgt in trip_features_with_clusters.columns:
-                cols.append(tgt)
+                available_features.append(tgt)
 
-        return trip_features_with_clusters[cols]
+        logger.info(f"Transformed {len(trip_features_with_clusters)} trips with {len(available_features)} features")
+
+        return trip_features_with_clusters[available_features]
 
     def save(self, misc_dir: Path) -> None:
         """
