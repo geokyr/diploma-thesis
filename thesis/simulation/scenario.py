@@ -1,6 +1,5 @@
 """Simulation scenario definitions and configuration management."""
 
-import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import ClassVar
@@ -23,8 +22,6 @@ from thesis.common.config import (
     TRIPS_SUFFIX,
 )
 from thesis.common.enums import SimulationScenario
-
-logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True, slots=True)
