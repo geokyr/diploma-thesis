@@ -76,7 +76,7 @@ app.include_router(predict_router, prefix="/predict", tags=["predict"])
 
 
 @app.get("/health", response_model=HealthResponse, tags=["health"])
-async def get_health() -> HealthResponse:
+def get_health() -> HealthResponse:
     return HealthResponse(status=PlatformServiceStatus.HEALTHY, service=PlatformService.BACKEND)
 
 

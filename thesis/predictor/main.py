@@ -76,7 +76,7 @@ app.include_router(retrain_router, prefix="/retrain", tags=["retrain"])
 
 
 @app.get("/health", response_model=HealthResponse, tags=["health"])
-async def get_health() -> HealthResponse:
+def get_health() -> HealthResponse:
     return HealthResponse(status=PlatformServiceStatus.HEALTHY, service=PlatformService.PREDICTOR_ETA)
 
 
