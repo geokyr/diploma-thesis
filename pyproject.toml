@@ -95,3 +95,9 @@ drift = [
     "uvicorn==0.35.0",
     "uvloop==0.21.0; sys_platform != 'win32'",
 ]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+extend-select = ["I"]
