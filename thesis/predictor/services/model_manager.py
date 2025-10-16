@@ -2,7 +2,7 @@
 
 import json
 from pathlib import Path
-from threading import RLock
+from threading import Lock
 
 import joblib
 from sklearn.base import BaseEstimator
@@ -22,7 +22,7 @@ class ModelManager:
     """
 
     def __init__(self, models_dir: Path, version: str = DEFAULT_VERSION) -> None:
-        self._lock: RLock = RLock()
+        self._lock: Lock = Lock()
         self.models_dir: Path = models_dir
         self.model: BaseEstimator | None = None
         self.version: str | None = None
@@ -40,20 +40,23 @@ class ModelManager:
         Returns:
             bool: True if the model was loaded successfully, False otherwise.
         """
+        if version == self.version:
+            return True
+
+        model_path = self.models_dir / version / MODEL_FILENAME
+        if not model_path.exists():
+            return False
+
+        model = joblib.load(model_path)
+        loaded_version = model_path.parent.name
+        metadata = self._read_metadata(loaded_version)
+
         with self._lock:
             if version == self.version:
                 return True
 
-            model_path = self.models_dir / version / MODEL_FILENAME
-            if not model_path.exists():
-                return False
-
-            model = joblib.load(model_path)
-            version = model_path.parent.name
-            metadata = self._read_metadata(version)
-
             self.model = model
-            self.version = version
+            self.version = loaded_version
             self.metadata = metadata
             return True
 
