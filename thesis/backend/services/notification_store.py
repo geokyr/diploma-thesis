@@ -25,15 +25,14 @@ class NotificationStore:
             level (NotificationLevel): Notification level.
             ml_task (MLTask | None): ML task, if applicable.
         """
+        notification = Notification(
+            timestamp=timestamp,
+            message=message,
+            level=level,
+            ml_task=ml_task,
+        )
         async with self._lock:
-            self._store.append(
-                Notification(
-                    timestamp=timestamp,
-                    message=message,
-                    level=level,
-                    ml_task=ml_task,
-                )
-            )
+            self._store.append(notification)
 
     async def get_all(self) -> NotificationFeed:
         """
@@ -44,7 +43,7 @@ class NotificationStore:
         """
         async with self._lock:
             notifications = list(self._store)
-            return NotificationFeed(notifications=notifications)
+        return NotificationFeed(notifications=notifications)
 
     async def reset(self) -> None:
         """Reset the notification store."""
