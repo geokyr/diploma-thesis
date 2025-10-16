@@ -232,11 +232,26 @@ class FeatureCategoriesConfig:
 class FuelConfig:
     time_start_column: str
     target_column: str
+    random_seed: int
     min_trip_points: int
     n_start_clusters: int
     n_end_clusters: int
-    start_hour_max: int
     n_init: int
+    start_hour_max: int
+
+
+@dataclass(frozen=True, slots=True)
+class StopsConfig:
+    time_start_column: str
+    target_column: str
+    random_seed: int
+    n_clusters: int
+    n_init: int
+    min_trip_records: int
+    min_duration: int
+    min_distance: int
+    use_spatial_features: bool
+    use_route_features: bool
 
 
 @dataclass(frozen=True, slots=True)
@@ -259,6 +274,7 @@ class Config:
     drift: DriftConfig
     feature_categories: FeatureCategoriesConfig
     fuel: FuelConfig
+    stops: StopsConfig
 
 
 def load_config(config_path: Path) -> Config:
@@ -283,6 +299,7 @@ def load_config(config_path: Path) -> Config:
             drift=DriftConfig(**data["drift"]),
             feature_categories=FeatureCategoriesConfig(**data["feature_categories"]),
             fuel=FuelConfig(**data["fuel"]),
+            stops=StopsConfig(**data["stops"]),
         )
 
 
@@ -443,8 +460,20 @@ FEATURE_CATEGORIES = CONFIG.feature_categories
 
 TIME_START_COLUMN_FUEL = CONFIG.fuel.time_start_column
 TARGET_COLUMN_FUEL = CONFIG.fuel.target_column
+RANDOM_SEED_FUEL = CONFIG.fuel.random_seed
 MIN_TRIP_POINTS = CONFIG.fuel.min_trip_points
 N_START_CLUSTERS = CONFIG.fuel.n_start_clusters
 N_END_CLUSTERS = CONFIG.fuel.n_end_clusters
-START_HOUR_MAX = CONFIG.fuel.start_hour_max
 N_INIT = CONFIG.fuel.n_init
+START_HOUR_MAX = CONFIG.fuel.start_hour_max
+
+TIME_START_COLUMN_STOPS = CONFIG.stops.time_start_column
+TARGET_COLUMN_STOPS = CONFIG.stops.target_column
+RANDOM_SEED_STOPS = CONFIG.stops.random_seed
+N_CLUSTERS_STOPS = CONFIG.stops.n_clusters
+N_INIT_STOPS = CONFIG.stops.n_init
+MIN_TRIP_RECORDS_STOPS = CONFIG.stops.min_trip_records
+MIN_DURATION_STOPS = CONFIG.stops.min_duration
+MIN_DISTANCE_STOPS = CONFIG.stops.min_distance
+USE_SPATIAL_FEATURES_STOPS = CONFIG.stops.use_spatial_features
+USE_ROUTE_FEATURES_STOPS = CONFIG.stops.use_route_features
