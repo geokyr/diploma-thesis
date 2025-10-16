@@ -23,7 +23,9 @@ class SimulationManager:
         """Tick loop for the simulation."""
         try:
             while True:
-                state = self._state
+                async with self._lock:
+                    state = self._state
+
                 if state == SimulationState.RUNNING:
                     try:
                         should_continue = await self._timelapse_driver.run_tick()
@@ -49,8 +51,8 @@ class SimulationManager:
         """
         async with self._lock:
             state = self._state
-            clock = self._timelapse_driver.clock
-            drift_info = self._timelapse_driver.drift_info
+
+        clock, drift_info = await self._timelapse_driver.get_snapshot_data()
 
         return SimulationSnapshot(state=state, clock=clock, drift_info=drift_info)
 
