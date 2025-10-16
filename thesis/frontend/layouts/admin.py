@@ -159,10 +159,10 @@ def create_admin_layout() -> dbc.Row:
                         dbc.CardBody(
                             id="notification-panel-content",
                             children=EMPTY_NOTIFICATIONS,
-                            className="overflow-y-auto h-100",
+                            className="overflow-y-auto",
                         ),
                     ],
-                    className="h-100",
+                    style={"maxHeight": "86.75vh"},
                 ),
                 width=3,
             ),
@@ -198,6 +198,7 @@ def create_ml_task_card(ml_task: str) -> dbc.Card:
             ),
         ],
         className="mb-2",
+        style={"height": "25vh"},
     )
 
 
