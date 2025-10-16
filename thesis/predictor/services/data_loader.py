@@ -4,14 +4,18 @@ from pathlib import Path
 
 import pandas as pd
 
-from thesis.common.config import TIME_START_COLUMN_ETA, TIME_START_COLUMN_FUEL, TRIPS_PARQUET_FILENAME
+from thesis.common.config import (
+    TIME_START_COLUMN_ETA,
+    TIME_START_COLUMN_FUEL,
+    TIME_START_COLUMN_STOPS,
+    TRIPS_PARQUET_FILENAME,
+)
 from thesis.common.enums import MLTask
 
-# TODO: add stops
 _TIME_START_COLUMN_MAP = {
     MLTask.ETA: TIME_START_COLUMN_ETA,
     MLTask.FUEL: TIME_START_COLUMN_FUEL,
-    MLTask.STOPS: "",
+    MLTask.STOPS: TIME_START_COLUMN_STOPS,
 }
 
 

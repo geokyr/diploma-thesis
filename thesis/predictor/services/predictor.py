@@ -1,5 +1,7 @@
 """Predictor service for a single model."""
 
+import logging
+
 import numpy as np
 import pandas as pd
 from click import Path
@@ -14,6 +16,7 @@ from thesis.common.config import (
     SOURCE_Y_COLUMN_ETA,
     TARGET_COLUMN_ETA,
     TARGET_COLUMN_FUEL,
+    TARGET_COLUMN_STOPS,
     TIME_START_COLUMN_ETA,
 )
 from thesis.common.enums import MLTask
@@ -28,19 +31,20 @@ from thesis.fuel.features import FeatureCalibratorFuel
 from thesis.predictor.services.data_loader import _TIME_START_COLUMN_MAP, DataLoader
 from thesis.predictor.services.model_manager import ModelManager
 from thesis.predictor.services.sumo_service import SumoService
+from thesis.stops.features import FeatureCalibratorStops
 
-# TODO: add stops
+logger = logging.getLogger(__name__)
+
 _FEATURE_CALIBRATOR_MAP: dict[MLTask, FeatureCalibratorETA | FeatureCalibratorFuel | None] = {
     MLTask.ETA: FeatureCalibratorETA,
     MLTask.FUEL: FeatureCalibratorFuel,
-    MLTask.STOPS: None,
+    MLTask.STOPS: FeatureCalibratorStops,
 }
 
-# TODO: add stops
 _TARGET_COLUMN_MAP: dict[MLTask, str] = {
     MLTask.ETA: TARGET_COLUMN_ETA,
     MLTask.FUEL: TARGET_COLUMN_FUEL,
-    MLTask.STOPS: "",
+    MLTask.STOPS: TARGET_COLUMN_STOPS,
 }
 
 
@@ -82,10 +86,12 @@ class Predictor:
             return PredictionBatchResponse(error_points=[], mae=None)
 
         X, y = split_features_and_target(df, target_columns=[_TARGET_COLUMN_MAP[self._ml_task]])
-        y_pred = model.predict(X)
 
-        time_column = _TIME_START_COLUMN_MAP[self._ml_task]
-        timestamps = X[time_column].astype(int).tolist()
+        timestamps = X[_TIME_START_COLUMN_MAP[self._ml_task]].astype(int).tolist()
+
+        X = X[model.feature_names_in_]
+
+        y_pred = model.predict(X)
 
         if self._ml_task == MLTask.FUEL:
             y = np.expm1(y)
@@ -161,10 +167,18 @@ class Predictor:
                 "maximum_y": [maximum_y],
             }
         elif self._ml_task == MLTask.STOPS:
-            # TODO: add stops
-            pass
+            trip_data = {
+                "trip_start_x": [source_x],
+                "trip_start_y": [source_y],
+                "trip_end_x": [destination_x],
+                "trip_end_y": [destination_y],
+                "actual_distance": [distance],
+                "route_edges": [edges],
+            }
 
         X = self._feature_calibrator.transform(pd.DataFrame(trip_data))
+        X = X[model.feature_names_in_]
+
         prediction = model.predict(X)[0]
 
         if self._ml_task == MLTask.FUEL:
