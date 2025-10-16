@@ -50,10 +50,27 @@ class DriftService:
 
     def __init__(self) -> None:
         self._consensus_threshold: int = CONSENSUS_THRESHOLD
-        self._lock: asyncio.Lock = asyncio.Lock()
         self._snapshots: dict[MLTask, DriftSnapshot] = {}
+        self._task_locks: dict[MLTask, asyncio.Lock] = {}
+        self._locks_lock: asyncio.Lock = asyncio.Lock()
 
-    async def _initialize_task(self, ml_task: MLTask) -> None:
+    async def _get_lock(self, ml_task: MLTask) -> asyncio.Lock:
+        """
+        Get or create a lock for the given ML task using double-checked locking.
+
+        Args:
+            ml_task (MLTask): ML task.
+
+        Returns:
+            asyncio.Lock: Lock for the ML task.
+        """
+        if ml_task not in self._task_locks:
+            async with self._locks_lock:
+                if ml_task not in self._task_locks:
+                    self._task_locks[ml_task] = asyncio.Lock()
+        return self._task_locks[ml_task]
+
+    def _initialize_task(self, ml_task: MLTask) -> None:
         """
         Initialize drift detection for a specific ML task.
 
@@ -87,7 +104,6 @@ class DriftService:
         Returns:
             float: Smoothed error value.
         """
-
         if len(snapshot.error_history) == snapshot.error_history.maxlen:
             oldest = snapshot.error_history[0]
             snapshot.running_sum -= oldest
@@ -108,9 +124,10 @@ class DriftService:
         Returns:
             DriftErrorsResponse: Current drift state after processing errors.
         """
-        async with self._lock:
+        lock = await self._get_lock(ml_task)
+        async with lock:
             if ml_task not in self._snapshots:
-                await self._initialize_task(ml_task)
+                self._initialize_task(ml_task)
 
             snapshot = self._snapshots[ml_task]
 
@@ -181,9 +198,10 @@ class DriftService:
         Returns:
             DriftErrorsResponse: Current drift state.
         """
-        async with self._lock:
+        lock = await self._get_lock(ml_task)
+        async with lock:
             if ml_task not in self._snapshots:
-                await self._initialize_task(ml_task)
+                self._initialize_task(ml_task)
 
             snapshot = self._snapshots[ml_task]
             return DriftErrorsResponse(
@@ -201,13 +219,22 @@ class DriftService:
         Returns:
             DriftResetResponse: Response containing success status.
         """
-        async with self._lock:
+        sorted_tasks = sorted(ml_tasks, key=lambda t: t.value)
+        locks = [await self._get_lock(task) for task in sorted_tasks]
+
+        for lock in locks:
+            await lock.acquire()
+
+        try:
             for ml_task in ml_tasks:
                 if ml_task in self._snapshots:
-                    await self._initialize_task(ml_task)
+                    self._initialize_task(ml_task)
                     logger.info(f"Reset drift detection for {ml_task}")
 
             return DriftResetResponse(success=True)
+        finally:
+            for lock in reversed(locks):
+                lock.release()
 
     async def recalibrate_task(self, ml_task: MLTask) -> RecalibrateResponse:
         """
@@ -219,8 +246,9 @@ class DriftService:
         Returns:
             RecalibrateResponse: Recalibration success status.
         """
-        async with self._lock:
-            await self._initialize_task(ml_task)
+        lock = await self._get_lock(ml_task)
+        async with lock:
+            self._initialize_task(ml_task)
 
             logger.info(f"[{ml_task}] Reinitialized to CALIBRATING state after model adaptation.")
 
@@ -228,8 +256,20 @@ class DriftService:
 
     async def clear(self) -> None:
         """Clear the drift service."""
-        async with self._lock:
+        async with self._locks_lock:
+            task_locks = list(self._task_locks.items())
+
+        sorted_locks = sorted(task_locks, key=lambda kv: kv[0].value)
+        locks = [lock for _, lock in sorted_locks]
+
+        for lock in locks:
+            await lock.acquire()
+
+        try:
             for _, snapshot in self._snapshots.items():
                 snapshot.detector_manager.clear()
 
             logger.info("Cleared drift service")
+        finally:
+            for lock in reversed(locks):
+                lock.release()
