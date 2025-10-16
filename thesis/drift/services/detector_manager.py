@@ -320,15 +320,6 @@ class DetectorManager:
             grace_period_samples=GRACE_PERIOD_SAMPLES,
         )
 
-        logger.info(f"Chosen ADWIN delta: {chosen_adwin_delta}")
-        logger.info(f"Chosen Page Hinkley delta: {chosen_page_hinkley_delta}")
-        logger.info(f"Chosen Page Hinkley threshold: {chosen_page_hinkley_threshold}")
-        logger.info(f"Chosen KSWIN alpha: {chosen_kswin_alpha}")
-        logger.info(f"Chosen KSWIN window size: {chosen_kswin_window_size}")
-        logger.info(f"Chosen KSWIN stat size: {chosen_kswin_stat_size}")
-        logger.info(f"Chosen SPC n std: {chosen_spc_n_std}")
-        logger.info(f"Chosen SPC consecutive violations required: {chosen_spc_consecutive_violations_required}")
-
         self.drift_detectors = {
             DriftDetectorType.ADWIN: adwin,
             DriftDetectorType.PAGE_HINKLEY: page_hinkley,
