@@ -16,7 +16,7 @@ from thesis.common.config import (
     N_END_CLUSTERS,
     N_INIT,
     N_START_CLUSTERS,
-    RANDOM_SEED_DEFAULT,
+    RANDOM_SEED_FUEL,
     START_HOUR_MAX,
 )
 
@@ -149,7 +149,7 @@ def fit_source_destination_kmeans(
     train_features: pd.DataFrame,
     n_start_clusters: int = N_START_CLUSTERS,
     n_end_clusters: int = N_END_CLUSTERS,
-    random_state: int = RANDOM_SEED_DEFAULT,
+    random_state: int = RANDOM_SEED_FUEL,
 ) -> KMeansModels:
     """
     Fit KMeans clustering models for trip source and destination points.
@@ -233,6 +233,11 @@ class FeatureCalibratorFuel:
         n_end_clusters (int): Number of end location clusters.
     """
 
+    clustering_models: KMeansModels
+    feature_columns: list[str]
+    n_start_clusters: int
+    n_end_clusters: int
+
     _CORE_FEATURES: ClassVar[list[str]] = [
         "timestep_time_min",
         "start_hour",
@@ -254,18 +259,13 @@ class FeatureCalibratorFuel:
         "vehicle_fuel",
     ]
 
-    clustering_models: KMeansModels
-    feature_columns: list[str]
-    n_start_clusters: int
-    n_end_clusters: int
-
     @classmethod
     def from_train_fcd(
         cls,
         df: pd.DataFrame,
         n_start_clusters: int = N_START_CLUSTERS,
         n_end_clusters: int = N_END_CLUSTERS,
-        random_seed: int = RANDOM_SEED_DEFAULT,
+        random_seed: int = RANDOM_SEED_FUEL,
     ) -> "FeatureCalibratorFuel":
         """
         Create and fit a FeatureCalibratorFuel from training FCD data.
