@@ -167,6 +167,9 @@ class ModelsConfig:
 class ServicesConfig:
     host: str
     environment: str
+    loop: str
+    http: str
+    access_log: bool
     backend: int
     predictor_eta: int
     predictor_fuel: int
@@ -417,6 +420,9 @@ IMPORTANCE_TYPE = CONFIG.models.importance_type
 
 HOST = CONFIG.services.host
 ENVIRONMENT = CONFIG.services.environment
+LOOP = CONFIG.services.loop
+HTTP = CONFIG.services.http
+ACCESS_LOG = CONFIG.services.access_log
 PORT_BACKEND = CONFIG.services.backend
 PORT_PREDICTOR_ETA = CONFIG.services.predictor_eta
 PORT_PREDICTOR_FUEL = CONFIG.services.predictor_fuel

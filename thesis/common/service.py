@@ -6,12 +6,15 @@ from pathlib import Path
 from typing import ClassVar
 
 from thesis.common.config import (
+    ACCESS_LOG,
     APPDATA_DIRNAME,
     COMMON_DIRNAME,
     DATA_DIRNAME,
     ENVIRONMENT,
     HOST,
+    HTTP,
     LOGS_DIRNAME,
+    LOOP,
     MISC_DIRNAME,
     MODELS_DIRNAME,
     PORT_BACKEND,
@@ -66,6 +69,9 @@ class PlatformServiceConfig:
             f"{self.ml_task=}, "
             f"{self.host=}, "
             f"{self.is_development=}, "
+            f"{self.loop=}, "
+            f"{self.http=}, "
+            f"{self.access_log=}, "
             f"{self.app_dir=}, "
             f"{self.common_dir=}, "
             f"{self.logs_dir=}, "
@@ -103,6 +109,21 @@ class PlatformServiceConfig:
     def is_development(self) -> bool:
         """Bool flag for development environment."""
         return self._environment == "development"
+
+    @property
+    def loop(self) -> str:
+        """Event loop for the platform service."""
+        return LOOP
+
+    @property
+    def http(self) -> str:
+        """HTTP server for the platform service."""
+        return HTTP
+
+    @property
+    def access_log(self) -> bool:
+        """Bool access log flag for the platform service."""
+        return ACCESS_LOG
 
     @property
     def app_dir(self) -> Path:

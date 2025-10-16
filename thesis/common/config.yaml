@@ -131,6 +131,9 @@ models:
 services:
   host: 0.0.0.0
   environment: development
+  loop: uvloop
+  http: httptools
+  access_log: false
   backend: 8000
   predictor_eta: 8001
   predictor_fuel: 8002

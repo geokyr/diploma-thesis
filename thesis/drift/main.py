@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.responses import ORJSONResponse
 
 from thesis.common.enums import PlatformService, PlatformServiceStatus
 from thesis.common.logger import setup_logger
@@ -31,7 +32,7 @@ async def lifespan(app: FastAPI):
             delattr(app.state, "drift_service")
 
 
-app = FastAPI(title="Platform Drift Service", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="Platform Drift Service", version="1.0.0", lifespan=lifespan, default_response_class=ORJSONResponse)
 app.include_router(drift_router, prefix="/drift", tags=["drift"])
 
 
@@ -41,4 +42,12 @@ def get_health() -> HealthResponse:
 
 
 if __name__ == "__main__":
-    uvicorn.run("thesis.drift.main:app", host=config.host, port=config.port, reload=config.is_development)
+    uvicorn.run(
+        "thesis.drift.main:app",
+        host=config.host,
+        port=config.port,
+        reload=config.is_development,
+        loop=config.loop,
+        http=config.http,
+        access_log=config.access_log,
+    )

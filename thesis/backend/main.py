@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.responses import ORJSONResponse
 
 from thesis.backend.routers.control import control_router
 from thesis.backend.routers.predict import predict_router
@@ -69,7 +70,7 @@ async def lifespan(app: FastAPI):
             delattr(app.state, "metrics_store")
 
 
-app = FastAPI(title="Platform Backend API", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="Platform Backend API", version="1.0.0", lifespan=lifespan, default_response_class=ORJSONResponse)
 app.include_router(control_router, prefix="/control", tags=["control"])
 app.include_router(simulation_router, prefix="/simulation", tags=["simulation"])
 app.include_router(predict_router, prefix="/predict", tags=["predict"])
@@ -81,4 +82,12 @@ def get_health() -> HealthResponse:
 
 
 if __name__ == "__main__":
-    uvicorn.run("thesis.backend.main:app", host=config.host, port=config.port, reload=config.is_development)
+    uvicorn.run(
+        "thesis.backend.main:app",
+        host=config.host,
+        port=config.port,
+        reload=config.is_development,
+        loop=config.loop,
+        http=config.http,
+        access_log=config.access_log,
+    )
