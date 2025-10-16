@@ -157,4 +157,5 @@ def format_prediction_value(ml_task: MLTask | str, value: float) -> str:
         return f"{liters:.2f} L"
 
     elif ml_task == MLTask.STOPS:
-        return f"{int(value)} stops"
+        stops = round(value)
+        return f"{stops} stop{'' if stops == 1 else 's'}"
