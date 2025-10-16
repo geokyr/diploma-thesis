@@ -52,7 +52,7 @@ def extract_trip_features(
     min_duration: float,
     min_distance: float,
     extract_routes: bool,
-) -> dict | None:
+) -> dict[str, str | int | float] | None:
     """
     Extract trip-level features from a single trip's FCD records.
 
@@ -64,7 +64,7 @@ def extract_trip_features(
         extract_routes (bool): Whether to extract route features.
 
     Returns:
-        dict | None: Dictionary with trip features or None if trip is invalid.
+        dict[str, str | int | float] | None: Dictionary with trip features or None if trip is invalid.
     """
     if len(df) < min_trip_records:
         return None
