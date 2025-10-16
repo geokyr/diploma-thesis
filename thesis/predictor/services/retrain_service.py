@@ -2,6 +2,7 @@
 
 from concurrent.futures import Future, ProcessPoolExecutor
 from pathlib import Path
+from threading import Lock
 from uuid import uuid4
 
 from sklearn.base import clone
@@ -82,6 +83,7 @@ class RetrainService:
         self._ml_task = ml_task
         self._executor = ProcessPoolExecutor()
         self._jobs: dict[str, dict[str, RetrainStatus | str | Future]] = {}
+        self._jobs_lock = Lock()
 
     def start(self, start_timestamp: int, end_timestamp: int) -> RetrainResponse:
         """
@@ -105,11 +107,13 @@ class RetrainService:
         )
 
         job_id = str(uuid4())
-        self._jobs[job_id] = {
-            "status": RetrainStatus.RUNNING,
-            "version": version,
-            "future": future,
-        }
+
+        with self._jobs_lock:
+            self._jobs[job_id] = {
+                "status": RetrainStatus.RUNNING,
+                "version": version,
+                "future": future,
+            }
 
         def _on_done(future: Future) -> None:
             """
@@ -121,12 +125,15 @@ class RetrainService:
             try:
                 success = future.result()
                 loaded_ok = self._model_manager.load(version)
-                if loaded_ok and success:
-                    self._jobs[job_id]["status"] = RetrainStatus.COMPLETED
-                else:
-                    self._jobs[job_id]["status"] = RetrainStatus.FAILED
+
+                with self._jobs_lock:
+                    if loaded_ok and success:
+                        self._jobs[job_id]["status"] = RetrainStatus.COMPLETED
+                    else:
+                        self._jobs[job_id]["status"] = RetrainStatus.FAILED
             except Exception:
-                self._jobs[job_id]["status"] = RetrainStatus.FAILED
+                with self._jobs_lock:
+                    self._jobs[job_id]["status"] = RetrainStatus.FAILED
 
         future.add_done_callback(_on_done)
 
@@ -142,19 +149,27 @@ class RetrainService:
         Returns:
             RetrainStatusResponse: Status of the retraining job.
         """
-        if job_id not in self._jobs:
-            return RetrainStatusResponse(status=RetrainStatus.FAILED)
+        with self._jobs_lock:
+            if job_id not in self._jobs:
+                return RetrainStatusResponse(status=RetrainStatus.FAILED)
 
-        job = self._jobs[job_id]
-        status = RetrainStatus(job["status"])
-        return RetrainStatusResponse(status=status)
+            job = self._jobs[job_id]
+            status = RetrainStatus(job["status"])
+            return RetrainStatusResponse(status=status)
 
     def clear(self) -> None:
         """Clear the retraining service."""
-        for job in self._jobs.values():
-            future: Future | None = job["future"]
-            if future is not None and not future.done():
-                future.cancel()
+        with self._jobs_lock:
+            futures_to_cancel = []
+            for job in self._jobs.values():
+                future: Future | None = job["future"]
+                if future is not None and not future.done():
+                    futures_to_cancel.append(future)
 
-        self._jobs.clear()
+        for future in futures_to_cancel:
+            future.cancel()
+
+        with self._jobs_lock:
+            self._jobs.clear()
+
         self._executor.shutdown(wait=False, cancel_futures=True)
