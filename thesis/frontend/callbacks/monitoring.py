@@ -150,7 +150,7 @@ def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
                 xaxis=dict(showticklabels=len(timestamps) > 0, tickangle=-15, nticks=10),
                 yaxis=dict(showticklabels=len(mae_values) > 0),
                 margin=dict(l=5, r=5, t=5, b=5),
-                height=250,
+                autosize=True,
             )
 
             drift_info = snapshot_data.get("drift_info", {})
