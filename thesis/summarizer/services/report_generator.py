@@ -44,7 +44,7 @@ class ReportGenerator:
             model=OPENROUTER_MODEL,
             messages=[
                 {"role": "system", "content": SUMMARIZER_SYSTEM_PROMPT},
-                {"role": "user", "content": user_content},
+                {"role": "user", "content": f"Summarize the following simulation data: {user_content}"},
             ],
         )
 
