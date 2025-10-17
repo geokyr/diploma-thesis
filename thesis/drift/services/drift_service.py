@@ -32,6 +32,7 @@ class DriftSnapshot:
         running_sum (float): Running sum of errors.
         calibration_errors (list[float]): Collected errors during calibration phase.
         calibration_window_samples (int): Required samples for calibration.
+        is_calibrating: (bool): Flag to prevent concurrent calibration.
     """
 
     state: DriftState
@@ -43,6 +44,7 @@ class DriftSnapshot:
     running_sum: float
     calibration_errors: list[float]
     calibration_window_samples: int
+    is_calibrating: bool
 
 
 class DriftService:
@@ -89,6 +91,7 @@ class DriftService:
             running_sum=0.0,
             calibration_errors=[],
             calibration_window_samples=CALIBRATION_WINDOW_SAMPLES,
+            is_calibrating=False,
         )
 
         logger.info(f"Initialized drift detection for {ml_task}")
@@ -125,25 +128,39 @@ class DriftService:
             DriftErrorsResponse: Current drift state after processing errors.
         """
         lock = await self._get_lock(ml_task)
+
         async with lock:
             if ml_task not in self._snapshots:
                 self._initialize_task(ml_task)
-
             snapshot = self._snapshots[ml_task]
 
-            if snapshot.state == DriftState.DRIFTED:
-                return DriftErrorsResponse(
-                    state=snapshot.state,
-                    start_timestamp=snapshot.start_timestamp,
-                )
+        if snapshot.state == DriftState.DRIFTED:
+            return DriftErrorsResponse(
+                state=snapshot.state,
+                start_timestamp=snapshot.start_timestamp,
+            )
 
-            for error_point in error_points:
-                if snapshot.state == DriftState.CALIBRATING:
+        if snapshot.state == DriftState.CALIBRATING:
+            async with lock:
+                if snapshot.is_calibrating:
+                    return DriftErrorsResponse(
+                        state=snapshot.state,
+                        start_timestamp=snapshot.start_timestamp,
+                    )
+
+                for error_point in error_points:
                     snapshot.calibration_errors.append(error_point.error)
                     snapshot.samples_seen += 1
 
                     if len(snapshot.calibration_errors) >= snapshot.calibration_window_samples:
-                        snapshot.detector_manager.calibrate(snapshot.calibration_errors)
+                        snapshot.is_calibrating = True
+                        calibration_errors = list(snapshot.calibration_errors)
+
+                        lock.release()
+                        try:
+                            await asyncio.to_thread(snapshot.detector_manager.calibrate, calibration_errors)
+                        finally:
+                            await lock.acquire()
 
                         snapshot.state = DriftState.STABLE
                         snapshot.start_timestamp = error_point.timestamp
@@ -152,41 +169,48 @@ class DriftService:
                         snapshot.fired_detectors = set()
                         snapshot.running_sum = 0.0
                         snapshot.calibration_errors = []
+                        snapshot.is_calibrating = False
 
                         logger.info(f"[{ml_task}] Transitioned to STABLE state. Detectors are now active.")
+                        break
 
-                    continue
+            if snapshot.state == DriftState.CALIBRATING:
+                return DriftErrorsResponse(
+                    state=snapshot.state,
+                    start_timestamp=snapshot.start_timestamp,
+                )
 
+        async with lock:
+            drift_detectors = snapshot.detector_manager.drift_detectors
+
+            for error_point in error_points:
                 smoothed_error = self._append_and_smooth_error(snapshot, error_point.error)
 
-                drift_detectors = snapshot.detector_manager.drift_detectors
                 for drift_detector_type, drift_detector in drift_detectors.items():
-                    if drift_detector_type != DriftDetectorType.KSWIN:
-                        drift_detector.update(smoothed_error)
-                    else:
-                        drift_detector.update(error_point.error)
+                    if drift_detector_type not in snapshot.fired_detectors:
+                        if drift_detector_type != DriftDetectorType.KSWIN:
+                            drift_detector.update(smoothed_error)
+                        else:
+                            drift_detector.update(error_point.error)
 
-                    if drift_detector.drift_detected and drift_detector_type not in snapshot.fired_detectors:
-                        snapshot.fired_detectors.add(drift_detector_type)
-                        logger.info(
-                            f"[{ml_task}] {drift_detector_type} fired at sample {snapshot.samples_seen}, timestamp {error_point.timestamp}"
-                        )
+                        if drift_detector.drift_detected:
+                            snapshot.fired_detectors.add(drift_detector_type)
+                            logger.info(
+                                f"[{ml_task}] {drift_detector_type} fired at sample {snapshot.samples_seen}, timestamp {error_point.timestamp}"
+                            )
 
-                if len(snapshot.fired_detectors) >= self._consensus_threshold and snapshot.state == DriftState.STABLE:
+                if len(snapshot.fired_detectors) >= self._consensus_threshold:
                     snapshot.state = DriftState.DRIFTED
                     snapshot.start_timestamp = error_point.timestamp
                     logger.warning(
                         f"[{ml_task}] Consensus drift detected at sample {snapshot.samples_seen}, timestamp {error_point.timestamp}"
                     )
-                    return DriftErrorsResponse(
-                        state=snapshot.state,
-                        start_timestamp=snapshot.start_timestamp,
-                    )
+                    break
 
-            return DriftErrorsResponse(
-                state=snapshot.state,
-                start_timestamp=snapshot.start_timestamp,
-            )
+        return DriftErrorsResponse(
+            state=snapshot.state,
+            start_timestamp=snapshot.start_timestamp,
+        )
 
     async def get_state(self, ml_task: MLTask) -> DriftErrorsResponse:
         """
