@@ -333,6 +333,7 @@ class TimelapseDriver:
 
                 if drift_response.state == DriftState.STABLE and info.state == DriftState.CALIBRATING:
                     info.state = DriftState.STABLE
+                    info.start_timestamp = drift_response.start_timestamp
                     notifications_to_push.append(
                         (
                             end_timestamp,

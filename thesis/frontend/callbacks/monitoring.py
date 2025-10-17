@@ -159,11 +159,19 @@ def register_monitoring_callbacks(app: dash.Dash, client: APIClient) -> None:
             if current_state != DriftState.STABLE or len(metrics.metric_points) <= 0:
                 return figure
 
+            stable_start_timestamp = drift_info[ml_task]["start_timestamp"]
+
+            stable_start_idx = None
+            for i, point in enumerate(metrics.metric_points):
+                if point.timestamp >= stable_start_timestamp:
+                    stable_start_idx = i
+                    break
+
             drift_window_size = SMOOTHING_WINDOW_SAMPLES
             running_samples = 0
             drift_window_start_idx = len(metrics.metric_points)
 
-            for i in range(len(metrics.metric_points) - 1, -1, -1):
+            for i in range(len(metrics.metric_points) - 1, stable_start_idx - 1, -1):
                 running_samples += metrics.metric_points[i].n_samples
                 if running_samples >= drift_window_size:
                     drift_window_start_idx = i
