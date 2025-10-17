@@ -1,10 +1,10 @@
 """Predictor service for a single model."""
 
 import logging
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from click import Path
 from sklearn.base import BaseEstimator
 from sklearn.metrics import mean_absolute_error
 
