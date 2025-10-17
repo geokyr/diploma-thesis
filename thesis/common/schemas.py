@@ -2,7 +2,15 @@
 
 from pydantic import BaseModel, Field
 
-from thesis.common.enums import DriftState, MLTask, NotificationLevel, PlatformService, RetrainStatus, SimulationState
+from thesis.common.enums import (
+    DriftState,
+    MLTask,
+    NotificationLevel,
+    PlatformService,
+    ReportStatus,
+    RetrainStatus,
+    SimulationState,
+)
 
 
 class HealthResponse(BaseModel):
@@ -193,3 +201,22 @@ class RoutePreviewResponse(BaseModel):
     maximum_x: float = Field(..., description="Maximum x coordinate along the route")
     minimum_y: float = Field(..., description="Minimum y coordinate along the route")
     maximum_y: float = Field(..., description="Maximum y coordinate along the route")
+
+
+class ReportGenerationRequest(BaseModel):
+    """Request for report generation."""
+
+    notifications: list[Notification] = Field(..., description="List of notifications")
+    metrics: dict[MLTask, MetricsResponse] = Field(..., description="Metrics for all ML tasks")
+
+
+class ReportGenerationResponse(BaseModel):
+    """Response for report generation."""
+
+    content: str = Field(..., description="Content of the report")
+
+
+class ReportStatusResponse(BaseModel):
+    """Response for report status check."""
+
+    status: ReportStatus = Field(..., description="Status of the report generation")

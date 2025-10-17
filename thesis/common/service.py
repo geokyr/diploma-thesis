@@ -23,6 +23,7 @@ from thesis.common.config import (
     PORT_PREDICTOR_ETA,
     PORT_PREDICTOR_FUEL,
     PORT_PREDICTOR_STOPS,
+    PORT_SUMMARIZER,
     PROJECT_DIR,
 )
 from thesis.common.enums import MLTask, PlatformService
@@ -39,6 +40,7 @@ class PlatformServiceConfig:
         PlatformService.PREDICTOR_STOPS: PORT_PREDICTOR_STOPS,
         PlatformService.FRONTEND: PORT_FRONTEND,
         PlatformService.DRIFT: PORT_DRIFT,
+        PlatformService.SUMMARIZER: PORT_SUMMARIZER,
     }
 
     _ML_TASKS: ClassVar[dict[PlatformService, MLTask | None]] = {
@@ -48,6 +50,7 @@ class PlatformServiceConfig:
         PlatformService.PREDICTOR_STOPS: MLTask.STOPS,
         PlatformService.FRONTEND: None,
         PlatformService.DRIFT: None,
+        PlatformService.SUMMARIZER: None,
     }
 
     def __post_init__(self) -> None:
@@ -82,7 +85,8 @@ class PlatformServiceConfig:
             f"{self.predictor_eta_url=}, "
             f"{self.predictor_fuel_url=}, "
             f"{self.predictor_stops_url=}, "
-            f"{self.drift_url=})"
+            f"{self.drift_url=}, "
+            f"{self.summarizer_url=})"
         )
 
     @property
@@ -179,6 +183,11 @@ class PlatformServiceConfig:
     def drift_url(self) -> str:
         """URL to the Drift service."""
         return f"http://{PlatformService.DRIFT}:{PORT_DRIFT}"
+
+    @property
+    def summarizer_url(self) -> str:
+        """URL to the Summarizer service."""
+        return f"http://{PlatformService.SUMMARIZER}:{PORT_SUMMARIZER}"
 
     @property
     def _environment(self) -> str:

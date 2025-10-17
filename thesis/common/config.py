@@ -22,6 +22,8 @@ RANDOM_TRIPS = SUMO_TOOLS / "randomTrips.py"
 NETCONVERT_TYPEMAP = SUMO_HOME / "data" / "typemap" / "osmNetconvert.typ.xml"
 POLYCONVERT_TYPEMAP = SUMO_HOME / "data" / "typemap" / "osmPolyconvert.typ.xml"
 
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
+
 
 @dataclass(frozen=True, slots=True)
 class LoggingConfig:
@@ -176,6 +178,7 @@ class ServicesConfig:
     predictor_stops: int
     drift: int
     frontend: int
+    summarizer: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -258,6 +261,14 @@ class StopsConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class SummarizerConfig:
+    async_client_timeout_seconds: float
+    openrouter_base_url: str
+    openrouter_model: str
+    system_prompt: str
+
+
+@dataclass(frozen=True, slots=True)
 class Config:
     logging: LoggingConfig
     dirname: DirnameConfig
@@ -278,6 +289,7 @@ class Config:
     feature_categories: FeatureCategoriesConfig
     fuel: FuelConfig
     stops: StopsConfig
+    summarizer: SummarizerConfig
 
 
 def load_config(config_path: Path) -> Config:
@@ -303,6 +315,7 @@ def load_config(config_path: Path) -> Config:
             feature_categories=FeatureCategoriesConfig(**data["feature_categories"]),
             fuel=FuelConfig(**data["fuel"]),
             stops=StopsConfig(**data["stops"]),
+            summarizer=SummarizerConfig(**data["summarizer"]),
         )
 
 
@@ -429,6 +442,7 @@ PORT_PREDICTOR_FUEL = CONFIG.services.predictor_fuel
 PORT_PREDICTOR_STOPS = CONFIG.services.predictor_stops
 PORT_DRIFT = CONFIG.services.drift
 PORT_FRONTEND = CONFIG.services.frontend
+PORT_SUMMARIZER = CONFIG.services.summarizer
 
 SPEED_MULTIPLIER = CONFIG.timelapse.speed_multiplier
 INTERVAL_SECONDS = CONFIG.timelapse.interval_seconds
@@ -483,3 +497,8 @@ MIN_DURATION_STOPS = CONFIG.stops.min_duration
 MIN_DISTANCE_STOPS = CONFIG.stops.min_distance
 USE_SPATIAL_FEATURES_STOPS = CONFIG.stops.use_spatial_features
 USE_ROUTE_FEATURES_STOPS = CONFIG.stops.use_route_features
+
+ASYNC_CLIENT_TIMEOUT_SECONDS = CONFIG.summarizer.async_client_timeout_seconds
+OPENROUTER_BASE_URL = CONFIG.summarizer.openrouter_base_url
+OPENROUTER_MODEL = CONFIG.summarizer.openrouter_model
+SUMMARIZER_SYSTEM_PROMPT = CONFIG.summarizer.system_prompt

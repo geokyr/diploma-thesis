@@ -131,6 +131,7 @@ class PlatformService(StrEnum):
         PREDICTOR_STOPS: Stops predictor service.
         FRONTEND: Frontend service.
         DRIFT: Drift service.
+        SUMMARIZER: Summarizer service.
     """
 
     BACKEND = "backend"
@@ -139,6 +140,7 @@ class PlatformService(StrEnum):
     PREDICTOR_STOPS = "predictor-stops"
     FRONTEND = "frontend"
     DRIFT = "drift"
+    SUMMARIZER = "summarizer"
 
 
 class PlatformServiceStatus(StrEnum):
@@ -199,3 +201,20 @@ class NotificationLevel(StrEnum):
     SUCCESS = "success"
     WARNING = "warning"
     DANGER = "danger"
+
+
+class ReportStatus(StrEnum):
+    """
+    Report generation statuses.
+
+    Attributes:
+        NOT_STARTED: Not started status.
+        GENERATING: Generating status.
+        READY: Ready status.
+        FAILED: Failed status.
+    """
+
+    NOT_STARTED = "not_started"
+    GENERATING = "generating"
+    READY = "ready"
+    FAILED = "failed"
