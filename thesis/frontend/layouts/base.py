@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 from dash import dcc, html
 
 from thesis.common.config import INTERVAL_SECONDS
-from thesis.common.enums import SimulationState
+from thesis.common.enums import ReportStatus, SimulationState
 from thesis.common.schemas import SimulationSnapshot
 from thesis.frontend.layouts.admin import create_admin_layout
 from thesis.frontend.layouts.user import create_user_layout
@@ -31,6 +31,9 @@ def create_base_layout() -> html.Div:
             dcc.Store(id="user-destination-store", data=None),
             dcc.Store(id="user-route-features-store", data=None),
             dcc.Store(id="notifications-store", data=[]),
+            dcc.Store(id="report-status-store", data=ReportStatus.NOT_STARTED),
+            dcc.Store(id="report-content-store", data=None),
+            dcc.Download(id="download-report-pdf"),
             dbc.Container(
                 [
                     dbc.Row(
