@@ -39,7 +39,7 @@ class SimulationManager:
         """Trigger AI report generation when simulation ends."""
         try:
             current_status = await self._report_store.get_status()
-            if current_status in (ReportStatus.GENERATING, ReportStatus.READY):
+            if current_status.status in (ReportStatus.GENERATING, ReportStatus.READY):
                 return
 
             await self._report_store.set_generating()

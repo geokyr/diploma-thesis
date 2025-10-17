@@ -11,7 +11,6 @@ from thesis.backend.routers.simulation import simulation_router
 from thesis.backend.services.metrics_store import MetricsStore
 from thesis.backend.services.notification_store import NotificationStore
 from thesis.backend.services.prediction_service import PredictionService
-from thesis.backend.services.report_service import ReportService
 from thesis.backend.services.report_store import ReportStore
 from thesis.backend.services.simulation_manager import SimulationManager
 from thesis.backend.services.timelapse_driver import TimelapseDriver
@@ -41,7 +40,6 @@ async def lifespan(app: FastAPI):
             summarizer_url=config.summarizer_url,
         )
         prediction_service = PredictionService(timelapse_driver=timelapse_driver)
-        report_service = ReportService(report_store=report_store)
 
         app.state.metrics_store = metrics_store
         app.state.notification_store = notification_store
@@ -49,12 +47,10 @@ async def lifespan(app: FastAPI):
         app.state.timelapse_driver = timelapse_driver
         app.state.simulation_manager = simulation_manager
         app.state.prediction_service = prediction_service
-        app.state.report_service = report_service
 
         await timelapse_driver.detect_available_ml_tasks()
         yield
     finally:
-        report_service: ReportService = getattr(app.state, "report_service", None)
         prediction_service: PredictionService = getattr(app.state, "prediction_service", None)
         simulation_manager: SimulationManager = getattr(app.state, "simulation_manager", None)
         timelapse_driver: TimelapseDriver = getattr(app.state, "timelapse_driver", None)
@@ -62,8 +58,6 @@ async def lifespan(app: FastAPI):
         notification_store: NotificationStore = getattr(app.state, "notification_store", None)
         metrics_store: MetricsStore = getattr(app.state, "metrics_store", None)
 
-        if report_service is not None:
-            await report_service.clear()
         if prediction_service is not None:
             await prediction_service.clear()
         if simulation_manager is not None:
@@ -77,8 +71,6 @@ async def lifespan(app: FastAPI):
         if metrics_store is not None:
             await metrics_store.clear()
 
-        if hasattr(app.state, "report_service"):
-            delattr(app.state, "report_service")
         if hasattr(app.state, "prediction_service"):
             delattr(app.state, "prediction_service")
         if hasattr(app.state, "simulation_manager"):

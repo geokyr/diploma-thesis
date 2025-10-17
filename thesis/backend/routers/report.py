@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Request
 
-from thesis.backend.services.report_service import ReportService
+from thesis.backend.services.report_store import ReportStore
 from thesis.common.schemas import ReportGenerationResponse, ReportStatusResponse
 
 report_router = APIRouter()
@@ -19,8 +19,8 @@ async def get_report_status(request: Request) -> ReportStatusResponse:
     Returns:
         ReportStatusResponse: Report status.
     """
-    report_service: ReportService = request.app.state.report_service
-    return await report_service.get_status()
+    report_store: ReportStore = request.app.state.report_store
+    return await report_store.get_status()
 
 
 @report_router.get("/content", response_model=ReportGenerationResponse)
@@ -34,5 +34,5 @@ async def get_report_content(request: Request) -> ReportGenerationResponse:
     Returns:
         ReportGenerationResponse: Report content.
     """
-    report_service: ReportService = request.app.state.report_service
-    return await report_service.get_content()
+    report_store: ReportStore = request.app.state.report_store
+    return await report_store.get_content()
