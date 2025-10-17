@@ -26,7 +26,7 @@ async def lifespan(app: FastAPI):
         report_generator: ReportGenerator = getattr(app.state, "report_generator", None)
 
         if report_generator is not None:
-            await report_generator.close()
+            await report_generator.clear()
 
         if hasattr(app.state, "report_generator"):
             delattr(app.state, "report_generator")
