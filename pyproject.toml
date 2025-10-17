@@ -21,34 +21,34 @@ module-root = "."
 module-name = "thesis"
 
 [project.optional-dependencies]
-backend = [
+
+api = [
     "fastapi==0.116.1",
     "httptools==0.7.1",
-    "httpx==0.28.1",
-    "numpy==2.2.3",
     "orjson==3.11.3",
-    "pandas==2.2.3",
     "pydantic==2.11.7",
-    "thesis[eta]",
     "uvicorn==0.35.0",
     "uvloop==0.21.0; sys_platform != 'win32'",
 ]
 
-eta = [
-    "catboost==1.2.8",
-    "joblib==1.5.1",
-    "lightgbm==4.6.0",
-    "matplotlib==3.10.1",
+backend = [
+    "httpx==0.28.1",
     "numpy==2.2.3",
-    "optuna==4.4.0",
     "pandas==2.2.3",
+    "thesis[api]",
+]
+
+drift = [
+    "numpy==2.2.3",
+    "river==0.22.0",
+    "thesis[api]",
+]
+
+eta = [
     "requests==2.32.4",
-    "scikit-learn==1.6.1",
-    "seaborn==0.13.2",
-    "shap==0.48.0",
-    "thesis[simulation]",
+    "thesis[research]",
+    "thesis[sumo]",
     "tqdm==4.67.1",
-    "xgboost==2.1.4",
 ]
 
 frontend = [
@@ -62,38 +62,43 @@ frontend = [
 ]
 
 predictor = [
-    "fastapi==0.116.1",
-    "httptools==0.7.1",
+    "thesis[api]",
+    "thesis[research]",
+    "thesis[sumo]",
+]
+
+research = [
+    "catboost==1.2.8",
     "joblib==1.5.1",
+    "lightgbm==4.6.0",
+    "matplotlib==3.10.1",
     "numpy==2.2.3",
-    "orjson==3.11.3",
+    "optuna==4.4.0",
     "pandas==2.2.3",
-    "pydantic==2.11.7",
-    "thesis[eta]",
-    "uvicorn==0.35.0",
-    "uvloop==0.21.0; sys_platform != 'win32'",
+    "scikit-learn==1.6.1",
+    "seaborn==0.13.2",
+    "shap==0.48.0",
+    "xgboost==2.1.4",
 ]
 
 simulation = [
     "eclipse-sumo==1.24.0",
     "numpy==2.2.3",
+    "thesis[sumo]"
+]
+
+summarizer = [
+    "markdown==3.8.2",
+    "openai==1.59.5",
+    "thesis[api]",
+    "weasyprint==65.0",
+]
+
+sumo = [
     "pyarrow==21.0.0",
     "pyproj==3.7.2",
     "rtree==1.4.1",
     "sumolib==1.24.0",
-    "traci==1.24.0",
-]
-
-drift = [
-    "fastapi==0.116.1",
-    "httptools==0.7.1",
-    "numpy==2.2.3",
-    "orjson==3.11.3",
-    "pydantic==2.11.7",
-    "river==0.22.0",
-    "scikit-learn==1.6.1",
-    "uvicorn==0.35.0",
-    "uvloop==0.21.0; sys_platform != 'win32'",
 ]
 
 [tool.ruff]

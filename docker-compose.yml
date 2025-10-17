@@ -16,10 +16,12 @@ services:
         condition: service_healthy
       predictor-eta:
         condition: service_healthy
-      # predictor-fuel:
-      #   condition: service_healthy
-      # predictor-stops:
-      #   condition: service_healthy
+      predictor-fuel:
+        condition: service_healthy
+      predictor-stops:
+        condition: service_healthy
+      summarizer:
+        condition: service_healthy
     healthcheck:
       test: curl -f http://localhost:8000/health
       interval: 30s
@@ -108,7 +110,6 @@ services:
       - "8004:8004"
     volumes:
       - ./appdata/logs:/app/logs
-      - ./appdata/misc:/app/misc:ro
     environment:
       - SERVICE=drift
       - APP_DIR=/app
@@ -138,6 +139,27 @@ services:
         condition: service_healthy
     healthcheck:
       test: curl -f http://localhost:8080/_dash-dependencies
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  summarizer:
+    container_name: summarizer
+    build:
+      dockerfile: ./thesis/summarizer/Dockerfile
+    ports:
+      - "8005:8005"
+    volumes:
+      - ./appdata/logs:/app/logs
+    environment:
+      - SERVICE=summarizer
+      - APP_DIR=/app
+      - ENVIRONMENT=production
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+    healthcheck:
+      test: curl -f http://localhost:8005/health
       interval: 30s
       timeout: 10s
       retries: 3

@@ -50,7 +50,6 @@ services:
   drift:
     volumes:
       - ./appdata/logs:/app/logs
-      - ./appdata/misc:/app/misc:ro
       - ./thesis:/app/thesis
     environment:
       - SERVICE=drift
@@ -65,3 +64,13 @@ services:
       - SERVICE=frontend
       - APP_DIR=/app
       - ENVIRONMENT=development
+
+  summarizer:
+    volumes:
+      - ./appdata/logs:/app/logs
+      - ./thesis:/app/thesis
+    environment:
+      - SERVICE=summarizer
+      - APP_DIR=/app
+      - ENVIRONMENT=development
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
