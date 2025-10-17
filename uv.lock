@@ -435,6 +435,12 @@ wheels = [
 ]
 
 [[package]]
+name = "docopt"
+version = "0.6.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/a2/55/8f8cab2afd404cf578136ef2cc5dfb50baa1761b68c9da1fb1e4eed343c9/docopt-0.6.2.tar.gz", hash = "sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491", size = 25901, upload-time = "2014-06-16T11:18:57.406Z" }
+
+[[package]]
 name = "eclipse-sumo"
 version = "1.24.0"
 source = { registry = "https://pypi.org/simple" }
@@ -874,12 +880,12 @@ wheels = [
 ]
 
 [[package]]
-name = "markdown"
-version = "3.8.2"
+name = "markdown2"
+version = "2.5.4"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/d7/c2/4ab49206c17f75cb08d6311171f2d65798988db4360c4d1485bd0eedd67c/markdown-3.8.2.tar.gz", hash = "sha256:247b9a70dd12e27f67431ce62523e675b866d254f900c4fe75ce3dda62237c45", size = 362071, upload-time = "2025-06-19T17:12:44.483Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/42/f8/b2ae8bf5f28f9b510ae097415e6e4cb63226bb28d7ee01aec03a755ba03b/markdown2-2.5.4.tar.gz", hash = "sha256:a09873f0b3c23dbfae589b0080587df52ad75bb09a5fa6559147554736676889", size = 145652, upload-time = "2025-07-27T16:16:24.307Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/96/2b/34cc11786bc00d0f04d0f5fdc3a2b1ae0b6239eef72d3d345805f9ad92a1/markdown-3.8.2-py3-none-any.whl", hash = "sha256:5c83764dbd4e00bdd94d85a19b8d55ccca20fe35b2e678a1422b380324dd5f24", size = 106827, upload-time = "2025-06-19T17:12:42.994Z" },
+    { url = "https://files.pythonhosted.org/packages/b8/06/2697b5043c3ecb720ce0d243fc7cf5024c0b5b1e450506e9b21939019963/markdown2-2.5.4-py3-none-any.whl", hash = "sha256:3c4b2934e677be7fec0e6f2de4410e116681f4ad50ec8e5ba7557be506d3f439", size = 49954, upload-time = "2025-07-27T16:16:23.026Z" },
 ]
 
 [[package]]
@@ -937,6 +943,17 @@ sdist = { url = "https://files.pythonhosted.org/packages/99/5b/a36a337438a14116b
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8f/8e/9ad090d3553c280a8060fbf6e24dc1c0c29704ee7d1c372f0c174aa59285/matplotlib_inline-0.1.7-py3-none-any.whl", hash = "sha256:df192d39a4ff8f21b1895d72e6a13f5fcc5099f00fa84384e0ea28c2cc0653ca", size = 9899, upload-time = "2024-04-15T13:44:43.265Z" },
 ]
+
+[[package]]
+name = "md2pdf"
+version = "1.0.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "docopt" },
+    { name = "markdown2" },
+    { name = "weasyprint" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/de/b0/adbef5356f97a6d33c7811805b06e3774c7a58ea70dc28039ae4ad1ba1be/md2pdf-1.0.1.tar.gz", hash = "sha256:3d5aab77dcd5b6f5827b193819ab1a8c1cec506ce5f6c777c3411b703352cd98", size = 6377, upload-time = "2023-04-12T09:11:46.781Z" }
 
 [[package]]
 name = "more-itertools"
@@ -1701,6 +1718,7 @@ frontend = [
     { name = "dash-bootstrap-templates" },
     { name = "dash-leaflet" },
     { name = "httpx" },
+    { name = "md2pdf" },
     { name = "plotly" },
     { name = "pydantic" },
 ]
@@ -1751,13 +1769,11 @@ simulation = [
 summarizer = [
     { name = "fastapi" },
     { name = "httptools" },
-    { name = "markdown" },
     { name = "openai" },
     { name = "orjson" },
     { name = "pydantic" },
     { name = "uvicorn" },
     { name = "uvloop", marker = "sys_platform != 'win32'" },
-    { name = "weasyprint" },
 ]
 sumo = [
     { name = "pyarrow" },
@@ -1781,9 +1797,9 @@ requires-dist = [
     { name = "ipykernel", specifier = "==6.30.1" },
     { name = "joblib", marker = "extra == 'research'", specifier = "==1.5.1" },
     { name = "lightgbm", marker = "extra == 'research'", specifier = "==4.6.0" },
-    { name = "markdown", marker = "extra == 'summarizer'", specifier = "==3.8.2" },
     { name = "matplotlib", specifier = "==3.10.1" },
     { name = "matplotlib", marker = "extra == 'research'", specifier = "==3.10.1" },
+    { name = "md2pdf", marker = "extra == 'frontend'", specifier = "==1.0.1" },
     { name = "numpy", marker = "extra == 'backend'", specifier = "==2.2.3" },
     { name = "numpy", marker = "extra == 'drift'", specifier = "==2.2.3" },
     { name = "numpy", marker = "extra == 'research'", specifier = "==2.2.3" },
@@ -1819,7 +1835,6 @@ requires-dist = [
     { name = "tqdm", marker = "extra == 'eta'", specifier = "==4.67.1" },
     { name = "uvicorn", marker = "extra == 'api'", specifier = "==0.35.0" },
     { name = "uvloop", marker = "sys_platform != 'win32' and extra == 'api'", specifier = "==0.21.0" },
-    { name = "weasyprint", marker = "extra == 'summarizer'", specifier = "==65.0" },
     { name = "xgboost", marker = "extra == 'research'", specifier = "==2.1.4" },
 ]
 provides-extras = ["api", "backend", "drift", "eta", "frontend", "predictor", "research", "simulation", "summarizer", "sumo"]
