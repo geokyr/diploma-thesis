@@ -3,21 +3,67 @@
 import asyncio
 import contextlib
 
+import httpx
+
+from thesis.backend.services.metrics_store import MetricsStore
+from thesis.backend.services.notification_store import NotificationStore
+from thesis.backend.services.report_store import ReportStore
 from thesis.backend.services.timelapse_driver import TimelapseDriver
-from thesis.common.config import PAUSE_POLL_SECONDS
-from thesis.common.enums import SimulationState
-from thesis.common.schemas import SimulationSnapshot
+from thesis.common.config import ASYNC_CLIENT_TIMEOUT_SECONDS, PAUSE_POLL_SECONDS
+from thesis.common.enums import ReportStatus, SimulationState
+from thesis.common.schemas import ReportGenerationRequest, ReportGenerationResponse, SimulationSnapshot
 
 
 class SimulationManager:
     """Simulation manager for the simulation."""
 
-    def __init__(self, timelapse_driver: TimelapseDriver) -> None:
+    def __init__(
+        self,
+        timelapse_driver: TimelapseDriver,
+        metrics_store: MetricsStore,
+        notification_store: NotificationStore,
+        report_store: ReportStore,
+        summarizer_url: str,
+    ) -> None:
         self._timelapse_driver: TimelapseDriver = timelapse_driver
+        self._metrics_store: MetricsStore = metrics_store
+        self._notification_store: NotificationStore = notification_store
+        self._report_store: ReportStore = report_store
+        self._summarizer_url: str = summarizer_url
         self._state: SimulationState = SimulationState.IDLE
         self._pause_poll_seconds: float = PAUSE_POLL_SECONDS
         self._tick_task: asyncio.Task | None = None
         self._lock: asyncio.Lock = asyncio.Lock()
+
+    async def _trigger_report_generation(self) -> None:
+        """Trigger AI report generation when simulation ends."""
+        try:
+            current_status = await self._report_store.get_status()
+            if current_status in (ReportStatus.GENERATING, ReportStatus.READY):
+                return
+
+            await self._report_store.set_generating()
+
+            notification_feed = await self._notification_store.get_all()
+
+            ml_tasks = self._timelapse_driver.ml_tasks
+            metrics = {}
+            for task in ml_tasks:
+                metrics[task] = await self._metrics_store.get_metrics(task)
+
+            report_request = ReportGenerationRequest(notifications=notification_feed.notifications, metrics=metrics)
+
+            async with httpx.AsyncClient(timeout=ASYNC_CLIENT_TIMEOUT_SECONDS) as client:
+                url = f"{self._summarizer_url}/report/generate"
+                payload = report_request.model_dump(mode="json")
+                response = await client.post(url, json=payload)
+                response.raise_for_status()
+
+                report_response = ReportGenerationResponse.model_validate(response.json())
+
+            await self._report_store.set_ready(report_response.content)
+        except Exception:
+            await self._report_store.set_failed()
 
     async def _tick_loop(self) -> None:
         """Tick loop for the simulation."""
@@ -32,6 +78,10 @@ class SimulationManager:
                         if not should_continue:
                             async with self._lock:
                                 self._state = SimulationState.PAUSED
+                            try:
+                                await self._trigger_report_generation()
+                            except Exception:
+                                pass
                     except asyncio.CancelledError:
                         raise
                     except Exception:
@@ -118,6 +168,11 @@ class SimulationManager:
         except Exception:
             pass
 
+        try:
+            await self._report_store.reset()
+        except Exception:
+            pass
+
         return await self.get_snapshot()
 
     async def clear(self) -> None:
@@ -134,5 +189,10 @@ class SimulationManager:
 
         try:
             await self._timelapse_driver.clear()
+        except Exception:
+            pass
+
+        try:
+            await self._report_store.reset()
         except Exception:
             pass
