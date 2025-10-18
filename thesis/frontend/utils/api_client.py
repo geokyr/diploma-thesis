@@ -9,8 +9,7 @@ from thesis.common.schemas import (
     MetricsResponse,
     NotificationFeed,
     PredictionSingleRequest,
-    ReportGenerationResponse,
-    ReportStatusResponse,
+    ReportResponse,
     RoutePreviewRequest,
     RoutePreviewResponse,
     SimulationSnapshot,
@@ -106,6 +105,17 @@ class APIClient:
         response.raise_for_status()
         return NotificationFeed.model_validate(response.json())
 
+    def simulation_report(self) -> ReportResponse:
+        """
+        Get the simulation report status and content, if available.
+
+        Returns:
+            ReportResponse: Report status and content.
+        """
+        response = self._client.get("/simulation/report")
+        response.raise_for_status()
+        return ReportResponse.model_validate(response.json())
+
     def preview_route(
         self,
         source_latitude: float,
@@ -186,28 +196,6 @@ class APIClient:
         response = self._client.post("/predict/trip", json=payload)
         response.raise_for_status()
         return TripPredictionResponse.model_validate(response.json())
-
-    def report_status(self) -> ReportStatusResponse:
-        """
-        Get the status of report generation.
-
-        Returns:
-            ReportStatusResponse: Report generation status.
-        """
-        response = self._client.get("/report/status")
-        response.raise_for_status()
-        return ReportStatusResponse.model_validate(response.json())
-
-    def report_content(self) -> ReportGenerationResponse:
-        """
-        Get the generated report content.
-
-        Returns:
-            ReportGenerationResponse: Report content.
-        """
-        response = self._client.get("/report/content")
-        response.raise_for_status()
-        return ReportGenerationResponse.model_validate(response.json())
 
     def clear(self) -> None:
         """Clear the API client."""

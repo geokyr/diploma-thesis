@@ -22,13 +22,17 @@ def register_notification_callbacks(app: dash.Dash, client: APIClient) -> None:
     @app.callback(
         Output("notifications-store", "data"),
         Input("simulation-interval", "n_intervals"),
+        Input("bootstrap-interval", "n_intervals"),
     )
-    def poll_notifications(n_intervals: int) -> list[dict[str, int | str | MLTask | None]]:
+    def poll_notifications(
+        simulation_intervals: int, bootstrap_intervals: int
+    ) -> list[dict[str, int | str | MLTask | None]]:
         """
         Poll backend for all notifications.
 
         Args:
-            n_intervals (int): Number of intervals triggered.
+            simulation_intervals (int): Number of simulation intervals triggered.
+            bootstrap_intervals (int): Number of bootstrap intervals triggered.
 
         Returns:
             list[dict[str, int | str | MLTask | None]]: Notifications list.

@@ -63,6 +63,7 @@ class FilenameConfig:
     model: str
     metadata: str
     feature_selection_results: str
+    simulation_report: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -354,6 +355,7 @@ TRIPS_PARQUET_FILENAME = CONFIG.filename.trips_parquet
 MODEL_FILENAME = CONFIG.filename.model
 METADATA_FILENAME = CONFIG.filename.metadata
 FEATURE_SELECTION_RESULTS_FILENAME = CONFIG.filename.feature_selection_results
+SIMULATION_REPORT_FILENAME = CONFIG.filename.simulation_report
 
 TRIPS_SUFFIX = CONFIG.suffix.trips
 SUMOCFG_SUFFIX = CONFIG.suffix.sumocfg

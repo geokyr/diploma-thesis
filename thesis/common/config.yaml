@@ -31,6 +31,7 @@ filename:
   model: model.joblib
   metadata: metadata.json
   feature_selection_results: feature_selection_results.csv
+  simulation_report: simulation_report.pdf
   
 suffix:
   trips: .trips.xml

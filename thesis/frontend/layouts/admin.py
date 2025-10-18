@@ -148,23 +148,63 @@ def create_admin_layout() -> dbc.Row:
                 width=9,
             ),
             dbc.Col(
-                dbc.Card(
-                    [
-                        dbc.CardHeader(
-                            html.H5(
-                                [html.I(className="bi bi-bell-fill me-2"), "Notifications"],
-                                className="text-center mb-0",
-                            )
-                        ),
+                [
+                    dbc.Card(
                         dbc.CardBody(
-                            id="notification-panel-content",
-                            children=EMPTY_NOTIFICATIONS,
-                            className="overflow-y-auto",
+                            [
+                                html.Div(
+                                    dbc.Button(
+                                        [html.I(className="bi bi-robot me-2"), "AI Summary Report"],
+                                        id="ai-report-button",
+                                        color="primary",
+                                        className="fs-5 w-100 border-0",
+                                        disabled=True,
+                                    ),
+                                    id="ai-report-button-container",
+                                ),
+                                html.Div(id="ai-report-tooltip-container"),
+                            ],
+                            className="p-0",
                         ),
-                    ],
-                    style={"maxHeight": "86.75vh"},
-                ),
+                        className="mb-2",
+                    ),
+                    dbc.Card(
+                        [
+                            dbc.CardHeader(
+                                html.H5(
+                                    [html.I(className="bi bi-bell-fill me-2"), "Notifications"],
+                                    className="text-center mb-0",
+                                ),
+                            ),
+                            dbc.CardBody(
+                                id="notification-panel-content",
+                                children=EMPTY_NOTIFICATIONS,
+                                className="overflow-y-auto",
+                            ),
+                        ],
+                        style={"maxHeight": "82.75vh"},
+                    ),
+                ],
                 width=3,
+            ),
+            dbc.Modal(
+                [
+                    dbc.ModalHeader(dbc.ModalTitle([html.I(className="bi bi-robot me-2"), "AI Summary Report"])),
+                    dbc.ModalBody(id="report-modal-body", className="overflow-y-auto", style={"maxHeight": "60vh"}),
+                    dbc.ModalFooter(
+                        dbc.Button(
+                            [html.I(className="bi bi-download me-2"), "Download PDF"],
+                            id="download-pdf-button",
+                            color="primary",
+                            disabled=True,
+                        ),
+                    ),
+                ],
+                id="report-modal",
+                size="xl",
+                is_open=False,
+                scrollable=True,
+                centered=True,
             ),
         ],
     )
@@ -172,7 +212,7 @@ def create_admin_layout() -> dbc.Row:
 
 def create_ml_task_card(ml_task: str) -> dbc.Card:
     """
-    Create a card for a single ML task with metrics chart.
+    Create a card for a Falsele ML task with metrics chart.
 
     Args:
         ml_task (str): ML task name.

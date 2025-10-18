@@ -4,9 +4,10 @@ from fastapi import APIRouter, Request
 
 from thesis.backend.services.metrics_store import MetricsStore
 from thesis.backend.services.notification_store import NotificationStore
+from thesis.backend.services.report_store import ReportStore
 from thesis.backend.services.simulation_manager import SimulationManager
 from thesis.common.enums import MLTask
-from thesis.common.schemas import MetricsResponse, NotificationFeed, SimulationSnapshot
+from thesis.common.schemas import MetricsResponse, NotificationFeed, ReportResponse, SimulationSnapshot
 
 simulation_router = APIRouter()
 
@@ -55,3 +56,18 @@ async def get_simulation_notifications(request: Request) -> NotificationFeed:
     """
     notification_store: NotificationStore = request.app.state.notification_store
     return await notification_store.get_all()
+
+
+@simulation_router.get("/report", response_model=ReportResponse)
+async def get_simulation_report(request: Request) -> ReportResponse:
+    """
+    Get the simulation report status and content, if available.
+
+    Args:
+        request (Request): Request object.
+
+    Returns:
+        ReportResponse: Simulation report status and content.
+    """
+    report_store: ReportStore = request.app.state.report_store
+    return await report_store.get_report()

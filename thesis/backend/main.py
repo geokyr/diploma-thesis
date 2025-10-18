@@ -6,7 +6,6 @@ from fastapi.responses import ORJSONResponse
 
 from thesis.backend.routers.control import control_router
 from thesis.backend.routers.predict import predict_router
-from thesis.backend.routers.report import report_router
 from thesis.backend.routers.simulation import simulation_router
 from thesis.backend.services.metrics_store import MetricsStore
 from thesis.backend.services.notification_store import NotificationStore
@@ -89,7 +88,6 @@ app = FastAPI(title="Platform Backend API", version="1.0.0", lifespan=lifespan, 
 app.include_router(control_router, prefix="/control", tags=["control"])
 app.include_router(simulation_router, prefix="/simulation", tags=["simulation"])
 app.include_router(predict_router, prefix="/predict", tags=["predict"])
-app.include_router(report_router, prefix="/report", tags=["report"])
 
 
 @app.get("/health", response_model=HealthResponse, tags=["health"])

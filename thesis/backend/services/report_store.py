@@ -3,7 +3,7 @@
 import asyncio
 
 from thesis.common.enums import ReportStatus
-from thesis.common.schemas import ReportGenerationResponse, ReportStatusResponse
+from thesis.common.schemas import ReportResponse
 
 
 class ReportStore:
@@ -14,31 +14,15 @@ class ReportStore:
         self._content: str | None = None
         self._lock: asyncio.Lock = asyncio.Lock()
 
-    async def get_status(self) -> ReportStatusResponse:
+    async def get_report(self) -> ReportResponse:
         """
-        Get the current report generation status.
+        Get the current report status and content.
 
         Returns:
-            ReportStatusResponse: Report status response.
+            ReportResponse: Report status and content, if available.
         """
         async with self._lock:
-            return ReportStatusResponse(status=self._status)
-
-    async def get_content(self) -> ReportGenerationResponse:
-        """
-        Get the report content if available.
-
-        Returns:
-            ReportGenerationResponse: Report content.
-        """
-        async with self._lock:
-            if self._status != ReportStatus.READY:
-                return ReportGenerationResponse(content=None)
-
-            if self._content is None:
-                return ReportGenerationResponse(content=None)
-
-            return ReportGenerationResponse(content=self._content)
+            return ReportResponse(status=self._status, content=self._content)
 
     async def _set_state(self, status: ReportStatus, content: str | None) -> None:
         """

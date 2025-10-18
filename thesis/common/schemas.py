@@ -216,7 +216,8 @@ class ReportGenerationResponse(BaseModel):
     content: str = Field(..., description="Content of the report")
 
 
-class ReportStatusResponse(BaseModel):
-    """Response for report status check."""
+class ReportResponse(BaseModel):
+    """Response for report status and content."""
 
     status: ReportStatus = Field(..., description="Status of the report generation")
+    content: str | None = Field(None, description="Content of the report, if available")
