@@ -82,7 +82,7 @@ def register_report_callbacks(app: dash.Dash, client: APIClient) -> None:
             dbc.Tooltip(
                 [
                     html.I(className="bi bi-info-circle-fill me-2"),
-                    "AI SummaryReport will be available after simulation completes",
+                    "AI Summary Report will be available after simulation completes",
                 ],
                 target="ai-report-button-container",
                 placement="top",
