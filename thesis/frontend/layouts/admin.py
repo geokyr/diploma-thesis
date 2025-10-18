@@ -6,7 +6,12 @@ from dash import dcc, html
 from thesis.common.enums import DriftState, SimulationState
 from thesis.common.schemas import Notification
 from thesis.frontend.utils.constants import EMPTY_NOTIFICATIONS, EMPTY_PREDICTORS
-from thesis.frontend.utils.formatting import format_simulation_timestamp, get_ml_task_icon, get_ml_task_title
+from thesis.frontend.utils.formatting import (
+    format_simulation_timestamp,
+    get_ml_task_icon,
+    get_ml_task_title,
+    get_notification_level_color,
+)
 
 
 def create_admin_layout() -> dbc.Row:
@@ -292,6 +297,6 @@ def create_alert(notification: Notification) -> dbc.Alert:
             html.Br(),
             html.Small(time, className="text-muted"),
         ],
-        color=notification.level.value,
+        color=get_notification_level_color(notification.level),
         className="mb-2",
     )

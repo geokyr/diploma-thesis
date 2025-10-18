@@ -1,6 +1,6 @@
 """Utility functions for formatting."""
 
-from thesis.common.enums import DriftState, MLTask, SimulationState
+from thesis.common.enums import DriftState, MLTask, NotificationLevel, SimulationState
 
 _ML_TASK_TITLES = {
     MLTask.ETA: "Estimated Time of Arrival",
@@ -31,6 +31,13 @@ _SIMULATION_STATE_COLORS = {
     SimulationState.IDLE: "secondary",
     SimulationState.RUNNING: "success",
     SimulationState.PAUSED: "warning",
+}
+
+_NOTIFICATION_LEVEL_COLORS = {
+    NotificationLevel.INFO: "info",
+    NotificationLevel.SUCCESS: "success",
+    NotificationLevel.WARNING: "warning",
+    NotificationLevel.DANGER: "danger",
 }
 
 
@@ -112,6 +119,22 @@ def get_simulation_state_color(simulation_state: SimulationState | str) -> str:
         simulation_state = SimulationState(simulation_state)
 
     return _SIMULATION_STATE_COLORS[simulation_state]
+
+
+def get_notification_level_color(notification_level: NotificationLevel | str) -> str:
+    """
+    Get the color of a notification level.
+
+    Args:
+        notification_level (NotificationLevel | str): Notification level or string value.
+
+    Returns:
+        str: Color for the notification level.
+    """
+    if isinstance(notification_level, str):
+        notification_level = NotificationLevel(notification_level)
+
+    return _NOTIFICATION_LEVEL_COLORS[notification_level]
 
 
 def format_simulation_timestamp(timestamp: int) -> str:

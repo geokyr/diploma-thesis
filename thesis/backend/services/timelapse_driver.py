@@ -264,11 +264,14 @@ class TimelapseDriver:
 
             if success:
                 await self._notification_store.push(
-                    self.clock, "Model updated, collecting calibration data", NotificationLevel.SUCCESS, ml_task
+                    self.clock,
+                    "Retrained model swapped and drift detector recalibration initiated",
+                    NotificationLevel.SUCCESS,
+                    ml_task,
                 )
             else:
                 await self._notification_store.push(
-                    self.clock, "Recalibration failed", NotificationLevel.DANGER, ml_task
+                    self.clock, "Drift detector recalibration failed", NotificationLevel.DANGER, ml_task
                 )
         else:
             async with lock:
@@ -278,7 +281,9 @@ class TimelapseDriver:
                 info.collecting = False
                 info.job_id = None
 
-            await self._notification_store.push(self.clock, "Retraining failed", NotificationLevel.DANGER, ml_task)
+            await self._notification_store.push(
+                self.clock, "Model retraining failed", NotificationLevel.DANGER, ml_task
+            )
 
     async def run_tick(self) -> bool:
         """
@@ -291,14 +296,18 @@ class TimelapseDriver:
 
         if current_clock == 0:
             await self._notification_store.push(
-                current_clock, "First day started with normal conditions", NotificationLevel.SUCCESS
+                current_clock, "First day started with normal conditions", NotificationLevel.INFO
             )
         elif current_clock == 36000:
             await self._notification_store.push(
-                current_clock, "Second day started with rain conditions", NotificationLevel.SUCCESS
+                current_clock, "Second day started with rain conditions", NotificationLevel.INFO
             )
         elif current_clock == 72000:
-            await self._notification_store.push(current_clock, "Data has been exhausted", NotificationLevel.SUCCESS)
+            await self._notification_store.push(
+                current_clock,
+                "End of simulation reached with all data processed",
+                NotificationLevel.INFO,
+            )
             return False
 
         async with self._clock_lock:
@@ -337,7 +346,7 @@ class TimelapseDriver:
                     notifications_to_push.append(
                         (
                             end_timestamp,
-                            "Calibration complete, monitoring active",
+                            "Drift detector calibration completed and monitoring activated",
                             NotificationLevel.SUCCESS,
                             ml_task,
                         )
@@ -351,7 +360,9 @@ class TimelapseDriver:
                     info.state = DriftState.DRIFTED
                     info.start_timestamp = end_timestamp
                     info.collecting = True
-                    notifications_to_push.append((end_timestamp, "Drift detected", NotificationLevel.DANGER, ml_task))
+                    notifications_to_push.append(
+                        (end_timestamp, "Concept drift detected", NotificationLevel.DANGER, ml_task)
+                    )
 
                 if info.collecting and info.start_timestamp is not None:
                     data_collected = (end_timestamp - info.start_timestamp) >= self._collect_seconds
@@ -366,7 +377,7 @@ class TimelapseDriver:
 
             if should_retrain:
                 await self._notification_store.push(
-                    end_timestamp, "Retraining model", NotificationLevel.WARNING, ml_task
+                    end_timestamp, "Model retraining initiated", NotificationLevel.WARNING, ml_task
                 )
                 job_id = await self._start_retrain(ml_task, retrain_start_timestamp, end_timestamp)
 
@@ -384,7 +395,7 @@ class TimelapseDriver:
 
                 if not job_id:
                     await self._notification_store.push(
-                        end_timestamp, "Retraining failed", NotificationLevel.DANGER, ml_task
+                        end_timestamp, "Model retraining failed", NotificationLevel.DANGER, ml_task
                     )
 
         return True

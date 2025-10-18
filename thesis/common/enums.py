@@ -198,6 +198,7 @@ class NotificationLevel(StrEnum):
         DANGER: Danger level.
     """
 
+    INFO = "info"
     SUCCESS = "success"
     WARNING = "warning"
     DANGER = "danger"
