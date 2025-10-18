@@ -6,7 +6,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator
-from sklearn.metrics import mean_absolute_error
 
 from thesis.common.config import (
     DESTINATION_X_COLUMN_ETA,
@@ -94,17 +93,19 @@ class Predictor:
         y_pred = model.predict(X)
 
         if self._ml_task == MLTask.FUEL:
-            y = np.expm1(y)
+            y_array = np.expm1(y.to_numpy())
             y_pred = np.expm1(y_pred)
+        else:
+            y_array = y.to_numpy()
 
-        abs_errors = (abs(y - y_pred)).tolist()
-        mae = mean_absolute_error(y, y_pred)
+        abs_errors = np.abs(y_array - y_pred)
+        mae = float(abs_errors.mean())
 
         if len(timestamps) != len(abs_errors):
             return PredictionBatchResponse(error_points=[], mae=None)
 
         error_points = [
-            ErrorPoint(timestamp=timestamp, error=error) for timestamp, error in zip(timestamps, abs_errors)
+            ErrorPoint(timestamp=int(timestamp), error=float(error)) for timestamp, error in zip(timestamps, abs_errors)
         ]
         return PredictionBatchResponse(error_points=error_points, mae=mae)
 

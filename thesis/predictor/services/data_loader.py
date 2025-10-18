@@ -45,7 +45,7 @@ class DataLoader:
                     (self._time_start_column, "<", end_timestamp),
                 ]
             ],
-        )
+        ).reset_index(drop=True)
 
     def clear(self) -> None:
         """Clear the data loader."""
