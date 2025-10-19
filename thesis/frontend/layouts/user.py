@@ -53,7 +53,7 @@ def create_user_layout() -> dbc.Row:
                                                         pill=True,
                                                     ),
                                                 ],
-                                                width=6,
+                                                width="auto",
                                                 className="text-center",
                                             ),
                                             dbc.Col(
@@ -69,11 +69,11 @@ def create_user_layout() -> dbc.Row:
                                                         pill=True,
                                                     ),
                                                 ],
-                                                width=6,
+                                                width="auto",
                                                 className="text-center",
                                             ),
                                         ],
-                                        className="mb-2",
+                                        className="mb-2 justify-content-center",
                                     ),
                                     html.H6("Destination", className="text-center mb-2"),
                                     dbc.Row(
@@ -91,7 +91,7 @@ def create_user_layout() -> dbc.Row:
                                                         pill=True,
                                                     ),
                                                 ],
-                                                width=6,
+                                                width="auto",
                                                 className="text-center",
                                             ),
                                             dbc.Col(
@@ -107,13 +107,13 @@ def create_user_layout() -> dbc.Row:
                                                         pill=True,
                                                     ),
                                                 ],
-                                                width=6,
+                                                width="auto",
                                                 className="text-center",
                                             ),
                                         ],
-                                        className="mb-2",
+                                        className="mb-2 justify-content-center",
                                     ),
-                                    html.Hr(className="mt-2 mb-2"),
+                                    html.Hr(className="mt-3 mb-3"),
                                     html.Div(
                                         [
                                             dbc.Button(
