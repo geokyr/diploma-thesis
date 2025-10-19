@@ -1,6 +1,7 @@
 """Report generator service using OpenRouter API."""
 
 import json
+import re
 
 from openai import AsyncOpenAI
 
@@ -48,7 +49,28 @@ class ReportGenerator:
             ],
         )
 
-        return ReportGenerationResponse(content=completion.choices[0].message.content)
+        raw_content = completion.choices[0].message.content
+        cleaned_content = self._clean_llm_artifacts(raw_content)
+
+        return ReportGenerationResponse(content=cleaned_content)
+
+    def _clean_llm_artifacts(self, content: str) -> str:
+        """
+        Clean LLM special tokens and artifacts from generated content.
+
+        Args:
+            content (str): Raw content from LLM.
+
+        Returns:
+            str: Cleaned content without special tokens.
+        """
+        if not content:
+            return content
+
+        content = re.sub(r"<\uFF5C.*?\uFF5C>", "", content)
+        content = re.sub(r"<\|.*?\|>", "", content)
+
+        return content.strip()
 
     def _format_data_for_prompt(self, notifications: list[Notification], metrics: dict[MLTask, MetricsResponse]) -> str:
         """
