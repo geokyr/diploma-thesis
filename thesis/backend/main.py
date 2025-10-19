@@ -84,7 +84,9 @@ async def lifespan(app: FastAPI):
             delattr(app.state, "metrics_store")
 
 
-app = FastAPI(title="Platform Backend API", version="1.0.0", lifespan=lifespan, default_response_class=ORJSONResponse)
+app = FastAPI(
+    title="Platform Backend Service", version="1.0.0", lifespan=lifespan, default_response_class=ORJSONResponse
+)
 app.include_router(control_router, prefix="/control", tags=["control"])
 app.include_router(simulation_router, prefix="/simulation", tags=["simulation"])
 app.include_router(predict_router, prefix="/predict", tags=["predict"])
