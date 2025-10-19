@@ -63,30 +63,37 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
         Output("user-interface-tab", "disabled"),
         Output("user-interface-tab-tooltip-container", "children"),
         Input("snapshot-store", "data"),
+        State("user-interface-tab", "disabled"),
+        prevent_initial_call=False,
     )
     def toggle_user_interface_tab_and_tooltip(
         snapshot_data: dict[str, SimulationState | int | dict[MLTask, DriftInfo]],
+        current_disabled: bool,
     ) -> tuple[bool, dbc.Tooltip | None]:
         """
         Enable or disable user interface tab and relevant tooltip based on simulation state.
 
         Args:
             snapshot_data (dict[str, SimulationState | int | dict[MLTask, DriftInfo]]): Snapshot data.
+            current_disabled (bool): Current disabled state of the tab.
 
         Returns:
             tuple[bool, dbc.Tooltip | None]: Tab disabled state and tooltip component.
         """
         try:
             snapshot = SimulationSnapshot.model_validate(snapshot_data)
-            is_paused = snapshot.state == SimulationState.PAUSED
+            is_running = snapshot.state == SimulationState.RUNNING
 
-            tab_disabled = not is_paused
+            tab_disabled = is_running
+
+            if tab_disabled == current_disabled:
+                return no_update, no_update
 
             tooltip = (
                 dbc.Tooltip(
                     [
                         html.I(className="bi bi-info-circle-fill me-2"),
-                        "Start a simulation and pause it to access the User Interface",
+                        "Wait for the simulation to complete or pause it in order to access the User Interface",
                     ],
                     target="user-interface-tab",
                     placement="top",
@@ -296,10 +303,10 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
         """
         try:
             snapshot = SimulationSnapshot.model_validate(snapshot_data)
-            is_paused = snapshot.state == SimulationState.PAUSED
+            is_running = snapshot.state == SimulationState.RUNNING
             both_selected = bool(source_data) and bool(destination_data)
 
-            return not (is_paused and both_selected)
+            return is_running or not both_selected
 
         except Exception:
             return no_update

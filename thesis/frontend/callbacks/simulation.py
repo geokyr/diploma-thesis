@@ -98,24 +98,26 @@ def register_simulation_callbacks(app: dash.Dash, client: APIClient) -> None:
             tuple[dict[str, SimulationState | int | dict[MLTask, DriftInfo]], bool, int, str]: Snapshot data, flag for simulation interval disabling, number of intervals, and event that was triggered.
         """
         try:
+            triggered_by = ctx.triggered_id
             last = SimulationSnapshot.model_validate(snapshot_data)
 
-            if event == "button-start":
-                client.simulation_start()
-            elif event == "button-toggle":
-                if last.state == SimulationState.RUNNING:
-                    client.simulation_pause()
-                elif last.state == SimulationState.PAUSED:
-                    client.simulation_resume()
-            elif event == "button-reset":
-                client.simulation_reset()
+            if triggered_by == "event-store":
+                if event == "button-start":
+                    client.simulation_start()
+                elif event == "button-toggle":
+                    if last.state == SimulationState.RUNNING:
+                        client.simulation_pause()
+                    elif last.state == SimulationState.PAUSED:
+                        client.simulation_resume()
+                elif event == "button-reset":
+                    client.simulation_reset()
 
             snapshot = client.simulation_snapshot()
 
             new_snapshot_data = snapshot.model_dump(mode="json")
             disabled = snapshot.state != SimulationState.RUNNING
             n_intervals = 0 if event in ("button-start", "button-reset") else no_update
-            new_event = "noop"
+            new_event = "noop" if triggered_by == "event-store" else no_update
 
             return new_snapshot_data, disabled, n_intervals, new_event
 
@@ -145,16 +147,17 @@ def register_simulation_callbacks(app: dash.Dash, client: APIClient) -> None:
         """
         try:
             snapshot = SimulationSnapshot.model_validate(snapshot_data)
-            is_idle = snapshot.state == SimulationState.IDLE
+            is_ready = snapshot.state == SimulationState.READY
             is_paused = snapshot.state == SimulationState.PAUSED
+            is_completed = snapshot.state == SimulationState.COMPLETED
             no_tasks_available = not ml_tasks
             toggle_label = "Resume" if is_paused else "Pause"
             toggle_icon = "bi bi-play-fill me-2" if is_paused else "bi bi-pause-fill me-2"
 
-            start_disabled = (not is_idle) or no_tasks_available
+            start_disabled = (not is_ready) or no_tasks_available
             toggle_children = [html.I(className=toggle_icon), toggle_label]
-            toggle_disabled = is_idle
-            reset_disabled = is_idle
+            toggle_disabled = is_ready or is_completed
+            reset_disabled = is_ready
 
             return start_disabled, toggle_children, toggle_disabled, reset_disabled
 

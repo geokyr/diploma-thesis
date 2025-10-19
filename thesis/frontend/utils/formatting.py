@@ -41,7 +41,7 @@ _NOTIFICATION_LEVEL_COLORS = {
     NotificationLevel.DANGER: "danger",
 }
 
-_REPORT_STATUS_TOOLTIPS = {
+_REPORT_STATUS_TEXTS = {
     ReportStatus.NOT_STARTED: "AI Summary Report will be generated after the simulation completes",
     ReportStatus.GENERATING: "AI Summary Report is being generated",
     ReportStatus.FAILED: "AI Summary Report generation failed",
@@ -145,20 +145,20 @@ def get_notification_level_color(notification_level: NotificationLevel | str) ->
     return _NOTIFICATION_LEVEL_COLORS[notification_level]
 
 
-def get_report_status_tooltip(report_status: ReportStatus | str) -> str | None:
+def get_report_status_text(report_status: ReportStatus | str) -> str | None:
     """
-    Get the tooltip message for a report status.
+    Get the report status text.
 
     Args:
         report_status (ReportStatus | str): Report status or string value.
 
     Returns:
-        str | None: Tooltip message for the report status, or None if no tooltip needed.
+        str | None: Report status text, or None if no text needed.
     """
     if isinstance(report_status, str):
         report_status = ReportStatus(report_status)
 
-    return _REPORT_STATUS_TOOLTIPS.get(report_status, None)
+    return _REPORT_STATUS_TEXTS[report_status]
 
 
 def format_simulation_timestamp(timestamp: int) -> str:

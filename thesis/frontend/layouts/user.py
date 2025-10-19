@@ -126,7 +126,7 @@ def create_user_layout() -> dbc.Row:
                                             dbc.Button(
                                                 [html.I(className="bi bi-send-fill me-2"), "Predict"],
                                                 id="button-predict",
-                                                color="primary",
+                                                color="info",
                                                 className="fw-semibold",
                                                 n_clicks=0,
                                                 disabled=True,

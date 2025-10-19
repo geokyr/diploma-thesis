@@ -265,6 +265,8 @@ class StopsConfig:
 
 @dataclass(frozen=True, slots=True)
 class SummarizerConfig:
+    max_retries: int
+    retry_delay_seconds: float
     async_client_timeout_seconds: float
     openrouter_base_url: str
     openrouter_model: str
@@ -504,6 +506,8 @@ MIN_DISTANCE_STOPS = CONFIG.stops.min_distance
 USE_SPATIAL_FEATURES_STOPS = CONFIG.stops.use_spatial_features
 USE_ROUTE_FEATURES_STOPS = CONFIG.stops.use_route_features
 
+MAX_RETRIES = CONFIG.summarizer.max_retries
+RETRY_DELAY_SECONDS = CONFIG.summarizer.retry_delay_seconds
 ASYNC_CLIENT_TIMEOUT_SECONDS = CONFIG.summarizer.async_client_timeout_seconds
 OPENROUTER_BASE_URL = CONFIG.summarizer.openrouter_base_url
 OPENROUTER_MODEL = CONFIG.summarizer.openrouter_model

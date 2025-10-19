@@ -12,8 +12,10 @@ from reportlab.lib.units import inch
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 
 from thesis.common.config import SIMULATION_REPORT_FILENAME
-from thesis.common.enums import MLTask, NotificationLevel, ReportStatus
+from thesis.common.enums import MLTask, ReportStatus, SimulationState
+from thesis.common.schemas import SimulationSnapshot
 from thesis.frontend.utils.api_client import APIClient
+from thesis.frontend.utils.formatting import get_report_status_text
 
 
 def register_report_callbacks(app: dash.Dash, client: APIClient) -> None:
@@ -26,32 +28,51 @@ def register_report_callbacks(app: dash.Dash, client: APIClient) -> None:
     """
 
     @app.callback(
+        Output("report-interval", "disabled"),
+        Input("snapshot-store", "data"),
+        Input("report-store", "data"),
+    )
+    def manage_report_interval(
+        snapshot_data: dict[str, SimulationState | int | dict[MLTask, dict]],
+        report_data: dict[str, str | None],
+    ) -> bool:
+        """
+        Enable report interval when simulation is completed and report is not ready/failed.
+
+        Args:
+            snapshot_data (dict[str, SimulationState | int | dict[MLTask, dict]]): Snapshot data.
+            report_data (dict[str, str | None]): Report state with status and content.
+
+        Returns:
+            bool: Whether the report interval should be disabled.
+        """
+        try:
+            snapshot = SimulationSnapshot.model_validate(snapshot_data)
+            report_status = ReportStatus(report_data.get("status", ReportStatus.NOT_STARTED.value))
+
+            is_completed = snapshot.state == SimulationState.COMPLETED
+            report_in_progress = report_status in (ReportStatus.NOT_STARTED, ReportStatus.GENERATING)
+
+            return not (is_completed and report_in_progress)
+        except Exception:
+            return True
+
+    @app.callback(
         Output("report-store", "data"),
-        Input("notifications-store", "data"),
-        Input("simulation-interval", "n_intervals"),
+        Input("report-interval", "n_intervals"),
     )
     def poll_report_status(
-        notifications_data: list[dict[str, int | str | NotificationLevel | MLTask | None]],
         n_intervals: int,
     ) -> dict[str, str | None]:
         """
-        Poll backend for report status and content after simulation ends.
+        Poll backend for report status and content.
 
         Args:
-            notifications_data (list[dict[str, int | str | NotificationLevel | MLTask | None]]): Notifications data.
             n_intervals (int): Number of intervals triggered.
 
         Returns:
             dict[str, str | None]: Updated report state.
         """
-        if not notifications_data:
-            return no_update
-
-        data_exhausted = any("exhausted" in notification["message"].lower() for notification in notifications_data)
-
-        if not data_exhausted:
-            return no_update
-
         try:
             report_response = client.simulation_report()
             return report_response.model_dump(mode="json")
@@ -59,70 +80,54 @@ def register_report_callbacks(app: dash.Dash, client: APIClient) -> None:
             return no_update
 
     @app.callback(
-        Output("ai-report-button", "disabled"),
-        Output("ai-report-tooltip-container", "children"),
+        Output("ai-report-view-button", "disabled"),
+        Output("download-pdf-button", "disabled"),
+        Output("ai-report-status-text", "children"),
         Input("report-store", "data"),
-        Input("bootstrap-interval", "n_intervals"),
+        prevent_initial_call=False,
     )
-    def update_button_state(report_data: dict[str, str | None], n_intervals: int) -> tuple[bool, dbc.Tooltip | None]:
+    def update_button_states(report_data: dict[str, str | None]) -> tuple[bool, bool, str]:
         """
-        Update button state and tooltip based on report status.
+        Update button states and status text based on report status.
 
         Args:
             report_data (dict[str, str | None]): Report state with status and content.
-            n_intervals (int): Bootstrap interval count for initial trigger.
 
         Returns:
-            tuple[bool, dbc.Tooltip | None]: Button disabled state and tooltip component.
+            tuple[bool, bool, str]: View button disabled, Download button disabled, and status text.
         """
         report_status = report_data["status"]
-        button_disabled = report_status != ReportStatus.READY
+        buttons_disabled = report_status != ReportStatus.READY
+        status_text = get_report_status_text(report_status)
 
-        tooltip = (
-            dbc.Tooltip(
-                [
-                    html.I(className="bi bi-info-circle-fill me-2"),
-                    "AI Summary Report will be available after simulation completes",
-                ],
-                target="ai-report-button-container",
-                placement="top",
-            )
-            if button_disabled
-            else None
-        )
-
-        return button_disabled, tooltip
+        return buttons_disabled, buttons_disabled, status_text
 
     @app.callback(
         Output("report-modal", "is_open"),
-        Output("report-store", "data", allow_duplicate=True),
-        Output("download-pdf-button", "disabled"),
-        Input("ai-report-button", "n_clicks"),
+        Input("ai-report-view-button", "n_clicks"),
         State("report-store", "data"),
-        prevent_initial_call="initial_duplicate",
+        prevent_initial_call=True,
     )
-    def open_report_modal(
-        open_clicks: int | None, report_data: dict[str, str | None]
-    ) -> tuple[bool, dict[str, str | None], bool]:
+    def open_report_modal(view_clicks: int | None, report_data: dict[str, str | None]) -> bool:
         """
-        Open report modal and fetch report content.
+        Open report modal when view button is clicked.
 
         Args:
-            open_clicks (int | None): Number of times open button was clicked.
+            view_clicks (int | None): Number of times view button was clicked.
             report_data (dict[str, str | None]): Current report state.
 
         Returns:
-            tuple[bool, dict[str, str | None], bool]: Modal open state, updated report data, and PDF button disabled state.
+            bool: Modal open state.
         """
-        if not ctx.triggered or not open_clicks:
-            return no_update, no_update, no_update
+        if not ctx.triggered or not view_clicks:
+            return no_update
 
         stored_content = report_data["content"]
 
         if stored_content is None:
-            return False, no_update, True
+            return False
 
-        return True, no_update, False
+        return True
 
     @app.callback(
         Output("report-modal-body", "children"),
@@ -141,7 +146,7 @@ def register_report_callbacks(app: dash.Dash, client: APIClient) -> None:
         content = report_data["content"]
 
         if content is None:
-            return html.Div(dbc.Spinner(color="primary"), className="d-flex justify-content-center align-items-center")
+            return html.Div(dbc.Spinner(color="info"), className="d-flex justify-content-center align-items-center")
 
         try:
             return [dcc.Markdown(content, dangerously_allow_html=True)]

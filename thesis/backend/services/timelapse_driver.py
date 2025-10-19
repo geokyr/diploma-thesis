@@ -346,7 +346,7 @@ class TimelapseDriver:
                     notifications_to_push.append(
                         (
                             end_timestamp,
-                            "Drift detector calibration completed and monitoring activated",
+                            "Drift detector calibration completed",
                             NotificationLevel.SUCCESS,
                             ml_task,
                         )

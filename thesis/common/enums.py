@@ -110,14 +110,16 @@ class SimulationState(StrEnum):
     Simulation states.
 
     Attributes:
-        IDLE: Idle state.
+        READY: Ready state.
         RUNNING: Running state.
         PAUSED: Paused state.
+        COMPLETED: Completed state.
     """
 
-    IDLE = "idle"
+    READY = "ready"
     RUNNING = "running"
     PAUSED = "paused"
+    COMPLETED = "completed"
 
 
 class PlatformService(StrEnum):

@@ -23,187 +23,223 @@ def create_admin_layout() -> dbc.Row:
     """
     return dbc.Row(
         [
-            dbc.Col(
+            dbc.Row(
                 [
-                    dbc.Row(
-                        [
-                            dbc.Col(
-                                dbc.Card(
-                                    [
-                                        dbc.CardHeader(
-                                            html.H5(
-                                                [html.I(className="bi bi-gear-fill me-2"), "Simulation Controls"],
-                                                className="text-center mb-0",
-                                            )
-                                        ),
-                                        dbc.CardBody(
-                                            [
-                                                dbc.Button(
-                                                    [html.I(className="bi bi-play-fill me-2"), "Start"],
-                                                    id="button-start",
-                                                    color="success",
-                                                    className="fw-semibold me-2",
-                                                    n_clicks=0,
-                                                    disabled=True,
-                                                ),
-                                                dbc.Button(
-                                                    [html.I(className="bi bi-pause-fill me-2"), "Pause"],
-                                                    id="button-toggle",
-                                                    color="warning",
-                                                    className="fw-semibold me-2",
-                                                    n_clicks=0,
-                                                    disabled=True,
-                                                ),
-                                                dbc.Button(
-                                                    [html.I(className="bi bi-arrow-counterclockwise me-2"), "Reset"],
-                                                    id="button-reset",
-                                                    color="danger",
-                                                    className="fw-semibold",
-                                                    n_clicks=0,
-                                                    disabled=True,
-                                                ),
-                                            ],
-                                            className="d-flex align-items-center justify-content-center h-100",
-                                        ),
-                                    ],
-                                    className="h-100",
-                                ),
-                                width=3,
-                            ),
-                            dbc.Col(
-                                dbc.Card(
-                                    [
-                                        dbc.CardHeader(
-                                            html.H5(
-                                                [
-                                                    html.I(className="bi bi-clipboard-data-fill me-2"),
-                                                    "Simulation Snapshot",
-                                                ],
-                                                className="text-center mb-0",
-                                            )
-                                        ),
-                                        dbc.CardBody(
-                                            [
-                                                html.Div(
-                                                    [
-                                                        html.Small(
-                                                            "Time",
-                                                            className="text-center text-muted d-block mb-1",
-                                                        ),
-                                                        html.Div(
-                                                            format_simulation_timestamp(0),
-                                                            id="simulation-clock",
-                                                            className="fs-5 fw-semibold text-center",
-                                                        ),
-                                                    ],
-                                                    className="text-center",
-                                                ),
-                                                html.Div(
-                                                    [
-                                                        html.Small(
-                                                            "State",
-                                                            className="text-center text-muted d-block mb-1",
-                                                        ),
-                                                        dbc.Badge(
-                                                            SimulationState.IDLE.value.capitalize(),
-                                                            id="simulation-state",
-                                                            color="secondary",
-                                                            className="fs-6",
-                                                            pill=True,
-                                                        ),
-                                                    ],
-                                                    className="text-center",
-                                                ),
-                                            ],
-                                            className="d-flex align-items-center justify-content-around h-100",
-                                        ),
-                                    ],
-                                    className="h-100",
-                                ),
-                                width=3,
-                            ),
-                            dbc.Col(
-                                dbc.Card(
-                                    [
-                                        dbc.CardHeader(
-                                            html.H5(
-                                                [html.I(className="bi bi-activity me-2"), "Drift State"],
-                                                className="text-center mb-0",
-                                            )
-                                        ),
-                                        dbc.CardBody(
-                                            [
-                                                html.Div(
-                                                    id="ml-status-list",
-                                                    children=EMPTY_PREDICTORS,
-                                                    className="d-flex align-items-center justify-content-around h-100",
-                                                )
-                                            ],
-                                        ),
-                                    ],
-                                    className="h-100",
-                                ),
-                                width=6,
-                            ),
-                        ],
-                        className="mb-2",
-                    ),
-                    html.Div(id="ml-cards", children=EMPTY_PREDICTORS),
-                ],
-                width=9,
-            ),
-            dbc.Col(
-                [
-                    dbc.Card(
-                        dbc.CardBody(
+                    dbc.Col(
+                        dbc.Row(
                             [
-                                html.Div(
-                                    dbc.Button(
-                                        [html.I(className="bi bi-robot me-2"), "AI Summary Report"],
-                                        id="ai-report-button",
-                                        color="primary",
-                                        className="fs-5 w-100 border-0",
-                                        disabled=True,
+                                dbc.Col(
+                                    dbc.Card(
+                                        [
+                                            dbc.CardHeader(
+                                                html.H5(
+                                                    [html.I(className="bi bi-gear-fill me-2"), "Simulation Controls"],
+                                                    className="text-center mb-0",
+                                                )
+                                            ),
+                                            dbc.CardBody(
+                                                [
+                                                    html.P(
+                                                        "Use the following buttons to control the simulation",
+                                                        className="text-muted text-center small mb-2",
+                                                    ),
+                                                    html.Div(
+                                                        [
+                                                            dbc.Button(
+                                                                [html.I(className="bi bi-play-fill me-2"), "Start"],
+                                                                id="button-start",
+                                                                color="success",
+                                                                className="fw-semibold me-2",
+                                                                n_clicks=0,
+                                                                disabled=True,
+                                                            ),
+                                                            dbc.Button(
+                                                                [html.I(className="bi bi-pause-fill me-2"), "Pause"],
+                                                                id="button-toggle",
+                                                                color="warning",
+                                                                className="fw-semibold me-2",
+                                                                n_clicks=0,
+                                                                disabled=True,
+                                                            ),
+                                                            dbc.Button(
+                                                                [
+                                                                    html.I(
+                                                                        className="bi bi-arrow-counterclockwise me-2"
+                                                                    ),
+                                                                    "Reset",
+                                                                ],
+                                                                id="button-reset",
+                                                                color="danger",
+                                                                className="fw-semibold",
+                                                                n_clicks=0,
+                                                                disabled=True,
+                                                            ),
+                                                        ],
+                                                    ),
+                                                ],
+                                                className="d-flex flex-column align-items-center justify-content-center h-100",
+                                            ),
+                                        ],
+                                        className="h-100",
                                     ),
-                                    id="ai-report-button-container",
+                                    width=4,
                                 ),
-                                html.Div(id="ai-report-tooltip-container"),
+                                dbc.Col(
+                                    dbc.Card(
+                                        [
+                                            dbc.CardHeader(
+                                                html.H5(
+                                                    [
+                                                        html.I(className="bi bi-clipboard-data-fill me-2"),
+                                                        "Simulation Snapshot",
+                                                    ],
+                                                    className="text-center mb-0",
+                                                )
+                                            ),
+                                            dbc.CardBody(
+                                                [
+                                                    html.Div(
+                                                        [
+                                                            html.Small(
+                                                                "Time",
+                                                                className="text-center text-muted d-block mb-1",
+                                                            ),
+                                                            html.Div(
+                                                                format_simulation_timestamp(0),
+                                                                id="simulation-clock",
+                                                                className="fs-5 fw-semibold text-center",
+                                                            ),
+                                                        ],
+                                                        className="text-center",
+                                                    ),
+                                                    html.Div(
+                                                        [
+                                                            html.Small(
+                                                                "State",
+                                                                className="text-center text-muted d-block mb-1",
+                                                            ),
+                                                            dbc.Badge(
+                                                                SimulationState.READY.value.capitalize(),
+                                                                id="simulation-state",
+                                                                color="info",
+                                                                className="fs-6",
+                                                                pill=True,
+                                                            ),
+                                                        ],
+                                                        className="text-center",
+                                                    ),
+                                                ],
+                                                className="d-flex align-items-center justify-content-around h-100",
+                                            ),
+                                        ],
+                                        className="h-100",
+                                    ),
+                                    width=4,
+                                ),
+                                dbc.Col(
+                                    dbc.Card(
+                                        [
+                                            dbc.CardHeader(
+                                                html.H5(
+                                                    [html.I(className="bi bi-activity me-2"), "Drift State"],
+                                                    className="text-center mb-0",
+                                                )
+                                            ),
+                                            dbc.CardBody(
+                                                [
+                                                    html.Div(
+                                                        id="ml-status-list",
+                                                        children=EMPTY_PREDICTORS,
+                                                        className="d-flex align-items-center justify-content-around h-100",
+                                                    )
+                                                ],
+                                            ),
+                                        ],
+                                        className="h-100",
+                                    ),
+                                    width=4,
+                                ),
                             ],
-                            className="p-0",
+                            className="h-100 align-items-stretch",
                         ),
-                        className="mb-2",
+                        width=9,
                     ),
-                    dbc.Card(
-                        [
-                            dbc.CardHeader(
-                                html.H5(
-                                    [html.I(className="bi bi-bell-fill me-2"), "Notifications"],
-                                    className="text-center mb-0",
+                    dbc.Col(
+                        dbc.Card(
+                            [
+                                dbc.CardHeader(
+                                    html.H5(
+                                        [html.I(className="bi bi-robot me-2"), "AI Summary Report"],
+                                        className="text-center mb-0",
+                                    )
                                 ),
-                            ),
-                            dbc.CardBody(
-                                id="notification-panel-content",
-                                children=EMPTY_NOTIFICATIONS,
-                                className="overflow-y-auto",
-                            ),
-                        ],
-                        style={"maxHeight": "82.75vh"},
+                                dbc.CardBody(
+                                    [
+                                        html.P(
+                                            "AI Summary Report will be generated after the simulation completes",
+                                            id="ai-report-status-text",
+                                            className="text-muted text-center small mb-2",
+                                        ),
+                                        html.Div(
+                                            [
+                                                dbc.Button(
+                                                    [html.I(className="bi bi-eye-fill me-2"), "View"],
+                                                    id="ai-report-view-button",
+                                                    color="info",
+                                                    className="me-2",
+                                                    disabled=True,
+                                                ),
+                                                dbc.Button(
+                                                    [html.I(className="bi bi-download me-2"), "Download"],
+                                                    id="download-pdf-button",
+                                                    color="secondary",
+                                                    disabled=True,
+                                                ),
+                                            ],
+                                        ),
+                                    ],
+                                    className="d-flex flex-column align-items-center justify-content-center h-100",
+                                ),
+                            ],
+                            className="h-100",
+                        ),
+                        width=3,
                     ),
                 ],
-                width=3,
+                className="mb-2 align-items-stretch",
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        html.Div(id="ml-cards", children=EMPTY_PREDICTORS),
+                        width=9,
+                    ),
+                    dbc.Col(
+                        dbc.Card(
+                            [
+                                dbc.CardHeader(
+                                    html.H5(
+                                        [html.I(className="bi bi-bell-fill me-2"), "Notifications"],
+                                        className="text-center mb-0",
+                                    ),
+                                ),
+                                dbc.CardBody(
+                                    id="notification-panel-content",
+                                    children=EMPTY_NOTIFICATIONS,
+                                    className="overflow-y-auto",
+                                ),
+                            ],
+                            className="h-100",
+                        ),
+                        width=3,
+                    ),
+                ],
+                className="align-items-stretch",
             ),
             dbc.Modal(
                 [
                     dbc.ModalHeader(dbc.ModalTitle([html.I(className="bi bi-robot me-2"), "AI Summary Report"])),
-                    dbc.ModalBody(id="report-modal-body", className="overflow-y-auto", style={"maxHeight": "60vh"}),
-                    dbc.ModalFooter(
-                        dbc.Button(
-                            [html.I(className="bi bi-download me-2"), "Download PDF"],
-                            id="download-pdf-button",
-                            color="primary",
-                            disabled=True,
-                        ),
-                    ),
+                    dbc.ModalBody(id="report-modal-body", className="overflow-y-auto", style={"maxHeight": "70vh"}),
                 ],
                 id="report-modal",
                 size="xl",
@@ -263,9 +299,9 @@ def create_ml_status_item(ml_task: str) -> html.Div:
         [
             html.Small(title, className="text-center text-muted d-block mb-1"),
             dbc.Badge(
-                DriftState.STABLE.value.capitalize(),
+                DriftState.CALIBRATING.value.capitalize(),
                 id={"type": "drift-state", "ml_task": ml_task},
-                color="success",
+                color="info",
                 className="fs-6",
                 pill=True,
             ),

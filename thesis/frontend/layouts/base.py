@@ -19,11 +19,12 @@ def create_base_layout() -> html.Div:
     """
     return html.Div(
         [
-            dcc.Interval(id="bootstrap-interval", interval=INTERVAL_SECONDS * 1000, n_intervals=0),
-            dcc.Interval(id="simulation-interval", interval=INTERVAL_SECONDS * 1000, n_intervals=0, disabled=True),
+            dcc.Interval(id="bootstrap-interval", interval=INTERVAL_SECONDS * 1000),
+            dcc.Interval(id="simulation-interval", interval=INTERVAL_SECONDS * 1000, disabled=True),
+            dcc.Interval(id="report-interval", interval=INTERVAL_SECONDS * 1000, disabled=True),
             dcc.Store(
                 id="snapshot-store",
-                data=SimulationSnapshot(state=SimulationState.IDLE, clock=0, drift_info={}).model_dump(mode="json"),
+                data=SimulationSnapshot(state=SimulationState.READY, clock=0, drift_info={}).model_dump(mode="json"),
             ),
             dcc.Store(id="ml-tasks-store", data=[]),
             dcc.Store(id="event-store", data="noop"),
@@ -71,7 +72,7 @@ def create_base_layout() -> html.Div:
                                 children=[create_user_layout()],
                                 class_name="mt-2",
                                 id="user-interface-tab",
-                                disabled=True,
+                                disabled=False,
                             ),
                         ],
                     ),

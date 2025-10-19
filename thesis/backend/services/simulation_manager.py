@@ -9,7 +9,12 @@ from thesis.backend.services.metrics_store import MetricsStore
 from thesis.backend.services.notification_store import NotificationStore
 from thesis.backend.services.report_store import ReportStore
 from thesis.backend.services.timelapse_driver import TimelapseDriver
-from thesis.common.config import ASYNC_CLIENT_TIMEOUT_SECONDS, PAUSE_POLL_SECONDS
+from thesis.common.config import (
+    ASYNC_CLIENT_TIMEOUT_SECONDS,
+    MAX_RETRIES,
+    PAUSE_POLL_SECONDS,
+    RETRY_DELAY_SECONDS,
+)
 from thesis.common.enums import ReportStatus, SimulationState
 from thesis.common.schemas import ReportGenerationRequest, ReportGenerationResponse, SimulationSnapshot
 
@@ -30,16 +35,16 @@ class SimulationManager:
         self._notification_store: NotificationStore = notification_store
         self._report_store: ReportStore = report_store
         self._summarizer_url: str = summarizer_url
-        self._state: SimulationState = SimulationState.IDLE
+        self._state: SimulationState = SimulationState.READY
         self._pause_poll_seconds: float = PAUSE_POLL_SECONDS
         self._tick_task: asyncio.Task | None = None
         self._lock: asyncio.Lock = asyncio.Lock()
 
     async def _trigger_report_generation(self) -> None:
-        """Trigger AI report generation when simulation ends."""
+        """Trigger AI report generation with automatic retry on failure."""
         try:
-            current_status = await self._report_store.get_status()
-            if current_status.status in (ReportStatus.GENERATING, ReportStatus.READY):
+            current_report_response = await self._report_store.get_report()
+            if current_report_response.status in (ReportStatus.GENERATING, ReportStatus.READY):
                 return
 
             await self._report_store.set_generating()
@@ -48,20 +53,29 @@ class SimulationManager:
 
             ml_tasks = self._timelapse_driver.ml_tasks
             metrics = {}
-            for task in ml_tasks:
-                metrics[task] = await self._metrics_store.get_metrics(task)
+            for ml_task in ml_tasks:
+                metrics[ml_task] = await self._metrics_store.get_metrics(ml_task)
 
             report_request = ReportGenerationRequest(notifications=notification_feed.notifications, metrics=metrics)
 
-            async with httpx.AsyncClient(timeout=ASYNC_CLIENT_TIMEOUT_SECONDS) as client:
-                url = f"{self._summarizer_url}/report/generate"
-                payload = report_request.model_dump(mode="json")
-                response = await client.post(url, json=payload)
-                response.raise_for_status()
+            for attempt in range(MAX_RETRIES):
+                try:
+                    async with httpx.AsyncClient(timeout=ASYNC_CLIENT_TIMEOUT_SECONDS) as client:
+                        url = f"{self._summarizer_url}/report/generate"
+                        payload = report_request.model_dump(mode="json")
+                        response = await client.post(url, json=payload)
+                        response.raise_for_status()
 
-                report_response = ReportGenerationResponse.model_validate(response.json())
+                        report_response = ReportGenerationResponse.model_validate(response.json())
 
-            await self._report_store.set_ready(report_response.content)
+                    await self._report_store.set_ready(report_response.content)
+                    return
+                except Exception:
+                    if attempt < MAX_RETRIES - 1:
+                        await asyncio.sleep(RETRY_DELAY_SECONDS)
+                    else:
+                        raise
+
         except Exception:
             await self._report_store.set_failed()
 
@@ -77,7 +91,7 @@ class SimulationManager:
                         should_continue = await self._timelapse_driver.run_tick()
                         if not should_continue:
                             async with self._lock:
-                                self._state = SimulationState.PAUSED
+                                self._state = SimulationState.COMPLETED
                             try:
                                 await self._trigger_report_generation()
                             except Exception:
@@ -154,7 +168,7 @@ class SimulationManager:
             SimulationSnapshot: The snapshot of the simulation.
         """
         async with self._lock:
-            self._state = SimulationState.IDLE
+            self._state = SimulationState.READY
             task = self._tick_task
             self._tick_task = None
 
@@ -178,7 +192,7 @@ class SimulationManager:
     async def clear(self) -> None:
         """Clear the simulation."""
         async with self._lock:
-            self._state = SimulationState.IDLE
+            self._state = SimulationState.READY
             task = self._tick_task
             self._tick_task = None
 
