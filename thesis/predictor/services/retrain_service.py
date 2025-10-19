@@ -7,7 +7,11 @@ from uuid import uuid4
 
 from sklearn.base import clone
 
-from thesis.common.enums import MLTask, RetrainStatus
+from thesis.common.config import (
+    N_TRAINING_SAMPLES_ETA,
+    SHRINK_FACTOR_ETA,
+)
+from thesis.common.enums import MLTask, ModelType, RetrainStatus
 from thesis.common.schemas import RetrainResponse, RetrainStatusResponse
 from thesis.eta.features import split_features_and_target
 from thesis.eta.models import get_retraining_kwargs
@@ -15,6 +19,20 @@ from thesis.eta.pipeline import train_model
 from thesis.predictor.services.data_loader import DataLoader
 from thesis.predictor.services.model_manager import ModelManager
 from thesis.predictor.services.predictor import _TARGET_COLUMN_MAP
+
+# TODO: add fuel and stops
+N_TRAINING_SAMPLES_MAP: dict[MLTask, int] = {
+    MLTask.ETA: N_TRAINING_SAMPLES_ETA,
+    MLTask.FUEL: 0,
+    MLTask.STOPS: 0,
+}
+
+# TODO: add fuel and stops
+SHRINK_FACTOR_MAP: dict[MLTask, float] = {
+    MLTask.ETA: SHRINK_FACTOR_ETA,
+    MLTask.FUEL: 0.0,
+    MLTask.STOPS: 0.0,
+}
 
 
 def _retrain_job(
@@ -48,16 +66,33 @@ def _retrain_job(
     if not loaded_ok:
         return False
 
+    base_model = job_model_manager.model
+    model_type = job_model_manager.metadata["model"]
+
     df = job_data_loader.load_window(start_timestamp=start_timestamp, end_timestamp=end_timestamp)
     if df.empty:
         return False
 
     X, y = split_features_and_target(df, target_columns=[_TARGET_COLUMN_MAP[ml_task]])
+    X = X[base_model.feature_names_in_]
 
-    base_model = job_model_manager.model
-    model_type = job_model_manager.metadata["model"]
+    n_training_samples = N_TRAINING_SAMPLES_MAP[ml_task]
+    shrink_factor = SHRINK_FACTOR_MAP[ml_task]
+
+    n_samples = len(df)
+    data_percentage = n_samples / n_training_samples
+
+    if model_type == ModelType.LIGHTGBM_REGRESSOR:
+        original_n_estimators = base_model.booster_.num_trees()
+    elif model_type == ModelType.XGBOOST_REGRESSOR:
+        original_n_estimators = base_model.get_booster().num_boosted_rounds()
+
+    new_n_estimators = int(original_n_estimators * data_percentage * shrink_factor)
+    new_n_estimators = max(10, new_n_estimators)
+
     fit_kwargs = get_retraining_kwargs(model_type, base_model)
-    model = clone(base_model)
+    model = clone(base_model).set_params(n_estimators=new_n_estimators)
+
     _ = train_model(model, model_type, X, y, **fit_kwargs)
 
     metadata = {

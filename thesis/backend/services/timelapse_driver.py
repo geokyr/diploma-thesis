@@ -369,8 +369,7 @@ class TimelapseDriver:
                     if data_collected and info.job_id is None:
                         should_retrain = True
                         info.state = DriftState.RETRAINING
-                        retrain_start_timestamp = info.start_timestamp - self._collect_seconds
-                        retrain_start_timestamp = 0 if retrain_start_timestamp < 0 else retrain_start_timestamp
+                        retrain_start_timestamp = info.start_timestamp
 
             for notification in notifications_to_push:
                 await self._notification_store.push(*notification)

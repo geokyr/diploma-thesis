@@ -123,6 +123,8 @@ class EtaConfig:
     num_retraining_trips: int
     n_bins: int
     n_splits: int
+    n_training_samples: int
+    shrink_factor: float
 
 
 @dataclass(frozen=True, slots=True)
@@ -397,6 +399,8 @@ MIN_TRIP_RATIO = CONFIG.eta.min_trip_ratio
 NUM_RETRAINING_TRIPS = CONFIG.eta.num_retraining_trips
 N_BINS = CONFIG.eta.n_bins
 N_SPLITS = CONFIG.eta.n_splits
+N_TRAINING_SAMPLES_ETA = CONFIG.eta.n_training_samples
+SHRINK_FACTOR_ETA = CONFIG.eta.shrink_factor
 
 MORNING_CEILING = CONFIG.features.morning_ceiling
 NOON_FLOOR = CONFIG.features.noon_floor
