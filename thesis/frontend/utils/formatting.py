@@ -1,6 +1,6 @@
 """Utility functions for formatting."""
 
-from thesis.common.enums import DriftState, MLTask, NotificationLevel, SimulationState
+from thesis.common.enums import DriftState, MLTask, NotificationLevel, ReportStatus, SimulationState
 
 _ML_TASK_TITLES = {
     MLTask.ETA: "Estimated Time of Arrival",
@@ -28,9 +28,10 @@ _DRIFT_STATE_COLORS = {
 }
 
 _SIMULATION_STATE_COLORS = {
-    SimulationState.IDLE: "secondary",
+    SimulationState.READY: "info",
     SimulationState.RUNNING: "success",
     SimulationState.PAUSED: "warning",
+    SimulationState.COMPLETED: "info",
 }
 
 _NOTIFICATION_LEVEL_COLORS = {
@@ -38,6 +39,13 @@ _NOTIFICATION_LEVEL_COLORS = {
     NotificationLevel.SUCCESS: "success",
     NotificationLevel.WARNING: "warning",
     NotificationLevel.DANGER: "danger",
+}
+
+_REPORT_STATUS_TOOLTIPS = {
+    ReportStatus.NOT_STARTED: "AI Summary Report will be generated after the simulation completes",
+    ReportStatus.GENERATING: "AI Summary Report is being generated",
+    ReportStatus.FAILED: "AI Summary Report generation failed",
+    ReportStatus.READY: "AI Summary Report has been generated",
 }
 
 
@@ -135,6 +143,22 @@ def get_notification_level_color(notification_level: NotificationLevel | str) ->
         notification_level = NotificationLevel(notification_level)
 
     return _NOTIFICATION_LEVEL_COLORS[notification_level]
+
+
+def get_report_status_tooltip(report_status: ReportStatus | str) -> str | None:
+    """
+    Get the tooltip message for a report status.
+
+    Args:
+        report_status (ReportStatus | str): Report status or string value.
+
+    Returns:
+        str | None: Tooltip message for the report status, or None if no tooltip needed.
+    """
+    if isinstance(report_status, str):
+        report_status = ReportStatus(report_status)
+
+    return _REPORT_STATUS_TOOLTIPS.get(report_status, None)
 
 
 def format_simulation_timestamp(timestamp: int) -> str:
