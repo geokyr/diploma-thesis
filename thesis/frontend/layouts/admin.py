@@ -279,7 +279,7 @@ def create_ml_task_card(ml_task: str) -> dbc.Card:
             ),
         ],
         className="mb-2",
-        style={"height": "25vh"},
+        style={"height": "24.5vh"},
     )
 
 
