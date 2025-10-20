@@ -8,6 +8,7 @@ from uuid import uuid4
 from sklearn.base import clone
 
 from thesis.common.config import (
+    MAX_WORKERS_PREDICTOR,
     N_TRAINING_SAMPLES_ETA,
     SHRINK_FACTOR_ETA,
 )
@@ -116,7 +117,8 @@ class RetrainService:
         self._data_dir = data_dir
         self._model_manager = model_manager
         self._ml_task = ml_task
-        self._executor = ProcessPoolExecutor()
+        self._max_workers_predictor = MAX_WORKERS_PREDICTOR
+        self._executor = ProcessPoolExecutor(max_workers=self._max_workers_predictor)
         self._jobs: dict[str, dict[str, RetrainStatus | str | Future]] = {}
         self._jobs_lock = Lock()
 

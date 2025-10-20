@@ -156,6 +156,7 @@ timelapse:
 
 predictor:
   default_version: v1
+  max_workers: 1
 
 predictor_eta:
   source_x_column: source_x
@@ -166,6 +167,8 @@ predictor_eta:
   distance_column: distance
 
 drift:
+  max_workers: 1
+  smoothing_min_periods: 1
   consensus_threshold: 3
   smoothing_window_samples: 2500
   grace_period_samples: 5000
@@ -302,6 +305,6 @@ summarizer:
     - Reference the 36000-second transition point when discussing drift
     - Use proper markdown headings, lists, bold/italic emphasis
     - Present data-driven conclusions backed by the metrics provided
-    - Target length: 800-1200 words (comprehensive but focused)
+    - Target length: around 400-500 words, do not exceed 600 words (comprehensive but focused)
     - Each section should be substantive but avoid unnecessary verbosity
     - Prioritize actionable insights over general observations

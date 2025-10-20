@@ -198,6 +198,7 @@ class TimelapseConfig:
 @dataclass(frozen=True, slots=True)
 class PredictorConfig:
     default_version: str
+    max_workers: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -212,6 +213,8 @@ class PredictorEtaConfig:
 
 @dataclass(frozen=True, slots=True)
 class DriftConfig:
+    max_workers: int
+    smoothing_min_periods: int
     consensus_threshold: int
     smoothing_window_samples: int
     grace_period_samples: int
@@ -461,6 +464,7 @@ METRICS_MAXLEN = CONFIG.timelapse.metrics_maxlen
 NOTIFICATIONS_MAXLEN = CONFIG.timelapse.notifications_maxlen
 
 DEFAULT_VERSION = CONFIG.predictor.default_version
+MAX_WORKERS_PREDICTOR = CONFIG.predictor.max_workers
 
 SOURCE_X_COLUMN_ETA = CONFIG.predictor_eta.source_x_column
 SOURCE_Y_COLUMN_ETA = CONFIG.predictor_eta.source_y_column
@@ -469,6 +473,8 @@ DESTINATION_Y_COLUMN_ETA = CONFIG.predictor_eta.destination_y_column
 TIME_START_COLUMN_ETA = CONFIG.predictor_eta.time_start_column
 DISTANCE_COLUMN_ETA = CONFIG.predictor_eta.distance_column
 
+MAX_WORKERS_DRIFT = CONFIG.drift.max_workers
+SMOOTHING_MIN_PERIODS = CONFIG.drift.smoothing_min_periods
 CONSENSUS_THRESHOLD = CONFIG.drift.consensus_threshold
 SMOOTHING_WINDOW_SAMPLES = CONFIG.drift.smoothing_window_samples
 GRACE_PERIOD_SAMPLES = CONFIG.drift.grace_period_samples
