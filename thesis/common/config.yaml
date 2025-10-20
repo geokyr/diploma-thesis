@@ -169,6 +169,8 @@ predictor_eta:
 drift:
   smoothing_min_periods: 1
   consensus_threshold: 3
+  high_stride: 5
+  low_stride: 2
   smoothing_window_samples: 2500
   grace_period_samples: 5000
   calibration_window_samples: 10000

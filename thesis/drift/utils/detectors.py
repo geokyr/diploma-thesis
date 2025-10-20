@@ -9,8 +9,10 @@ from river.drift import ADWIN, KSWIN, PageHinkley
 from thesis.common.config import (
     ADWIN_DELTA_CANDIDATES,
     GRACE_PERIOD_SAMPLES,
+    HIGH_STRIDE,
     KSWIN_ALPHA_CANDIDATES,
     KSWIN_WINDOW_SIZE_STAT_SIZE_CONFIGS,
+    LOW_STRIDE,
     PAGE_HINKLEY_DELTA_CANDIDATES,
     PAGE_HINKLEY_THRESHOLD_CANDIDATES,
     SMOOTHING_MIN_PERIODS,
@@ -139,7 +141,7 @@ def _calibrate_adwin(absolute_errors_smoothed: np.ndarray, smoothing_window_samp
         float: Chosen ADWIN delta parameter.
     """
     warmup_ignore = min(len(absolute_errors_smoothed) - 1, smoothing_window_samples)
-    test_stride = 5 if len(absolute_errors_smoothed) > 5000 else 2
+    test_stride = HIGH_STRIDE if len(absolute_errors_smoothed) > 5000 else LOW_STRIDE
     test_errors = absolute_errors_smoothed[warmup_ignore::test_stride]
 
     for delta in ADWIN_DELTA_CANDIDATES:
@@ -195,7 +197,7 @@ def _calibrate_kswin(absolute_errors: np.ndarray) -> tuple[float, int, int]:
     Returns:
         tuple[float, int, int]: Chosen alpha, window_size, and stat_size parameters.
     """
-    test_stride = 5 if len(absolute_errors) > 5000 else 2
+    test_stride = HIGH_STRIDE if len(absolute_errors) > 5000 else LOW_STRIDE
     test_errors = absolute_errors[::test_stride]
 
     for window_size, stat_size in KSWIN_WINDOW_SIZE_STAT_SIZE_CONFIGS:

@@ -215,6 +215,8 @@ class PredictorEtaConfig:
 class DriftConfig:
     smoothing_min_periods: int
     consensus_threshold: int
+    high_stride: int
+    low_stride: int
     smoothing_window_samples: int
     grace_period_samples: int
     calibration_window_samples: int
@@ -474,6 +476,8 @@ DISTANCE_COLUMN_ETA = CONFIG.predictor_eta.distance_column
 
 SMOOTHING_MIN_PERIODS = CONFIG.drift.smoothing_min_periods
 CONSENSUS_THRESHOLD = CONFIG.drift.consensus_threshold
+HIGH_STRIDE = CONFIG.drift.high_stride
+LOW_STRIDE = CONFIG.drift.low_stride
 SMOOTHING_WINDOW_SAMPLES = CONFIG.drift.smoothing_window_samples
 GRACE_PERIOD_SAMPLES = CONFIG.drift.grace_period_samples
 CALIBRATION_WINDOW_SAMPLES = CONFIG.drift.calibration_window_samples

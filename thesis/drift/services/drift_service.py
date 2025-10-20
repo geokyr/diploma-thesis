@@ -10,6 +10,7 @@ from river.drift import KSWIN, PageHinkley
 from thesis.common.config import (
     CALIBRATION_WINDOW_SAMPLES,
     CONSENSUS_THRESHOLD,
+    HIGH_STRIDE,
     SMOOTHING_WINDOW_SAMPLES,
 )
 from thesis.common.enums import DriftDetectorType, DriftState, MLTask
@@ -189,14 +190,14 @@ class DriftService:
                 )
 
         async with lock:
-            for error_point in error_points:
+            for index, error_point in enumerate(error_points):
                 smoothed_error = self._append_and_smooth_error(snapshot, error_point.error)
 
                 for drift_detector_type, drift_detector in snapshot.drift_detectors.items():
                     if drift_detector_type not in snapshot.fired_detectors:
                         if drift_detector_type != DriftDetectorType.KSWIN:
                             drift_detector.update(smoothed_error)
-                        else:
+                        elif drift_detector_type == DriftDetectorType.KSWIN and index % HIGH_STRIDE == 0:
                             drift_detector.update(error_point.error)
 
                         if drift_detector.drift_detected:

@@ -104,7 +104,8 @@ class TimelapseDriver:
         self.ml_tasks.clear()
 
         results = await asyncio.gather(
-            *(self._check_ml_task_availability(ml_task, url) for ml_task, url in self.predictor_urls.items())
+            *[self._check_ml_task_availability(ml_task, url) for ml_task, url in self.predictor_urls.items()],
+            return_exceptions=True,
         )
 
         self.ml_tasks = [ml_task for ml_task, available in results if available]
@@ -285,6 +286,41 @@ class TimelapseDriver:
                 self.clock, "Model retraining failed", NotificationLevel.DANGER, ml_task
             )
 
+    async def _process_task(
+        self, ml_task: MLTask, start_timestamp: int, end_timestamp: int
+    ) -> tuple[MLTask, DriftErrorsResponse | None, asyncio.Lock]:
+        """
+        Process a single task.
+
+        Args:
+            ml_task (MLTask): ML task.
+            start_timestamp (int): Start timestamp.
+            end_timestamp (int): End timestamp.
+
+        Returns:
+            tuple[MLTask, DriftErrorsResponse | None, asyncio.Lock]: ML task, drift errors response, and lock.
+        """
+        lock = self._drift_info_locks[ml_task]
+
+        try:
+            batch = await self._predict_window(ml_task, start_timestamp, end_timestamp)
+        except Exception:
+            return None
+
+        if batch.mae is not None and batch.error_points:
+            n_samples = len(batch.error_points)
+            await self._metrics_store.push(ml_task, end_timestamp, batch.mae, n_samples)
+
+        try:
+            drift_response = await self._check_for_drift(ml_task, batch.error_points)
+        except Exception:
+            return None
+
+        if drift_response is None:
+            return None
+
+        return (ml_task, drift_response, lock)
+
     async def run_tick(self) -> bool:
         """
         Run a tick of the simulation.
@@ -313,25 +349,16 @@ class TimelapseDriver:
         async with self._clock_lock:
             start_timestamp, end_timestamp = self._advance_clock()
 
-        for ml_task in self.ml_tasks:
-            lock = self._drift_info_locks[ml_task]
+        results = await asyncio.gather(
+            *[self._process_task(task, start_timestamp, end_timestamp) for task in self.ml_tasks],
+            return_exceptions=True,
+        )
 
-            try:
-                batch = await self._predict_window(ml_task, start_timestamp, end_timestamp)
-            except Exception:
+        for result in results:
+            if result is None or isinstance(result, Exception):
                 continue
 
-            if batch.mae is not None and batch.error_points:
-                n_samples = len(batch.error_points)
-                await self._metrics_store.push(ml_task, end_timestamp, batch.mae, n_samples)
-
-            try:
-                drift_response = await self._check_for_drift(ml_task, batch.error_points)
-            except Exception:
-                continue
-
-            if drift_response is None:
-                continue
+            ml_task, drift_response, lock = result
 
             notifications_to_push = []
             should_retrain = False
