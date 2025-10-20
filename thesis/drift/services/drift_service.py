@@ -5,6 +5,8 @@ import logging
 from collections import deque
 from dataclasses import dataclass
 
+from river.drift import KSWIN, PageHinkley
+
 from thesis.common.config import (
     CALIBRATION_WINDOW_SAMPLES,
     CONSENSUS_THRESHOLD,
@@ -12,7 +14,12 @@ from thesis.common.config import (
 )
 from thesis.common.enums import DriftDetectorType, DriftState, MLTask
 from thesis.common.schemas import DriftErrorsResponse, DriftResetResponse, ErrorPoint, RecalibrateResponse
-from thesis.drift.services.detector_manager import DetectorManager
+from thesis.drift.utils.detectors import (
+    ADWINWithGrace,
+    SPCDetector,
+    compute_calibration_parameters,
+    create_detectors_from_calibration_parameters,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -25,19 +32,19 @@ class DriftSnapshot:
     Attributes:
         state (DriftState): Current drift state.
         start_timestamp (int): Timestamp when current state started.
-        detector_manager (DetectorManager): DetectorManager instance for this task.
+        drift_detectors (dict[DriftDetectorType, ADWINWithGrace | PageHinkley | KSWIN | SPCDetector]): Dictionary of drift detector instances for this task.
         error_history (deque[float]): Circular buffer for error smoothing.
         samples_seen (int): Number of samples processed.
         fired_detectors (set[DriftDetectorType]): Set of drift detector types that have fired.
         running_sum (float): Running sum of errors.
         calibration_errors (list[float]): Collected errors during calibration phase.
         calibration_window_samples (int): Required samples for calibration.
-        is_calibrating: (bool): Flag to prevent concurrent calibration.
+        is_calibrating (bool): Flag to prevent concurrent calibration.
     """
 
     state: DriftState
     start_timestamp: int
-    detector_manager: DetectorManager
+    drift_detectors: dict[DriftDetectorType, ADWINWithGrace | PageHinkley | KSWIN | SPCDetector]
     error_history: deque[float]
     samples_seen: int
     fired_detectors: set[DriftDetectorType]
@@ -52,6 +59,8 @@ class DriftService:
 
     def __init__(self) -> None:
         self._consensus_threshold: int = CONSENSUS_THRESHOLD
+        self._smoothing_window_samples: int = SMOOTHING_WINDOW_SAMPLES
+        self._calibration_window_samples: int = CALIBRATION_WINDOW_SAMPLES
         self._snapshots: dict[MLTask, DriftSnapshot] = {}
         self._task_locks: dict[MLTask, asyncio.Lock] = {}
         self._locks_lock: asyncio.Lock = asyncio.Lock()
@@ -79,18 +88,16 @@ class DriftService:
         Args:
             ml_task (MLTask): ML task to initialize.
         """
-        detector_manager = DetectorManager(SMOOTHING_WINDOW_SAMPLES)
-
         self._snapshots[ml_task] = DriftSnapshot(
             state=DriftState.CALIBRATING,
             start_timestamp=0,
-            detector_manager=detector_manager,
-            error_history=deque(maxlen=SMOOTHING_WINDOW_SAMPLES),
+            drift_detectors={},
+            error_history=deque(maxlen=self._smoothing_window_samples),
             samples_seen=0,
             fired_detectors=set(),
             running_sum=0.0,
             calibration_errors=[],
-            calibration_window_samples=CALIBRATION_WINDOW_SAMPLES,
+            calibration_window_samples=self._calibration_window_samples,
             is_calibrating=False,
         )
 
@@ -154,16 +161,17 @@ class DriftService:
 
                     if len(snapshot.calibration_errors) >= snapshot.calibration_window_samples:
                         snapshot.is_calibrating = True
-                        calibration_errors = list(snapshot.calibration_errors)
 
                         lock.release()
-                        try:
-                            await asyncio.to_thread(snapshot.detector_manager.calibrate, calibration_errors)
-                        finally:
-                            await lock.acquire()
+                        calibration_parameters = compute_calibration_parameters(
+                            snapshot.calibration_errors, self._smoothing_window_samples
+                        )
+                        drift_detectors = create_detectors_from_calibration_parameters(calibration_parameters)
+                        await lock.acquire()
 
                         snapshot.state = DriftState.STABLE
                         snapshot.start_timestamp = error_point.timestamp
+                        snapshot.drift_detectors = drift_detectors
                         snapshot.error_history.clear()
                         snapshot.samples_seen = 0
                         snapshot.fired_detectors = set()
@@ -181,12 +189,10 @@ class DriftService:
                 )
 
         async with lock:
-            drift_detectors = snapshot.detector_manager.drift_detectors
-
             for error_point in error_points:
                 smoothed_error = self._append_and_smooth_error(snapshot, error_point.error)
 
-                for drift_detector_type, drift_detector in drift_detectors.items():
+                for drift_detector_type, drift_detector in snapshot.drift_detectors.items():
                     if drift_detector_type not in snapshot.fired_detectors:
                         if drift_detector_type != DriftDetectorType.KSWIN:
                             drift_detector.update(smoothed_error)
@@ -202,7 +208,7 @@ class DriftService:
                 if len(snapshot.fired_detectors) >= self._consensus_threshold:
                     snapshot.state = DriftState.DRIFTED
                     snapshot.start_timestamp = error_point.timestamp
-                    logger.warning(
+                    logger.info(
                         f"[{ml_task}] Consensus drift detected at sample {snapshot.samples_seen}, timestamp {error_point.timestamp}"
                     )
                     break
@@ -280,20 +286,4 @@ class DriftService:
 
     async def clear(self) -> None:
         """Clear the drift service."""
-        async with self._locks_lock:
-            task_locks = list(self._task_locks.items())
-
-        sorted_locks = sorted(task_locks, key=lambda kv: kv[0].value)
-        locks = [lock for _, lock in sorted_locks]
-
-        for lock in locks:
-            await lock.acquire()
-
-        try:
-            for _, snapshot in self._snapshots.items():
-                snapshot.detector_manager.clear()
-
-            logger.info("Cleared drift service")
-        finally:
-            for lock in reversed(locks):
-                lock.release()
+        pass

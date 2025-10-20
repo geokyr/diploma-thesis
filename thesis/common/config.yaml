@@ -167,7 +167,6 @@ predictor_eta:
   distance_column: distance
 
 drift:
-  max_workers: 1
   smoothing_min_periods: 1
   consensus_threshold: 3
   smoothing_window_samples: 2500

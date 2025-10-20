@@ -213,7 +213,6 @@ class PredictorEtaConfig:
 
 @dataclass(frozen=True, slots=True)
 class DriftConfig:
-    max_workers: int
     smoothing_min_periods: int
     consensus_threshold: int
     smoothing_window_samples: int
@@ -473,7 +472,6 @@ DESTINATION_Y_COLUMN_ETA = CONFIG.predictor_eta.destination_y_column
 TIME_START_COLUMN_ETA = CONFIG.predictor_eta.time_start_column
 DISTANCE_COLUMN_ETA = CONFIG.predictor_eta.distance_column
 
-MAX_WORKERS_DRIFT = CONFIG.drift.max_workers
 SMOOTHING_MIN_PERIODS = CONFIG.drift.smoothing_min_periods
 CONSENSUS_THRESHOLD = CONFIG.drift.consensus_threshold
 SMOOTHING_WINDOW_SAMPLES = CONFIG.drift.smoothing_window_samples

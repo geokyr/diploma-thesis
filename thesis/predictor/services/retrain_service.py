@@ -21,18 +21,18 @@ from thesis.predictor.services.data_loader import DataLoader
 from thesis.predictor.services.model_manager import ModelManager
 from thesis.predictor.services.predictor import _TARGET_COLUMN_MAP
 
-# TODO: add fuel and stops
+# TODO: fuel and stops
 N_TRAINING_SAMPLES_MAP: dict[MLTask, int] = {
     MLTask.ETA: N_TRAINING_SAMPLES_ETA,
-    MLTask.FUEL: 0,
-    MLTask.STOPS: 0,
+    MLTask.FUEL: N_TRAINING_SAMPLES_ETA,
+    MLTask.STOPS: N_TRAINING_SAMPLES_ETA,
 }
 
-# TODO: add fuel and stops
+# TODO: fuel and stops
 SHRINK_FACTOR_MAP: dict[MLTask, float] = {
     MLTask.ETA: SHRINK_FACTOR_ETA,
-    MLTask.FUEL: 0.0,
-    MLTask.STOPS: 0.0,
+    MLTask.FUEL: SHRINK_FACTOR_ETA,
+    MLTask.STOPS: SHRINK_FACTOR_ETA,
 }
 
 
