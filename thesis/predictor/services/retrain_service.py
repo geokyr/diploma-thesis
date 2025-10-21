@@ -94,6 +94,9 @@ def _retrain_job(
     fit_kwargs = get_retraining_kwargs(model_type, base_model)
     model = clone(base_model).set_params(n_estimators=new_n_estimators)
 
+    if model_type == ModelType.XGBOOST_REGRESSOR:
+        model.set_params(early_stopping_rounds=None)
+
     _ = train_model(model, model_type, X, y, **fit_kwargs)
 
     metadata = {
