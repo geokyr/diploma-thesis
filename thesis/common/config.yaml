@@ -224,7 +224,7 @@ stops:
 summarizer:
   max_retries: 3
   retry_delay_seconds: 2.0
-  async_client_timeout_seconds: 120.0
+  async_client_timeout_seconds: 180.0
   openrouter_base_url: https://openrouter.ai/api/v1
   openrouter_model: z-ai/glm-4.5-air:free
   system_prompt: |
