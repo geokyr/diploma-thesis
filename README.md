@@ -56,6 +56,14 @@ uv run simulation/simulation.py
 uv run experiments/baseline_research.py
 ```
 
+### Dataset
+The experiments use a dataset of **Synthetic 10-hour Traffic Simulations for Central Athens** generated with SUMO. The dataset contains three trace files (train, test, rain) with Floating Car Data (FCD) including vehicle coordinates, speed, fuel, and waiting time.
+
+**The dataset will automatically download when running experiments.** Alternatively, you can manually download it from:
+- [Zenodo Dataset Repository](https://zenodo.org/records/16950674)
+
+Available formats: CSV and Parquet (~3.3 GB total)
+
 ## Platform Deployment
 Use Docker Compose to run the Drift-Aware ML Platform, which consists of the following services:
 - **Backend** (port 8000) - Main orchestration and control service
