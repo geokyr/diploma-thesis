@@ -213,6 +213,7 @@ def create_admin_layout() -> dbc.Row:
                     dbc.Col(
                         html.Div(id="ml-cards", children=EMPTY_PREDICTORS),
                         width=9,
+                        className="d-flex flex-column",
                     ),
                     dbc.Col(
                         dbc.Card(
@@ -227,11 +228,13 @@ def create_admin_layout() -> dbc.Row:
                                     id="notification-panel-content",
                                     children=EMPTY_NOTIFICATIONS,
                                     className="overflow-y-auto",
+                                    style={"maxHeight": "70vh"},
                                 ),
                             ],
-                            className="h-100",
+                            style={"height": "74.75vh"},
                         ),
                         width=3,
+                        className="d-flex flex-column",
                     ),
                 ],
                 className="align-items-stretch",
