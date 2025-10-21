@@ -1,6 +1,5 @@
 """Metrics store for the frontend charts."""
 
-import asyncio
 from collections import deque
 
 from thesis.common.config import METRICS_MAXLEN
@@ -13,25 +12,7 @@ class MetricsStore:
 
     def __init__(self) -> None:
         self._store: dict[MLTask, deque[MetricPoint]] = {}
-        self._locks: dict[MLTask, asyncio.Lock] = {}
-        self._locks_lock: asyncio.Lock = asyncio.Lock()
         self._maxlen: int = METRICS_MAXLEN
-
-    async def _get_lock(self, ml_task: MLTask) -> asyncio.Lock:
-        """
-        Get or create a lock for the given ML task.
-
-        Args:
-            ml_task (MLTask): ML task.
-
-        Returns:
-            asyncio.Lock: Lock for the ML task.
-        """
-        if ml_task not in self._locks:
-            async with self._locks_lock:
-                if ml_task not in self._locks:
-                    self._locks[ml_task] = asyncio.Lock()
-        return self._locks[ml_task]
 
     async def push(self, ml_task: MLTask, timestamp: int, mae: float, n_samples: int) -> None:
         """
@@ -43,11 +24,11 @@ class MetricsStore:
             mae (float): Mean absolute error.
             n_samples (int): Number of samples in this metric point.
         """
-        lock = await self._get_lock(ml_task)
-        async with lock:
-            if ml_task not in self._store:
-                self._store[ml_task] = deque(maxlen=self._maxlen)
-            self._store[ml_task].append(MetricPoint(timestamp=timestamp, mae=mae, n_samples=n_samples))
+        if ml_task not in self._store:
+            self._store[ml_task] = deque(maxlen=self._maxlen)
+
+        metric_point = MetricPoint(timestamp=timestamp, mae=mae, n_samples=n_samples)
+        self._store[ml_task].append(metric_point)
 
     async def get_metrics(self, ml_task: MLTask) -> MetricsResponse:
         """
@@ -59,25 +40,20 @@ class MetricsStore:
         Returns:
             MetricsResponse: Metrics response.
         """
-        lock = await self._get_lock(ml_task)
-        async with lock:
-            if ml_task not in self._store:
-                self._store[ml_task] = deque(maxlen=self._maxlen)
-            metric_points = list(self._store[ml_task])
+        if ml_task not in self._store:
+            self._store[ml_task] = deque(maxlen=self._maxlen)
+
+        metric_points = list(self._store[ml_task])
         return MetricsResponse(metric_points=metric_points)
 
     async def reset(self) -> None:
         """Reset the metrics store."""
         for ml_task in list(self._store.keys()):
-            lock = await self._get_lock(ml_task)
-            async with lock:
-                if ml_task in self._store:
-                    self._store[ml_task].clear()
+            if ml_task in self._store:
+                self._store[ml_task].clear()
 
     async def clear(self) -> None:
         """Clear the metrics store."""
         for ml_task in list(self._store.keys()):
-            lock = await self._get_lock(ml_task)
-            async with lock:
-                if ml_task in self._store:
-                    del self._store[ml_task]
+            if ml_task in self._store:
+                del self._store[ml_task]
