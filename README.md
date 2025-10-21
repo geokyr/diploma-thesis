@@ -1,6 +1,6 @@
 # thesis
 
-Continuous Machine Learning, Concept Drift, MLOps, and Cooperative, Connected and Automated Mobility applications for my thesis at ECE NTUA
+Continuous Machine Learning, Concept Drift, MLOps, and Cooperative, Connected and Automated Mobility applications for my Thesis at ECE NTUA
 
 ## Quick Start
 This project supports two main workflows:
