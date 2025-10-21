@@ -47,9 +47,6 @@ class TimelapseDriver:
         self._notification_store: NotificationStore = notification_store
         self._speed_multiplier: int = SPEED_MULTIPLIER
         self._client: httpx.AsyncClient = httpx.AsyncClient(timeout=HTTP_CLIENT_TIMEOUT_SECONDS)
-        self._clock_lock: asyncio.Lock = asyncio.Lock()
-        self._tasks_lock: asyncio.Lock = asyncio.Lock()
-        self._drift_info_locks: dict[MLTask, asyncio.Lock] = {}
         self._collect_seconds: int = COLLECT_SECONDS
         self._retrain_tasks: list[asyncio.Task] = []
         self.clock: int = 0
@@ -76,9 +73,8 @@ class TimelapseDriver:
         Returns:
             tuple[int, dict[MLTask, DriftInfo]]: Clock and drift info snapshot.
         """
-        async with self._clock_lock:
-            clock = self.clock
-            drift_info_snapshot = dict(self.drift_info)
+        clock = self.clock
+        drift_info_snapshot = dict(self.drift_info)
 
         return clock, drift_info_snapshot
 
@@ -109,7 +105,6 @@ class TimelapseDriver:
         )
 
         self.ml_tasks = [ml_task for ml_task, available in results if available]
-        self._drift_info_locks = {ml_task: asyncio.Lock() for ml_task in self.ml_tasks}
 
         self._reset_drift_info()
 
@@ -246,22 +241,18 @@ class TimelapseDriver:
             ml_task (MLTask): ML task.
             job_id (str): Job ID.
         """
-        lock = self._drift_info_locks[ml_task]
-
-        async with lock:
-            self.drift_info[ml_task].job_id = job_id
+        self.drift_info[ml_task].job_id = job_id
 
         status = await self._poll_retrain(ml_task, job_id)
 
         if status == RetrainStatus.COMPLETED:
             success = await self._recalibrate_drift_detectors(ml_task)
 
-            async with lock:
-                info = self.drift_info[ml_task]
-                info.state = DriftState.CALIBRATING if success else DriftState.DRIFTED
-                info.start_timestamp = None
-                info.collecting = False
-                info.job_id = None
+            info = self.drift_info[ml_task]
+            info.state = DriftState.CALIBRATING if success else DriftState.DRIFTED
+            info.start_timestamp = None
+            info.collecting = False
+            info.job_id = None
 
             if success:
                 await self._notification_store.push(
@@ -275,12 +266,11 @@ class TimelapseDriver:
                     self.clock, "Drift detector recalibration failed", NotificationLevel.DANGER, ml_task
                 )
         else:
-            async with lock:
-                info = self.drift_info[ml_task]
-                info.state = DriftState.DRIFTED
-                info.start_timestamp = None
-                info.collecting = False
-                info.job_id = None
+            info = self.drift_info[ml_task]
+            info.state = DriftState.DRIFTED
+            info.start_timestamp = None
+            info.collecting = False
+            info.job_id = None
 
             await self._notification_store.push(
                 self.clock, "Model retraining failed", NotificationLevel.DANGER, ml_task
@@ -288,7 +278,7 @@ class TimelapseDriver:
 
     async def _process_task(
         self, ml_task: MLTask, start_timestamp: int, end_timestamp: int
-    ) -> tuple[MLTask, DriftErrorsResponse | None, asyncio.Lock]:
+    ) -> tuple[MLTask, DriftErrorsResponse | None]:
         """
         Process a single task.
 
@@ -298,10 +288,8 @@ class TimelapseDriver:
             end_timestamp (int): End timestamp.
 
         Returns:
-            tuple[MLTask, DriftErrorsResponse | None, asyncio.Lock]: ML task, drift errors response, and lock.
+            tuple[MLTask, DriftErrorsResponse | None]: ML task and drift errors response.
         """
-        lock = self._drift_info_locks[ml_task]
-
         try:
             batch = await self._predict_window(ml_task, start_timestamp, end_timestamp)
         except Exception:
@@ -319,7 +307,7 @@ class TimelapseDriver:
         if drift_response is None:
             return None
 
-        return (ml_task, drift_response, lock)
+        return ml_task, drift_response
 
     async def run_tick(self) -> bool:
         """
@@ -346,8 +334,7 @@ class TimelapseDriver:
             )
             return False
 
-        async with self._clock_lock:
-            start_timestamp, end_timestamp = self._advance_clock()
+        start_timestamp, end_timestamp = self._advance_clock()
 
         results = await asyncio.gather(
             *[self._process_task(task, start_timestamp, end_timestamp) for task in self.ml_tasks],
@@ -358,45 +345,40 @@ class TimelapseDriver:
             if result is None or isinstance(result, Exception):
                 continue
 
-            ml_task, drift_response, lock = result
+            ml_task, drift_response = result
 
             notifications_to_push = []
             should_retrain = False
             retrain_start_timestamp = 0
 
-            async with lock:
-                info = self.drift_info[ml_task]
+            info = self.drift_info[ml_task]
 
-                if drift_response.state == DriftState.STABLE and info.state == DriftState.CALIBRATING:
-                    info.state = DriftState.STABLE
-                    info.start_timestamp = drift_response.start_timestamp
-                    notifications_to_push.append(
-                        (
-                            end_timestamp,
-                            "Drift detector calibration completed",
-                            NotificationLevel.SUCCESS,
-                            ml_task,
-                        )
+            if drift_response.state == DriftState.STABLE and info.state == DriftState.CALIBRATING:
+                info.state = DriftState.STABLE
+                info.start_timestamp = drift_response.start_timestamp
+                notifications_to_push.append(
+                    (
+                        end_timestamp,
+                        "Drift detector calibration completed",
+                        NotificationLevel.SUCCESS,
+                        ml_task,
                     )
+                )
 
-                if (
-                    drift_response.state == DriftState.DRIFTED
-                    and info.state == DriftState.STABLE
-                    and not info.collecting
-                ):
-                    info.state = DriftState.DRIFTED
-                    info.start_timestamp = end_timestamp
-                    info.collecting = True
-                    notifications_to_push.append(
-                        (end_timestamp, "Concept drift detected", NotificationLevel.DANGER, ml_task)
-                    )
+            if drift_response.state == DriftState.DRIFTED and info.state == DriftState.STABLE and not info.collecting:
+                info.state = DriftState.DRIFTED
+                info.start_timestamp = end_timestamp
+                info.collecting = True
+                notifications_to_push.append(
+                    (end_timestamp, "Concept drift detected", NotificationLevel.DANGER, ml_task)
+                )
 
-                if info.collecting and info.start_timestamp is not None:
-                    data_collected = (end_timestamp - info.start_timestamp) >= self._collect_seconds
-                    if data_collected and info.job_id is None:
-                        should_retrain = True
-                        info.state = DriftState.RETRAINING
-                        retrain_start_timestamp = info.start_timestamp
+            if info.collecting and info.start_timestamp is not None:
+                data_collected = (end_timestamp - info.start_timestamp) >= self._collect_seconds
+                if data_collected and info.job_id is None:
+                    should_retrain = True
+                    info.state = DriftState.RETRAINING
+                    retrain_start_timestamp = info.start_timestamp
 
             for notification in notifications_to_push:
                 await self._notification_store.push(*notification)
@@ -407,19 +389,14 @@ class TimelapseDriver:
                 )
                 job_id = await self._start_retrain(ml_task, retrain_start_timestamp, end_timestamp)
 
-                async with lock:
-                    info = self.drift_info[ml_task]
-                    if job_id:
-                        task = asyncio.create_task(self._handle_retrain(ml_task, job_id))
-                        async with self._tasks_lock:
-                            self._retrain_tasks.append(task)
-                    else:
-                        info.state = DriftState.DRIFTED
-                        info.start_timestamp = None
-                        info.collecting = False
-                        info.job_id = None
-
-                if not job_id:
+                if job_id:
+                    task = asyncio.create_task(self._handle_retrain(ml_task, job_id))
+                    self._retrain_tasks.append(task)
+                else:
+                    info.state = DriftState.DRIFTED
+                    info.start_timestamp = None
+                    info.collecting = False
+                    info.job_id = None
                     await self._notification_store.push(
                         end_timestamp, "Model retraining failed", NotificationLevel.DANGER, ml_task
                     )
@@ -448,9 +425,8 @@ class TimelapseDriver:
 
     async def reset(self) -> None:
         """Reset the timelapse driver."""
-        async with self._tasks_lock:
-            tasks_to_cancel = list(self._retrain_tasks)
-            self._retrain_tasks.clear()
+        tasks_to_cancel = list(self._retrain_tasks)
+        self._retrain_tasks.clear()
 
         for task in tasks_to_cancel:
             if task and not task.done():
@@ -461,17 +437,15 @@ class TimelapseDriver:
         await self._metrics_store.reset()
         await self._notification_store.reset()
 
-        async with self._clock_lock:
-            self.clock = 0
+        self.clock = 0
 
         self._reset_drift_info()
         await self._reset_drift_service()
 
     async def clear(self) -> None:
         """Clear the timelapse driver."""
-        async with self._tasks_lock:
-            tasks_to_cancel = list(self._retrain_tasks)
-            self._retrain_tasks.clear()
+        tasks_to_cancel = list(self._retrain_tasks)
+        self._retrain_tasks.clear()
 
         for task in tasks_to_cancel:
             if task and not task.done():
@@ -482,8 +456,7 @@ class TimelapseDriver:
         await self._metrics_store.clear()
         await self._notification_store.clear()
 
-        async with self._clock_lock:
-            self.clock = 0
+        self.clock = 0
 
         self._reset_drift_info()
 
