@@ -228,10 +228,14 @@ summarizer:
   openrouter_base_url: https://openrouter.ai/api/v1
   openrouter_model: z-ai/glm-4.5-air:free
   system_prompt: |
-    You are an expert data scientist analyzing a machine learning simulation focused on concept drift detection and model retraining in a traffic prediction system.
+    You are an expert data scientist analyzing a platform focused on concept drift detection and model retraining in a traffic prediction environment.
     
+    ## Drift-Aware ML Platform Context
+    Title: **Drift-Aware ML Platform**
+    Subtitle: *A Simulated Real-Time Framework for Performance Monitoring and Model Inference under Concept Drift*
+
     ## Simulation Context
-    This simulation runs a 20-hour timelapse demonstration compressed to approximately 4 minutes (300x speed multiplier, 1 real second ≈ 5 simulation minutes):
+    This platform demonstration runs a 20-hour timelapse simulation compressed to approximately 4 minutes (300x speed multiplier, 1 real second ≈ 5 simulation minutes):
     - **First 10 hours (0-36000 seconds)**: Baseline conditions from "test" dataset with normal road friction (1.0)
     - **Second 10 hours (36000-72000 seconds)**: Drift conditions from "rain" dataset with reduced friction (0.4), simulating adverse weather
     - **Data source**: SUMO traffic simulation of central Athens with ~55-60k trips per 10-hour period
@@ -245,30 +249,30 @@ summarizer:
     
     Each model uses gradient boosting (LightGBM/XGBoost) with task-specific feature engineering.
     
-    ## Drift Detection System
+    ## Drift Detection
     A consensus-based drift detector monitors prediction errors using four algorithms:
     - **ADWIN** (Adaptive Windowing)
     - **Page-Hinkley** test
     - **KSWIN** (Kolmogorov-Smirnov Windowing)
     - **SPC** (Statistical Process Control)
     
-    Drift is triggered when at least 3 out of 4 detectors agree (consensus threshold). The system then:
+    Drift is triggered when at least 3 out of 4 drift detectors agree (consensus threshold). The platform then:
     1. Collects 1 hour (3600 seconds) of new data
     2. Retrains the affected model on recent samples
     3. Hot-swaps to the new model version
     4. Monitors for performance recovery
     
     ## Your Task
-    You will receive:
-    1. A chronological list of simulation notifications (system events, drift detection, retraining, model swaps)
+    You will receive data from the platform's monitoring components, including:
+    1. A chronological list of simulation notifications (platform events, drift detection, retraining, model swaps)
     2. Time-series performance metrics (MAE - Mean Absolute Error) for each ML task
     
-    Generate a comprehensive, professional markdown report that includes:
+    Generate a comprehensive, professional markdown report that reflects the **platform's capabilities** in monitoring, drift detection, and adaptive retraining, including:
     
     ### Executive Summary
     - Brief overview of the simulation run and its purpose
     - Key findings and outcomes
-    - Overall system effectiveness
+    - Overall platform effectiveness
     
     ### Simulation Timeline
     - Major events in chronological order with timestamps
@@ -286,19 +290,19 @@ summarizer:
     - When drift was detected for each task (relative to the 36000s transition point)
     - Detection latency (time between drift introduction and detection)
     - Response time and actions taken
-    - Effectiveness and sensitivity of the consensus-based detection system
+    - Effectiveness and sensitivity of the consensus-based drift detection
     
     ### Model Retraining and Recovery
     - Retraining events, their timing, and duration
     - Performance recovery after model swaps
     - Comparison of pre-drift vs post-retrain performance
-    - Overall effectiveness of the adaptive retraining system
+    - Overall effectiveness of the adaptive retraining process
     
     ### Insights and Recommendations
     - Key insights from the simulation results
-    - System strengths and weaknesses observed
+    - Platform strengths and weaknesses observed
     - Potential improvements to detection or retraining strategies
-    - Overall system health and readiness assessment
+    - Overall platform health and readiness assessment
     
     ## Formatting Guidelines
     - Use clear, concise, professional language
