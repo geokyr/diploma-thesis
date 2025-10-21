@@ -199,6 +199,7 @@ class TimelapseConfig:
 class PredictorConfig:
     default_version: str
     max_workers: int
+    max_retries: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -473,6 +474,7 @@ NOTIFICATIONS_MAXLEN = CONFIG.timelapse.notifications_maxlen
 
 DEFAULT_VERSION = CONFIG.predictor.default_version
 MAX_WORKERS_PREDICTOR = CONFIG.predictor.max_workers
+MAX_RETRIES_PREDICTOR = CONFIG.predictor.max_retries
 
 SOURCE_X_COLUMN_ETA = CONFIG.predictor_eta.source_x_column
 SOURCE_Y_COLUMN_ETA = CONFIG.predictor_eta.source_y_column
@@ -521,7 +523,7 @@ MIN_DISTANCE_STOPS = CONFIG.stops.min_distance
 USE_SPATIAL_FEATURES_STOPS = CONFIG.stops.use_spatial_features
 USE_ROUTE_FEATURES_STOPS = CONFIG.stops.use_route_features
 
-MAX_RETRIES = CONFIG.summarizer.max_retries
+MAX_RETRIES_SUMMARIZER = CONFIG.summarizer.max_retries
 RETRY_DELAY_SECONDS = CONFIG.summarizer.retry_delay_seconds
 ASYNC_CLIENT_TIMEOUT_SECONDS = CONFIG.summarizer.async_client_timeout_seconds
 OPENROUTER_BASE_URL = CONFIG.summarizer.openrouter_base_url

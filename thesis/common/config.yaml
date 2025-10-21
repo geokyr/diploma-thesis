@@ -157,6 +157,7 @@ timelapse:
 predictor:
   default_version: v1
   max_workers: 1
+  max_retries: 3
 
 predictor_eta:
   source_x_column: source_x

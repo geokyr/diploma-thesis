@@ -11,7 +11,7 @@ from thesis.backend.services.report_store import ReportStore
 from thesis.backend.services.timelapse_driver import TimelapseDriver
 from thesis.common.config import (
     ASYNC_CLIENT_TIMEOUT_SECONDS,
-    MAX_RETRIES,
+    MAX_RETRIES_SUMMARIZER,
     PAUSE_POLL_SECONDS,
     RETRY_DELAY_SECONDS,
 )
@@ -57,7 +57,7 @@ class SimulationManager:
 
             report_request = ReportGenerationRequest(notifications=notification_feed.notifications, metrics=metrics)
 
-            for attempt in range(MAX_RETRIES):
+            for attempt in range(MAX_RETRIES_SUMMARIZER):
                 try:
                     async with httpx.AsyncClient(timeout=ASYNC_CLIENT_TIMEOUT_SECONDS) as client:
                         url = f"{self._summarizer_url}/report/generate"
@@ -70,7 +70,7 @@ class SimulationManager:
                     await self._report_store.set_ready(report_response.content)
                     return
                 except Exception:
-                    if attempt < MAX_RETRIES - 1:
+                    if attempt < MAX_RETRIES_SUMMARIZER - 1:
                         await asyncio.sleep(RETRY_DELAY_SECONDS)
                     else:
                         raise
