@@ -352,8 +352,6 @@ class FeatureCalibratorFuel:
             )
         trip_features.drop(columns=["minimum_x", "maximum_x", "minimum_y", "maximum_y"], inplace=True, errors="ignore")
 
-        trip_features = trip_features[trip_features["start_hour"] < START_HOUR_MAX]
-
         trip_features_with_clusters = add_start_end_clusters(trip_features, self.clustering_models)
 
         available_features = [c for c in self.feature_columns if c in trip_features_with_clusters.columns]
