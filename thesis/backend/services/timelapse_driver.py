@@ -257,7 +257,7 @@ class TimelapseDriver:
             if success:
                 await self._notification_store.push(
                     self.clock,
-                    "Retrained model swapped and drift detector recalibration initiated",
+                    "Retrained model swapped",
                     NotificationLevel.SUCCESS,
                     ml_task,
                 )
