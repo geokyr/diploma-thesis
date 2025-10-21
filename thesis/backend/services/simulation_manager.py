@@ -38,7 +38,6 @@ class SimulationManager:
         self._state: SimulationState = SimulationState.READY
         self._pause_poll_seconds: float = PAUSE_POLL_SECONDS
         self._tick_task: asyncio.Task | None = None
-        self._lock: asyncio.Lock = asyncio.Lock()
 
     async def _trigger_report_generation(self) -> None:
         """Trigger AI report generation with automatic retry on failure."""
@@ -83,15 +82,13 @@ class SimulationManager:
         """Tick loop for the simulation."""
         try:
             while True:
-                async with self._lock:
-                    state = self._state
+                state = self._state
 
                 if state == SimulationState.RUNNING:
                     try:
                         should_continue = await self._timelapse_driver.run_tick()
                         if not should_continue:
-                            async with self._lock:
-                                self._state = SimulationState.COMPLETED
+                            self._state = SimulationState.COMPLETED
                             try:
                                 await self._trigger_report_generation()
                             except Exception:
@@ -113,9 +110,7 @@ class SimulationManager:
         Returns:
             SimulationSnapshot: The snapshot of the simulation.
         """
-        async with self._lock:
-            state = self._state
-
+        state = self._state
         clock, drift_info = await self._timelapse_driver.get_snapshot_data()
 
         return SimulationSnapshot(state=state, clock=clock, drift_info=drift_info)
@@ -127,10 +122,10 @@ class SimulationManager:
         Returns:
             SimulationSnapshot: The snapshot of the simulation.
         """
-        async with self._lock:
-            if self._tick_task is None or self._tick_task.done():
-                self._tick_task = asyncio.create_task(self._tick_loop())
-            self._state = SimulationState.RUNNING
+        if self._tick_task is None or self._tick_task.done():
+            self._tick_task = asyncio.create_task(self._tick_loop())
+
+        self._state = SimulationState.RUNNING
 
         return await self.get_snapshot()
 
@@ -141,9 +136,8 @@ class SimulationManager:
         Returns:
             SimulationSnapshot: The snapshot of the simulation.
         """
-        async with self._lock:
-            if self._state == SimulationState.RUNNING:
-                self._state = SimulationState.PAUSED
+        if self._state == SimulationState.RUNNING:
+            self._state = SimulationState.PAUSED
 
         return await self.get_snapshot()
 
@@ -154,9 +148,8 @@ class SimulationManager:
         Returns:
             SimulationSnapshot: The snapshot of the simulation.
         """
-        async with self._lock:
-            if self._state == SimulationState.PAUSED:
-                self._state = SimulationState.RUNNING
+        if self._state == SimulationState.PAUSED:
+            self._state = SimulationState.RUNNING
 
         return await self.get_snapshot()
 
@@ -167,10 +160,9 @@ class SimulationManager:
         Returns:
             SimulationSnapshot: The snapshot of the simulation.
         """
-        async with self._lock:
-            self._state = SimulationState.READY
-            task = self._tick_task
-            self._tick_task = None
+        self._state = SimulationState.READY
+        task = self._tick_task
+        self._tick_task = None
 
         if task and not task.done():
             task.cancel()
@@ -191,10 +183,9 @@ class SimulationManager:
 
     async def clear(self) -> None:
         """Clear the simulation."""
-        async with self._lock:
-            self._state = SimulationState.READY
-            task = self._tick_task
-            self._tick_task = None
+        self._state = SimulationState.READY
+        task = self._tick_task
+        self._tick_task = None
 
         if task and not task.done():
             task.cancel()
