@@ -2,5 +2,5 @@
 
 from dash import html
 
-EMPTY_NOTIFICATIONS = [html.P("No notifications", className="text-muted mb-0")]
-EMPTY_PREDICTORS = [html.P("No predictors available", className="text-muted mb-0")]
+EMPTY_NOTIFICATIONS = [html.P("No notifications available", className="text-muted text-center mb-0")]
+EMPTY_PREDICTORS = [html.P("No predictors available", className="text-muted text-center mb-0")]

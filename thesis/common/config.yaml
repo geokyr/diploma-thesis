@@ -319,9 +319,9 @@ frontend:
     @page { size: A4; margin: 20mm; }
     body { font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.4; }
 
-    h1 { font-size: 18pt; margin-bottom: 8pt;}
-    h2 { font-size: 16pt; margin-bottom: 6pt;}
-    h3 { font-size: 14pt; margin-bottom: 4pt;}
+    h1 { font-size: 20pt; margin-bottom: 6pt;}
+    h2 { font-size: 16pt; margin-bottom: 4pt;}
+    h3 { font-size: 14pt; margin-bottom: 2pt;}
 
     ul, ol { margin-left: 16pt; }
 

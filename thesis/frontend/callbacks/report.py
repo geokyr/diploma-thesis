@@ -170,7 +170,7 @@ def register_report_callbacks(app: dash.Dash, client: APIClient) -> None:
 
         if n_clicks and markdown_content:
             try:
-                html_content = markdown.markdown(markdown_content, extensions=["sane_lists"])
+                html_content = markdown.markdown(markdown_content, extensions=["sane_lists", "nl2br"])
                 full_html = f"<!doctype html><html><head><meta charset='utf-8'><style>{CSS}</style></head><body>{html_content}</body></html>"
 
                 buffer = io.BytesIO()
