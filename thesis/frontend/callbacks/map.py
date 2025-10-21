@@ -44,7 +44,7 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
         Input("ml-tasks-store", "data"),
         prevent_initial_call="initial_duplicate",
     )
-    def render_prediction_output(ml_tasks: list[str]) -> list[dbc.Row]:
+    def render_prediction_output(ml_tasks: list[str]) -> list[dbc.Row | html.Hr]:
         """
         Dynamically render prediction output structure based on available ML tasks.
 
@@ -52,7 +52,7 @@ def register_map_callbacks(app: dash.Dash, client: APIClient) -> None:
             ml_tasks (list[str]): List of available ML task strings.
 
         Returns:
-            list[dbc.Row]: Prediction output rows.
+            list[dbc.Row | html.Hr]: Prediction output sections with separators.
         """
         try:
             return create_prediction_output(ml_tasks=ml_tasks if ml_tasks else None)

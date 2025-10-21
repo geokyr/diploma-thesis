@@ -33,10 +33,6 @@ def create_user_layout() -> dbc.Row:
                             ),
                             dbc.CardBody(
                                 [
-                                    html.P(
-                                        "Click on the map to select source and destination",
-                                        className="small text-muted text-center mb-2",
-                                    ),
                                     html.H6("Source", className="text-center mb-2"),
                                     dbc.Row(
                                         [
@@ -75,6 +71,7 @@ def create_user_layout() -> dbc.Row:
                                         ],
                                         className="mb-2 justify-content-center",
                                     ),
+                                    html.Hr(className="mt-3 mb-3"),
                                     html.H6("Destination", className="text-center mb-2"),
                                     dbc.Row(
                                         [
@@ -114,6 +111,10 @@ def create_user_layout() -> dbc.Row:
                                         className="mb-2 justify-content-center",
                                     ),
                                     html.Hr(className="mt-3 mb-3"),
+                                    html.P(
+                                        "Click on the map to select source and destination",
+                                        className="small text-muted text-center mb-2",
+                                    ),
                                     html.Div(
                                         [
                                             dbc.Button(
@@ -195,7 +196,7 @@ def create_user_layout() -> dbc.Row:
 
 def create_prediction_output(
     ml_tasks: list[str] | None = None, predictions: dict[str, str] | None = None
-) -> list[dbc.Row]:
+) -> list[dbc.Row | html.Hr]:
     """
     Create the prediction output layout dynamically based on available ML tasks.
 
@@ -204,7 +205,7 @@ def create_prediction_output(
         predictions (dict[str, str] | None): Dictionary mapping ML task strings to prediction values.
 
     Returns:
-        list[dbc.Row]: List of rows showing prediction labels with values.
+        list[dbc.Row | html.Hr]: List of rows showing prediction sections with separators.
     """
     if ml_tasks is None:
         ml_tasks = [MLTask.ETA.value, MLTask.FUEL.value, MLTask.STOPS.value]
@@ -212,7 +213,7 @@ def create_prediction_output(
     if predictions is None:
         predictions = {}
 
-    rows = []
+    sections = []
     for i, ml_task_str in enumerate(ml_tasks):
         ml_task = MLTask(ml_task_str)
         value = predictions[ml_task_str] if ml_task_str in predictions else "-"
@@ -224,16 +225,25 @@ def create_prediction_output(
                         html.I(className=f"bi {get_ml_task_icon(ml_task)} me-2"),
                         html.Span(get_ml_task_title(ml_task), className="fw-semibold"),
                     ],
-                    width=8,
+                    width="auto",
                     className="d-flex align-items-center",
                 ),
                 dbc.Col(
-                    html.Span(value, id=f"prediction-{ml_task_str}", className="text-end d-block"),
-                    width=4,
+                    dbc.Badge(
+                        value,
+                        id=f"prediction-{ml_task_str}",
+                        color="info",
+                        className="fs-6",
+                        pill=True,
+                    ),
+                    className="d-flex align-items-center justify-content-end",
                 ),
             ],
-            className="mb-2" if i < len(ml_tasks) - 1 else "",
+            className="mb-2",
         )
-        rows.append(row)
+        sections.append(row)
 
-    return rows
+        if i < len(ml_tasks) - 1:
+            sections.append(html.Hr(className="mt-3 mb-3"))
+
+    return sections
