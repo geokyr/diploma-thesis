@@ -1,17 +1,13 @@
 """Callbacks for AI summary report functionality."""
 
 import io
-import re
 
 import dash_bootstrap_components as dbc
 import markdown
 from dash import Input, Output, State, ctx, dash, dcc, html, no_update
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.units import inch
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
+from xhtml2pdf import pisa
 
-from thesis.common.config import SIMULATION_REPORT_FILENAME
+from thesis.common.config import CSS, SIMULATION_REPORT_FILENAME
 from thesis.common.enums import MLTask, ReportStatus, SimulationState
 from thesis.common.schemas import SimulationSnapshot
 from thesis.frontend.utils.api_client import APIClient
@@ -174,55 +170,16 @@ def register_report_callbacks(app: dash.Dash, client: APIClient) -> None:
 
         if n_clicks and markdown_content:
             try:
+                html_content = markdown.markdown(markdown_content, extensions=["sane_lists"])
+                full_html = f"<!doctype html><html><head><meta charset='utf-8'><style>{CSS}</style></head><body>{html_content}</body></html>"
+
                 buffer = io.BytesIO()
+                status = pisa.CreatePDF(src=io.StringIO(full_html), dest=buffer, encoding="utf-8")
 
-                html_content = markdown.markdown(
-                    markdown_content, extensions=["tables", "fenced_code", "nl2br", "sane_lists"]
-                )
+                if status.err:
+                    return no_update
 
-                doc = SimpleDocTemplate(buffer, pagesize=letter)
-                styles = getSampleStyleSheet()
-                story = []
-
-                lines = html_content.split("\n")
-                for line in lines:
-                    line = line.strip()
-                    if not line:
-                        story.append(Spacer(1, 0.2 * inch))
-                        continue
-
-                    text = re.sub(r"<[^>]+>", "", line)
-                    if not text:
-                        continue
-
-                    if line.startswith("<h1>"):
-                        story.append(Paragraph(text, styles["Heading2"]))
-                    elif line.startswith("<h2>"):
-                        story.append(Paragraph(text, styles["Heading3"]))
-                    elif line.startswith("<h3>"):
-                        story.append(Paragraph(text, styles["Heading4"]))
-                    elif line.startswith("<h4>"):
-                        story.append(Paragraph(text, styles["Heading5"]))
-                    elif line.startswith("<h5>"):
-                        story.append(Paragraph(text, styles["Heading6"]))
-                    elif line.startswith("<h6>"):
-                        story.append(Paragraph(text, styles["BodyText"]))
-                    elif line.startswith("<code>") or line.startswith("<pre>"):
-                        story.append(Paragraph(text, styles["Code"]))
-                    elif line.startswith("<p>"):
-                        story.append(Paragraph(text, styles["BodyText"]))
-                    elif line.startswith("<li>"):
-                        story.append(Paragraph(f"• {text}", styles["BodyText"]))
-                    elif line.startswith("<strong>") or line.startswith("<b>"):
-                        story.append(Paragraph(f"<b>{text}</b>", styles["BodyText"]))
-                    elif line.startswith("<em>") or line.startswith("<i>"):
-                        story.append(Paragraph(f"<i>{text}</i>", styles["BodyText"]))
-                    elif not line.startswith("</"):
-                        story.append(Paragraph(text, styles["BodyText"]))
-
-                doc.build(story)
                 buffer.seek(0)
-
                 return dcc.send_bytes(buffer.read(), SIMULATION_REPORT_FILENAME)
             except Exception:
                 return no_update

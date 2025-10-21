@@ -313,3 +313,17 @@ summarizer:
     - Target length: around 400-500 words, do not exceed 600 words (comprehensive but focused)
     - Each section should be substantive but avoid unnecessary verbosity
     - Prioritize actionable insights over general observations
+
+frontend:
+  css: |
+    @page { size: A4; margin: 20mm; }
+    body { font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.4; }
+
+    h1 { font-size: 18pt; margin-bottom: 8pt;}
+    h2 { font-size: 16pt; margin-bottom: 6pt;}
+    h3 { font-size: 14pt; margin-bottom: 4pt;}
+
+    ul, ol { margin-left: 16pt; }
+
+    strong { font-weight: bold; }
+    em { font-style: italic; }

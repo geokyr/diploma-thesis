@@ -278,6 +278,11 @@ class SummarizerConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class FrontendConfig:
+    css: str
+
+
+@dataclass(frozen=True, slots=True)
 class Config:
     logging: LoggingConfig
     dirname: DirnameConfig
@@ -299,6 +304,7 @@ class Config:
     fuel: FuelConfig
     stops: StopsConfig
     summarizer: SummarizerConfig
+    frontend: FrontendConfig
 
 
 def load_config(config_path: Path) -> Config:
@@ -325,6 +331,7 @@ def load_config(config_path: Path) -> Config:
             fuel=FuelConfig(**data["fuel"]),
             stops=StopsConfig(**data["stops"]),
             summarizer=SummarizerConfig(**data["summarizer"]),
+            frontend=FrontendConfig(**data["frontend"]),
         )
 
 
@@ -520,3 +527,5 @@ ASYNC_CLIENT_TIMEOUT_SECONDS = CONFIG.summarizer.async_client_timeout_seconds
 OPENROUTER_BASE_URL = CONFIG.summarizer.openrouter_base_url
 OPENROUTER_MODEL = CONFIG.summarizer.openrouter_model
 SUMMARIZER_SYSTEM_PROMPT = CONFIG.summarizer.system_prompt
+
+CSS = CONFIG.frontend.css
