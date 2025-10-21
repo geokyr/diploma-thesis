@@ -244,8 +244,8 @@ summarizer:
     ## ML Tasks
     Three independent regression models predict different aspects of vehicle trips:
     1. **ETA (Estimated Time of Arrival)**: Predicts trip duration in seconds
-    2. **Fuel**: Predicts fuel consumption during trips
-    3. **Stops**: Predicts number of stops during trips
+    2. **Fuel**: Predicts fuel consumption during trips in liters
+    3. **Stops**: Predicts number of stops during trips in stops
     
     Each model uses gradient boosting (LightGBM/XGBoost) with task-specific feature engineering.
     
