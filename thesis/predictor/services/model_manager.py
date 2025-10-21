@@ -2,7 +2,6 @@
 
 import json
 from pathlib import Path
-from threading import Lock
 
 import joblib
 from sklearn.base import BaseEstimator
@@ -22,7 +21,6 @@ class ModelManager:
     """
 
     def __init__(self, models_dir: Path, version: str = DEFAULT_VERSION) -> None:
-        self._lock: Lock = Lock()
         self.models_dir: Path = models_dir
         self.model: BaseEstimator | None = None
         self.version: str | None = None
@@ -51,14 +49,13 @@ class ModelManager:
         loaded_version = model_path.parent.name
         metadata = self._read_metadata(loaded_version)
 
-        with self._lock:
-            if version == self.version:
-                return True
-
-            self.model = model
-            self.version = loaded_version
-            self.metadata = metadata
+        if version == self.version:
             return True
+
+        self.model = model
+        self.version = loaded_version
+        self.metadata = metadata
+        return True
 
     def save(self, model: BaseEstimator, version: str, metadata: dict[str, str | int]) -> None:
         """
@@ -69,14 +66,13 @@ class ModelManager:
             version (str): Version of the model.
             metadata (dict[str, str | int]): Metadata of the model.
         """
-        with self._lock:
-            model_dir = self.models_dir / version
-            model_dir.mkdir(parents=True, exist_ok=True)
+        model_dir = self.models_dir / version
+        model_dir.mkdir(parents=True, exist_ok=True)
 
-            model_path = model_dir / MODEL_FILENAME
-            joblib.dump(model, model_path)
+        model_path = model_dir / MODEL_FILENAME
+        joblib.dump(model, model_path)
 
-            self._write_metadata(model_dir, metadata)
+        self._write_metadata(model_dir, metadata)
 
     def get_next_version(self) -> str:
         """
@@ -85,26 +81,25 @@ class ModelManager:
         Returns:
             str: Next version string.
         """
-        with self._lock:
-            max_num = 0
+        max_num = 0
 
-            for entry in self.models_dir.iterdir():
-                if not entry.is_dir():
-                    continue
+        for entry in self.models_dir.iterdir():
+            if not entry.is_dir():
+                continue
 
-                name = entry.name
-                if not name.startswith("v"):
-                    continue
+            name = entry.name
+            if not name.startswith("v"):
+                continue
 
-                suffix = name[1:]
-                if not suffix.isdigit():
-                    continue
+            suffix = name[1:]
+            if not suffix.isdigit():
+                continue
 
-                n = int(suffix)
-                if n > max_num:
-                    max_num = n
+            n = int(suffix)
+            if n > max_num:
+                max_num = n
 
-            return f"v{max_num + 1}"
+        return f"v{max_num + 1}"
 
     def _read_metadata(self, version: str = DEFAULT_VERSION) -> dict[str, str | int] | None:
         """
@@ -137,7 +132,6 @@ class ModelManager:
 
     def clear(self) -> None:
         """Clear the model manager."""
-        with self._lock:
-            self.version = None
-            self.model = None
-            self.metadata = None
+        self.version = None
+        self.model = None
+        self.metadata = None
