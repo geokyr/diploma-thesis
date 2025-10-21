@@ -196,17 +196,17 @@ def register_report_callbacks(app: dash.Dash, client: APIClient) -> None:
                         continue
 
                     if line.startswith("<h1>"):
-                        story.append(Paragraph(text, styles["Heading1"]))
-                    elif line.startswith("<h2>"):
                         story.append(Paragraph(text, styles["Heading2"]))
-                    elif line.startswith("<h3>"):
+                    elif line.startswith("<h2>"):
                         story.append(Paragraph(text, styles["Heading3"]))
-                    elif line.startswith("<h4>"):
+                    elif line.startswith("<h3>"):
                         story.append(Paragraph(text, styles["Heading4"]))
-                    elif line.startswith("<h5>"):
+                    elif line.startswith("<h4>"):
                         story.append(Paragraph(text, styles["Heading5"]))
-                    elif line.startswith("<h6>"):
+                    elif line.startswith("<h5>"):
                         story.append(Paragraph(text, styles["Heading6"]))
+                    elif line.startswith("<h6>"):
+                        story.append(Paragraph(text, styles["BodyText"]))
                     elif line.startswith("<code>") or line.startswith("<pre>"):
                         story.append(Paragraph(text, styles["Code"]))
                     elif line.startswith("<p>"):
