@@ -92,7 +92,7 @@ eta:
   n_bins: 10
   n_splits: 5
   n_training_samples: 53229
-  shrink_factor: 0.7
+  shrink_factor: 0.5
 
 features:
   morning_ceiling: 2
