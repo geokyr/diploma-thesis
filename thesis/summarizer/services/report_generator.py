@@ -86,9 +86,13 @@ class ReportGenerator:
         data = {
             "notifications": [notification.model_dump(mode="json") for notification in notifications],
             "metrics": {
-                ml_task: ml_task_metrics.model_dump(mode="json") for ml_task, ml_task_metrics in metrics.items()
+                ml_task: self._convert_metrics_units(ml_task, ml_task_metrics)
+                for ml_task, ml_task_metrics in metrics.items()
             },
         }
+
+        for point in data["metrics"][MLTask.FUEL]["metric_points"]:
+            point["mae"] /= 740000
 
         return json.dumps(data, indent=4)
 
