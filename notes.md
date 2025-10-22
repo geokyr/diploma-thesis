@@ -1,8 +1,8 @@
 # Notes
 
 ## To Do
-- Retraining retry mechanism
-- Retraining fuel and stops
+- Retraining algorithm
+- Single predict stops hotfix
 
 ## Precommit Checks
 - Docstrings
