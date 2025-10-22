@@ -73,7 +73,7 @@ Use Docker Compose to run the Drift-Aware ML Platform, which consists of the fol
 
 ### Prerequisites
 - Docker and Docker Compose installed
-- API key for OpenRouter (for summarizer service)
+- API key for OpenRouter, used in the summarizer service (*free models are used, so no charges are incurred*)
 
 ### Configuration
 Create a `.env` file in the project root with your API key:
