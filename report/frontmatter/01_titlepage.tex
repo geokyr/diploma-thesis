@@ -7,39 +7,44 @@
 \newcommand{\supervisorTitle}{Professor}
 \newcommand{\thesisDatePlace}{Athens, October 2025}
 
-\begin{titlepage}
-    \begin{center}
+\newcommand{\thesisHeader}{%
+    \includegraphics[width=3cm]{figures/pyrforos.eps}
+    \vspace{0.5cm}
 
-        \includegraphics[width=3cm]{figures/pyrforos.eps}
-        \vspace{0.5cm}
+    {\scshape \LARGE \universityName} \\
+    {\scshape \large \schoolName} \\
+    {\scshape \large \divisionName}
+    \vspace{2cm}
 
-        {\scshape \LARGE \universityName} \\
-        {\scshape \large \schoolName} \\
-        {\scshape \large \divisionName}
-        \vspace{2cm}
+    {\bfseries\LARGE \thesisTitle}
+    \vspace{2cm}
 
-        {\bfseries\LARGE \thesisTitle}
-        \vspace{2cm}
+    {\Large DIPLOMA THESIS}
+    \vspace{0.3cm}
 
-        {\Large DIPLOMA THESIS}
-        \vspace{0.3cm}
+    {\large of}
+    \vspace{0.3cm}
 
-        {\large of}
-        \vspace{0.3cm}
+    {\Large\bfseries \authorName}
+    \vspace{2cm}
 
-        {\Large\bfseries \authorName}
-        \vspace{2cm}
+    \begin{flushleft}
+        \large \textbf{Supervisor:} \supervisorName\\
+        \large \phantom{\textbf{Supervisor:} }\supervisorTitle
+    \end{flushleft}
+}
 
-        \begin{flushleft}
-            \large \textbf{Supervisor:} \supervisorName\\
-            \large \phantom{\textbf{Supervisor:} }\supervisorTitle
-        \end{flushleft}
+\thispagestyle{empty}
+\begin{center}
 
-        \vfill
+    \thesisHeader
 
-        {\large \thesisDatePlace}
+    \vfill
 
-    \end{center}
-\end{titlepage}
+    {\large \thesisDatePlace}
 
+\end{center}
+
+\clearpage
+\thispagestyle{empty}
 \cleardoublepage
