@@ -1,0 +1,68 @@
+% TODO: review at the end to remove unused packages
+\ProvidesPackage{thesis}[2025/10/22 Thesis package collection]
+
+\RequirePackage[greek,english]{babel}
+\RequirePackage[utf8]{inputenc}
+\RequirePackage[LGR,T1]{fontenc}
+
+\RequirePackage[
+    inner=3.5cm,
+    outer=2.5cm,
+    top=2.5cm,
+    bottom=2.5cm,
+    bindingoffset=0cm
+]{geometry}
+
+\RequirePackage{fancyhdr}
+\fancyhead[LE]{\nouppercase\leftmark}
+\fancyhead[RO]{\nouppercase\rightmark}
+\fancyhead[LO]{}
+\fancyhead[RE]{}
+
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+
+\RequirePackage{graphicx}
+\RequirePackage{float}
+\RequirePackage{subcaption}
+\RequirePackage{booktabs}
+\RequirePackage{multirow}
+\RequirePackage[dvipsnames]{xcolor}
+\RequirePackage[justification=centering]{caption}
+
+\counterwithin{figure}{section}
+\counterwithin{equation}{section}
+
+\RequirePackage{parskip}
+\RequirePackage{csquotes}
+
+\RequirePackage[pdfencoding=unicode,colorlinks,allcolors=black]{hyperref}
+\RequirePackage{bookmark}
+
+\RequirePackage[
+    backend=biber,
+    style=numeric,
+    sorting=none,
+    maxnames=99,
+    giveninits=true,
+]{biblatex}
+\DeclareNameAlias{author}{family-given}
+
+% TODO: decide if i should keep this or add more formats
+\RequirePackage{listings}
+\lstset{
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray}\itshape,
+    stringstyle=\color{purple},
+    numberstyle=\tiny\color{gray},
+    numbers=left,
+    numbersep=8pt,
+    stepnumber=1,
+    backgroundcolor=\color{gray!5},
+    frame=single,
+    breaklines=true,
+    showstringspaces=false,
+    tabsize=4,
+    captionpos=b,
+}
