@@ -119,6 +119,7 @@ Development mode mounts your local `thesis/` directory into containers, allowing
 - `experiments/` - Machine learning research experiments
 - `outputs/` - Outputs from the experiments (models, metrics, logs)
 - `presentation/` - Presentation files and figures
+- `report/` - Thesis report in LaTeX format
 - `resources/` - Various documents and papers about the project
 - `simulation/` - SUMO configuration files and datasets
 - `thesis/` - Main Python package for the project
