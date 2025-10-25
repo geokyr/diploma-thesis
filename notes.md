@@ -1,7 +1,6 @@
 # Notes
 
 ## To Do
-- Retraining algorithm and results
 - Single predict stops hotfix
 - Testing
 
