@@ -5,5 +5,5 @@
     "model": "XGBRegressor",
     "start_timestamp": -36000,
     "end_timestamp": 0,
-    "n_estimators": 200
+    "n_estimators": 524
 }

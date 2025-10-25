@@ -124,6 +124,7 @@ class EtaConfig:
     n_bins: int
     n_splits: int
     n_training_samples: int
+    collect_seconds: int
     shrink_factor: float
 
 
@@ -190,7 +191,6 @@ class TimelapseConfig:
     interval_seconds: int
     pause_poll_seconds: float
     client_timeout_seconds: int
-    collect_seconds: int
     metrics_maxlen: int
     notifications_maxlen: int
 
@@ -253,6 +253,8 @@ class FuelConfig:
     n_init: int
     start_hour_max: int
     n_training_samples: int
+    collect_seconds: int
+    shrink_factor: float
 
 
 @dataclass(frozen=True, slots=True)
@@ -268,6 +270,8 @@ class StopsConfig:
     use_spatial_features: bool
     use_route_features: bool
     n_training_samples: int
+    collect_seconds: int
+    shrink_factor: float
 
 
 @dataclass(frozen=True, slots=True)
@@ -416,6 +420,7 @@ NUM_RETRAINING_TRIPS = CONFIG.eta.num_retraining_trips
 N_BINS = CONFIG.eta.n_bins
 N_SPLITS = CONFIG.eta.n_splits
 N_TRAINING_SAMPLES_ETA = CONFIG.eta.n_training_samples
+COLLECT_SECONDS_ETA = CONFIG.eta.collect_seconds
 SHRINK_FACTOR_ETA = CONFIG.eta.shrink_factor
 
 MORNING_CEILING = CONFIG.features.morning_ceiling
@@ -470,7 +475,6 @@ SPEED_MULTIPLIER = CONFIG.timelapse.speed_multiplier
 INTERVAL_SECONDS = CONFIG.timelapse.interval_seconds
 PAUSE_POLL_SECONDS = CONFIG.timelapse.pause_poll_seconds
 HTTP_CLIENT_TIMEOUT_SECONDS = CONFIG.timelapse.client_timeout_seconds
-COLLECT_SECONDS = CONFIG.timelapse.collect_seconds
 METRICS_MAXLEN = CONFIG.timelapse.metrics_maxlen
 NOTIFICATIONS_MAXLEN = CONFIG.timelapse.notifications_maxlen
 
@@ -514,6 +518,8 @@ N_END_CLUSTERS = CONFIG.fuel.n_end_clusters
 N_INIT = CONFIG.fuel.n_init
 START_HOUR_MAX = CONFIG.fuel.start_hour_max
 N_TRAINING_SAMPLES_FUEL = CONFIG.fuel.n_training_samples
+COLLECT_SECONDS_FUEL = CONFIG.fuel.collect_seconds
+SHRINK_FACTOR_FUEL = CONFIG.fuel.shrink_factor
 
 TIME_START_COLUMN_STOPS = CONFIG.stops.time_start_column
 TARGET_COLUMN_STOPS = CONFIG.stops.target_column
@@ -526,6 +532,8 @@ MIN_DISTANCE_STOPS = CONFIG.stops.min_distance
 USE_SPATIAL_FEATURES_STOPS = CONFIG.stops.use_spatial_features
 USE_ROUTE_FEATURES_STOPS = CONFIG.stops.use_route_features
 N_TRAINING_SAMPLES_STOPS = CONFIG.stops.n_training_samples
+COLLECT_SECONDS_STOPS = CONFIG.stops.collect_seconds
+SHRINK_FACTOR_STOPS = CONFIG.stops.shrink_factor
 
 MAX_RETRIES_SUMMARIZER = CONFIG.summarizer.max_retries
 RETRY_DELAY_SECONDS = CONFIG.summarizer.retry_delay_seconds

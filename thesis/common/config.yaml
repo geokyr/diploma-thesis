@@ -92,6 +92,7 @@ eta:
   n_bins: 10
   n_splits: 5
   n_training_samples: 53229
+  collect_seconds: 3600
   shrink_factor: 0.5
 
 features:
@@ -150,7 +151,6 @@ timelapse:
   interval_seconds: 1
   pause_poll_seconds: 0.1
   client_timeout_seconds: 5
-  collect_seconds: 3600
   metrics_maxlen: 1000
   notifications_maxlen: 100
 
@@ -210,6 +210,8 @@ fuel:
   n_init: 10
   start_hour_max: 10
   n_training_samples: 53441
+  collect_seconds: 7200
+  shrink_factor: 0.5
 
 stops:
   time_start_column: timestep
@@ -223,6 +225,8 @@ stops:
   use_spatial_features: true
   use_route_features: true
   n_training_samples: 40284
+  collect_seconds: 3600
+  shrink_factor: 0.5
 
 summarizer:
   max_retries: 3
@@ -250,6 +254,8 @@ summarizer:
     2. **Fuel**: Predicts fuel consumption during trips in liters
     3. **Stops**: Predicts number of stops during trips in stops
     
+    Please pay attention to the units used by each model, as ETA is in seconds, Fuel is in liters, and Stops is essentially without a unit, just number of stops.
+    
     Each model uses gradient boosting (LightGBM/XGBoost) with task-specific feature engineering.
     
     ## Drift Detection
@@ -260,7 +266,7 @@ summarizer:
     - **SPC** (Statistical Process Control)
     
     Drift is triggered when at least 3 out of 4 drift detectors agree (consensus threshold). The platform then:
-    1. Collects 1 hour (3600 seconds) of new data
+    1. Collects new data for a varied amount of time
     2. Retrains the affected model on recent samples
     3. Hot-swaps to the new model version
     4. Monitors for performance recovery

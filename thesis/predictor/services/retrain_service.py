@@ -16,6 +16,8 @@ from thesis.common.config import (
     N_TRAINING_SAMPLES_FUEL,
     N_TRAINING_SAMPLES_STOPS,
     SHRINK_FACTOR_ETA,
+    SHRINK_FACTOR_FUEL,
+    SHRINK_FACTOR_STOPS,
 )
 from thesis.common.enums import MLTask, ModelType, RetrainStatus
 from thesis.common.schemas import RetrainResponse, RetrainStatusResponse
@@ -59,11 +61,10 @@ N_TRAINING_SAMPLES_MAP: dict[MLTask, int] = {
     MLTask.STOPS: N_TRAINING_SAMPLES_STOPS,
 }
 
-# TODO: fuel and stops
 SHRINK_FACTOR_MAP: dict[MLTask, float] = {
     MLTask.ETA: SHRINK_FACTOR_ETA,
-    MLTask.FUEL: SHRINK_FACTOR_ETA,
-    MLTask.STOPS: SHRINK_FACTOR_ETA,
+    MLTask.FUEL: SHRINK_FACTOR_FUEL,
+    MLTask.STOPS: SHRINK_FACTOR_STOPS,
 }
 
 

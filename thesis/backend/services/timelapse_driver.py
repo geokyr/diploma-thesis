@@ -7,7 +7,14 @@ import httpx
 
 from thesis.backend.services.metrics_store import MetricsStore
 from thesis.backend.services.notification_store import NotificationStore
-from thesis.common.config import COLLECT_SECONDS, HTTP_CLIENT_TIMEOUT_SECONDS, INTERVAL_SECONDS, SPEED_MULTIPLIER
+from thesis.common.config import (
+    COLLECT_SECONDS_ETA,
+    COLLECT_SECONDS_FUEL,
+    COLLECT_SECONDS_STOPS,
+    HTTP_CLIENT_TIMEOUT_SECONDS,
+    INTERVAL_SECONDS,
+    SPEED_MULTIPLIER,
+)
 from thesis.common.enums import DriftState, MLTask, NotificationLevel, RetrainStatus
 from thesis.common.schemas import (
     DriftErrorsRequest,
@@ -47,7 +54,11 @@ class TimelapseDriver:
         self._notification_store: NotificationStore = notification_store
         self._speed_multiplier: int = SPEED_MULTIPLIER
         self._client: httpx.AsyncClient = httpx.AsyncClient(timeout=HTTP_CLIENT_TIMEOUT_SECONDS)
-        self._collect_seconds: int = COLLECT_SECONDS
+        self._collect_seconds_map: dict[MLTask, int] = {
+            MLTask.ETA: COLLECT_SECONDS_ETA,
+            MLTask.FUEL: COLLECT_SECONDS_FUEL,
+            MLTask.STOPS: COLLECT_SECONDS_STOPS,
+        }
         self._retrain_tasks: list[asyncio.Task] = []
         self.clock: int = 0
         self.interval_seconds: int = INTERVAL_SECONDS
@@ -374,7 +385,7 @@ class TimelapseDriver:
                 )
 
             if info.collecting and info.start_timestamp is not None:
-                data_collected = (end_timestamp - info.start_timestamp) >= self._collect_seconds
+                data_collected = (end_timestamp - info.start_timestamp) >= self._collect_seconds_map[ml_task]
                 if data_collected and info.job_id is None:
                     should_retrain = True
                     info.state = DriftState.RETRAINING
