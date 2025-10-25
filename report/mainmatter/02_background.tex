@@ -1,210 +1,269 @@
 \chapter{Background}
 \label{ch:background}
 
-This chapter develops the theoretical and technological background that underpins the thesis. We begin with classical machine learning (paradigms, representative models, and feature pipelines), then introduce continuous/continual learning and evaluation practice, such as metrics and cross-validation. We next cover MLOps concerns for operating ML systems, followed by concept drift definitions, detector families, and adaptation strategies. We then present the SUMO simulator, its scope, scenario construction, OSM{\textrightarrow}SUMO pipeline, and outputs used, and conclude with the software engineering stack, including Docker/Compose, FastAPI, Dash, Parquet, and REST/HTTP.
+This chapter develops the theoretical and technological background that underpins the thesis.
+We begin with classical machine learning and representative models, then introduce continuous learning and evaluation practices, such as metrics and cross-validation.
+We next cover MLOps concerns for operating ML systems, followed by concept drift, its types and definitions, detector families, and adaptation strategies.
+We then present the SUMO simulator, its scope and functionalities, the OSM{\textrightarrow}SUMO pipeline, and the outputs used in this work.
+Finally, we conclude with some software engineering technologies, including Docker and Docker Compose, FastAPI, Dash, Parquet, and REST/HTTP.
 
 \section{Classical Machine Learning}
 
-\subsection{Definition and Learning Paradigms}
-Machine Learning (ML) studies algorithms that improve performance on a task $T$ with experience (data) and a performance measure $P$ \cite{murphy2012,pml-bishop}.
+Machine learning (ML) is a field of artificial intelligence devoted to building algorithms that can learn from data patterns, enabling systems to predict and make decisions with minimal human intervention.
+ML algorithms are typically divided into four broad categories: supervised learning, unsupervised learning, semi-supervised learning, and reinforcement learning.
 
-Canonical paradigms include:
 \begin{itemize}
-    \item \textbf{Supervised learning} (labeled examples $\{(x_i, y_i)\}$): learns $f\!:\!x \mapsto y$ for regression (e.g., ETA prediction) or classification (e.g., incident detection). Training typically minimizes an empirical loss (e.g., MAE/MSE or cross-entropy) plus regularization to control model capacity and reduce overfitting. For tabular problems, tree ensembles (e.g., gradient boosting) are strong baselines; for spatiotemporal or image data, representation-learning approaches may be preferable.
-    \item \textbf{Unsupervised learning} (unlabeled $x$): discovers structure for exploration, compression, anomaly detection, or feature construction. Typical families include clustering (e.g., $k$-means), density modeling (e.g., Gaussian mixtures), and dimensionality reduction (e.g., PCA). These can act as pretext steps that enrich supervised models with informative features.
-    \item \textbf{Reinforcement learning} (sequential decision-making): learns policies that maximize cumulative reward in an environment. While not central here, RL is relevant to adaptive traffic signal control and routing policies under uncertainty.
+    \item \textbf{Supervised learning}: involves training models on labeled datasets by learning a function that maps input features to output labels.
+    \item \textbf{Unsupervised learning}: finds patterns and structures in unlabeled data, as seen in clustering or dimensionality reduction algorithms.
+    \item \textbf{Semi-supervised learning}: combines small amounts of labeled data with larger unlabeled datasets, enhancing efficiency in domains with limited annotation.
+    \item \textbf{Reinforcement learning}: guides an agent to optimal behavior through trial and error, rewarding desirable actions.
 \end{itemize}
 
-\subsection{Representative Tabular Models}
-For tabular, heterogeneous, and mixed-scale features common in mobility datasets:
+A few representative machine learning models are:
 \begin{itemize}
-    \item \textbf{Linear models} (OLS, Lasso/Ridge/ElasticNet): as strong baselines; interpretable coefficients and fast training.
-    \item \textbf{k-Nearest Neighbors}: non-parametric, local averaging, simple but memory and latency heavy.
-    \item \textbf{Decision trees}: axis-aligned splits, handle nonlinearity and interactions.
-    \item \textbf{Random Forests}: bagged trees, robust, low-variance and good baseline for tabular.
-    \item \textbf{Gradient-Boosted Trees} (XGBoost \cite{chen2016xgboost}, LightGBM \cite{ke2017lightgbm}, CatBoost \cite{prokhorenkova2018catboost}): state-of-the-art on many tabular tasks due to additive boosting of weak learners and strong handling of heterogeneity and monotonic constraints.
-    \item \textbf{Neural networks} (MLPs): for high-capacity function approximation with feature learning, often require more careful regularization on small tabular sets.
-\end{itemize}
-Model choice depends on data size, feature types, latency budgets, and interpretability requirements.
 
-\subsection{Feature Engineering and Pipelines}
-End-to-end \textit{pipelines} ensure the same preprocessing is applied in training and inference, preventing leakage and improving reproducibility \cite{sklearn-model-eval}. Typical steps include:
-\begin{itemize}
-    \item \textbf{Cleaning}: schema validation, missing-value imputation, outlier handling.
-    \item \textbf{Encoding}: one-hot/ordinal for categoricals, frequency/target encoding with care.
-    \item \textbf{Scaling}: standardization/robust scaling when models are scale-sensitive.
-    \item \textbf{Feature construction}: e.g., temporal (hour-of-day, day-of-week), spatial (segment length, bearings), network features (degree/centrality proxies), and aggregates over short histories.
-    \item \textbf{Dimensionality reduction} (PCA) or feature selection for efficiency and generalization.
-\end{itemize}
-Packaging these with a library (e.g., scikit-learn \texttt{Pipeline}) produces deterministic training and portable inference graphs \cite{sklearn-pipeline}.
+    \item \textbf{Linear Regression}: Used for predicting continuous variables and modeling the relationship between features and output.
+        It retains mathematical simplicity while remaining a crucial benchmark in both research and forecasting.
 
-\subsection{Bias and Variance, Regularization, and Model Selection}
-Practical supervised learning balances \emph{underfitting} (high bias) and \emph{overfitting} (high variance). Core mechanisms include:
-\begin{itemize}
-    \item \textbf{Regularization}: penalties (e.g., L1/L2), early stopping, dropout, and tree constraints (depth, leaves, learning rate) to control capacity.
-    \item \textbf{Model selection}: hyperparameter tuning via cross-validation on training data only; reserve a final hold-out or temporally later set for unbiased estimates.
-    \item \textbf{Baselines and sanity checks}: compare to simple heuristics (e.g., historical medians), verify monotonic effects and feature importances, and perform ablations to confirm signal sources.
+    \item \textbf{Decision Trees}: Represent decisions with branching structures, offering interpretability and handling mixed-type features.
+
+    \item \textbf{Random Forests}: Ensembles of decision trees, reducing variance and improving generalization.
+
+    \item \textbf{Support Vector Machines (SVM)}: Classifies data by finding the optimal separating hyperplane, being effective in high-dimensional settings.
+
+    \item \textbf{K-Nearest Neighbors (KNN)}: Classifies points based on the “nearest” labeled examples.
+
+    \item \textbf{Gradient Boosting Frameworks (XGBoost, LightGBM, CatBoost)}: Ensemble methods that extend predictive power, speed, and robustness by aggregating the outputs of numerous decision trees to make predictions.
+        XGBoost is renowned for its scalability and performance in structured/tabular data.
+        LightGBM excels at speed and memory efficiency.
+        CatBoost handles categorical variables and is competitive in ranking and classification tasks
 \end{itemize}
-These practices, combined with leakage-aware pipelines, produce models that generalize and remain interpretable in operational contexts.
+
+\section{Deep Learning}
+Deep learning is a subset of machine learning that uses artificial neural networks to model and solve complex problems, inspired by the structure and function of biological neurons.
+These networks are composed of multiple layers of neurons, each layer processing the output of the previous layer to extract increasingly complex features.
+A typical neural network comprises an input layer, one or more hidden layers, and an output layer.
+
+A few representative deep learning models are:
+\begin{itemize}
+    \item \textbf{Feedforward Neural Networks (Multi-Layer Perceptrons)}: The core architecture for classifying or regressing fixed-size inputs.
+    \item \textbf{Convolutional Neural Networks (CNNs)}: Specialized for spatial relationships, such as image data.
+    \item \textbf{Recurrent Neural Networks (RNNs)}: Designed for sequential data, such as text or time series.
+    \item \textbf{Transformer Models}: Modern architectures excelling in tasks ranging from natural language understanding to vision.
+
+\end{itemize}
+
+Neural networks are flexible and scalable but can be data-hungry, prone to overfitting, and require careful regularization and tuning to achieve optimal results.
+
+\section{Model Performance Metrics}
+
+Model evaluation is essential for assessing predictive reliability.
+Key metrics for regression include:
+
+\begin{itemize}
+    \item \textbf{Mean Absolute Error (MAE)}:
+
+        $MAE = \tfrac{1}{n}\sum_{i=1}^n \lvert y_i - \hat{y}_i \rvert$
+
+        This metric conveys the average absolute prediction error, often valued for its interpretability and resistance to outliers.
+
+    \item \textbf{Mean Absolute Percentage Error (MAPE)}:
+
+        $MAPE = \tfrac{100}{n}\sum_{i=1}^n \frac{|y_i - \hat{y}_i|}{|y_i|}$
+
+        MAPE expresses error as a percentage relative to true values, facilitating comparisons across diverse scales. However, MAPE can be unstable when true values approach zero.
+        Other metrics (RMSE, $R^2$) complement these in providing insight into the variance, fit, and reliability of regression and classification models.
+
+    \item \textbf{Root Mean Squared Error (RMSE)}:
+
+        $RMSE = \sqrt{\tfrac{1}{n}\sum_{i=1}^n (y_i - \hat{y}_i)^2}$
+
+        RMSE measures the average magnitude of the prediction errors (residuals) between predicted and actual values in regression tasks.
+        It is more sensitive to large errors than MAE due to squaring, penalizing outliers heavily.
+
+    \item $\mathbf{R^2}$ (coefficient of determination):
+
+        $R^2 = 1 - \frac{\sum_{i=1}^n (y_i - \hat{y}_i)^2}{\sum_{i=1}^n (y_i - \bar{y})^2}$
+
+        $R^2$ measures the proportion of variance in the target variable explained by the model, ranging from 0 to 1.
+        Values near 1 indicate strong fit, while $R^2 \!\leq\! 0$ means the model performs worse than a constant baseline.
+
+\end{itemize}
+
+\section{Regularization, Overfitting, and Underfitting}
+Models risk overfitting—memorizing the training set at the cost of poor generalization—when they become excessively complex.
+Underfitting happens when the model is too simple, missing essential patterns.
+
+Regularization combats overfitting by penalizing complexity:
+
+\begin{itemize}
+
+    \item \textbf{L1 Regularization (Lasso)}: Encourages sparsity, zeroing non-critical coefficients.
+    \item \textbf{L2 Regularization (Ridge)}: Shrinks coefficients smoothly, preferred for stability.
+
+\end{itemize}
+
+In neural networks, additional techniques such as dropout, early stopping, and weight decay further mitigate overfitting.
+
+\section{Cross-Validation}
+
+Cross-validation is the gold standard for robust model evaluation.
+By partitioning data into training and validation folds, cross-validation (often k-fold) averages performance over multiple splits, reducing variance and protecting against accidental overfitting to a single dataset segmentation.
+Model selection and hyperparameter tuning typically leverage cross-validation to ensure real-world generalizability
+Some common cross-validation techniques are:
+\begin{itemize}
+    \item \textbf{K-Fold Cross-Validation}: Partition the data into k equal folds, and then train on k-1 folds and validate on the remaining fold.
+
+    \item \textbf{Stratified K-Fold Cross-Validation}: Partition the data into k equal folds, and then train on k-1 folds and validate on the remaining fold.
+        The folds are stratified, meaning that the distribution of the target variable is kept the same in each fold.
+
+    \item \textbf{Leave-One-Out Cross-Validation}: Partition the data into n equal folds, and then train on n-1 folds and validate on the remaining fold.
+
+    \item \textbf{Repeated K-Fold Cross-Validation}: Repeat K-Fold Cross-Validation n times, and then average the performance over the n repetitions.
+\end{itemize}
+
+\section{Model Selection and Hyperparameter Tuning}
+
+Selecting the right model and its hyperparameters is a critical decision in the ML workflow.
+
+\begin{itemize}
+    \item \textbf{Model selection} often involves comparing candidate models (such as linear regression, decision tree, or boosting algorithms) using performance metrics evaluated on a validation set or through cross-validation.
+    \item \textbf{Hyperparameter tuning} refers to optimizing parameters that govern model behavior but are not learned during training (e.g., learning rate, tree depth, regularization strength, number of layers in a neural network).
+        Grid search systematically explores combinations, while random search samples the setup space.
+        Advanced approaches such as Bayesian optimization build probabilistic models to efficiently home in on good hyperparameter settings.
+\end{itemize}
 
 \section{Continuous Learning}
+Continuous learning, also known as continual or lifelong learning, refers to a paradigm in machine learning where models incrementally update their knowledge by learning from new data streams over time, rather than being trained solely once on a static dataset.
+In contrast to traditional retrain-from-scratch approaches, continuous learning enables models to adapt to evolving environments, integrate recent information, and remain relevant as data changes.
+Key strategies include incremental learning (updating parameters gradually), transfer learning, and experience replay.
 
-\subsection{Motivation and Settings}
-Real-world mobility is \emph{non-stationary}: demand cycles, policy changes, incidents, and weather shift the data distribution over time. \textbf{Online/continual learning} updates models incrementally, on rolling windows, or via scheduled retraining to preserve performance under change \cite{shalev2012online,parisi2019cl}. Practical axes:
+A major challenge for continuous learning is preventing ``catastrophic forgetting'', the loss of knowledge about previously learned tasks when adapting to new data.
+Effective approaches balance learning new patterns (flexibility) with retaining established skills (stability).
+
+%
+%
+%
+%
+
+\section{MLOps}
+MLOps, short for Machine Learning Operations, is a discipline at the intersection of machine learning and DevOps, focused on standardizing, automating, and streamlining the end-to-end lifecycle of machine learning models in production environments.
+Its goal is to bridge the gap between data science and IT operations, helping organizations move ML prototypes from research to production efficiently and reliably.
+
+Core MLOps principles include:
 \begin{itemize}
-    \item \textbf{Update granularity}: per-instance online updates vs.\ mini-batch vs.\ periodic retrains.
-    \item \textbf{Forgetting mechanism}: sliding windows, decay weights, or explicit resets.
-    \item \textbf{Latency/compute budget}: balancing freshness with cost and downtime.
-\end{itemize}
-Tooling such as \textit{River} supports streaming estimators, metrics, and change detectors with low-latency, incremental APIs \cite{river-jmlr}.
-
-\paragraph{Algorithms and tooling.} In addition to fully online learners, many scikit-learn estimators expose \texttt{partial\_fit} or warm-start capabilities suitable for mini-batch updates. River provides native streaming models and metrics. Label delay is common in operations, when labels are unavailable, unsupervised monitors on inputs or prediction distributions can provide early signals until supervised error-based detectors activate.
-
-\section{Evaluation: Metrics and Validation}
-
-\subsection{Regression Metrics}
-For ETA and related regression tasks:
-\begin{itemize}
-    \item \textbf{MAE}: $\text{MAE} = \tfrac{1}{n}\sum_{i=1}^n \lvert y_i - \hat{y}_i \rvert$ (target units). Interpretable and robust to outliers compared to MSE, reads as the average absolute miss in seconds \cite{sklearn-mae}.
-    \item \textbf{MAPE}: $\text{MAPE} = \tfrac{100}{n}\sum_{i=1}^n \frac{|y_i - \hat{y}_i|}{|y_i|}$. Scale-free percentage error; unstable when $y\!\approx\!0$ \cite{sklearn-mape}.
-    \item \textbf{RMSE}: $\text{RMSE} = \sqrt{\tfrac{1}{n}\sum_{i=1}^n (y_i - \hat{y}_i)^2}$ (target units). More sensitive to large errors than MAE due to squaring; penalizes outliers heavily.
-    \item $\mathbf{R^2}$ (coefficient of determination): measures proportion of variance explained by the model, ranging from $-\infty$ to 1; values near 1 indicate strong fit, while $R^2 \!\leq\! 0$ means the model performs worse than a constant baseline.
+    \item \textbf{Versioning}: Tracking code, data, models, and experiment metadata to ensure reproducibility and traceability across iterations and deployments.
+    \item \textbf{Automation}: Implementing CI/CD (continuous integration/continuous delivery) pipelines for data ingestion, model training, validation, deployment, and rollback, reducing manual workload and errors.
+    \item \textbf{Monitoring}: Continuously assessing live models for data drift, concept drift, and performance degradation, enabling timely retraining, adaptation, and governance.
+    \item \textbf{Collaboration}: Facilitating teamwork between data scientists, engineers, and domain experts with standardized workflows, shared environments, and modular architectures.
+    \item \textbf{Governance and Security}: Enforcing access controls, audit trails, and compliance with regulatory standards, especially in sensitive domains.
 \end{itemize}
 
-Metric choice reflects operational meaning (e.g., a small absolute error in seconds may be more meaningful than a small percentage error during light traffic) and comparability across scenarios.
-
-\subsection{Cross-Validation and Data Leakage}
-Generalization is estimated with cross-validation and matched test scenarios:
-\begin{itemize}
-    \item \textbf{KFold CV}: partition into $k$ folds, rotate the validation fold, and average scores across iterations \cite{sklearn-cv}.
-    \item \textbf{StratifiedKFold}: preserves target distribution across folds \cite{sklearn-stratkfold}.
-    \item \textbf{Temporal splits}: chronological splits for time-ordered evaluation (reported where applicable) to avoid look-ahead.
-\end{itemize}
-Preprocessing (e.g., scalers/encoders) is fitted within each training fold and applied to its validation fold; features that would introduce future information are excluded, following standard leakage-avoidance practice \cite{sklearn-model-eval}.
+MLOps empowers organizations to deploy ML solutions at scale, react to switching data environments, and maintain high service quality and reliability.
+Challenges involve cultural change, tool integration, and evolving infrastructure requirements.
+Prominent MLOps platforms include cloud-native solutions (AWS SageMaker, Google Vertex AI), as well as open-source toolkits like MLflow and Kubeflow.
 
 % ----------------------------------------------------------------------
-\section{MLOps: Operating ML Systems}
-
-\subsection{Scope and Concerns}
-MLOps extends DevOps with data and model-centric practices to make ML systems reliable, reproducible, and observable in practice. Core concerns are \cite{sculley2015debt}:
-\begin{itemize}
-    \item \textbf{Data management}: explicit schemas, validation checks, drift monitors, and lineage across simulation outputs and features.
-    \item \textbf{Experiment tracking \& model registry}: hyperparameters, metrics, artifacts, and model versions promoted through stages (dev/staging/prod).
-    \item \textbf{CI/CD for ML}: automated training and packaging, reproducible container builds, and controlled rollouts.
-    \item \textbf{Monitoring}: service SLOs (latency, availability), data and feature quality, prediction and error distributions, drift signals, and alerting.
-    \item \textbf{Governance}: reproducibility, audits, access control to artifacts, and explicit rollback plans.
-\end{itemize}
-
-These address well-documented ML ``technical debt'' risks (glue code, pipeline entanglement, hidden feedback loops) by favoring modular components, versioned artifacts, and automated checks \cite{sculley2015debt}.
 
 \section{Concept Drift}
 
-\subsection{Definitions and Taxonomy}
-\textbf{Concept drift} is a change in the joint distribution $P(X,Y)$ over time that invalidates a model trained on historical data \cite{gama2014survey,lu2018review}. Two major forms include:
+Concept drift is the phenomenon where the statistical properties of the target variable change over time, leading to reduced model accuracy.
+This effect is especially critical in streaming and non-stationary environments, such as online monitoring, finance, or cybersecurity.
+
+Concept drift manifests in various forms:
 \begin{itemize}
-    \item \textbf{Virtual/data drift}: $P(X)$ changes while $P(Y \mid X)$ remains stable (covariate shift).
-    \item \textbf{Real/concept drift}: $P(Y \mid X)$ itself changes (the mapping from features to target shifts).
+    \item \textbf{Sudden (abrupt)}: rapid changes in data distribution;
+    \item \textbf{Gradual}: slow transitions between concepts;
+    \item \textbf{Recurring (recurrent)}: cyclic or seasonal patterns;
+    \item \textbf{Incremental}: stepwise, small alterations over time.
 \end{itemize}
 
-Temporal archetypes include:
+Detection strategies are categorized as error-rate monitoring (e.g., DDM, EDDM, HLFR), statistical tests, and ensembles.
+Drift detectors can monitor prediction error, data distribution, or model performance metrics.
+Notable techniques include Hierarchical Hypothesis Testing (HHT), Linear Four Rates (LFR), and ensemble detectors, each with distinct strengths relevant to the type and speed of drift.
+
+Accurate and timely drift detection is paramount for maintaining predictive accuracy and reliability.
+Systems often employ sliding windows or reference distributions to test for shifts, and performance degradation often triggers retraining and adaptation processes.
+
+Concept drift adaptation strategies help machine learning models stay accurate as data changes over time.
+The main approaches include frequent retraining (updating the model on new data), online learning (incremental updates with each new sample), window-based methods (using only recent data for training), and ensemble methods (combining several models and favoring those performing best on recent data).
+Some strategies rely on drift detectors to trigger adaptation, while others update models continuously regardless of detected drift.
+The goal is to respond quickly to changes, maintaining reliable predictions in evolving environments.
+
+\section{Key Trade-offs in Drift Detection and Adaptation}
+
 \begin{itemize}
-    \item \textbf{Sudden/abrupt}: near-instant change (e.g., road closure).
-    \item \textbf{Gradual/incremental}: progressive replacement over time (e.g., evolving driver behavior).
-    \item \textbf{Recurring/seasonal}: concepts reappear (e.g., weekday vs.\ weekend regimes, seasons).
+    \item \textbf{Sensitivity vs. False Alarms}: More sensitive detectors can spot small or early changes but risk frequent false positives.
+        Less sensitive thresholds may delay detection, potentially degrading predictive performance.
+
+    \item \textbf{Label Availability}: Some detectors require true labels to estimate error rates, limiting their use in unsupervised or delayed-label scenarios.
+        Unsupervised methods can work on input distributions alone but often have less precision.
+
+    \item \textbf{Latency}: Maintaining low-latency detection is crucial for real-time systems but may require sacrificing some detection accuracy or threshold tightness to avoid delays.
+
+    \item \textbf{Computational Cost}: More advanced or frequent drift checks, especially those recalculating statistics or performing window comparisons, can significantly raise resource requirements, impacting scalability in high-volume streams.
 \end{itemize}
 
-\subsection{Drift Detector Families}
-\paragraph{Error-based detectors (supervised).}
-Monitor a streaming error signal (e.g., $|\hat y - y|$) and trigger when the mean shifts:
-\begin{itemize}
-    \item \textbf{Page--Hinkley (PHT)}: cumulative sum test sensitive to mean increases \cite{page1954}.
-    \item \textbf{DDM/EDDM}: compares on-line error to reference to detect rising error rates (classification focus).
-\end{itemize}
+Carefully balancing these trade-offs is essential when choosing drift detectors and adaptation strategies for different operational contexts, such as real-time monitoring, batch analytics, or resource-constrained environments.
 
-\paragraph{Adaptive window tests.}
-\textbf{ADWIN} maintains a dynamically sized window. It repeatedly splits into left/right subwindows and applies a statistical test. If means differ beyond a bound, it cuts the window and signals change \cite{bifet2007adwin}.
-
-\paragraph{Distributional tests (unsupervised or semi-supervised).}
-Compare recent vs.\ reference input distributions; e.g., \textbf{KSWIN} applies Kolmogorov--Smirnov tests to sliding windows to detect significant changes \cite{raab2020kswin}. These are useful when labels are delayed or unavailable.
-
-\smallskip
-Some key trade-offs when choosing a drift detector include sensitivity vs.\ false alarms, label availability (supervised vs.\ unsupervised), latency, and computational costs.
-
-\subsection{Adaptation Strategies}
-Once drift is suspected/confirmed:
-\begin{itemize}
-    \item \textbf{Retrain (reset)}: fit a fresh model on a recent window of data, good for abrupt regime shifts.
-    \item \textbf{Incremental updates}: continue training or add estimators (e.g., more boosting rounds) with recency weighting or forgetting.
-    \item \textbf{Windowing}: keep a moving window or buffer to emphasize recent data distribution.
-    \item \textbf{Ensembles/repositories}: maintain experts specialized to regimes (e.g., baseline model vs.\ model for rainy conditions); weight or switch based on current evidence; reuse prior specialists when regimes recur.
-    \item \textbf{Safeguards}: trigger throttling, confidence thresholds, or fallbacks (e.g., historical medians) during adaptation.
-\end{itemize}
-The choice of adaptation strategy depends on factors like drift speed, severity, data availability, compute budgets, and risk tolerance \cite{gama2014survey,lu2018review}.
-
-% ----------------------------------------------------------------------
 \section{SUMO Simulator}
 
-\subsection{Overview, Purpose, and Capabilities}
-\textbf{Eclipse SUMO} (Simulation of Urban MObility) is an open-source, microscopic, multi-modal traffic simulator developed by the German Aerospace Center (DLR) and now under the Eclipse ecosystem. It is widely used in research and practice for modeling vehicle-level dynamics, routing, signals, and emissions across large networks \cite{sumo-ieeeaccess,sumo-docs}. ``Microscopic'' means each vehicle is an agent governed by car-following (for example, the Krauss model \cite{krauss1998microscopic}) and lane-changing models, enabling fine-grained phenomena, such as queues, spillback and shockwaves.
+SUMO (Simulation of Urban MObility) is an open-source, microscopic and continuous multi-modal traffic simulation suite designed to model and analyze the movement of individual vehicles, pedestrians, and various transportation modes on large-scale road networks.
+Each agent, be it a car, bus, bicycle, or pedestrian is simulated explicitly, with unique routes, behaviors, and interactions, allowing for fine-grained analyses of traffic dynamics and management strategies.
 
-Key capabilities include:
+Core functionalities and capabilities include:
 \begin{itemize}
-    \item \textbf{Network handling}: import, edit, and simulate large road graphs with multiple lane attributes, priorities, and traffic signal programs.
-    \item \textbf{Demand modeling}: trips, routes, O/D flows, public transport; dynamic routing and rerouting.
-    \item \textbf{Control \& APIs}: \texttt{TraCI \cite{wegener2008traci}} (TCP control interface) for online interaction; Python clients to step the simulator, inject vehicles, or read states.
-    \item \textbf{Scenarios}: controlled experiments (e.g., incidents, weather surrogates, signal changes) with reproducibility via configuration files.
+    \item \textbf{Microscopic Simulation}: Models each vehicle and pedestrian individually, supporting realistic behaviors such as lane changes, right-of-way rules, and traffic light interactions.
+    \item \textbf{Multi-modal Traffic}: Simulates not only private cars but also public transport, bicycles, pedestrians, and intermodal trips within the same environment.
+    \item \textbf{Flexible Network Import}: Supports importing road networks from OpenStreetMap, commercial formats (VISUM, Vissim, NavTeq), and others, or allows users to create synthetic networks.
+    \item \textbf{Demand Generation}: Generates vehicle flows using origin-destination matrices, real traffic counts, or synthetic (random and virtual population-based) demand models.
+    \item \textbf{Traffic Management}: Enables the testing and evaluation of traffic lights, routing policies, eco-aware navigation, and urban policies before real-world deployment.
+    \item \textbf{Real-time Control and Interoperability}: Offers APIs like TraCI for live, programmatic control of the simulation and integration with external tools, such as vehicle communication (C2X) simulators.
+    \item \textbf{Comprehensive Visualization}: Provides tools for route finding, visualization and detailed performance monitoring.
+    \item \textbf{Extensive Simulation Outputs}: Generates vehicle trajectories, trip statistics, traffic states, environmental metrics, and more in XML or CSV, enabling detailed analysis.
+    \item \textbf{High Performance and Scalability}: Efficiently manages large networks (10,000+ edges; 100,000+ vehicles) and supports parallel simulations on various platforms (Windows, Linux, macOS).
+    \item \textbf{Open Source and Extensible}: Freely available and extensible, with a large user and developer community for enhancements, custom models, and research applications.
 \end{itemize}
 
-\subsection{OSM {\texorpdfstring{$\rightarrow$}{→}} SUMO Pipeline and Scenario Design}
-A typical path to realistic scenarios is converting \textbf{OpenStreetMap} (OSM) into a SUMO network:
-\begin{enumerate}
-    \item Obtain OSM data for the area of interest.
-    \item Convert with \texttt{netconvert} (infers edges, lanes, priorities, optionally traffic lights) \cite{sumo-netconvert,sumo-osm}.
-    \item Refine with \texttt{netedit} (GUI) for manual adjustments and optionally use \texttt{polyconvert} for shapes or polygons.
-    \item Generate demand via \texttt{randomTrips.py}, route assignment, or O/D matrices.
-\end{enumerate}
-This pipeline yields geographically faithful networks (e.g., central Athens) while preserving control over demand, signal plans, and experiment design \cite{sumo-docs}.
+These features make SUMO an established tool for transportation planning, intelligent transportation system development, traffic light optimization, and research on smart mobility solutions worldwide.
 
-\subsection{Outputs Used in This Work}
-SUMO produces multiple outputs consumable by analytics/ML:
-\begin{itemize}
-    \item \textbf{Floating Car Data (FCD)}: per-step vehicle states (id, position, speed, angle, lane, etc.) via \texttt{---fcd-output}. FCD resembles GPS traces and is well-suited for trip assembly and ETA features \cite{sumo-output}.
-    \item \textbf{Emissions/Fuel} via \texttt{---emission-output}: per-vehicle per-step estimates for fuel consumption and pollutants, with documented units and models \cite{sumo-emissions}.
-    \item Additional: \texttt{tripinfo} (per-trip travel times), edge/lane aggregations, detector outputs, and more \cite{sumo-docs}.
-\end{itemize}
-Outputs are XML by default, with support for additional formats like CSV and Parquet available. The XML format can be converted to CSV for efficient downstream processing, with provided tools like \texttt{xml2csv}.
+\section{Containerization and Orchestration}
+\textbf{Docker} is a widely adopted containerization platform that allows the packaging of software and its dependencies into isolated units called containers.
+This isolation ensures that code runs the same way regardless of the underlying environment, solving the notorious ``it works on my machine'' problem.
+Docker containers are lightweight, highly portable, and enable versioned environments.
+Academic use cases include reproducible computational research, easy sharing of code and data, and simplifying complex setups for fellow researchers.
+In large organizations and regulated industries (e.g. healthcare, finance), Docker provides essential security, agility, and compliance by isolating sensitive data and quickly deploying new services.
 
-\section{Software Engineering Technologies}
+\textbf{Docker Compose} builds on Docker by orchestrating multiple containerized services (such as databases, backends, frontends) through simple configuration files.
+This facilitates local development of microservice architectures, comprehensive integration testing, and staging realistic production environments before deployment.
 
-\subsection{Containerization with Docker and Docker Compose}
-\textbf{Docker} packages code, runtime, and dependencies into portable container images that run consistently across environments \cite{docker-overview,docker-containers}. The benefits of using it include:
-\begin{itemize}
-    \item Reproducible builds and isolated dependencies.
-    \item Fast startup and easy horizontal scaling via replicas.
-    \item Immutable artifacts that enable safe rollbacks.
-\end{itemize}
-\textbf{Docker Compose} declaratively defines multi-container applications (services, networks, volumes) and brings them up with a single command, ideal for local development or single-host deployments of microservices \cite{docker-overview}.
+\section{Web Protocols and API Design}
 
-\subsection{Backend}
-\textbf{FastAPI} is a high-performance Python framework for REST APIs with type-hinted models, validation (Pydantic \cite{pydantic2025}), and autogenerated OpenAPI/Swagger docs \cite{fastapi-docs}. It suits prediction endpoints, orchestration commands (e.g., retraining triggers), and health checks.
+\textbf{HTTP} is the foundational protocol for web and API communications, enabling clients and servers to exchange requests and responses in a standardized format, including JSON and XML payloads.
 
-\subsection{Data Validation and Schemas}
-Schemas enforced at API boundaries and in dataframes reduce runtime errors and prevent silent corruption. Typed request/response models (e.g., Pydantic) and dataframe-level checks (e.g., declared dtypes, value ranges, categorical domains) provide early failure and clearer contracts between services.
+\textbf{REST APIs} are the core architectural style in web services for interoperable communication over HTTP.
+By strictly adhering to stateless client-server principles, REST APIs allow disparate systems, ML pipelines, data stores, external user interfaces, to work together seamlessly.
 
-\subsection{APIs and Service Communication (REST/HTTP)}
-Services interact over \textbf{HTTP} following \textbf{REST} principles (uniform interface, statelessness, resource orientation) \cite{fielding2000}. Conventions include:
-\begin{itemize}
-    \item Clear resource paths (e.g., \texttt{/predict}, \texttt{/models/current}, \texttt{/drift/status}).
-    \item JSON payloads with explicit schemas; versioned endpoints.
-    \item Proper status codes (2xx success, 4xx client errors, 5xx server errors) and idempotency where applicable.
-\end{itemize}
-Within Docker networks, services resolve each other by name; an API gateway or reverse proxy can front external access. OpenAPI contracts facilitate testing and integration.
+\section{Backend and Dashboard Frameworks}
 
-\subsection{Dashboard}
-\textbf{Dash} builds interactive dashboards in Python using Plotly components, enabling real-time monitoring (metrics, error traces, drift alarms) and control widgets (e.g., start/stop simulation) without JavaScript \cite{dash-docs}.
+\textbf{FastAPI} is a modern web framework for building RESTful APIs with Python.
+Distinctively, FastAPI leverages Python type hints and asynchronous programming, allowing developers to write concise, robust, and extremely fast endpoints.
+Its native compatibility with OpenAPI and automatic documentation greatly reduces manual effort and errors.
+FastAPI is widely used in both prototypes and mission-critical systems due to its speed and strong validation.
 
-\subsection{Columnar Storage: Apache Parquet}
-\textbf{Parquet} is a columnar format optimized for analytical IO: selective column reads, strong compression, and explicit schemas. It integrates with PyArrow and Pandas and supports large, append-friendly datasets typical in streams and simulations \cite{parquet-docs,pyarrow-parquet}.
+\textbf{Dash} is a Python framework for creating interactive web dashboards.
+With minimal Python code, data scientists and engineers can build sophisticated analytics apps that integrate visualizations, user inputs, and RESTful API endpoints.
+Dash leverages Flask under the hood, but developers can extend with additional Python frameworks as required for interoperable, customized solutions.
 
-\subsection{Artifacts and Reproducibility}
-Models and datasets should be versioned and stored as immutable artifacts with metadata (schema, training data window, metrics). Deterministic serialization (e.g., joblib) and pinned environments support reproducible inference; storing artifacts in object storage enables auditing and rollback.
+\textbf{Plotly} is an extensible visualization library available on top of Dash, useful for interactive charts, data exploration, and embedding analytics in dashboards.
+
+\section{Data Validation and Storage}
+
+\textbf{Pydantic} is the leading Python library for data parsing and validation using type hints.
+By providing strict enforcement of schemas at runtime, Pydantic allows developers to safely handle incoming data—whether from users, APIs, or databases—preventing subtle bugs and security risks.
+Models inherit from BaseModel and use Python's type annotations to declaratively describe fields, their types, and validation logic.
+When instantiating a model, Pydantic parses and validates input, raising structured errors for invalid data.
+Its integration with FastAPI allows for automatic generation of API documentation and validation of request and response data.
+
+\textbf{Apache Parquet} is a column-oriented data format optimized for analytical workloads in big data settings
+Parquet's design enables highly efficient compression and encoding, dramatically reducing storage costs and query times, especially compared to row-based formats like CSV.
