@@ -1,16 +1,15 @@
 \chapter{Background}
 \label{ch:background}
 
-This chapter develops the theoretical and technological background that underpins the thesis.
-We begin with classical machine learning and representative models, then introduce continuous learning and evaluation practices, such as metrics and cross-validation.
-We next cover MLOps concerns for operating ML systems, followed by concept drift, its types and definitions, detector families, and adaptation strategies.
-We then present the SUMO simulator, its scope and functionalities, the OSM{\textrightarrow}SUMO pipeline, and the outputs used in this work.
-Finally, we conclude with some software engineering technologies, including Docker and Docker Compose, FastAPI, Dash, Parquet, and REST/HTTP.
+This chapter establishes the theoretical and technological foundation for the thesis.
+It begins by introducing essential concepts in machine learning, including classical and deep learning models, continuous learning paradigms, and model evaluation practices.
+It addresses operational concerns through MLOps principles, details the detection and adaptation to concept drift in dynamic environments, and explores the SUMO traffic simulator's key functionalities and outputs used in this work.
+The chapter concludes with a review of modern software engineering technologies—such as Docker, FastAPI, Dash, Parquet, and RESTful APIs—that support reproducible experiments, scalable deployments, and robust data management within the broader system architecture
 
 \section{Classical Machine Learning}
 
 Machine learning (ML) is a field of artificial intelligence devoted to building algorithms that can learn from data patterns, enabling systems to predict and make decisions with minimal human intervention.
-ML algorithms are typically divided into four broad categories: supervised learning, unsupervised learning, semi-supervised learning, and reinforcement learning.
+ML algorithms are typically divided into four broad categories: supervised learning, unsupervised learning, semi-supervised learning, and reinforcement learning~\cite{shalev-shwartz2014understanding}.
 
 \begin{itemize}
     \item \textbf{Supervised learning}: involves training models on labeled datasets by learning a function that maps input features to output labels.
@@ -19,7 +18,7 @@ ML algorithms are typically divided into four broad categories: supervised learn
     \item \textbf{Reinforcement learning}: guides an agent to optimal behavior through trial and error, rewarding desirable actions.
 \end{itemize}
 
-A few representative machine learning models are:
+A few representative machine learning models are~\cite{sarker2021machine}:
 \begin{itemize}
 
     \item \textbf{Linear Regression}: Used for predicting continuous variables and modeling the relationship between features and output.
@@ -34,13 +33,13 @@ A few representative machine learning models are:
     \item \textbf{K-Nearest Neighbors (KNN)}: Classifies points based on the “nearest” labeled examples.
 
     \item \textbf{Gradient Boosting Frameworks (XGBoost, LightGBM, CatBoost)}: Ensemble methods that extend predictive power, speed, and robustness by aggregating the outputs of numerous decision trees to make predictions.
-        XGBoost is renowned for its scalability and performance in structured/tabular data.
-        LightGBM excels at speed and memory efficiency.
-        CatBoost handles categorical variables and is competitive in ranking and classification tasks
+        XGBoost is renowned for its scalability and performance in structured/tabular data~\cite{chen2016xgboost}.
+        LightGBM excels at speed and memory efficiency~\cite{ke2017lightgbm}.
+        CatBoost handles categorical variables and is competitive in ranking and classification tasks~\cite{prokhorenkova2018catboost}.
 \end{itemize}
 
 \section{Deep Learning}
-Deep learning is a subset of machine learning that uses artificial neural networks to model and solve complex problems, inspired by the structure and function of biological neurons.
+Deep learning is a subset of machine learning that uses artificial neural networks to model and solve complex problems, inspired by the structure and function of biological neurons~\cite{lecun2015deep}.
 These networks are composed of multiple layers of neurons, each layer processing the output of the previous layer to extract increasingly complex features.
 A typical neural network comprises an input layer, one or more hidden layers, and an output layer.
 
@@ -58,7 +57,7 @@ Neural networks are flexible and scalable but can be data-hungry, prone to overf
 \section{Model Performance Metrics}
 
 Model evaluation is essential for assessing predictive reliability.
-Key metrics for regression include:
+Key metrics for regression models include~\cite{bishop2006pattern}:
 
 \begin{itemize}
     \item \textbf{Mean Absolute Error (MAE)}:
@@ -110,7 +109,9 @@ In neural networks, additional techniques such as dropout, early stopping, and w
 Cross-validation is the gold standard for robust model evaluation.
 By partitioning data into training and validation folds, cross-validation (often k-fold) averages performance over multiple splits, reducing variance and protecting against accidental overfitting to a single dataset segmentation.
 Model selection and hyperparameter tuning typically leverage cross-validation to ensure real-world generalizability
+
 Some common cross-validation techniques are:
+
 \begin{itemize}
     \item \textbf{K-Fold Cross-Validation}: Partition the data into k equal folds, and then train on k-1 folds and validate on the remaining fold.
 
@@ -138,19 +139,14 @@ Continuous learning, also known as continual or lifelong learning, refers to a p
 In contrast to traditional retrain-from-scratch approaches, continuous learning enables models to adapt to evolving environments, integrate recent information, and remain relevant as data changes.
 Key strategies include incremental learning (updating parameters gradually), transfer learning, and experience replay.
 
-A major challenge for continuous learning is preventing ``catastrophic forgetting'', the loss of knowledge about previously learned tasks when adapting to new data.
+A major challenge for continuous learning is preventing ``catastrophic forgetting'', the loss of knowledge about previously learned tasks when adapting to new data~\cite{parisi2019continual}.
 Effective approaches balance learning new patterns (flexibility) with retaining established skills (stability).
-
-%
-%
-%
-%
 
 \section{MLOps}
 MLOps, short for Machine Learning Operations, is a discipline at the intersection of machine learning and DevOps, focused on standardizing, automating, and streamlining the end-to-end lifecycle of machine learning models in production environments.
 Its goal is to bridge the gap between data science and IT operations, helping organizations move ML prototypes from research to production efficiently and reliably.
 
-Core MLOps principles include:
+Core MLOps principles include~\cite{tabassam2023mlops}:
 \begin{itemize}
     \item \textbf{Versioning}: Tracking code, data, models, and experiment metadata to ensure reproducibility and traceability across iterations and deployments.
     \item \textbf{Automation}: Implementing CI/CD (continuous integration/continuous delivery) pipelines for data ingestion, model training, validation, deployment, and rollback, reducing manual workload and errors.
@@ -163,11 +159,9 @@ MLOps empowers organizations to deploy ML solutions at scale, react to switching
 Challenges involve cultural change, tool integration, and evolving infrastructure requirements.
 Prominent MLOps platforms include cloud-native solutions (AWS SageMaker, Google Vertex AI), as well as open-source toolkits like MLflow and Kubeflow.
 
-% ----------------------------------------------------------------------
-
 \section{Concept Drift}
 
-Concept drift is the phenomenon where the statistical properties of the target variable change over time, leading to reduced model accuracy.
+Concept drift is the phenomenon where the statistical properties of the target variable change over time, leading to reduced model accuracy~\cite{lu2018learning}.
 This effect is especially critical in streaming and non-stationary environments, such as online monitoring, finance, or cybersecurity.
 
 Concept drift manifests in various forms:
@@ -192,6 +186,8 @@ The goal is to respond quickly to changes, maintaining reliable predictions in e
 
 \section{Key Trade-offs in Drift Detection and Adaptation}
 
+Key trade-offs in drift detection and adaptation include~\cite{zliobaite2014survey}:
+
 \begin{itemize}
     \item \textbf{Sensitivity vs. False Alarms}: More sensitive detectors can spot small or early changes but risk frequent false positives.
         Less sensitive thresholds may delay detection, potentially degrading predictive performance.
@@ -208,8 +204,8 @@ Carefully balancing these trade-offs is essential when choosing drift detectors 
 
 \section{SUMO Simulator}
 
-SUMO (Simulation of Urban MObility) is an open-source, microscopic and continuous multi-modal traffic simulation suite designed to model and analyze the movement of individual vehicles, pedestrians, and various transportation modes on large-scale road networks.
-Each agent, be it a car, bus, bicycle, or pedestrian is simulated explicitly, with unique routes, behaviors, and interactions, allowing for fine-grained analyses of traffic dynamics and management strategies.
+SUMO (Simulation of Urban MObility) is an open-source, microscopic and continuous multi-modal traffic simulation suite designed to model and analyze the movement of individual vehicles, pedestrians, and various transportation modes on large-scale road networks~\cite{sumo2024}.
+Each agent, be it a car, bus, bicycle, or pedestrian is simulated explicitly, with unique routes, behaviors, and interactions, allowing for fine-grained analyses of traffic dynamics and management strategies~\cite{espinosa2021traffic}.
 
 Core functionalities and capabilities include:
 \begin{itemize}
@@ -228,42 +224,42 @@ Core functionalities and capabilities include:
 These features make SUMO an established tool for transportation planning, intelligent transportation system development, traffic light optimization, and research on smart mobility solutions worldwide.
 
 \section{Containerization and Orchestration}
-\textbf{Docker} is a widely adopted containerization platform that allows the packaging of software and its dependencies into isolated units called containers.
+\textbf{Docker} is a widely adopted containerization platform that allows the packaging of software and its dependencies into isolated units called containers~\cite{merkel2014docker}.
 This isolation ensures that code runs the same way regardless of the underlying environment, solving the notorious ``it works on my machine'' problem.
 Docker containers are lightweight, highly portable, and enable versioned environments.
 Academic use cases include reproducible computational research, easy sharing of code and data, and simplifying complex setups for fellow researchers.
 In large organizations and regulated industries (e.g. healthcare, finance), Docker provides essential security, agility, and compliance by isolating sensitive data and quickly deploying new services.
 
-\textbf{Docker Compose} builds on Docker by orchestrating multiple containerized services (such as databases, backends, frontends) through simple configuration files.
+\textbf{Docker Compose} builds on Docker by orchestrating multiple containerized services (such as databases, backends, frontends) through simple configuration files~\cite{dockercompose2025}.
 This facilitates local development of microservice architectures, comprehensive integration testing, and staging realistic production environments before deployment.
 
 \section{Web Protocols and API Design}
 
 \textbf{HTTP} is the foundational protocol for web and API communications, enabling clients and servers to exchange requests and responses in a standardized format, including JSON and XML payloads.
 
-\textbf{REST APIs} are the core architectural style in web services for interoperable communication over HTTP.
+\textbf{REST APIs} are the core architectural style in web services for interoperable communication over HTTP~\cite{fielding2000rest}.
 By strictly adhering to stateless client-server principles, REST APIs allow disparate systems, ML pipelines, data stores, external user interfaces, to work together seamlessly.
 
-\section{Backend and Dashboard Frameworks}
+\section{Backend and Frontend Frameworks}
 
-\textbf{FastAPI} is a modern web framework for building RESTful APIs with Python.
+\textbf{FastAPI} is a modern web framework for building RESTful APIs with Python~\cite{fastapi2025}.
 Distinctively, FastAPI leverages Python type hints and asynchronous programming, allowing developers to write concise, robust, and extremely fast endpoints.
 Its native compatibility with OpenAPI and automatic documentation greatly reduces manual effort and errors.
 FastAPI is widely used in both prototypes and mission-critical systems due to its speed and strong validation.
 
-\textbf{Dash} is a Python framework for creating interactive web dashboards.
+\textbf{Dash} is a Python framework for creating interactive web dashboards~\cite{dash2025}.
 With minimal Python code, data scientists and engineers can build sophisticated analytics apps that integrate visualizations, user inputs, and RESTful API endpoints.
 Dash leverages Flask under the hood, but developers can extend with additional Python frameworks as required for interoperable, customized solutions.
 
-\textbf{Plotly} is an extensible visualization library available on top of Dash, useful for interactive charts, data exploration, and embedding analytics in dashboards.
+\textbf{Plotly} is an extensible visualization library available on top of Dash, useful for interactive charts, data exploration, and embedding analytics in dashboards~\cite{plotly2025}.
 
 \section{Data Validation and Storage}
 
-\textbf{Pydantic} is the leading Python library for data parsing and validation using type hints.
+\textbf{Pydantic} is the leading Python library for data parsing and validation using type hints~\cite{pydantic2025}.
 By providing strict enforcement of schemas at runtime, Pydantic allows developers to safely handle incoming data—whether from users, APIs, or databases—preventing subtle bugs and security risks.
 Models inherit from BaseModel and use Python's type annotations to declaratively describe fields, their types, and validation logic.
 When instantiating a model, Pydantic parses and validates input, raising structured errors for invalid data.
 Its integration with FastAPI allows for automatic generation of API documentation and validation of request and response data.
 
-\textbf{Apache Parquet} is a column-oriented data format optimized for analytical workloads in big data settings
+\textbf{Apache Parquet} is a column-oriented data format optimized for analytical workloads in big data settings~\cite{vohra2016parquet}.
 Parquet's design enables highly efficient compression and encoding, dramatically reducing storage costs and query times, especially compared to row-based formats like CSV.
