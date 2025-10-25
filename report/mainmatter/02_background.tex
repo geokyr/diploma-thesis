@@ -1,15 +1,210 @@
-\chapter{Background and Related Work}
+\chapter{Background}
 \label{ch:background}
 
-\section{Background}
+This chapter develops the theoretical and technological background that underpins the thesis. We begin with classical machine learning (paradigms, representative models, and feature pipelines), then introduce continuous/continual learning and evaluation practice, such as metrics and cross-validation. We next cover MLOps concerns for operating ML systems, followed by concept drift definitions, detector families, and adaptation strategies. We then present the SUMO simulator, its scope, scenario construction, OSM{\textrightarrow}SUMO pipeline, and outputs used, and conclude with the software engineering stack, including Docker/Compose, FastAPI, Dash, Parquet, and REST/HTTP.
 
-Provide necessary background.
+\section{Classical Machine Learning}
 
-\section{Related Work}
+\subsection{Definition and Learning Paradigms}
+Machine Learning (ML) studies algorithms that improve performance on a task $T$ with experience (data) and a performance measure $P$ \cite{murphy2012,pml-bishop}.
 
-Review related work.
+Canonical paradigms include:
+\begin{itemize}
+    \item \textbf{Supervised learning} (labeled examples $\{(x_i, y_i)\}$): learns $f\!:\!x \mapsto y$ for regression (e.g., ETA prediction) or classification (e.g., incident detection). Training typically minimizes an empirical loss (e.g., MAE/MSE or cross-entropy) plus regularization to control model capacity and reduce overfitting. For tabular problems, tree ensembles (e.g., gradient boosting) are strong baselines; for spatiotemporal or image data, representation-learning approaches may be preferable.
+    \item \textbf{Unsupervised learning} (unlabeled $x$): discovers structure for exploration, compression, anomaly detection, or feature construction. Typical families include clustering (e.g., $k$-means), density modeling (e.g., Gaussian mixtures), and dimensionality reduction (e.g., PCA). These can act as pretext steps that enrich supervised models with informative features.
+    \item \textbf{Reinforcement learning} (sequential decision-making): learns policies that maximize cumulative reward in an environment. While not central here, RL is relevant to adaptive traffic signal control and routing policies under uncertainty.
+\end{itemize}
 
-\section{Summary}
+\subsection{Representative Tabular Models}
+For tabular, heterogeneous, and mixed-scale features common in mobility datasets:
+\begin{itemize}
+    \item \textbf{Linear models} (OLS, Lasso/Ridge/ElasticNet): as strong baselines; interpretable coefficients and fast training.
+    \item \textbf{k-Nearest Neighbors}: non-parametric, local averaging, simple but memory and latency heavy.
+    \item \textbf{Decision trees}: axis-aligned splits, handle nonlinearity and interactions.
+    \item \textbf{Random Forests}: bagged trees, robust, low-variance and good baseline for tabular.
+    \item \textbf{Gradient-Boosted Trees} (XGBoost \cite{chen2016xgboost}, LightGBM \cite{ke2017lightgbm}, CatBoost \cite{prokhorenkova2018catboost}): state-of-the-art on many tabular tasks due to additive boosting of weak learners and strong handling of heterogeneity and monotonic constraints.
+    \item \textbf{Neural networks} (MLPs): for high-capacity function approximation with feature learning, often require more careful regularization on small tabular sets.
+\end{itemize}
+Model choice depends on data size, feature types, latency budgets, and interpretability requirements.
 
-Summarize and position your work.
+\subsection{Feature Engineering and Pipelines}
+End-to-end \textit{pipelines} ensure the same preprocessing is applied in training and inference, preventing leakage and improving reproducibility \cite{sklearn-model-eval}. Typical steps include:
+\begin{itemize}
+    \item \textbf{Cleaning}: schema validation, missing-value imputation, outlier handling.
+    \item \textbf{Encoding}: one-hot/ordinal for categoricals, frequency/target encoding with care.
+    \item \textbf{Scaling}: standardization/robust scaling when models are scale-sensitive.
+    \item \textbf{Feature construction}: e.g., temporal (hour-of-day, day-of-week), spatial (segment length, bearings), network features (degree/centrality proxies), and aggregates over short histories.
+    \item \textbf{Dimensionality reduction} (PCA) or feature selection for efficiency and generalization.
+\end{itemize}
+Packaging these with a library (e.g., scikit-learn \texttt{Pipeline}) produces deterministic training and portable inference graphs \cite{sklearn-pipeline}.
 
+\subsection{Bias and Variance, Regularization, and Model Selection}
+Practical supervised learning balances \emph{underfitting} (high bias) and \emph{overfitting} (high variance). Core mechanisms include:
+\begin{itemize}
+    \item \textbf{Regularization}: penalties (e.g., L1/L2), early stopping, dropout, and tree constraints (depth, leaves, learning rate) to control capacity.
+    \item \textbf{Model selection}: hyperparameter tuning via cross-validation on training data only; reserve a final hold-out or temporally later set for unbiased estimates.
+    \item \textbf{Baselines and sanity checks}: compare to simple heuristics (e.g., historical medians), verify monotonic effects and feature importances, and perform ablations to confirm signal sources.
+\end{itemize}
+These practices, combined with leakage-aware pipelines, produce models that generalize and remain interpretable in operational contexts.
+
+\section{Continuous Learning}
+
+\subsection{Motivation and Settings}
+Real-world mobility is \emph{non-stationary}: demand cycles, policy changes, incidents, and weather shift the data distribution over time. \textbf{Online/continual learning} updates models incrementally, on rolling windows, or via scheduled retraining to preserve performance under change \cite{shalev2012online,parisi2019cl}. Practical axes:
+\begin{itemize}
+    \item \textbf{Update granularity}: per-instance online updates vs.\ mini-batch vs.\ periodic retrains.
+    \item \textbf{Forgetting mechanism}: sliding windows, decay weights, or explicit resets.
+    \item \textbf{Latency/compute budget}: balancing freshness with cost and downtime.
+\end{itemize}
+Tooling such as \textit{River} supports streaming estimators, metrics, and change detectors with low-latency, incremental APIs \cite{river-jmlr}.
+
+\paragraph{Algorithms and tooling.} In addition to fully online learners, many scikit-learn estimators expose \texttt{partial\_fit} or warm-start capabilities suitable for mini-batch updates. River provides native streaming models and metrics. Label delay is common in operations, when labels are unavailable, unsupervised monitors on inputs or prediction distributions can provide early signals until supervised error-based detectors activate.
+
+\section{Evaluation: Metrics and Validation}
+
+\subsection{Regression Metrics}
+For ETA and related regression tasks:
+\begin{itemize}
+    \item \textbf{MAE}: $\text{MAE} = \tfrac{1}{n}\sum_{i=1}^n \lvert y_i - \hat{y}_i \rvert$ (target units). Interpretable and robust to outliers compared to MSE, reads as the average absolute miss in seconds \cite{sklearn-mae}.
+    \item \textbf{MAPE}: $\text{MAPE} = \tfrac{100}{n}\sum_{i=1}^n \frac{|y_i - \hat{y}_i|}{|y_i|}$. Scale-free percentage error; unstable when $y\!\approx\!0$ \cite{sklearn-mape}.
+    \item \textbf{RMSE}: $\text{RMSE} = \sqrt{\tfrac{1}{n}\sum_{i=1}^n (y_i - \hat{y}_i)^2}$ (target units). More sensitive to large errors than MAE due to squaring; penalizes outliers heavily.
+    \item $\mathbf{R^2}$ (coefficient of determination): measures proportion of variance explained by the model, ranging from $-\infty$ to 1; values near 1 indicate strong fit, while $R^2 \!\leq\! 0$ means the model performs worse than a constant baseline.
+\end{itemize}
+
+Metric choice reflects operational meaning (e.g., a small absolute error in seconds may be more meaningful than a small percentage error during light traffic) and comparability across scenarios.
+
+\subsection{Cross-Validation and Data Leakage}
+Generalization is estimated with cross-validation and matched test scenarios:
+\begin{itemize}
+    \item \textbf{KFold CV}: partition into $k$ folds, rotate the validation fold, and average scores across iterations \cite{sklearn-cv}.
+    \item \textbf{StratifiedKFold}: preserves target distribution across folds \cite{sklearn-stratkfold}.
+    \item \textbf{Temporal splits}: chronological splits for time-ordered evaluation (reported where applicable) to avoid look-ahead.
+\end{itemize}
+Preprocessing (e.g., scalers/encoders) is fitted within each training fold and applied to its validation fold; features that would introduce future information are excluded, following standard leakage-avoidance practice \cite{sklearn-model-eval}.
+
+% ----------------------------------------------------------------------
+\section{MLOps: Operating ML Systems}
+
+\subsection{Scope and Concerns}
+MLOps extends DevOps with data and model-centric practices to make ML systems reliable, reproducible, and observable in practice. Core concerns are \cite{sculley2015debt}:
+\begin{itemize}
+    \item \textbf{Data management}: explicit schemas, validation checks, drift monitors, and lineage across simulation outputs and features.
+    \item \textbf{Experiment tracking \& model registry}: hyperparameters, metrics, artifacts, and model versions promoted through stages (dev/staging/prod).
+    \item \textbf{CI/CD for ML}: automated training and packaging, reproducible container builds, and controlled rollouts.
+    \item \textbf{Monitoring}: service SLOs (latency, availability), data and feature quality, prediction and error distributions, drift signals, and alerting.
+    \item \textbf{Governance}: reproducibility, audits, access control to artifacts, and explicit rollback plans.
+\end{itemize}
+
+These address well-documented ML ``technical debt'' risks (glue code, pipeline entanglement, hidden feedback loops) by favoring modular components, versioned artifacts, and automated checks \cite{sculley2015debt}.
+
+\section{Concept Drift}
+
+\subsection{Definitions and Taxonomy}
+\textbf{Concept drift} is a change in the joint distribution $P(X,Y)$ over time that invalidates a model trained on historical data \cite{gama2014survey,lu2018review}. Two major forms include:
+\begin{itemize}
+    \item \textbf{Virtual/data drift}: $P(X)$ changes while $P(Y \mid X)$ remains stable (covariate shift).
+    \item \textbf{Real/concept drift}: $P(Y \mid X)$ itself changes (the mapping from features to target shifts).
+\end{itemize}
+
+Temporal archetypes include:
+\begin{itemize}
+    \item \textbf{Sudden/abrupt}: near-instant change (e.g., road closure).
+    \item \textbf{Gradual/incremental}: progressive replacement over time (e.g., evolving driver behavior).
+    \item \textbf{Recurring/seasonal}: concepts reappear (e.g., weekday vs.\ weekend regimes, seasons).
+\end{itemize}
+
+\subsection{Drift Detector Families}
+\paragraph{Error-based detectors (supervised).}
+Monitor a streaming error signal (e.g., $|\hat y - y|$) and trigger when the mean shifts:
+\begin{itemize}
+    \item \textbf{Page--Hinkley (PHT)}: cumulative sum test sensitive to mean increases \cite{page1954}.
+    \item \textbf{DDM/EDDM}: compares on-line error to reference to detect rising error rates (classification focus).
+\end{itemize}
+
+\paragraph{Adaptive window tests.}
+\textbf{ADWIN} maintains a dynamically sized window. It repeatedly splits into left/right subwindows and applies a statistical test. If means differ beyond a bound, it cuts the window and signals change \cite{bifet2007adwin}.
+
+\paragraph{Distributional tests (unsupervised or semi-supervised).}
+Compare recent vs.\ reference input distributions; e.g., \textbf{KSWIN} applies Kolmogorov--Smirnov tests to sliding windows to detect significant changes \cite{raab2020kswin}. These are useful when labels are delayed or unavailable.
+
+\smallskip
+Some key trade-offs when choosing a drift detector include sensitivity vs.\ false alarms, label availability (supervised vs.\ unsupervised), latency, and computational costs.
+
+\subsection{Adaptation Strategies}
+Once drift is suspected/confirmed:
+\begin{itemize}
+    \item \textbf{Retrain (reset)}: fit a fresh model on a recent window of data, good for abrupt regime shifts.
+    \item \textbf{Incremental updates}: continue training or add estimators (e.g., more boosting rounds) with recency weighting or forgetting.
+    \item \textbf{Windowing}: keep a moving window or buffer to emphasize recent data distribution.
+    \item \textbf{Ensembles/repositories}: maintain experts specialized to regimes (e.g., baseline model vs.\ model for rainy conditions); weight or switch based on current evidence; reuse prior specialists when regimes recur.
+    \item \textbf{Safeguards}: trigger throttling, confidence thresholds, or fallbacks (e.g., historical medians) during adaptation.
+\end{itemize}
+The choice of adaptation strategy depends on factors like drift speed, severity, data availability, compute budgets, and risk tolerance \cite{gama2014survey,lu2018review}.
+
+% ----------------------------------------------------------------------
+\section{SUMO Simulator}
+
+\subsection{Overview, Purpose, and Capabilities}
+\textbf{Eclipse SUMO} (Simulation of Urban MObility) is an open-source, microscopic, multi-modal traffic simulator developed by the German Aerospace Center (DLR) and now under the Eclipse ecosystem. It is widely used in research and practice for modeling vehicle-level dynamics, routing, signals, and emissions across large networks \cite{sumo-ieeeaccess,sumo-docs}. ``Microscopic'' means each vehicle is an agent governed by car-following (for example, the Krauss model \cite{krauss1998microscopic}) and lane-changing models, enabling fine-grained phenomena, such as queues, spillback and shockwaves.
+
+Key capabilities include:
+\begin{itemize}
+    \item \textbf{Network handling}: import, edit, and simulate large road graphs with multiple lane attributes, priorities, and traffic signal programs.
+    \item \textbf{Demand modeling}: trips, routes, O/D flows, public transport; dynamic routing and rerouting.
+    \item \textbf{Control \& APIs}: \texttt{TraCI \cite{wegener2008traci}} (TCP control interface) for online interaction; Python clients to step the simulator, inject vehicles, or read states.
+    \item \textbf{Scenarios}: controlled experiments (e.g., incidents, weather surrogates, signal changes) with reproducibility via configuration files.
+\end{itemize}
+
+\subsection{OSM {\texorpdfstring{$\rightarrow$}{→}} SUMO Pipeline and Scenario Design}
+A typical path to realistic scenarios is converting \textbf{OpenStreetMap} (OSM) into a SUMO network:
+\begin{enumerate}
+    \item Obtain OSM data for the area of interest.
+    \item Convert with \texttt{netconvert} (infers edges, lanes, priorities, optionally traffic lights) \cite{sumo-netconvert,sumo-osm}.
+    \item Refine with \texttt{netedit} (GUI) for manual adjustments and optionally use \texttt{polyconvert} for shapes or polygons.
+    \item Generate demand via \texttt{randomTrips.py}, route assignment, or O/D matrices.
+\end{enumerate}
+This pipeline yields geographically faithful networks (e.g., central Athens) while preserving control over demand, signal plans, and experiment design \cite{sumo-docs}.
+
+\subsection{Outputs Used in This Work}
+SUMO produces multiple outputs consumable by analytics/ML:
+\begin{itemize}
+    \item \textbf{Floating Car Data (FCD)}: per-step vehicle states (id, position, speed, angle, lane, etc.) via \texttt{---fcd-output}. FCD resembles GPS traces and is well-suited for trip assembly and ETA features \cite{sumo-output}.
+    \item \textbf{Emissions/Fuel} via \texttt{---emission-output}: per-vehicle per-step estimates for fuel consumption and pollutants, with documented units and models \cite{sumo-emissions}.
+    \item Additional: \texttt{tripinfo} (per-trip travel times), edge/lane aggregations, detector outputs, and more \cite{sumo-docs}.
+\end{itemize}
+Outputs are XML by default, with support for additional formats like CSV and Parquet available. The XML format can be converted to CSV for efficient downstream processing, with provided tools like \texttt{xml2csv}.
+
+\section{Software Engineering Technologies}
+
+\subsection{Containerization with Docker and Docker Compose}
+\textbf{Docker} packages code, runtime, and dependencies into portable container images that run consistently across environments \cite{docker-overview,docker-containers}. The benefits of using it include:
+\begin{itemize}
+    \item Reproducible builds and isolated dependencies.
+    \item Fast startup and easy horizontal scaling via replicas.
+    \item Immutable artifacts that enable safe rollbacks.
+\end{itemize}
+\textbf{Docker Compose} declaratively defines multi-container applications (services, networks, volumes) and brings them up with a single command, ideal for local development or single-host deployments of microservices \cite{docker-overview}.
+
+\subsection{Backend}
+\textbf{FastAPI} is a high-performance Python framework for REST APIs with type-hinted models, validation (Pydantic \cite{pydantic2025}), and autogenerated OpenAPI/Swagger docs \cite{fastapi-docs}. It suits prediction endpoints, orchestration commands (e.g., retraining triggers), and health checks.
+
+\subsection{Data Validation and Schemas}
+Schemas enforced at API boundaries and in dataframes reduce runtime errors and prevent silent corruption. Typed request/response models (e.g., Pydantic) and dataframe-level checks (e.g., declared dtypes, value ranges, categorical domains) provide early failure and clearer contracts between services.
+
+\subsection{APIs and Service Communication (REST/HTTP)}
+Services interact over \textbf{HTTP} following \textbf{REST} principles (uniform interface, statelessness, resource orientation) \cite{fielding2000}. Conventions include:
+\begin{itemize}
+    \item Clear resource paths (e.g., \texttt{/predict}, \texttt{/models/current}, \texttt{/drift/status}).
+    \item JSON payloads with explicit schemas; versioned endpoints.
+    \item Proper status codes (2xx success, 4xx client errors, 5xx server errors) and idempotency where applicable.
+\end{itemize}
+Within Docker networks, services resolve each other by name; an API gateway or reverse proxy can front external access. OpenAPI contracts facilitate testing and integration.
+
+\subsection{Dashboard}
+\textbf{Dash} builds interactive dashboards in Python using Plotly components, enabling real-time monitoring (metrics, error traces, drift alarms) and control widgets (e.g., start/stop simulation) without JavaScript \cite{dash-docs}.
+
+\subsection{Columnar Storage: Apache Parquet}
+\textbf{Parquet} is a columnar format optimized for analytical IO: selective column reads, strong compression, and explicit schemas. It integrates with PyArrow and Pandas and supports large, append-friendly datasets typical in streams and simulations \cite{parquet-docs,pyarrow-parquet}.
+
+\subsection{Artifacts and Reproducibility}
+Models and datasets should be versioned and stored as immutable artifacts with metadata (schema, training data window, metrics). Deterministic serialization (e.g., joblib) and pinned environments support reproducible inference; storing artifacts in object storage enables auditing and rollback.

@@ -1,24 +1,4 @@
 # TODO
-@article{gama2014survey,
-  title={A survey on concept drift adaptation},
-  author={Gama, João and Žliobaitė, Indrė and Bifet, Albert and Pechenizkiy, Mykola and Bouchachia, Abdelhamid},
-  journal={ACM Computing Surveys (CSUR)},
-  volume={46},
-  number={4},
-  pages={1--37},
-  year={2014}
-}
-
-@article{lu2018learning,
-  title={Learning under concept drift: A review},
-  author={Lu, Jiadong and Liu, Anjin and Dong, Feng and Gu, Fengli and Gama, João and Zhang, Guoyin},
-  journal={IEEE Transactions on Knowledge and Data Engineering},
-  volume={31},
-  number={12},
-  pages={2346--2363},
-  year={2018}
-}
-
 @inproceedings{webb2016characterizing,
   title={Characterizing concept drift},
   author={Webb, Geoffrey I and Hyde, Richard and Cao, Huawen and Nguyen, Hai and Petitjean, François},
@@ -57,16 +37,6 @@
   year={2012}
 }
 
-@article{montiel2021river,
-  title={River: machine learning for streaming data in Python},
-  author={Montiel, Jacob and Read, Jesse and Bifet, Albert and Abdessalem, Talel},
-  journal={Journal of Machine Learning Research},
-  volume={22},
-  number={1},
-  pages={1--7},
-  year={2021}
-}
-
 @misc{angelis2025fuel,
   author       = {Georgios Angelis},
   title        = {Fuel Consumption Prediction Model},
@@ -81,10 +51,284 @@
   howpublished = {Unpublished work, integrated in drift-aware platform},
 }
 
+@inproceedings{chen2016xgboost,
+  author    = {Tianqi Chen and Carlos Guestrin},
+  title     = {{XGBoost}: A Scalable Tree Boosting System},
+  booktitle = {Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining},
+  pages     = {785--794},
+  year      = {2016},
+  doi       = {10.1145/2939672.2939785},
+  url       = {https://arxiv.org/abs/1603.02754}
+}
+
 @inproceedings{ke2017lightgbm,
   author    = {Guolin Ke and Qi Meng and Thomas Finley and Taifeng Wang and Wei Chen and Weidong Ma and Qiwei Ye and Tie{-}Yan Liu},
   title     = {LightGBM: A Highly Efficient Gradient Boosting Decision Tree},
   booktitle = {Advances in Neural Information Processing Systems 30 (NeurIPS 2017)},
   pages     = {3146--3154},
-  year      = {2017}
+  year      = {2017},
+  url       = {https://papers.nips.cc/paper/6907-lightgbm-a-highly-efficient-gradient-boosting-decision-tree}
+}
+
+@inproceedings{prokhorenkova2018catboost,
+  author    = {Liudmila Prokhorenkova and Gleb Gusev and Aleksandr Vorobev and Anna Veronika Dorogush and Andrey Gulin},
+  title     = {CatBoost: Unbiased Boosting with Categorical Features},
+  booktitle = {Advances in Neural Information Processing Systems 31 (NeurIPS 2018)},
+  pages     = {6638--6648},
+  year      = {2018},
+  url       = {https://arxiv.org/abs/1706.09516}
+}
+
+@book{murphy2012,
+  author={Kevin P. Murphy},
+  title={Machine Learning: A Probabilistic Perspective},
+  year={2012},
+  publisher={MIT Press},
+  url={https://www.cs.ubc.ca/~murphyk/MLbook/pml-toc-1may12.pdf}
+}
+
+@book{pml-bishop,
+  author={Christopher M. Bishop},
+  title={Pattern Recognition and Machine Learning},
+  year={2006},
+  publisher={Springer},
+  url={https://www.microsoft.com/en-us/research/publication/pattern-recognition-machine-learning/}
+}
+
+@article{river-jmlr,
+  author={Jacob Montiel and Max Halford and S{\'a}ulo M. Mastelini and Geoffrey Bolmier and Rapha{\"e}l Sourty and Romain Vaysse and Ali Zouitine and Fabrice Guillet and Jesse Read and Talel Abdessalem and Albert Bifet},
+  title={River: Machine Learning for Streaming Data in Python},
+  journal={Journal of Machine Learning Research},
+  volume={22},
+  number={110},
+  pages={1--8},
+  year={2021},
+  url={https://www.jmlr.org/papers/v22/20-1380.html}
+}
+
+@article{parisi2019cl,
+  author={G. I. Parisi and R. Kemker and J. L. Part and C. Kanan and S. Wermter},
+  title={Continual Lifelong Learning with Neural Networks: A Review},
+  journal={Neural Networks},
+  volume={113},
+  pages={54--71},
+  year={2019},
+  doi={10.1016/j.neunet.2019.01.012},
+  url={https://www2.informatik.uni-hamburg.de/wtm/publications/2019/PKPKW19/Parisi-2019_Continual-lifelong-learning-with-NN-review.pdf}
+}
+
+@misc{sklearn-pipeline,
+  title={Pipeline: chaining estimators — scikit-learn},
+  howpublished={\url{https://scikit-learn.org/stable/modules/compose.html}},
+  note={Accessed 2025-10-25}
+}
+
+@misc{sklearn-model-eval,
+  title={Metrics and scoring: quantifying the quality of predictions},
+  howpublished={\url{https://scikit-learn.org/stable/modules/model_evaluation.html}},
+  note={Accessed 2025-10-25}
+}
+
+@misc{sklearn-mae,
+  title={mean\_absolute\_error — scikit-learn},
+  howpublished={\url{https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_error.html}},
+  note={Accessed 2025-10-25}
+}
+
+@misc{sklearn-mape,
+  title={mean\_absolute\_percentage\_error — scikit-learn},
+  howpublished={\url{https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_percentage_error.html}},
+  note={Accessed 2025-10-25}
+}
+
+@misc{sklearn-cv,
+  title={Cross-validation: evaluating estimator performance — scikit-learn},
+  howpublished={\url{https://scikit-learn.org/stable/modules/cross_validation.html}},
+  note={Accessed 2025-10-25}
+}
+
+@misc{sklearn-stratkfold,
+  title={StratifiedKFold — scikit-learn},
+  howpublished={\url{https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedKFold.html}},
+  note={Accessed 2025-10-25}
+}
+
+@inproceedings{sculley2015debt,
+  title={Hidden Technical Debt in Machine Learning Systems},
+  author={D. Sculley and Gary Holt and Daniel Golovin and Eugene Davydov and Todd Phillips and Dietmar Ebner and Vinay Chaudhary and Michael Young and Jean-Francois Crespo and Dan Dennison},
+  booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
+  pages={2503--2511},
+  year={2015},
+  url={https://papers.neurips.cc/paper/5656-hidden-technical-debt-in-machine-learning-systems.pdf}
+}
+
+@article{gama2014survey,
+  title={A Survey on Concept Drift Adaptation},
+  author={Jo{\~a}o Gama and Indr{\ifmmode\check{e}\else\v{e}\fi} {\ifmmode\check{Z}\else\v{Z}\fi}liobaite and Albert Bifet and Mykola Pechenizkiy and Abdelhamid Bouchachia},
+  journal={ACM Computing Surveys},
+  volume={46},
+  number={4},
+  pages={1--37},
+  year={2014},
+  doi={10.1145/2523813},
+  url={https://dl.acm.org/doi/10.1145/2523813}
+}
+
+@article{lu2018review,
+  title={Learning under Concept Drift: A Review},
+  author={Jie Lu and Anjin Liu and Fan Dong and Feng Gu and Jo{\~a}o Gama and Guangquan Zhang},
+  journal={IEEE Transactions on Knowledge and Data Engineering},
+  year={2018},
+  doi={10.1109/TKDE.2018.2876857}
+}
+
+@inproceedings{bifet2007adwin,
+  title={Learning from Time-Changing Data with Adaptive Windowing},
+  author={Albert Bifet and Ricard Gavald{\`a}},
+  booktitle={Proceedings of the 2007 SIAM International Conference on Data Mining (SDM)},
+  pages={443--448},
+  year={2007},
+  doi={10.1137/1.9781611972771.42},
+  url={https://epubs.siam.org/doi/pdf/10.1137/1.9781611972771.42}
+}
+
+@article{page1954,
+  author={E. S. Page},
+  title={Continuous Inspection Schemes},
+  journal={Biometrika},
+  volume={41},
+  number={1-2},
+  pages={100--115},
+  year={1954},
+  doi={10.1093/biomet/41.1-2.100},
+  url={https://academic.oup.com/biomet/article-abstract/41/1-2/100/456627}
+}
+
+@article{raab2020kswin,
+  author={Christoph Raab and Moritz Heusinger and Frank-Michael Schleif},
+  title={Reactive Soft Prototype Computing for Concept Drift Streams},
+  journal={Neurocomputing},
+  volume={398},
+  pages={309--327},
+  year={2020},
+  doi={10.1016/j.neucom.2020.02.119},
+  note={KSWIN},
+  url={https://arxiv.org/pdf/2007.05432}
+}
+
+@inproceedings{sumo-ieeeaccess,
+  author={P. {Alvarez Lopez} and M. Behrisch and L. Bieker-Walz and J. Erdmann and Y.-P. Fl{\"o}ttmann and A. Hilbrich and L. L{\"u}cken and J. Rummel and P. Wagner and E. Wie{\ss}ner},
+  title={{Microscopic Traffic Simulation using SUMO}},
+  booktitle={2018 21st International Conference on Intelligent Transportation Systems (ITSC)},
+  year={2018},
+  doi={10.1109/ITSC.2018.8569938},
+  url={https://elib.dlr.de/127994/1/08569938.pdf}
+}
+
+@misc{sumo-docs,
+  title={{Eclipse SUMO} Documentation (Overview/Output)},
+  howpublished={\url{https://sumo.dlr.de/docs/}},
+  note={Accessed 2025-10-25}
+}
+
+@misc{sumo-netconvert,
+  title={netconvert — SUMO},
+  howpublished={\url{https://sumo.dlr.de/docs/netconvert.html}},
+  note={Accessed 2025-10-25}
+}
+
+@misc{sumo-osm,
+  title={Networks: Import from OpenStreetMap — SUMO},
+  howpublished={\url{https://sumo.dlr.de/docs/Networks/Import/OpenStreetMap.html}},
+  note={Accessed 2025-10-25}
+}
+
+@misc{sumo-output,
+  title={Simulation Output: FCD Output — SUMO},
+  howpublished={\url{https://sumo.dlr.de/docs/Simulation/Output/FCDOutput.html}},
+  note={Accessed 2025-10-25}
+}
+
+@misc{sumo-emissions,
+  title={Simulation Output: EmissionOutput — SUMO},
+  howpublished={\url{https://sumo.dlr.de/docs/Simulation/Output/EmissionOutput.html}},
+  note={Accessed 2025-10-25}
+}
+
+@misc{docker-overview,
+  title={What is Docker?},
+  howpublished={\url{https://docs.docker.com/get-started/overview/}},
+  note={Accessed 2025-10-25}
+}
+
+@misc{docker-containers,
+  title={What is a container?},
+  howpublished={\url{https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/}},
+  note={Accessed 2025-10-25}
+}
+
+@misc{fastapi-docs,
+  title={FastAPI Documentation},
+  author={Sebasti{\'a}n Ram{\'\i}rez},
+  howpublished={\url{https://fastapi.tiangolo.com/}},
+  note={Accessed 2025-10-25}
+}
+
+@misc{pydantic2025,
+  title = {Pydantic: Data validation and settings management using Python type hints},
+  note = {Version 2.x, Available: \url{https://docs.pydantic.dev/latest/}},
+  year = {2025}
+}
+
+@misc{dash-docs,
+  title={Dash Documentation \& User Guide},
+  howpublished={\url{https://dash.plotly.com/}},
+  note={Accessed 2025-10-25}
+}
+
+@misc{parquet-docs,
+  title={Apache Parquet Documentation},
+  howpublished={\url{https://parquet.apache.org/docs/}},
+  note={Accessed 2025-10-25}
+}
+
+@misc{pyarrow-parquet,
+  title={Reading and Writing the Apache Parquet Format (PyArrow)},
+  howpublished={\url{https://arrow.apache.org/docs/python/parquet.html}},
+  note={Accessed 2025-10-25}
+}
+
+@phdthesis{fielding2000,
+  author={Roy T. Fielding},
+  title={Architectural Styles and the Design of Network-based Software Architectures},
+  school={University of California, Irvine},
+  year={2000},
+  url={https://www.ics.uci.edu/~fielding/pubs/dissertation/fielding_dissertation.pdf}
+}
+
+@article{shalev2012online,
+  author={Shai Shalev-Shwartz},
+  title={Online Learning and Online Convex Optimization},
+  journal={Foundations and Trends in Machine Learning},
+  volume={4},
+  number={2},
+  pages={107--194},
+  year={2012},
+  doi={10.1561/2200000018},
+  url={https://www.cs.huji.ac.il/~shais/papers/OLsurvey.pdf}
+}
+
+@phdthesis{krauss1998microscopic,
+  author      = {S. Krau{\ss}},
+  title       = {Microscopic modeling of traffic flow: Investigation of collision free vehicle dynamics},
+  school      = {DLR},
+  year        = {1998}
+}
+
+@inproceedings{wegener2008traci,
+  author    = {Axel Wegener and Michał Piórkowski and Maxim Raya and Horst Hellbrück and Stefan Fischer and Jean-Pierre Hubaux},
+  title     = {TraCI: an interface for coupling road traffic and network simulators},
+  booktitle = {Proceedings of the 11th Communications and Networking Simulation Symposium},
+  year      = {2008},
+  pages     = {155--163}
 }
