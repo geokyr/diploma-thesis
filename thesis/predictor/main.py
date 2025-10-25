@@ -15,6 +15,7 @@ from thesis.predictor.services.model_manager import ModelManager
 from thesis.predictor.services.predictor import Predictor
 from thesis.predictor.services.retrain_service import RetrainService
 from thesis.predictor.services.sumo_service import SumoService
+from thesis.predictor.utils.formatting import get_predictor_title
 
 config = PlatformServiceConfig()
 logger = setup_logger(config.service, config.logs_dir)
@@ -72,7 +73,10 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Platform Predictor Service", version="1.0.0", lifespan=lifespan, default_response_class=ORJSONResponse
+    title=f"Platform Predictor {get_predictor_title(config.ml_task)} Service",
+    version="1.0.0",
+    lifespan=lifespan,
+    default_response_class=ORJSONResponse,
 )
 app.include_router(predict_router, prefix="/predict", tags=["predict"])
 app.include_router(retrain_router, prefix="/retrain", tags=["retrain"])
