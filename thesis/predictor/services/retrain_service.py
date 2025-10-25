@@ -13,6 +13,8 @@ from thesis.common.config import (
     MAX_RETRIES_PREDICTOR,
     MAX_WORKERS_PREDICTOR,
     N_TRAINING_SAMPLES_ETA,
+    N_TRAINING_SAMPLES_FUEL,
+    N_TRAINING_SAMPLES_STOPS,
     SHRINK_FACTOR_ETA,
 )
 from thesis.common.enums import MLTask, ModelType, RetrainStatus
@@ -51,11 +53,10 @@ class RetrainJob:
     future: Future | None
 
 
-# TODO: fuel and stops
 N_TRAINING_SAMPLES_MAP: dict[MLTask, int] = {
     MLTask.ETA: N_TRAINING_SAMPLES_ETA,
-    MLTask.FUEL: N_TRAINING_SAMPLES_ETA,
-    MLTask.STOPS: N_TRAINING_SAMPLES_ETA,
+    MLTask.FUEL: N_TRAINING_SAMPLES_FUEL,
+    MLTask.STOPS: N_TRAINING_SAMPLES_STOPS,
 }
 
 # TODO: fuel and stops

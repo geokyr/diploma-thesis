@@ -252,6 +252,7 @@ class FuelConfig:
     n_end_clusters: int
     n_init: int
     start_hour_max: int
+    n_training_samples: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -266,6 +267,7 @@ class StopsConfig:
     min_distance: int
     use_spatial_features: bool
     use_route_features: bool
+    n_training_samples: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -511,6 +513,7 @@ N_START_CLUSTERS = CONFIG.fuel.n_start_clusters
 N_END_CLUSTERS = CONFIG.fuel.n_end_clusters
 N_INIT = CONFIG.fuel.n_init
 START_HOUR_MAX = CONFIG.fuel.start_hour_max
+N_TRAINING_SAMPLES_FUEL = CONFIG.fuel.n_training_samples
 
 TIME_START_COLUMN_STOPS = CONFIG.stops.time_start_column
 TARGET_COLUMN_STOPS = CONFIG.stops.target_column
@@ -522,6 +525,7 @@ MIN_DURATION_STOPS = CONFIG.stops.min_duration
 MIN_DISTANCE_STOPS = CONFIG.stops.min_distance
 USE_SPATIAL_FEATURES_STOPS = CONFIG.stops.use_spatial_features
 USE_ROUTE_FEATURES_STOPS = CONFIG.stops.use_route_features
+N_TRAINING_SAMPLES_STOPS = CONFIG.stops.n_training_samples
 
 MAX_RETRIES_SUMMARIZER = CONFIG.summarizer.max_retries
 RETRY_DELAY_SECONDS = CONFIG.summarizer.retry_delay_seconds

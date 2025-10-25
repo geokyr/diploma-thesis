@@ -209,6 +209,7 @@ fuel:
   n_end_clusters: 10
   n_init: 10
   start_hour_max: 10
+  n_training_samples: 53441
 
 stops:
   time_start_column: timestep
@@ -221,6 +222,7 @@ stops:
   min_distance: 500.0
   use_spatial_features: true
   use_route_features: true
+  n_training_samples: 40284
 
 summarizer:
   max_retries: 3
