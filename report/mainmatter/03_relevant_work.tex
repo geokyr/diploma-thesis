@@ -1,0 +1,183 @@
+\chapter{Relevant Work}
+\label{ch:relevant_work}
+
+This chapter situates the present work within the broader research and tooling landscape of concept drift detection and ETA prediction.
+We first examine the main frameworks and libraries that support streaming machine learning, drift monitoring, and post-deployment model evaluation, highlighting their methodological foundations, capabilities, and practical limitations.
+We then review the evolution of ETA prediction methods, from early statistical and classical ML techniques to state-of-the-art deep and graph-based approaches, as well as competitive gradient boosting methods on structured data.
+Finally, we position our own platform in relation to these efforts, outlining how its design integrates controlled drift generation, multi-task monitoring, and automated adaptation in a way that advances current practice.
+
+\section{Tooling Landscape for Drift Detection and Monitoring}
+\subsection{River}
+\textbf{River} is an open-source Python library for online machine learning on streaming data, born from the merger of the Creme and scikit-multiflow projects~\cite{river2021jmlr}.
+It provides a single unified framework to train models incrementally, one sample at a time, which makes it well-suited to scenarios with continuous data and potential concept drift.
+River includes a variety of learning algorithms (e.g. linear models, Hoeffding trees, ensemble methods) that can update their parameters on the fly, as well as evaluators and metrics that update incrementally along with the model.
+Notably, River treats concept drift as a first-class concern: it implements plug-and-play drift detection methods like ADWIN, DDM, and EDDM to signal when the statistical properties of the data or the model's error rate have changed significantly.
+A major strength of River is its efficiency and low overhead for streaming applications, it avoids expensive retraining by doing continuous learning, enabling rapid adaptation to changing data.
+However, River's focus on single-instance updates means it may not directly leverage batch acceleration or GPU computing as efficiently as some batch frameworks.
+Overall, River is focused on streaming adaptation and concept drift handling, making it a powerful tool for real-time ML systems.
+
+\subsection{scikit-multiflow}
+\textbf{scikit-multiflow} is an earlier Python framework for stream learning and concept drift, which was one of River's predecessors~\cite{montiel2018scikit}.
+Inspired by the MOA stream mining software in Java, scikit-multiflow brought popular stream learning algorithms and evaluation tools into the Python ecosystem.
+It supports a range of tasks including classification, regression, and even multi-output prediction, and it provides several drift detection algorithms (e.g. ADWIN, DDM, EDDM, Page-Hinkley) as part of its toolkit.
+A key design goal was compatibility with scikit-learn, allowing users to integrate stream learning with familiar APIs.
+The strengths of scikit-multiflow include its breadth of implemented methods, many inherited from the MOA framework, and the ability to simulate data streams with built-in generators for controlled concept drift, e.g. abrupt or gradual drift in synthetic data.
+However, scikit-multiflow is no longer actively maintained and its functionality has effectively been subsumed into River, which offers a more consolidated and improved interface.
+In practice, new projects prefer River for streaming tasks, but scikit-multiflow remains a reference point in the literature and is still useful for benchmarking new drift detection techniques due to its comprehensive implementation of classical methods.
+
+\subsection{Alibi and Alibi Detect}
+\textbf{Alibi} is an open-source library by Seldon Dev focused on machine learning model inspection and explainability, offering techniques like counterfactual explanations and influence scores for black-box models, for example explaining why a prediction was made.
+Building on this, the Seldon team also released Alibi Detect, which is a library specifically for outlier detection and concept drift detection in ML applications~\cite{looveren2020alibi, mueller2024bench}.
+\textbf{Alibi Detect} provides a collection of both offline and online detectors for various data types: tabular data, text, images, and time series.
+It includes statistical methods, like Kolmogorov-Smirnov or Chi-square tests for distribution drift in features, as well as learned detectors, like drift detection using neural network embeddings for complex data such as images.
+A notable focus of Alibi Detect is support for different modalities and integration with modern ML stacks: it can use TensorFlow or PyTorch under the hood, which allows it to implement advanced detectors, for example a PCA-based outlier detector or a classifier-based drift detector, that leverage GPUs.
+The strength of Alibi/Alibi Detect lies in its broad coverage: it tackles not just drift but also outliers and even adversarial example detection in one package, making it a flexible choice for production monitoring where explainability and data quality are needed alongside drift detection.
+One limitation is that Alibi Detect is a lower-level library, it provides algorithms but not a full monitoring solution.
+Users must integrate it into their workflow, for example, through scheduling periodic drift checks or responding to detector alerts in an MLOps pipeline.
+Additionally, configuring the more complex detectors may require expert knowledge, like setting thresholds or choosing embedding models.
+In summary, Alibi for explainability and Alibi Detect for drift/outliers offer a robust toolkit focused on model insight and data drift, well-suited for use cases where understanding model behavior and detecting distribution shifts are both important.
+
+\subsection{Evidently}
+\textbf{Evidently} is an open-source Python library and toolset designed to evaluate, test, and monitor machine learning models and data in production~\cite{evidentlyai2025, mueller2024bench}.
+It provides pre-built reports and dashboards to analyze things like data drift, target drift, data quality, and model performance over time.
+One of Evidently's core features is the ability to generate an interactive HTML dashboard comparing a reference dataset, like the training data or last week's data, to a current dataset.
+The dashboard includes visualizations and statistical tests that highlight any significant changes in feature distributions or model outputs.
+It also tracks model performance metrics, if ground truth is available.
+The strengths of Evidently include its ease of use and rich visualization, as, with minimal code, a user can produce a comprehensive report that would otherwise require manual analysis.
+This makes it a popular choice for integrating into Jupyter notebooks or automated pipelines to regularly check for data drift and model decay.
+A current limitation is that Evidently's real-time capabilities are evolving, considering it was initially built for batch analysis and reporting.
+Using it in a truly live monitoring scenario with continuous streaming data may require additional effort, such as writing a job to compute metrics on rolling windows.
+Additionally, while it identifies drift and performance issues, it doesn't automatically retrain models or suggest fixes, as it's primarily a monitoring dashboard.
+In short, Evidently fills the role of ML monitoring and data validation by making drift detection and model quality checks more accessible and transparent.
+
+\subsection{NannyML}
+\textbf{NannyML} is a newer open-source library specifically focused on post-deployment model monitoring, with an emphasis on detecting concept drift and estimating model performance without immediate ground truth~\cite{grootendorst2023nannyml, mueller2024bench}.
+It aims to answer the question: ``How is my model performing now, given that I might not have labels for the latest predictions?''.
+To this end, NannyML provides tools for data drift detection, as well as algorithms to infer performance drop.
+A centerpiece is its Confidence-Based Performance Estimation (CBPE) method, which uses the model's prediction probabilities and detected data drifts to estimate metrics like accuracy or ROC AUC in production before real labels arrive.
+In practical terms, NannyML can alert you that ``your model's inputs have shifted significantly, and it estimates your model's accuracy has dropped from 0.85 to 0.70, for example'', allowing proactive retraining or investigation.
+Another innovative feature is the ``reverse drift'' (RCD) concept: assessing how changes in input data would be expected to affect the target distribution and thus the model's error, essentially linking drift to business impact.
+The strength of NannyML lies in this performance-centric approach to drift: it goes beyond flagging that data has changed, by quantifying the likely effect on model predictions and outcomes.
+This is particularly useful in industries where obtaining true labels is slow or expensive (e.g., credit risk, where you only know defaults after many months).
+NannyML's limitations include that it currently supports primarily classification tasks (binary and multiclass) for its performance estimation module.
+The techniques can be complex to calibrate. For instance, CBPE assumes the model's probability estimates are well-calibrated and that past relationships hold, which might not always perfectly predict actual performance.
+Additionally, as a specialized library, it may need to be integrated into an existing MLOps setup, as it provides Python APIs and some UI components, but not a full monitoring server on its own.
+In summary, NannyML represents an advanced approach to concept drift monitoring: instead of just detecting drift, it focuses on what that drift means for model accuracy, helping close the gap between drift signals and model maintenance actions.
+
+\section{ETA Prediction: Literature Overview}
+
+\subsection{Classical Time-Series Methods}
+Predicting travel time or estimated time of arrival (ETA) is a well-studied problem in the transportation domain, and a variety of machine learning approaches have been explored.
+Early works approached ETA prediction with classical time-series models like ARIMA, treating travel time as a time-dependent process~\cite{hyndman2018forecasting}.
+While such statistical models worked in limited settings, they struggled with the inherent non-linearities and context dependencies of traffic data.
+
+\subsection{Deep Learning Approaches}
+Over the past decade, the field has seen a surge of deep learning methods that capture complex spatial and temporal patterns in traffic networks.
+For example, recurrent neural networks (RNNs) and long short-term memory (LSTM) architectures have been used to model vehicle trajectories as sequences of GPS points, successfully learning temporal dependencies such as road segment travel times and rush-hour effects~\cite{duan2016lstm, shen2019deeptte}.
+Convolutional neural networks have been applied to encode spatial information.
+One notable approach is to treat a path's GPS sequence like an image or matrix (e.g., via a grid or along-route segmentation) and use CNNs to extract features~\cite{wang2018deeptte}.
+More recently, attention mechanisms and transformers have been introduced.
+AttentionTTE~\cite{li2024attentiontte} employs self-attention to capture global interactions among road segments, combined with a recurrent module for local temporal trends.
+This achieved state-of-the-art results on a large trajectory dataset, indicating the benefit of modeling both local and long-range dependencies in routes.
+Similarly, researchers have explored multi-task learning in deep models, for instance, the WDR (wide-deep-recurrent) model~\cite{guo2019wide} and CoDriver system~\cite{qian2021codriver} incorporated an auxiliary task (learning driver behavior style) to improve ETA predictions, demonstrating that additional contextual signals can improve accuracy.
+
+\subsection{Graph Neural Networks}
+In parallel to sequence-based methods, graph-based approaches have gained prominence for ETA and traffic prediction.
+In a road network, intersections and road segments can be naturally represented as nodes and edges in a graph, so graph neural networks (GNNs) can explicitly model the connectivity and traffic flow between road segments.
+Another notable approach is a GNN-based ETA model deployed in production for Google Maps~\cite{derrowpinion2021gmapseta}, which learns from massive amounts of traffic data while incorporating road network topology and dynamic conditions (like accidents or rush hour patterns).
+By using GNN layers to propagate information along the road graph, their model can account for upstream slowdowns or congestion that classical models might miss.
+This graph-based ETA estimator yielded significant improvements in real-world accuracy, for example, reducing large ETA errors by over 40\% in some cities compared to the previous baseline.
+
+Other studies have followed similar ideas, building spatio-temporal graph models that combine GNNs with temporal sequence modeling (e.g. graph convolution plus LSTM) to predict travel times under varying conditions~\cite{jia2021stgnn, guo2022graphtraffic}.
+These advanced deep learning models represent the current state-of-the-art, especially when rich data is available (historical trajectories, real-time traffic sensors, etc.).
+They tend to excel at capturing complex patterns, but at the cost of higher complexity and data requirements.
+
+\subsection{Gradient Boosting and Hybrid Models}
+Despite the success of deep neural approaches, tabular data methods remain highly relevant, especially in industry settings where interpretability, simplicity, or limited data are considerations.
+Many practical ETA prediction systems reduce the problem to a regression on engineered features: for example, features might include the route distance, expected traffic speed, number of traffic lights, time of day, day of week, weather conditions, and so on.
+Gradient boosting decision trees (GBDT) have been a popular choice for such tabular formulations~\cite{guin2006gbdt, zhang2015traveltimegbt}.
+GBDT models, implemented with tools like XGBoost or LightGBM, offer strong performance on structured data and have the advantage of producing feature importance insights, which is valuable for understanding ETA drivers.
+
+Zhang and Haghani (2015) demonstrated that with carefully constructed input features, including real-time traffic indices, a GBDT model can achieve accuracy comparable to more complex models, though it may need frequent updating to handle drift.
+Another recent work applied XGBoost, CatBoost, and LightGBM to predict bus arrival times in a smart city context, showing that these boosted tree models are competitive for ETA and can be tuned to high accuracy given domain-specific feature engineering~\cite{antypas2022etagb}.
+In their case, gradient boosting achieved around 30\% mean absolute percentage error for autonomous bus ETAs, providing a solid baseline for comparison.
+
+The continued popularity of gradient boosting in this domain is due to several factors:
+\begin{enumerate}
+    \item Tabular features can encode a lot of prior knowledge, for instance, the road speed limit or historical average travel time on a segment is an informative predictor that a tree can easily use.
+    \item Training and inference are fast and resource-efficient compared to deep sequence models, which is useful for deployment on edge devices or with limited infrastructure.
+    \item The models are easier to maintain and one can retrain a new boosted tree model on recent data periodically, and examine feature importances if the model starts to degrade.
+\end{enumerate}
+
+Of course, a limitation is that these models do not automatically capture sequential or spatial relationships unless those are manually turned into features.
+
+Therefore, the current trend in ETA research and applications is often a hybrid one: use domain knowledge to engineer strong features and/or combine outputs of simpler models, and, where possible, incorporate the structure of the problem (sequential or graph) via specialized models or ensemble approaches.
+Well-known benchmarks, such as the NYC Taxi trip duration dataset~\cite{nyctaxikaggle} or the Google Maps ETA data~\cite{derrowpinion2021gmapseta}, often show that gradient boosting with rich features can be very effective, coming close to deep learning methods when the latter are not heavily optimized.
+In summary, ETA prediction methods span from deep learning models leveraging spatio-temporal structure to gradient-boosted tree models on tabular features, and the choice often depends on available data and the need for interpretability versus maximum accuracy.
+
+\section{Novelty and Contributions of the Proposed Platform}
+
+The platform developed in this thesis brings together ideas from concept drift research, MLOps, and domain-specific traffic simulation to create a closed-loop adaptive learning system for mobility.
+Here we summarize the key novel contributions of this platform, and how it differentiates itself from existing tools and literature.
+
+\subsection{Controlled Drift Simulation with SUMO}
+In order to study concept drift in a realistic yet controlled manner, we utilize a traffic simulation, performed with SUMO - Simulation of Urban MObility.
+SUMO allows us to generate synthetic traffic data under varying conditions with fine control.
+A novel aspect is the creation of a time-lapse scenario in which we deliberately introduce a sudden change in environment.
+For example, the platform simulates 10 hours of normal driving conditions followed by 10 hours of heavy rain, where rain is modeled by globally reducing the road friction coefficient in the SUMO network.
+This causes vehicles to slow down and drive differently, thereby inducing concept drift in the input data and the relationship between features (e.g. speeds, distances) and targets (travel time, etc.).
+By having this capability to manufacture drift on demand, we can evaluate how well different detectors and adaptation strategies perform on a known ``ground truth'' drift event.
+Traditional drift detection research often relies on either real-world events, which are unpredictable, or synthetic data generators for drift.
+Our use of SUMO bridges that gap by producing realistic, domain-specific drift.
+
+This approach is relatively unique. To our knowledge, few if any published works have demonstrated a full ML workflow where a traffic microsimulator is used to inject controlled drifts and then automatically detect and counteract them in real time.
+Moreover, the platform continuously tracks the model's performance during the simulation; as the rain scenario unfolds, we log the model's prediction error metrics (e.g. mean absolute error for ETA) to observe how performance degrades due to drift.
+This provides an authentic demonstration of concept drift's impact on a machine learning model deployed in a dynamic environment.
+
+\subsection{Multi-Task Prediction and Monitoring}
+The platform is designed to handle multiple related prediction tasks simultaneously, which is a departure from most drift detection case studies that focus on a single prediction output.
+In our implementation, a set of separate models, produces predictions for ETA, Fuel Consumption, and Number of Stops for a given vehicle trip.
+This multi-task setup reflects a more complex operational scenario.
+
+From a drift detection perspective, the platform monitors drift on multiple data streams and multiple performance metrics concurrently.
+This also means that using the platform, one can observe how a drift in the environment can have different manifestations across tasks (e.g., rain might drastically affect ETA and fuel consumption but not the predicted number of stops if stops depend more on route layout than speed).
+But this option opens another possibility to the end user, which is to compare the performance of similar models, or different flavors of the same model, on the same data stream, to find the one that has the better behavior, when drift is present.
+This is novel compared to existing tools like River or NannyML which typically assume a single target.
+
+The above mentioned options required developing a custom monitoring strategy that can aggregate signals from multiple drift detectors and multiple outputs.
+We implemented a simple consensus mechanism with multiple drift detectors, where each model had its own copy of the drift detectors, running in parallel and independently.
+This consensus mechanism reduces false alarms in a noisy multi-task setting.
+Supporting multiple tasks in one platform is a practical contribution because real-world systems often have to monitor dozens of metrics, our work provides a template for how to achieve that in an automated way.
+
+\subsection{Automated Model Retraining and Hot-Swapping}
+Perhaps the most significant contribution of the platform is the seamless closed-loop adaptation capability.
+When concept drift is detected, the platform doesn't just raise an alert.
+It initiates a retraining pipeline and deployment of an updated model, without human intervention.
+Concretely, the system maintains a buffer of recent data (e.g., the last 1 hour of vehicle trips) and when drift is confirmed, it triggers a retraining job that fine-tunes or re-fits the ML model using this new data distribution.
+We implement this efficiently for the gradient boosting models, such as the one used for ETA, by retraining the model on the drifted data, based on a warm start on top of the previous one.
+
+Once the new model is trained, the platform performs a hot swap.
+The running system begins using the new model for all subsequent predictions, with no downtime at all.
+
+This kind of automated retraining and deployment is often discussed in MLOps but not so commonly demonstrated end-to-end in academic literature.
+The novelty here is showing the entire loop: we not only detect drift, we close the loop by adapting to it immediately.
+This required solving engineering challenges (e.g., ensuring that the system can retrain while continuing to serve predictions, avoiding a halt or latency spikes) and design challenges (deciding when retraining is worth it to avoid model churn).
+The outcome is an architecture where model performance degradation is not only observed but automatically countered by an update, moving towards the ideal of a self-healing ML system.
+
+\subsection{Real-Time Dashboard and Visualization}
+Finally, in order to make the system's operations interpretable and to aid in human-in-the-loop oversight, the platform includes a real-time dashboard that visualizes the current state of the simulation and the ML models.
+This dashboard (built with Dash/Plotly) displays key information such as charts of the performance metrics over time, and a timeline of the events that have occurred, focusing around the drift detection and retraining events.
+
+When a drift is detected, a retraining job is triggered and a model swap occurs, the dashboard visibly flags these event seraparetely, for example showing the following notifications: ``[ML Task]: Drift detected at 10:30'' and ``[ML Task]: Model retrained and hot-swapped at 11:00''.
+Subsequent improvements in error can be observed then, showing the effect of the adaptation process.
+
+While a dashboard itself is not a novel research contribution, integrating it end-to-end with the platform is a valuable demonstration for practitioners.
+It closes the feedback loop by allowing users to watch the ML system adapt in real time, thereby building trust.
+Many existing drift tools like Evidently produce static reports or require the user to inspect logs; in contrast, our system's UI shows a continuously updating view, which is especially important in a streaming context.
+This also helps communicate the results: for example, users can see that during the rain scenario the original model's error kept rising, but as soon as the retrained model was deployed, the error drops back to normal levels, effectively illustrating the benefit of the adaptive approach.
+
+In summary, the platform distinguishes itself by combining drift generation, detection, and adaptation in one unified environment.
+Unlike existing monitoring libraries that stop at detection, or online learning frameworks that update models but often on synthetic data, our system covers the full lifecycle on a realistic traffic problem.
+It manufactures a drift (rainy weather) in a mobility digital twin, observes the model's decline, catches it via multiple detectors, and then remedies it through automated retraining, all while delivering insights through a real-time interface.
+This end-to-end closed-loop approach, especially applied in the context of cooperative, connected, and automated mobility, is a novel contribution demonstrating how advanced MLOps techniques (continuous monitoring, automatic retraining) can be applied to maintain model performance in non-stationary environments.
+It effectively serves as an early prototype for next-generation intelligent traffic management systems where AI models remain reliable over time by continually learning from new conditions.
