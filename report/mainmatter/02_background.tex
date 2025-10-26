@@ -56,28 +56,32 @@ Key metrics for regression models include~\cite{bishop2006pattern}:
 
 \begin{itemize}
     \item \textbf{Mean Absolute Error (MAE)}:
-
-        $MAE = \tfrac{1}{n}\sum_{i=1}^n \lvert y_i - \hat{y}_i \rvert$
+        \[
+            MAE = \tfrac{1}{n}\sum_{i=1}^n \lvert y_i - \hat{y}_i \rvert \, .
+        \]
 
         This metric conveys the average absolute prediction error, often valued for its interpretability and resistance to outliers.
 
     \item \textbf{Mean Absolute Percentage Error (MAPE)}:
-
-        $MAPE = \tfrac{100}{n}\sum_{i=1}^n \frac{|y_i - \hat{y}_i|}{|y_i|}$
+        \[
+            MAPE = \tfrac{100}{n}\sum_{i=1}^n \frac{|y_i - \hat{y}_i|}{|y_i|} \, .
+        \]
 
         MAPE expresses error as a percentage relative to true values, facilitating comparisons across diverse scales. However, MAPE can be unstable when true values approach zero.
         Other metrics (RMSE, $R^2$) complement these in providing insight into the variance, fit, and reliability of regression and classification models.
 
     \item \textbf{Root Mean Squared Error (RMSE)}:
-
-        $RMSE = \sqrt{\tfrac{1}{n}\sum_{i=1}^n (y_i - \hat{y}_i)^2}$
+        \[
+            RMSE = \sqrt{\tfrac{1}{n}\sum_{i=1}^n (y_i - \hat{y}_i)^2} \, .
+        \]
 
         RMSE measures the average magnitude of the prediction errors (residuals) between predicted and actual values in regression tasks.
         It is more sensitive to large errors than MAE due to squaring, penalizing outliers heavily.
 
     \item $\mathbf{R^2}$ (coefficient of determination):
-
-        $R^2 = 1 - \frac{\sum_{i=1}^n (y_i - \hat{y}_i)^2}{\sum_{i=1}^n (y_i - \bar{y})^2}$
+        \[
+            R^2 = 1 - \frac{\sum_{i=1}^n (y_i - \hat{y}_i)^2}{\sum_{i=1}^n (y_i - \bar{y})^2} \, .
+        \]
 
         $R^2$ measures the proportion of variance in the target variable explained by the model, ranging from 0 to 1.
         Values near 1 indicate strong fit, while $R^2 \!\leq\! 0$ means the model performs worse than a constant baseline.
