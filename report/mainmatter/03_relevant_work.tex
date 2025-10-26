@@ -163,7 +163,7 @@ The outcome is an architecture where model performance degradation is not only o
 Finally, in order to make the system's operations interpretable and to aid in human-in-the-loop oversight, the platform includes a real-time dashboard that visualizes the current state of the simulation and the ML models.
 This dashboard (built with Dash/Plotly) displays key information such as charts of performance metrics over time, and a timeline of platform events, with emphasis on drift detections, retraining triggers, and model hot-swaps.
 
-When a drift is detected, a retraining job is triggered and a model swap occurs, the dashboard visibly flags these event seraparetely, for example showing the following notifications: ``[ML Task]: Drift detected at 10:30'' and ``[ML Task]: Model retrained and hot-swapped at 11:00''.
+When a drift is detected, a retraining job is triggered and a model swap occurs, the dashboard visibly flags these event separately, for example showing the following notifications: ``[ML Task]: Drift detected at 10:30'' and ``[ML Task]: Model retrained and hot-swapped at 11:00''.
 Subsequent improvements in error can then be observed, showing the effect of the adaptation process.
 
 Beyond passive monitoring, the dashboard exposes a user interface meant to be used in a human-in-the-loop manner.
