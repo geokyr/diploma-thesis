@@ -1,0 +1,255 @@
+\chapter{Dataset Generation and Machine Learning Research}
+\label{ch:dataset_ml_research}
+
+\section{Dataset Generation}
+
+This chapter details the construction of a synthetic, yet faithful, urban-traffic dataset for central Athens and the methodology used to train and evaluate an Estimated Time of Arrival (ETA) model under controlled concept drift.
+
+The data were generated with the SUMO microscopic simulator and released in three complementary scenarios: \emph{train}, \emph{test}, and \emph{rain}, each spanning 10 hours of simulated time with per-second Floating Car Data (FCD) telemetry (vehicle position, speed, lane, odometer, fuel, waiting).
+
+The \emph{rain} scenario introduces a physically interpretable distributional shift by uniformly reducing road-surface friction across the network, yielding a measurable degradation in speed and a significant increase in trip durations.
+
+The pipeline emphasizes reproducibility (fixed seeds, parameterized configs), modularity (clean separation of network preparation and per-scenario simulation), and portability to other regions and drift magnitudes.
+
+\subsection{Study Area}
+
+The study area is a dense, signal-controlled rectangle in central Athens, selected for its non-trivial junction structure and representative city-center congestion.
+The final network comprises 1,184 edges and 689 junctions, covering 68.17 km of roadway, a scale large enough to expose complex queueing and dynamics relevant to ETA modeling. Network bounds and more detailed summary metrics are reported in \autoref{tab:network_characteristics} for completeness.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Network characteristics of the central Athens study area.}
+    \label{tab:network_characteristics}
+    \begin{tabular}{lr}
+        \toprule
+        \textbf{Metric} & \textbf{Value} \\
+        \midrule
+        North-West Boundary & (37.974745936977456, 23.725252771719436) \\
+        South-East Boundary & (37.988290142332225, 23.752735758169127) \\
+        Size & 2.42 km $\times$ 1.48 km \\
+        Area & 3.58 km² \\
+        Edges & 1184 \\
+        Junctions & 689 \\
+        Traffic Lights & 106 \\
+        Total Road Length & 68.17 km \\
+        Average Edge Length & 57.57 m \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Network Construction}
+
+Rather than relying on SUMO's interactive tooling like the \texttt{osmWebWizard} GUI, the network build process invokes \texttt{osmGet.py} and \texttt{osmBuild.py} directly from scripts, with specific options specified.
+These scripts are responsible for extracting the OSM data for the specified bounding box and building the SUMO network by converting the OSM data into a SUMO-compatible network format.
+This choice affords programmatic reproducibility, gaining full access to the internal \texttt{netconvert} and \texttt{polyconvert} options that are not exposed by the GUI, and headless, automated runs without manual interaction.
+The base network is generated once from OpenStreetMap extracts for the specified bounding box, with traffic-light inference and junction geometry refinement.
+A second variant is then created by cloning the base network and uniformly applying a reduced lane friction coefficient of 0.4 to all lanes for the \emph{rain} scenario.
+This design preserves topology and routing feasibility across scenarios, isolating the physical effect of reduced friction from confounds induced by network edits.
+
+\subsection{Vehicle Classes}
+
+Vehicle classes are limited to passenger cars to avoid heterogeneity that would affect drift analysis and feature learning.
+Excluding motorcycles and heavy vehicles reduces behavioral variance (e.g., lane splitting or heavy acceleration/deceleration profiles) and simplifies interpretation while retaining the primary dynamics needed for ETA modeling.
+These vehicle classes would account for a small percentage of the total vehicle fleet, with the motorcycles holding a higher percentage, and being rather difficult to model accurately due to their heterogeneous driving behavior~\cite{elstat2025}.
+By focusing on the dominant vehicle class, passenger cars, the dataset maintains methodological simplicity while capturing the primary traffic dynamics relevant to the prediction tasks and research objectives.
+
+\subsection{Traffic Demand Modeling}
+
+Traffic demand follows a realistic hourly pattern designed to mimic real-world Athens traffic patterns observed in sources such as the Athens Mobility Observatory~\cite{amob2025} and similar traffic monitoring platforms.
+Considering that we opted for 10 hour simulation, we chose a pattern that would capture characteristic morning and evening rush hours with a midday decline typical of urban traffic, in between the hours of 08:00 and 18:00.
+The base generation periods, in seconds between vehicle departures, are shown in \autoref{tab:hourly_schedule}.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Hourly demand schedule for 08:00--18:00. Period denotes the generation interval (seconds per vehicle). Trips/hour are approximated as $3600/\text{period}$.}
+    \label{tab:hourly_schedule}
+    \vspace{0.5em}
+    \begin{tabular}{lcc}
+        \toprule
+        \textbf{Hour (local)} & \textbf{Period (s/veh)} & \textbf{Approx. Trips/hour} \\
+        \midrule
+        08:00--09:00 & 0.50 & $\sim$7200 \\
+        09:00--10:00 & 0.55 & $\sim$6545 \\
+        10:00--11:00 & 0.65 & $\sim$5538 \\
+        11:00--12:00 & 0.75 & $\sim$4800 \\
+        12:00--13:00 & 0.80 & $\sim$4500 \\
+        13:00--14:00 & 0.80 & $\sim$4500 \\
+        14:00--15:00 & 0.75 & $\sim$4800 \\
+        15:00--16:00 & 0.65 & $\sim$5538 \\
+        16:00--17:00 & 0.65 & $\sim$5538 \\
+        17:00--18:00 & 0.60 & $\sim$6000 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+To introduce natural variability between simulations and avoid identical traffic patterns, each scenario applies Gaussian noise to the base traffic generation periods.
+Each base period is multiplied by a random value drawn from a normal distribution centered at 1.0 with standard deviation 0.01. This introduces some \emph{stochastic variability} in traffic volumes while preserving the overall hourly pattern shape.
+
+Each scenario uses a distinct random seed that controls the following:
+
+\begin{itemize}
+    \item Gaussian noise applied to traffic generation periods
+    \item Random trip generation (origin-destination pairs)
+    \item Departure and arrival positions on edges
+    \item Vehicle behavior stochasticity in SUMO
+\end{itemize}
+
+Based on the above, the trip generation is performed using SUMO's \texttt{randomTrips.py} tool.
+Random origin-destination pairs are generated for each scenario.
+Trips are distributed according to the hourly traffic generation periods, after Gaussian noise application, validated for route feasibility, and assigned random departure/arrival positions on edges.
+This process is performed separately for each scenario (\emph{train}, \emph{test}, \emph{rain}) using the respective random seeds.
+
+\subsection{Concept Drift Scenario}
+
+Several candidate drift mechanisms were evaluated prior to finalization.
+
+\paragraph{Lane Closure Approach}
+This approach used SUMO's \texttt{closingLaneReroute} mechanism to mark specific lanes as closed, with vehicles calculating routes at insertion time.
+The critical issue was that vehicles would stop at green traffic lights when approaching closed lanes, remaining stationary until SUMO's automatic teleportation mechanism activated after 300 seconds—a clear simulation failure.
+
+The root cause was the absence of rerouting devices.
+Adding them would allow dynamic recalculation around closures, but this also meant that all vehicles would reroute based on real-time conditions, fundamentally altering traffic behavior compared to the base scenario.
+As a result, isolating the effect of closures from dynamic rerouting became impossible, and the scenario was abandoned.
+
+\paragraph{Network Topology Modification}
+This approach used SUMO's \texttt{netedit} tool to physically remove closed lanes or edges, with junctions automatically recalculated. Removing edges reduced network capacity, causing vehicles to be inserted at different times due to congestion delays—breaking temporal comparability between scenarios.
+
+The sensitivity was highly non-linear and unpredictable: closing major roads like Panepistimiou, a main thoroughfare, sometimes produced minimal impact, while closing minor edges would completely bottleneck the network.
+Network analysis metrics, such as betweenness centrality and edge importance, were used to identify strategic closures, but finding combinations that were realistic (e.g., metro construction, roadworks) while producing detectable but not catastrophic drift proved extremely difficult.
+
+\paragraph{Vehicle Behavior Modification}
+This approach altered Krauss car-following model parameters (tau and sigma)~\cite{krauss1998carfollowing}, default vehicle type attributes such as acceleration and deceleration, following gaps, and speed factors to simulate aggressive or cautious driving patterns.
+
+Behavior changes produced only subtle effects on aggregate traffic patterns, didn't correspond to clear real-world events, unlike rain or construction, and lacked ground truth for validation of ``realistic'' parameter ranges. This approach was also deemed unsuitable.
+
+\paragraph{Conclusion - Rain Scenario}
+Based on the above, the final drift mechanism uses friction-based rain simulation.
+The rain scenario introduces concept drift by simulating adverse weather conditions through reduced road surface friction. This approach was chosen because:
+\begin{itemize}
+    \item \textbf{Physical realism}: Rain directly reduces tire-road friction, a well-understood phenomenon
+    \item \textbf{Interpretability}: Clear causal relationship between friction and vehicle behavior
+    \item \textbf{Measurable impact}: Reduced friction increases braking distances, decreases acceleration, and lowers average speeds
+    \item \textbf{Network preservation}: No topology changes—all routes remain valid
+    \item \textbf{SUMO support}: Native friction parameter in lane definitions
+\end{itemize}
+
+As mentioned earlier, a modified network is created by parsing the base network XML and applying a global friction reduction to all lanes.
+The friction parameter is set to 0.4, down from the default 1.0, uniformly across all lanes in the network.
+This modified network is saved separately and used for the rain scenario simulation.
+
+The chosen value of 0.4 technically falls within the snow/ice range according to road surface friction coefficients, rather than the wet road range (μ $\approx$ 0.5-0.8)~\cite{sumo2019friction}.
+This decision was intentional: the objective was to produce a significant and detectable concept drift for model evaluation, rather than to precisely simulate realistic rain conditions.
+The 0.4 coefficient ensures measurable performance degradation while maintaining simulation stability and avoiding extreme scenarios that would lead to complete traffic collapse.
+
+This decreased friction affects vehicle dynamics by altering the maximum acceleration and deceleration, cornering speed, and emergency braking, and more.
+The result is that vehicles in the rain scenario experience slower acceleration from stops, earlier and gentler braking, longer trip completion times, and different congestion patterns.
+
+The rain scenario introduces measurable distributional shifts compared to the baseline test scenario, as seen in the following \autoref{tab:drift_comparison}.
+
+\begin{table}[t]
+    \centering
+    \caption{Distributional shifts between baseline test scenario and rain scenario with reduced friction.}
+    \label{tab:drift_comparison}
+    \vspace{0.5em}
+    \begin{tabular}{lccc}
+        \toprule
+        \textbf{Metric} & \textbf{Test (Baseline)} & \textbf{Rain (Drift)} & \textbf{Change} \\
+        \midrule
+        Average Speed & 29.84 km/h & 25.76 km/h & \textbf{-13.68\%} \\
+        Trip Duration & 211.58 s & 247.00 s & \textbf{+16.74\%} \\
+        Trip Distance & 1677.53 m & 1685.18 m & \textbf{+0.46\%} \\
+        Waiting Time & 19.78 s & 22.02 s & \textbf{+11.33\%} \\
+        Fuel Consumption & 216300.76 mg & 218780.58 mg & \textbf{+1.15\%} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The most significant impacts are on average speed (reduced by 13.68\%) and trip duration (increased by 16.74\%), demonstrating clear concept drift that challenges machine learning models trained on baseline conditions.
+
+\subsection{End-to-End Generation Pipeline}
+The complete pipeline consists of 9 steps:
+
+\begin{enumerate}
+    \item \textbf{OSM Data Extraction} → Download OpenStreetMap data for Athens bounding box
+    \item \textbf{Network Building} → Convert OSM data to SUMO network format
+    \item \textbf{Rain Network Creation} → Generate friction-modified network for drift scenario
+    \item \textbf{GUI Settings} → Write SUMO-GUI visualization settings
+    \item \textbf{Configuration Files} → Generate simulation configuration files per scenario
+    \item \textbf{Trip Generation} → Create random origin-destination pairs per scenario
+    \item \textbf{Simulation Execution} → Run SUMO simulation per scenario
+    \item \textbf{Format Conversion} → Convert CSV output to Parquet format
+    \item \textbf{Exploratory Analysis} → Generate statistics and plots
+\end{enumerate}
+
+The first 4 steps are performed only once, while the remaining 5 steps are performed once for each scenario (\emph{train}, \emph{test}, \emph{rain}).
+
+\subsection{Reproducibility and Extensibility}
+The pipeline is designed for full reproducibility and extensibility with all configuration parameters centralized in a YAML configuration file.
+Each step is an independent function with well-defined inputs and outputs.
+All parameters are stored in a YAML configuration file with structured dataclass access.
+Random seeds control all stochastic elements (traffic noise, trip generation, vehicle behavior).
+All commands, outputs, and errors are logged with timestamps.
+Path existence and command success are validated at each step.
+
+The pipeline can be easily adapted to generate new datasets by modifying configuration parameters.
+Key customization points include:
+
+\begin{itemize}
+    \item \textbf{Geographic Area:} Change the bounding box to simulate any OSM-covered region
+    \item \textbf{Traffic Demand:} Modify hourly traffic patterns
+    \item \textbf{Traffic Volume Noise:} Adjust the mean and standard deviation of the Gaussian noise
+    \item \textbf{Random Seeds:} Use different seeds to generate alternative traffic patterns
+    \item \textbf{Simulation Duration:} Extend or shorten the simulation timespan
+    \item \textbf{Drift Parameters:} Adjust network friction to vary rain severity
+    \item \textbf{Network Processing:} Modify netconvert options to change junction detection and traffic light logic
+    \item \textbf{Rerouting Behavior:} Adjust adaptation steps and intervals to change vehicle re-routing aggressiveness
+    \item \textbf{Vehicle Classes:} Include buses, trucks, or other vehicle types
+\end{itemize}
+
+This modular design allows researchers to reproduce the exact datasets described in this thesis or generate new variants for different experimental conditions.
+
+\subsection{Output Format}
+The output format is Floating Car Data (FCD) with per-timestep vehicle telemetry at 1-second resolution:
+
+\begin{itemize}
+    \item \textbf{timestep}: Simulation time (seconds)
+    \item \textbf{id}: Vehicle identifier
+    \item \textbf{x}, \textbf{y}: Position coordinates on the network (meters)
+    \item \textbf{speed}: Instantaneous speed (m/s)
+    \item \textbf{lane}: Current lane ID
+    \item \textbf{odometer}: Cumulative distance (m)
+    \item \textbf{fuel}: Fuel consumption rate (mg/s)
+    \item \textbf{waiting}: Time spent waiting since last stop (s)
+\end{itemize}
+
+To optimize downstream analytics, the raw CSV is converted to Parquet (columnar, compressed), which substantially reduces storage and accelerates feature extraction and aggregation.
+
+\subsection{Dataset Characteristics}
+The final dataset, containg the three scenarios (\emph{train}, \emph{test}, \emph{rain}), has the following characteristics, summarized in \autoref{tab:dataset_characteristics}.
+
+\begin{table}[t]
+    \centering
+    \caption{Comprehensive dataset characteristics across all three scenarios.}
+    \label{tab:dataset_characteristics}
+    \vspace{0.5em}
+    \begin{tabular}{lccc}
+        \toprule
+        \textbf{Metric} & \textbf{Train} & \textbf{Test} & \textbf{Rain} \\
+        \midrule
+        \textbf{Purpose} & Model training & Model evaluation & Concept drift testing \\
+        \textbf{Network} & Base (friction=1.0) & Base (friction=1.0) & Rain (friction=0.4) \\
+        \textbf{Random Seed} & 13 & 2025 & 314159 \\
+        \textbf{Simulation Duration} & 36000 s (10 hours) & 36000 s (10 hours) & 36000 s (10 hours) \\
+        \textbf{Total Trips} & 53,978 & 56,212 & 55,366 \\
+        \textbf{Average Trip Duration} & 205.22 s & 211.58 s & 247.00 s \\
+        \textbf{Average Trip Distance} & 1675.81 m & 1676.36 m & 1684.88 m \\
+        \textbf{Average Speed} & 30.24 km/h & 29.81 km/h & 25.74 km/h \\
+        \textbf{Total FCD Records} & 11,130,801 & 11,948,843 & 13,728,897 \\
+        \textbf{CSV Size} & 770.1 MB & 826.8 MB & 946.9 MB \\
+        \textbf{Parquet Size} & 233.3 MB & 247.4 MB & 282.3 MB \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Data Availability}
+The dataset generaed and used in this thesis is publicly available as version~4, comprising three scenarios (\emph{train}, \emph{test}, \emph{rain}) and dual formats (CSV and Parquet). It is archived on Zenodo under the DOI \href{https://doi.org/10.5281/zenodo.16950674}{10.5281/zenodo.16950674}~\cite{kyriakopoulos2025synthetic}.
