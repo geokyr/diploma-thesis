@@ -2,27 +2,26 @@
 \label{ch:platform_architecture_implementation}
 
 \section{High-Level Overview}
-The platform embodies a microservice design that orchestrates a time-lapse traffic simulation, performs multi-task prediction, monitors error streams for concept drift via consensus, and adapts by retraining and hot-swapping models—while exposing a web dashboard for both administration and user-facing predictions.
+The platform embodies a microservice design that orchestrates a time-lapse traffic simulation, performs multi-task prediction, monitors error streams for concept drift via consensus, and adapts by retraining and hot-swapping models, while exposing a web dashboard for both administration and user-facing predictions.
 
 At a high level, the platform comprises six independent services (Backend, three Predictors for ETA/Fuel/Stops, Drift, Frontend, and Summarizer) communicating over HTTP/REST on a private Docker network.
 The Backend acts as the source of truth for simulation state and orchestrates a 20-hour scenario compressed to about 4-5 minutes (300x speedup factor), coordinating batch predictions, drift detection, and adaptation, when needed.
 The Frontend offers an admin dashboard (controls, metrics, notifications, post-simulation report) and a user interface for map-based route selection and on-demand multi-task predictions.
 
 \section{System Architecture}
-\subsection{Microservices Topology}
 The platform follows a microservices architecture with strict separation of concerns \cite{newman2015building}. Each service exposes a small, well-typed FastAPI with Pydantic schemas, is independently deployable, and can be evolved or scaled without impacting others. A minimal service inventory and ports are:
 
 \begin{itemize}
-    \item Backend (8000): orchestration, timelapse control, state stores, simulation snapshot API.
-    \item Predictor-ETA (8001), Predictor-Fuel (8002), Predictor-Stops (8003): inference, feature calibration, batch/single predictions, background retraining.
-    \item Drift (8004): per-task workers, four detectors, consensus and online calibration.
-    \item Summarizer (8005): post-simulation AI report generation from metrics and notifications.
-    \item Frontend (8080): admin dashboard and user interface, interacts only with the Backend API.
+    \item \textbf{Backend} (8000): orchestration, timelapse control, state stores, simulation snapshot API.
+    \item \textbf{Predictor-ETA/Fuel/Stops} (8001/8002/8003): inference, feature calibration, batch/single predictions, background retraining.
+    \item \textbf{Drift} (8004): per-task workers, four detectors, consensus and online calibration.
+    \item \textbf{Summarizer} (8005): post-simulation AI report generation from metrics and notifications.
+    \item \textbf{Frontend} (8080): admin dashboard and user interface, interacts only with the Backend API.
 \end{itemize}
 
-Inter-service links: Backend dispatches batch windows to predictors and error streams to Drift and it also triggers the Summarizer post-simulation. Frontend polls Backend for snapshots, metrics, notifications, and report content.
+\paragraph{Inter-service links.} Backend dispatches batch windows to predictors and error streams to Drift and it also triggers the Summarizer post-simulation. Frontend polls Backend for snapshots, metrics, notifications, and report content.
 
-\subsection{Service Responsibilities}
+\section{Service Responsibilities}
 \paragraph{Backend.} The Backend owns orchestration and state.
 \emph{TimelapseDriver} advances the clock in one-second real-time steps at $300\times$ simulated speed (5 simulated minutes per tick), parallelizes windowed prediction requests, triggers drift checks, and manages the adaptation lifecycle.
 State is maintained in in-memory circular buffers (\emph{MetricsStore}, \emph{NotificationStore}) and a \emph{ReportStore}.
@@ -46,7 +45,7 @@ Frontend state is maintained client-side using stores, interval polling of the B
 \paragraph{Summarizer.} On completion, the Backend packages a timeline of notifications and time-series metrics and asks the Summarizer to generate a markdown report (and PDF).
 The Summarizer formats and structures the data and then uses the OpenRouter API to access the LLM models. The service is configured to use free models, so no charges are incurred. There are robust retries and timeouts in place to handle transient failures.
 
-\subsection{Technology Stack}
+\section{Technology Stack}
 The following core technologies are used in the various platform services:
 
 \begin{itemize}
@@ -83,7 +82,7 @@ Each predictor uses its task-specific \emph{FeatureCalibrator} to compute identi
 \section{Deployment Architecture}
 \subsection{Compose-Based Orchestration}
 The system ships as a multi-container deployment with Docker Compose.
-Compose ensures startup ordering via health checks, isolates the network, and mounts shared volumes under \texttt{appdata/} (common SUMO data, task datasets, model registry, feature artifacts, and per-service logs).
+Docker Compose ensures startup ordering via health checks, isolates the network, and mounts shared volumes under \texttt{appdata/} (common SUMO data, task datasets, model registry, feature artifacts, and per-service logs).
 In production, only the Frontend requires external exposure, internal ports can remain bridged on the Docker network.
 Environment variables identify the running service, set the app data root, and toggle environment mode.
 
@@ -148,7 +147,7 @@ Externalizing these parameters in configuration allows tuning of sensitivity and
 
 \section{API Endpoints Reference}
 \subsection{Backend Service (Port 8000)}
-The backend exposes three endpoint groups:
+The backend exposes three main endpoint groups:
 \begin{itemize}
     \item \textbf{Health:} \texttt{GET /health}
     \item \textbf{Control:} \texttt{POST /control/\{start, pause, resume, reset\}}
