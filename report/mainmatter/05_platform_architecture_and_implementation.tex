@@ -164,39 +164,37 @@ Externalizing these parameters in configuration allows tuning of sensitivity and
 \paragraph{Trade-offs.} Several pragmatic trade-offs accompany the design. In-memory stores provide speed at the expense of long-term persistence and historical analytics. Precomputed features accelerate batch evaluation but are less representative of a fully online setup. The fixed post-drift collection window introduces some adaptation delay in exchange for training stability. Each of these decisions was calibrated for the thesis setting and all can be replaced with production-grade counterparts, such as durable storage, a streaming feature store, or incremental learners, without changing the external service contracts.
 
 \section{API Endpoints Reference}
-\subsection{Backend Service (Port 8000)}
-The backend exposes three main endpoint groups:
-\begin{itemize}
-    \item \textbf{Health:} \texttt{GET /health}
-    \item \textbf{Control:} \texttt{POST /control/\{start, pause, resume, reset\}}
-    \item \textbf{Simulation:} \texttt{GET /simulation/\{snapshot, metrics, notifications, report\}}
-    \item \textbf{Prediction:} \texttt{POST /predict/\{preview, trip\}}
-\end{itemize}
 
-\subsection{Predictor Services (Ports 8001--8003)}
-All three predictors (eta, fuel, stops) expose identical endpoints:
-\begin{itemize}
-    \item \textbf{Health:} \texttt{GET /health}
-    \item \textbf{Prediction:} \texttt{POST /predict/\{batch, single, route\}}
-    \item \textbf{Retraining:} \texttt{POST /retrain/start}, \texttt{GET /retrain/status/\{job\_id\}}
-\end{itemize}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/swagger-backend.png}
+    \caption{Backend API Endpoints Reference, Swagger UI.}
+    \label{fig:swagger-backend}
+\end{figure}
 
-\subsection{Drift Service (Port 8004)}
-The drift service manages detector workers and calibration:
-\begin{itemize}
-    \item \textbf{Health:} \texttt{GET /health}
-    \item \textbf{Drift:} \texttt{POST /drift/\{errors, recalibrate, reset\}}
-\end{itemize}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/swagger-predictor.png}
+    \caption{Predictor API Endpoints Reference, Swagger UI.}
+    \label{fig:swagger-predictor}
+\end{figure}
 
-\subsection{Summarizer Service (Port 8005)}
-The summarizer generates AI-powered analytical reports:
-\begin{itemize}
-    \item \textbf{Health:} \texttt{GET /health}
-    \item \textbf{Report:} \texttt{POST /report/generate}
-\end{itemize}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/swagger-drift.png}
+    \caption{Drift API Endpoints Reference, Swagger UI.}
+    \label{fig:swagger-drift}
+\end{figure}
 
-\subsection{Frontend Service (Port 8080)}
-The frontend provides a web interface at \texttt{http://localhost:8080} with Admin Dashboard and User Interface tabs. It communicates with the backend exclusively through the backend's REST API endpoints. It does not expose any REST API endpoints itself.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/swagger-summarizer.png}
+    \caption{Summarizer API Endpoints Reference, Swagger UI.}
+    \label{fig:swagger-summarizer}
+\end{figure}
+
+\paragraph{Frontend Service}
+The frontend provides a web interface with Admin Dashboard and User Interface tabs. It communicates with the backend exclusively through the backend's REST API endpoints. It does not expose any REST API endpoints itself. The interface is accessible at \texttt{http://localhost:8080}.
 
 \section{Summary}
 The platform operationalizes continuous ML for urban mobility through a principled microservice architecture.
