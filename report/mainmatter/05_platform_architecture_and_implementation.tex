@@ -12,12 +12,21 @@ The Frontend offers an admin dashboard (controls, metrics, notifications, post-s
 The platform follows a microservices architecture with strict separation of concerns \cite{newman2015building}. Each service exposes a small, well-typed FastAPI with Pydantic schemas, is independently deployable, and can be evolved or scaled without impacting others. A minimal service inventory and ports are:
 
 \begin{itemize}
-    \item \textbf{Backend} (8000): orchestration, timelapse control, state stores, simulation snapshot API.
-    \item \textbf{Predictor-ETA/Fuel/Stops} (8001/8002/8003): inference, feature calibration, batch/single predictions, background retraining.
-    \item \textbf{Drift} (8004): per-task workers, four detectors, consensus and online calibration.
-    \item \textbf{Summarizer} (8005): post-simulation AI report generation from metrics and notifications.
-    \item \textbf{Frontend} (8080): admin dashboard and user interface, interacts only with the Backend API.
+    \item \textbf{Backend} (Port 8000): orchestration, timelapse control, state stores, simulation snapshot API.
+    \item \textbf{Predictor-ETA/Fuel/Stops} (Port 8001/8002/8003): inference, feature calibration, batch or single predictions, background retraining.
+    \item \textbf{Drift} (Port 8004): per-task workers, four detectors, consensus and online calibration.
+    \item \textbf{Summarizer} (Port 8005): post-simulation AI report generation from metrics and notifications.
+    \item \textbf{Frontend} (Port 8080): admin dashboard and user interface, interacts only with the Backend API.
 \end{itemize}
+
+\autoref{fig:platform-architecture} showcases the architecture as a diagram:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/platform-architecture.png}
+    \caption{Platform Architecture.}
+    \label{fig:platform-architecture}
+\end{figure}
 
 \paragraph{Inter-service links.} Backend dispatches batch windows to predictors and error streams to Drift and it also triggers the Summarizer post-simulation. Frontend polls Backend for snapshots, metrics, notifications, and report content.
 
@@ -73,6 +82,15 @@ Each tick advances the simulated clock by five minutes, then:
 \end{enumerate}
 
 This design maintains sub-second processing for each batch window and preserves UI interactivity throughout the simulation.
+
+\autoref{fig:drift-states} shows the various drift states of a model, as the simulation progresses, in a diagram:
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{figures/drift-states.png}
+    \caption{Drift States of a Model.}
+    \label{fig:drift-states}
+\end{figure}
 
 \subsection{User Prediction Flow}
 For on-demand queries, the user first picks endpoints on the map available on the User Interface tab.
