@@ -3,8 +3,6 @@ services:
     container_name: backend
     build:
       dockerfile: ./thesis/backend/Dockerfile
-    ports:
-      - "8000:8000"
     volumes:
       - ./appdata/logs:/app/logs
     environment:
@@ -34,8 +32,6 @@ services:
     container_name: predictor-eta
     build:
       dockerfile: ./thesis/predictor/Dockerfile
-    ports:
-      - "8001:8001"
     volumes:
       - ./appdata/models:/app/models
       - ./appdata/common:/app/common:ro
@@ -58,8 +54,6 @@ services:
     container_name: predictor-fuel
     build:
       dockerfile: ./thesis/predictor/Dockerfile
-    ports:
-      - "8002:8002"
     volumes:
       - ./appdata/models:/app/models
       - ./appdata/common:/app/common:ro
@@ -82,8 +76,6 @@ services:
     container_name: predictor-stops
     build:
       dockerfile: ./thesis/predictor/Dockerfile
-    ports:
-      - "8003:8003"
     volumes:
       - ./appdata/models:/app/models
       - ./appdata/common:/app/common:ro
@@ -106,8 +98,6 @@ services:
     container_name: drift
     build:
       dockerfile: ./thesis/drift/Dockerfile
-    ports:
-      - "8004:8004"
     volumes:
       - ./appdata/logs:/app/logs
     environment:
@@ -149,8 +139,6 @@ services:
     container_name: summarizer
     build:
       dockerfile: ./thesis/summarizer/Dockerfile
-    ports:
-      - "8005:8005"
     volumes:
       - ./appdata/logs:/app/logs
     environment:
