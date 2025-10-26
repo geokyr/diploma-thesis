@@ -1,5 +1,7 @@
 services:
   backend:
+    ports:
+      - "8000:8000"
     volumes:
       - ./appdata/logs:/app/logs
       - ./thesis:/app/thesis
@@ -9,6 +11,8 @@ services:
       - ENVIRONMENT=development
 
   predictor-eta:
+    ports:
+      - "8001:8001"
     volumes:
       - ./appdata/models:/app/models
       - ./appdata/common:/app/common:ro
@@ -22,6 +26,8 @@ services:
       - ENVIRONMENT=development
 
   predictor-fuel:
+    ports:
+      - "8002:8002"
     volumes:
       - ./appdata/models:/app/models
       - ./appdata/common:/app/common:ro
@@ -35,6 +41,8 @@ services:
       - ENVIRONMENT=development
 
   predictor-stops:
+    ports:
+      - "8003:8003"
     volumes:
       - ./appdata/models:/app/models
       - ./appdata/common:/app/common:ro
@@ -48,6 +56,8 @@ services:
       - ENVIRONMENT=development
 
   drift:
+    ports:
+      - "8004:8004"
     volumes:
       - ./appdata/logs:/app/logs
       - ./thesis:/app/thesis
@@ -66,6 +76,8 @@ services:
       - ENVIRONMENT=development
 
   summarizer:
+    ports:
+      - "8005:8005"
     volumes:
       - ./appdata/logs:/app/logs
       - ./thesis:/app/thesis
