@@ -40,7 +40,7 @@ The final network comprises 1,184 edges and 689 junctions, covering 68.17 km of 
 \subsection{Network Construction}
 
 Rather than relying on SUMO's interactive tooling like the \texttt{osmWebWizard} GUI, the network build process invokes \texttt{osmGet.py} and \texttt{osmBuild.py} directly from scripts, with specific options specified.
-These scripts are responsible for extracting the OSM data for the specified bounding box and building the SUMO network by converting the OSM data into a SUMO-compatible network format.
+These scripts are responsible for extracting the OSM data~\cite{osm2025} for the specified bounding box and building the SUMO network by converting the OSM data into a SUMO-compatible network format.
 This choice affords programmatic reproducibility, gaining full access to the internal \texttt{netconvert} and \texttt{polyconvert} options that are not exposed by the GUI, and headless, automated runs without manual interaction.
 The base network is generated once from OpenStreetMap extracts for the specified bounding box, with traffic-light inference and junction geometry refinement.
 A second variant is then created by cloning the base network and uniformly applying a reduced lane friction coefficient of 0.4 to all lanes for the \emph{rain} scenario.
