@@ -161,18 +161,21 @@ The outcome is an architecture where model performance degradation is not only o
 
 \subsection{Real-Time Dashboard and Visualization}
 Finally, in order to make the system's operations interpretable and to aid in human-in-the-loop oversight, the platform includes a real-time dashboard that visualizes the current state of the simulation and the ML models.
-This dashboard (built with Dash/Plotly) displays key information such as charts of the performance metrics over time, and a timeline of the events that have occurred, focusing around the drift detection and retraining events.
+This dashboard (built with Dash/Plotly) displays key information such as charts of performance metrics over time, and a timeline of platform events, with emphasis on drift detections, retraining triggers, and model hot-swaps.
 
 When a drift is detected, a retraining job is triggered and a model swap occurs, the dashboard visibly flags these event seraparetely, for example showing the following notifications: ``[ML Task]: Drift detected at 10:30'' and ``[ML Task]: Model retrained and hot-swapped at 11:00''.
-Subsequent improvements in error can be observed then, showing the effect of the adaptation process.
+Subsequent improvements in error can then be observed, showing the effect of the adaptation process.
 
-While a dashboard itself is not a novel research contribution, integrating it end-to-end with the platform is a valuable demonstration for practitioners.
-It closes the feedback loop by allowing users to watch the ML system adapt in real time, thereby building trust.
+Beyond passive monitoring, the dashboard exposes a user interface meant to be used in a human-in-the-loop manner.
+Users can request a specific sample to be predicted (in this traffic simulation, a specific origin-destination trip) and the platform will infer the predictions from the current models and present them.
+This enables the user to quantify how a fixed sample's prediction changes before drift, during drift, and after adaptation, enhancing the understanding of the system's behavior.
+
+While a dashboard itself is not a novel research contribution, integrating it end-to-end with the platform and coupling it with the user interface closes the feedback loop by allowing users to watch the ML system adapt in real time.
 Many existing drift tools like Evidently produce static reports or require the user to inspect logs; in contrast, our system's UI shows a continuously updating view, which is especially important in a streaming context.
-This also helps communicate the results: for example, users can see that during the rain scenario the original model's error kept rising, but as soon as the retrained model was deployed, the error drops back to normal levels, effectively illustrating the benefit of the adaptive approach.
+This also helps communicate the results, effectively illustrating the benefit of the adaptive approach.
 
-In summary, the platform distinguishes itself by combining drift generation, detection, and adaptation in one unified environment.
-Unlike existing monitoring libraries that stop at detection, or online learning frameworks that update models but often on synthetic data, our system covers the full lifecycle on a realistic traffic problem.
-It manufactures a drift (rainy weather) in a mobility digital twin, observes the model's decline, catches it via multiple detectors, and then remedies it through automated retraining, all while delivering insights through a real-time interface.
-This end-to-end closed-loop approach, especially applied in the context of cooperative, connected, and automated mobility, is a novel contribution demonstrating how advanced MLOps techniques (continuous monitoring, automatic retraining) can be applied to maintain model performance in non-stationary environments.
-It effectively serves as an early prototype for next-generation intelligent traffic management systems where AI models remain reliable over time by continually learning from new conditions.
+\subsection{Conclusion}
+In summary, the platform distinguishes itself by combining drift generation, detection, \emph{and} adaptation in one unified environment and by making their effects inspectable through an interactive dashboard.
+Unlike existing monitoring libraries that stop at detection, our system covers the full lifecycle of a realistic mobility scenario.
+It manufactures a drift (rainy weather) in a traffic simulation, observes the model's decline, detects it via multiple detectors, and then remedies it through automated retraining, all while delivering insights through a real-time interface.
+This end-to-end closed-loop approach, applied in the context of cooperative, connected, and automated mobility, is a novel contribution demonstrating how advanced MLOps techniques, such as continuous monitoring and automatic adaptation, can be applied to maintain model performance in non-stationary environments.
