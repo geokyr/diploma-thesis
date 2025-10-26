@@ -1,0 +1,41 @@
+\chapter{Conclusions}
+\label{ch:conclusions}
+
+\section{Summary of Contributions}
+This thesis designed, implemented, and validated a drift-aware platform for continuous machine learning in cooperative, connected and automated mobility (CCAM) applications, using a central Athens case study.
+It delivered four concrete artifacts.
+First, a reproducible SUMO-based synthetic data generation pipeline produced train/test scenarios and a controlled concept-drift scenario via reduced road friction to emulate heavy rain.
+Second, an ETA prediction model based on gradient-boosted decision trees with domain-informed feature engineering was developed and tuned, serving as the primary workload to study drift.
+Third, a microservice platform was built to operate ML in a closed loop: it replays/streams data, monitors errors, detects drift via a complementary set of detectors with consensus, triggers retraining, and performs model swaps during operation with no downtime.
+Fourth, an evaluation methodology tied the above components together in a time-lapse experiment, demonstrating detection, adaptation, and recovery within one end-to-end system.
+Collectively, these contributions show that continuous learning for mobility can be realized with practical engineering trade-offs and clear operational boundaries, while maintaining a high level of reproducibility.
+
+\section{Key Findings}
+The study yields four main findings.
+(i) Controlled, domain-realistic drift matters: degrading road friction shifts ETA error distributions in ways that are observable, repeatable, and actionable, providing a reliable proving ground for adaptation policies.
+(ii) Consensus-based drift detection stabilizes decisions under noisy signals; requiring agreement among complementary detectors reduced spurious triggers without masking material changes.
+(iii) Warm retraining followed by a controlled swap restores performance effectively in the short term when the post-drift window is representative, indicating that periodic, targeted updates can be sufficient for tabular ETA workloads.
+(iv) Operational visibility is a prerequisite for trust: aligning dashboards, detector states, and deployment notifications with the simulation timeline made adaptation auditable and supported fast failure analysis when behavior deviated from expectation.
+
+\section{Limitations}
+Three limitations qualify the results.
+First, the data are realistic enough but still remain synthetic and scenario-bounded.
+While SUMO supports realistic dynamics even in a dense urban network like central Athens, the distributional support and covariate interactions are still curated.
+External validity to heterogeneous, multi-source urban data is not guaranteed.
+Second, features are primarily precomputed offline to simplify reproducibility and latency.
+This this underplays challenges of on-line feature materialization (late-arriving signals, joins, and leakage control).
+Third, the system operates at a single-node, Docker Compose scale.
+Although services are isolated and performant, questions of horizontal scaling and elasticity under bursty demand remain open.
+
+\section{Future Work}
+Future extensions follow from these limits and the platform's design.
+Real data ingestion should be added, for example using provider-specific FCD connectors, with schema validation and late-label handling.
+Online learning variants for ETA, like incremental boosting or streaming variants, merit evaluation as complements to the warm-retrain path, to reduce adaptation latency and detector sensitivity.
+Cloud-native deployment with autoscaling (container orchestration, queue backpressure, and GPU/CPU bin-packing) would enable elasticity under variable loads.
+A persistent store, acting as a feature store plus model registry, would support consistent real-time features, lineage, and rollback.
+The addition of a time-series database, like TimescaleDB, can retain metrics and notifications for historical analysis and trend detection.
+Continuous monitoring should be expanded beyond drift and error to include service-level objectives (e.g., tail inference latency), label/ground-truth availability, and post-deployment evaluation with delayed ground truth.
+Finally, the dataset simulation pipeline can include additional perturbations, such as incidents, closures, or demand shocks, to study interaction effects and to benchmark adaptation policies under multi-factor drift.
+
+\section{Closing Remarks}
+In summary, the thesis demonstrates that a drift-aware, closed-loop ML platform for urban mobility is both feasible and useful. Under a controlled but realistic drift, the system detected change, adapted promptly, and restored predictive quality, while keeping its operation observable. Bridging from this validated sandbox to production, where data are heterogeneous, labels are delayed, and scale is non-negotiable, defines the next phase: turning a working prototype into a dependable mobility service.
