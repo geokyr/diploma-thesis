@@ -1,0 +1,186 @@
+\chapter{Platform Architecture and Implementation}
+\label{ch:platform_architecture_implementation}
+
+\section{High-Level Overview}
+The platform embodies a microservice design that orchestrates a time-lapse traffic simulation, performs multi-task prediction, monitors error streams for concept drift via consensus, and adapts by retraining and hot-swapping models—while exposing a web dashboard for both administration and user-facing predictions.
+
+At a high level, the platform comprises six independent services (Backend, three Predictors for ETA/Fuel/Stops, Drift, Frontend, and Summarizer) communicating over HTTP/REST on a private Docker network.
+The Backend acts as the source of truth for simulation state and orchestrates a 20-hour scenario compressed to about 4-5 minutes (300x speedup factor), coordinating batch predictions, drift detection, and adaptation, when needed.
+The Frontend offers an admin dashboard (controls, metrics, notifications, post-simulation report) and a user interface for map-based route selection and on-demand multi-task predictions.
+
+\section{System Architecture}
+\subsection{Microservices Topology}
+The platform follows a microservices architecture with strict separation of concerns \cite{newman2015building}. Each service exposes a small, well-typed FastAPI with Pydantic schemas, is independently deployable, and can be evolved or scaled without impacting others. A minimal service inventory and ports are:
+
+\begin{itemize}
+    \item Backend (8000): orchestration, timelapse control, state stores, simulation snapshot API.
+    \item Predictor-ETA (8001), Predictor-Fuel (8002), Predictor-Stops (8003): inference, feature calibration, batch/single predictions, background retraining.
+    \item Drift (8004): per-task workers, four detectors, consensus and online calibration.
+    \item Summarizer (8005): post-simulation AI report generation from metrics and notifications.
+    \item Frontend (8080): admin dashboard and user interface, interacts only with the Backend API.
+\end{itemize}
+
+Inter-service links: Backend dispatches batch windows to predictors and error streams to Drift and it also triggers the Summarizer post-simulation. Frontend polls Backend for snapshots, metrics, notifications, and report content.
+
+\subsection{Service Responsibilities}
+\paragraph{Backend.} The Backend owns orchestration and state.
+\emph{TimelapseDriver} advances the clock in one-second real-time steps at $300\times$ simulated speed (5 simulated minutes per tick), parallelizes windowed prediction requests, triggers drift checks, and manages the adaptation lifecycle.
+State is maintained in in-memory circular buffers (\emph{MetricsStore}, \emph{NotificationStore}) and a \emph{ReportStore}.
+Startup includes dynamic discovery of available predictors via parallel health checks to support partial deployments.
+The Backend remains task-agnostic by design: it requests predictions for time windows and stores absolute errors without needing task-specific feature knowledge.
+
+\paragraph{Predictors (ETA, Fuel, Stops).} Each predictor shares a common codebase parameterized by task identity.
+Core components include: \emph{ModelManager} (versioned registry under the shared simulation appdata directory), \emph{DataLoader} (fast Parquet windowing by timestamp), \emph{Predictor} (batch/single inference and error computation), \emph{FeatureCalibrator} (task-specific engineered features for single predictions), a \emph{RetrainService} running in a dedicated process with retries and dynamic model sizing according to the size of the model and the retraining data, and a \emph{SumoService} as an interface with to the SUMO network for route preview and feature extraction.
+
+\paragraph{Drift Detection.} The Drift service runs one worker process per ML task with request and response queues,and implements four complementary detectors (ADWIN~\cite{bifet2007learning}, Page-Hinkley~\cite{page1954continuous}, KSWIN~\cite{massey1951kolmogorov}, SPC~\cite{montgomery2020spc}).
+Detectors operate over smoothed error streams with constant time computation, and a grace period before activation.
+Drift is declared when at least $3/4$ detectors agree (configurable).
+A calibration phase collects baseline errors, tunes detector hyperparameters against false positives, then transitions to online monitoring.
+After adaptation, the detectors need to be recalibrated.
+
+\paragraph{Frontend.} The Frontend (Dash + Bootstrap + Leaflet) exposes two tabs.
+The Admin Dashboard provides simulation controls (Start/Pause/Resume/Reset), MAE charts with drift window highlights, per-task status, a chronological notification feed, and a report viewer/downloader.
+The User Interface supports map-based source/destination selection, SUMO-based route preview, and synchronous ETA/Fuel/Stops prediction.
+Frontend state is maintained client-side using stores, interval polling of the Backend API, and properly set up callbacks to ensure that the UI is updated in real time.
+
+\paragraph{Summarizer.} On completion, the Backend packages a timeline of notifications and time-series metrics and asks the Summarizer to generate a markdown report (and PDF).
+The Summarizer formats and structures the data and then uses the OpenRouter API to access the LLM models. The service is configured to use free models, so no charges are incurred. There are robust retries and timeouts in place to handle transient failures.
+
+\subsection{Technology Stack}
+The following core technologies are used in the various platform services:
+
+\begin{itemize}
+    \item \textbf{Infrastructure:} Docker, Docker Compose, uv, Python 3.12
+    \item \textbf{APIs:} FastAPI with Uvicorn, uvloop, httptools and ORJSONResponse, and async httpx clients~\cite{httpx2025} for inter-service calls
+    \item \textbf{Frontend:} Dash with Plotly components, Bootstrap theming, Leaflet for interactive maps, xhtml2pdf for report pdf generation
+    \item \textbf{ML:} LightGBM, XGBoost, NumPy, pandas, and River for drift detectors
+    \item \textbf{Data:} Pandas~\cite{mckinney2010pandas}, NumPy~\cite{harris2020array} and PyArrow~\cite{pyarrow2025}/Parquet for fast filtered reads by timestamp
+    \item \textbf{LLMs:} OpenAI client for the LLM API (OpenRouter API)
+    \item \textbf{Validation:} Pydantic models shared across services for type safety and OpenAPI docs
+\end{itemize}
+
+\section{Simulation Control Flow}
+\subsection{Timelapse Tick}
+Each tick advances the simulated clock by five minutes, then:
+
+\begin{enumerate}
+    \item Backend sends concurrent batch prediction requests to all available predictors.
+    \item Predictors load the window via \emph{DataLoader}, apply precomputed features, run inference, and return absolute errors and aggregates (e.g., MAE).
+    \item Backend forwards error points to the Drift service, which updates its per-task detectors and returns the state of each task (Calibrating/Stable/Drifted/Retraining).
+    \item Backend updates the stores, performs state transitions, and if drifted, starts collecting a fixed post-drift window for retraining.
+    \item When the window completes, Backend submits a background retraining job; on completion, the predictor hot-swaps to a new version and the Drift service recalibrates.
+    \item Frontend polling refreshes snapshot/metrics/notifications, keeping the UI responsive in real time.
+    \item Summarizer generates a report from the notifications and metrics if the simulation is completed.
+\end{enumerate}
+
+This design maintains sub-second processing for each batch window and preserves UI interactivity throughout the simulation.
+
+\subsection{User Prediction Flow}
+For on-demand queries, the user first picks endpoints on the map available on the User Interface tab.
+Then, a predictor returns a route preview (via SUMO network access) and the Backend dispatches parallel single-prediction requests to the predictors.
+Each predictor uses its task-specific \emph{FeatureCalibrator} to compute identical features to training, then serves the predictions values to the user.
+
+\section{Deployment Architecture}
+\subsection{Compose-Based Orchestration}
+The system ships as a multi-container deployment with Docker Compose.
+Compose ensures startup ordering via health checks, isolates the network, and mounts shared volumes under \texttt{appdata/} (common SUMO data, task datasets, model registry, feature artifacts, and per-service logs).
+In production, only the Frontend requires external exposure, internal ports can remain bridged on the Docker network.
+Environment variables identify the running service, set the app data root, and toggle environment mode.
+
+\subsection{Images, Footprint, and Resources}
+All services start from \texttt{python:3.12-slim}, install only their optional dependency group (via \emph{uv}), and include \emph{curl} for health checks.
+Predictor images are larger due to gradient-boosting stacks (around 2 GB), while other services remain comparatively light (around 500 MB).
+Dependencies are managed with a lockfile-based workflow. This includes dependency groups in \texttt{pyproject.toml} that install only what each service needs (e.g., \texttt{thesis[drift]} vs.\ \texttt{thesis[predictor]}), keeping images lean and builds fast.
+
+\subsection{Configuration and Dependencies}
+Configuration is centralized in a single YAML file, covering logging and rotation, event loop/server choices, timelapse parameters, drift detection parameters and consensus threshold, retraining policies and resource allocation settings, and summarizer options, such as the system prompt, and retry settings.
+
+\section{Performance Goals and Realization}
+A central goal was to simulate $72{,}000$ s (20 h) of traffic in a few minutes of wall-clock time while preserving the fidelity of per-window evaluation and monitoring. To that end, the implementation combines asynchronous request orchestration with lightweight data paths that avoid blocking operations in the hot loop. Batch predictions read precomputed feature matrices from Parquet, which eliminates per-tick feature construction and reduces I/O overhead. Metrics and notifications are maintained in memory during the run, thereby removing database round-trips when the system is most active. Model retraining is delegated to background worker processes so that inference remains responsive even when adaptation is underway. Finally, per-task drift detectors run in separate processes to avoid blocking the main thread and interfering with the communication with the backend.
+
+In practice, the platform achieves the 300x multiplier, processes $110{,}000+$ trips across tasks, runs a total of 12 drift detectors concurrently, and sustains an interactive dashboard throughout, without any performance degradation.
+
+\section{Logging, Error Handling, and Observability}
+All services initialize a common logger with sensible defaults and log rotation, so that operational traces remain useful across long runs.
+Critical paths are guarded with graceful degradation on downstream failures, so a localized issue does not cascade into systemic failure.
+Looking ahead to production deployment, the same hooks can be routed to centralized log aggregation and tracing, enabling correlation of events across services.
+Looking ahead to production deployment, the same hooks can be routed to centralized log aggregation and tracing, enabling correlation of events across services. Health checks already standardize liveness and readiness; extending them with lightweight self-diagnostics (e.g., queue backlog sizes, last successful tick) would make on-call diagnostics faster without altering the public API.
+In addition to the above, comprehensive automated tests (unit, integration, performance, end-to-end) would further harden reliability and provide a safety net for the platform.
+
+\section{Concurrency and Isolation}
+The architecture uses async I/O for parallel calls per tick (\texttt{httpx.AsyncClient}, \texttt{asyncio.gather}), while process-based parallelism isolates heavy/long-running work. CPU-bound activities, most notably retraining and detector updates, run in separate processes so that Python's GIL does not throttle throughput and so that faults remain contained.
+Drift workers run per task in separate processes, while retraining uses a dedicated \texttt{ProcessPoolExecutor} per predictor, so training never blocks inference.
+This division of labor yields robust concurrency on multi-core hosts and prevents cross-task interference, while preserving responsiveness under load.
+
+\section{Extensibility and Design Principles}
+\subsection{Backend Abstraction and Task Agnosticism}
+The Backend purposefully avoids task-specific feature and model logic.
+It orchestrates time windows, aggregates errors, and manages adaptation state without knowing how a predictor computes its outputs.
+Adding a new task involves preparing its model and calibrator artifacts, registering the task in configuration, and deploying an additional predictor container.
+The Backend discovers it at startup and incorporates it into orchestration automatically.
+This separation of concerns reduces coupling and simplifies future extensions.
+
+\subsection{Feature Engineering Pattern}
+Two complementary paths support inference.
+Batch predictions rely on precomputed features, enabling sustained high throughput during the simulation.
+Conversely, on-demand user queries construct features on the fly through the \emph{FeatureCalibrator} artifacts, ensuring consistency with the training pipeline while accommodating arbitrary origins and destinations.
+This pattern balances efficiency and flexibility.
+If future scenarios require true online features, the same interfaces can be preserved while swapping the feature source.
+
+\subsection{Data Access Pattern}
+The platform encapsulates batch data access behind a simple \emph{DataLoader} interface that accepts a start and end timestamp and returns a time-windowed frame for inference and evaluation.
+In the current implementation, windows are served from local Parquet files with fast, vectorized timestamp filtering.
+However, the same interface can back onto alternative sources, like a relational or time-series database, a message bus (Kafka/RabbitMQ), cloud object storage (S3/GCS), or a live stream, without requiring changes to callers.
+This design keeps the Backend and predictors free of storage concerns and allows deployments to evolve from file-based artifacts during development to production-grade data services by swapping only the loader implementation while preserving contracts.
+
+\subsection{Adaptation Policy and Consensus}
+Drift detection uses multiple detectors with a configurable consensus threshold (default $3/4$) to reduce false positives.
+The service begins with a calibration phase that characterizes baseline error behavior.
+Only after calibration does it enter steady monitoring.
+A short grace period after startup further suppresses transient alerts.
+When drift is declared, the system collects a fixed post-drift window that is sufficient for stable retraining, then performs a model hot-swap and returns to recalibration.
+Externalizing these parameters in configuration allows tuning of sensitivity and adaptation latency for different operating contexts without code changes.
+
+\section{Architectural Strengths and Trade-offs}
+\paragraph{Strengths.} The platform benefits from clear module boundaries, stateless HTTP interfaces, and a single orchestrator that maintains system-wide state. Asynchronous requests keep ticks short, process isolation prevents heavy tasks from monopolizing resources, and a simple, versioned model registry makes hot-swaps predictable and reversible. Together, these choices create a system that is easy to reason about and robust under typical faults.
+
+\paragraph{Trade-offs.} Several pragmatic trade-offs accompany the design. In-memory stores provide speed at the expense of long-term persistence and historical analytics. Precomputed features accelerate batch evaluation but are less representative of a fully online setup. The fixed post-drift collection window introduces some adaptation delay in exchange for training stability. Each of these decisions was calibrated for the thesis setting and all can be replaced with production-grade counterparts, such as durable storage, a streaming feature store, or incremental learners, without changing the external service contracts.
+
+\section{API Endpoints Reference}
+\subsection{Backend Service (Port 8000)}
+The backend exposes three endpoint groups:
+\begin{itemize}
+    \item \textbf{Health:} \texttt{GET /health}
+    \item \textbf{Control:} \texttt{POST /control/\{start, pause, resume, reset\}}
+    \item \textbf{Simulation:} \texttt{GET /simulation/\{snapshot, metrics, notifications, report\}}
+    \item \textbf{Prediction:} \texttt{POST /predict/\{preview, trip\}}
+\end{itemize}
+
+\subsection{Predictor Services (Ports 8001--8003)}
+All three predictors (eta, fuel, stops) expose identical endpoints:
+\begin{itemize}
+    \item \textbf{Health:} \texttt{GET /health}
+    \item \textbf{Prediction:} \texttt{POST /predict/\{batch, single, route\}}
+    \item \textbf{Retraining:} \texttt{POST /retrain/start}, \texttt{GET /retrain/status/\{job\_id\}}
+\end{itemize}
+
+\subsection{Drift Service (Port 8004)}
+The drift service manages detector workers and calibration:
+\begin{itemize}
+    \item \textbf{Health:} \texttt{GET /health}
+    \item \textbf{Drift:} \texttt{POST /drift/\{errors, recalibrate, reset\}}
+\end{itemize}
+
+\subsection{Summarizer Service (Port 8005)}
+The summarizer generates AI-powered analytical reports:
+\begin{itemize}
+    \item \textbf{Health:} \texttt{GET /health}
+    \item \textbf{Report:} \texttt{POST /report/generate}
+\end{itemize}
+
+\subsection{Frontend Service (Port 8080)}
+The frontend provides a web interface at \texttt{http://localhost:8080} with Admin Dashboard and User Interface tabs. It communicates with the backend exclusively through the backend's REST API endpoints. It does not expose any REST API endpoints itself.
+
+\section{Summary}
+The platform operationalizes continuous ML for urban mobility through a principled microservice architecture.
+It demonstrates that a time-lapse, consensus-driven monitoring loop with targeted retraining can maintain prediction quality under controlled distribution shifts, all while sustaining real-time interactivity and a practical developer experience.
