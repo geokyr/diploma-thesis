@@ -253,3 +253,337 @@ The final dataset, containg the three scenarios (\emph{train}, \emph{test}, \emp
 
 \subsection{Data Availability}
 The dataset generaed and used in this thesis is publicly available as version~4, comprising three scenarios (\emph{train}, \emph{test}, \emph{rain}) and dual formats (CSV and Parquet). It is archived on Zenodo under the DOI \href{https://doi.org/10.5281/zenodo.16950674}{10.5281/zenodo.16950674}~\cite{kyriakopoulos2025synthetic}.
+
+\clearpage
+\section{Machine Learning Research}
+
+\subsection{Overview}
+This section presents the research process for building a machine learning model for Estimated Time of Arrival (ETA) prediction on the generated Athens dataset. Objectives were to (i) establish strong baselines across model families, (ii) evaluate feature engineering strategies, (iii) select a final model through systematic tuning and cross-validation, and (iv) report performance and training efficiency.
+
+Key outcomes: the final selected model is LightGBM~\cite{ke2017lightgbm}, achieving an MAE of 26.51\,s and a MAPE of 12.77\% with a training time of 2.95\,s.
+Competing gradient-boosting methods, XGBoost~\cite{chen2016xgboost} and CatBoost~\cite{prokhorenkova2018catboost} performed almost the same in accuracy but were slower to train under comparable configurations.
+
+\subsection{From FCD to Trips}
+The SUMO FCD output provides per-second telemetry for each vehicle: \texttt{timestep}, \texttt{id}, \texttt{x}, \texttt{y}, \texttt{speed}, \texttt{lane}, \texttt{odometer}, \texttt{fuel}, \texttt{waiting}.
+
+To obtain a trip-level dataset suitable for supervised learning, records were grouped by vehicle identifier and aggregated to derive the following features:
+
+\begin{itemize}
+    \item \textbf{time\_start:} first observed timestep (seconds)
+    \item \textbf{duration:} last minus first timestep (seconds)
+    \item \textbf{source\_x, source\_y:} origin coordinates (meters)
+    \item \textbf{destination\_x, destination\_y:} destination coordinates (meters)
+    \item \textbf{distance:} final odometer reading (meters)
+\end{itemize}
+
+To ensure data quality and model reliability, the generated trips were filtered based on the following criteria:
+
+\begin{itemize}
+    \item \textbf{Minimum Duration:} $\text{duration} \geq 30$ seconds (exclude extremely short trips)
+    \item \textbf{Minimum Distance:} $\text{distance} \geq 200$ meters (exclude stationary or negligible movement)
+\end{itemize}
+
+These thresholds remove edge cases such as vehicles that failed to complete routes, experienced immediate insertion errors, or represented non-meaningful trips that would introduce noise into the training process.
+
+The transformation yields a trip-level dataset with 53,229 samples, where each row represents a complete vehicle trip characterized by:
+\begin{itemize}
+    \item \textbf{Origin-Destination Pair:} Source and destination coordinates
+    \item \textbf{Temporal Context:} Departure timestamp
+    \item \textbf{Route Characteristics:} Distance traveled
+    \item \textbf{Trip Duration:} Target variable
+\end{itemize}
+
+This trip-level representation forms the foundation for feature engineering and model training, enabling prediction of trip duration based on spatial, temporal, and route characteristics.
+
+\subsection{Experimental Methodology}
+\textbf{Experiment tracking.} A systematic experiment tracking framework was implemented to manage the iterative research process and ensure reproducibility across all experiments.
+Experiments were organized as scripted runs with consistent I/O structure, saved artifacts (models, metrics, logs), and fixed random seeds.
+This ensured reproducibility, reduced boilerplate, and enabled reliable comparisons.
+For this to happen, utilizing a shared library of code for common functions and tasks was necessary.
+A centralized configuration YAML file was also used to store all shared settings and parameters, ensuring consistency across all experiments.
+This approach also enabled the use of automated result collection scripts.
+These scripts would aggregate metrics across all experiments and have quick and easy access to comparative visualizations and CSV exports for further analysis.
+
+\textbf{Cross-validation.} Model selection used 5-fold cross-validation with stratification over the target (trip duration) to stabilize fold distributions and reduce variance in estimates.
+An important aspect of this is preventing the model from overfitting to specific ranges of trip durations, if only such ranges are present in the training data.
+The test and rain datasets were kept strictly for final evaluation and were never used for training or model selection to avoid data leakage.
+
+\textbf{Metrics.} Primary metrics were Mean Absolute Error (MAE, seconds) and Mean Absolute Percentage Error (MAPE, \%).
+Training time (seconds) was tracked to assess computational efficiency, since this would be an important factor for prospective re-training in real-time scenarios, where resources would be limited.
+
+\subsection{Baseline Models}
+Four model families were benchmarked using the initial feature set (origin/destination coordinates, start time, distance): linear regression and three gradient boosting libraries, namely LightGBM, XGBoost, and CatBoost.
+This decision was made because of previous work showing that gradient boosting methods are well-suited for ETA prediction tasks~\cite{antypas2022etagb} and tabular data in general.
+
+As seen in \autoref{tab:baseline_eta}, gradient boosting methods outperformed the linear baseline, as was expected, confirming the value of non-linear interactions for ETA.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Baseline results (5-fold CV on train).}
+    \label{tab:baseline_eta}
+    \begin{tabular}{lrrr}
+        \toprule
+        \textbf{Model} & \textbf{MAE (s)} & \textbf{MAPE (\%)} & \textbf{Train time (s)} \\
+        \midrule
+        Linear Regression & 31.46 & 16.11 & 0.003 \\
+        LightGBM & 27.78 & 13.39 & 0.40 \\
+        XGBoost & 27.91 & 13.59 & 0.57 \\
+        CatBoost & 28.23 & 13.57 & 0.58 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+All subsequent experiments focused on the three gradient boosting models due to their superior performance.
+
+\subsection{Transformation Experiments}
+Prior to feature engineering, standard transformations were evaluated to test whether distributional normalization could improve accuracy or stability~\cite{pedregosa2011scikit}. These transformations were:
+
+\begin{itemize}
+    \item \textbf{Feature log-transform:} applying $\log(1+x)$ to the distance feature.
+    \item \textbf{Standard scaling:} applying standardization (zero mean, unit variance) to all features.
+    \item \textbf{Target log transform:} applying $\log(1+y)$ to the duration target variable.
+    \item \textbf{Target Box-Cox transform:} applying Box-Cox transformation to the duration target variable~\cite{box1964analysis}.
+    \item \textbf{Target quantile transform:} applying quantile normal transformation to the duration target variable~\cite{himeno2009progress}.
+\end{itemize}
+
+All transformation experiments used the original 6 features (baseline configuration) with 5-fold stratified cross-validation.
+The results of these experiments are summarized in \autoref{tab:transformation_experiments}.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Transformation experiments (5-fold CV on train).}
+    \label{tab:transformation_experiments}
+    \begin{tabular}{llrrr}
+        \toprule
+        \textbf{Transformation} & \textbf{Average MAE (s)} & \textbf{Improvement} & \textbf{Best Model} \\
+        \midrule
+        None & 27.97 & --- & LightGBM (27.78s) \\
+        Log (distance) & 27.97 & 0.00s (0.00\%) & LightGBM (27.78s) \\
+        Standardization & 27.98 & 0.01s (0.04\%) & LightGBM (27.80s) \\
+        Log (duration) & 27.92 & 0.05s (0.18\%) & LightGBM (27.73s) \\
+        Box-Cox (duration) & 27.93 & 0.04s (0.14\%) & LightGBM (27.72s) \\
+        Quantile Normal (duration) & 27.90 & 0.07s (0.25\%) & LightGBM (27.71s) \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+None of the transformations resulted in a significant improvement in model performance.
+This is expected for tree-based gradient boosting models, which are inherently invariant to monotonic transformations and feature scaling.
+Therefore, since the added complexity did not justify the performance gains, no transformations were applied in subsequent experiments.
+
+\subsection{Feature Engineering}
+Feature engineering was conducted systematically to capture spatial separations, temporal context, and route length in model-friendly forms~\cite{lloyd1982least, jolliffe1986pca}.
+Initially, some feature groups were tested independently to assess their individual contribution to model performance.
+These feature groups were:
+
+\begin{enumerate}
+    \item \textbf{Original Features (6 features):} Base features extracted directly from the simulation FCD data.
+        These features serve as the baseline for all experiments.
+        \begin{itemize}
+            \item \texttt{source\_x}, \texttt{source\_y}, \texttt{destination\_x}, \texttt{destination\_y}, \texttt{time\_start}, \texttt{distance}
+        \end{itemize}
+
+    \item \textbf{Temporal Features (5 features):} Time-based patterns extracted from trip start time.
+        These features encode temporal patterns.
+        \begin{itemize}
+            \item \texttt{hour\_bin}, \texttt{is\_morning}, \texttt{is\_noon}, \texttt{is\_afternoon}, \texttt{is\_rush\_hour}
+        \end{itemize}
+
+    \item \textbf{Spatial Features (15 features):} Geometric and geographic relationships derived from coordinates and distances.
+        These features capture urban structure and geometric relationships that influence travel time.
+        \begin{itemize}
+            \item \texttt{x\_center}, \texttt{y\_center}, \texttt{x\_difference}, \texttt{y\_difference}
+            \item \texttt{euclidean\_distance}, \texttt{route\_efficiency}, \texttt{detour\_length}
+            \item \texttt{trip\_bearing}, \texttt{trip\_bearing\_sin}, \texttt{trip\_bearing\_cos}
+            \item \texttt{is\_short\_distance}, \texttt{is\_medium\_distance}, \texttt{is\_long\_distance}
+            \item \texttt{source\_distance\_from\_city\_center}, \texttt{destination\_distance\_from\_city\_center}
+            \item \texttt{trip\_centrality\_change}, \texttt{trip\_centrality}
+        \end{itemize}
+
+    \item \textbf{Fourier Features (16 features):} Sinusoidal positional encoding of spatial coordinates at 2 frequency scales.
+        These features capture spatial patterns in the coordinate space.
+        Listed only the 8 features for the source coordinates, since the destination coordinates ones are symmetric.
+        \begin{itemize}
+            \item \texttt{source\_x\_sin\_0}, \texttt{source\_x\_cos\_0}, \texttt{source\_x\_sin\_1}, \texttt{source\_x\_cos\_1}
+            \item \texttt{source\_y\_sin\_0}, \texttt{source\_y\_cos\_0}, \texttt{source\_y\_sin\_1}, \texttt{source\_y\_cos\_1}
+        \end{itemize}
+
+    \item \textbf{Cell Features (4 features):} Spatial discretization into fixed-size grid cells (100 meters).
+        These features capture spatial patterns in the grid space.
+        \begin{itemize}
+            \item \texttt{source\_cell\_x}, \texttt{source\_cell\_y}, \texttt{destination\_cell\_x}, \texttt{destination\_cell\_y}
+        \end{itemize}
+
+    \item \textbf{Cluster Features (2 features):} K-Means clustering (K=20) on coordinates to discretize spatial regions.
+        These features capture spatial patterns in the cluster space.
+        \begin{itemize}
+            \item \texttt{source\_cluster}, \texttt{destination\_cluster}
+        \end{itemize}
+
+    \item \textbf{PCA Features (4 features):} Principal Component Analysis for dimensionality reduction (2 components).
+        These features capture dominant spatial variance in a reduced dimensional space.
+        \begin{itemize}
+            \item \texttt{source\_pca\_1}, \texttt{source\_pca\_2}, \texttt{destination\_pca\_1}, \texttt{destination\_pca\_2}
+        \end{itemize}
+\end{enumerate}
+
+Each feature group was evaluated through dedicated experiments to assess its contribution to prediction performance, and then once all together to assess their collective impact.
+The results of these experiments are summarized in \autoref{tab:feature_engineering_experiments}.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Feature engineering experiments results.}
+    \label{tab:feature_engineering_experiments}
+    \begin{tabular}{llrrrr}
+        \toprule
+        \textbf{Feature Configuration} & \textbf{Average MAE (s)} & \textbf{Improvement} & \textbf{Best Model} \\
+        \midrule
+        Original only & 27.97 & — & LightGBM (27.78s) \\
+        Original + Temporal & 27.84 & 0.13s (0.5\%) & XGBoost (27.57s) \\
+        Original + Spatial & 27.77 & 0.20s (0.7\%) & XGBoost (27.42s) \\
+        Original + Fourier & 27.69 & 0.28s (1.0\%) & XGBoost (27.48s) \\
+        Original + Cell & 27.76 & 0.21s (0.8\%) & XGBoost (27.39s) \\
+        Original + Cluster & 27.87 & 0.10s (0.4\%) & XGBoost (27.51s) \\
+        Original + PCA & 27.73 & 0.24s (0.9\%) & XGBoost (27.38s) \\
+        All features & 27.63 & 0.34s (1.2\%) & XGBoost (27.33s) \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+All feature groups provided improvement over the original features, ranging from 0.10s to 0.34s MAE reduction. The combined features performed best, achieving the lowest MAE of 27.63\,s, but the improvement from combining all features is less than the sum of individual improvements, suggesting some overlap in captured information.
+
+After evaluating the combined feature set (52 features total), systematic feature selection was performed to identify the most valuable features while reducing dimensionality, training time, and model complexity. The selection methods were:
+
+\begin{itemize}
+    \item \textbf{Gain-Based Importance:} Used LightGBM's built-in split gain importance to measure feature contribution to loss reduction across all tree splits.
+    \item \textbf{Permutation Importance:} Model-agnostic approach measuring feature impact by computing increase in MAE when each feature is randomly shuffled~\cite{breiman2001random}.
+    \item \textbf{SHAP Values:} Shapley Additive Explanations from game theory to quantify each feature's contribution to individual predictions~\cite{lundberg2017unified}.
+    \item \textbf{Correlation Analysis:} Computed Pearson correlation between all feature pairs to identify highly correlated features (|r| > 0.95)~\cite{pearson1895notes}.
+\end{itemize}
+
+The three importance-based methods (gain, permutation, SHAP) were aggregated into a combined ranking with normalization, aggregation and a weighted combination of normalized importance and rank as a final score. The top 20 features by combined score are listed in \autoref{tab:feature_selection_results}.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Top 20 features by combined importance score.}
+    \label{tab:feature_selection_results}
+    \begin{tabular}{rlrl}
+        \toprule
+        \textbf{Rank} & \textbf{Feature} & \textbf{Score} & \textbf{Category} \\
+        \midrule
+        1 & \texttt{distance} & 0.938 & Original \\
+        2 & \texttt{is\_short\_distance} & 0.567 & Spatial \\
+        3 & \texttt{euclidean\_distance} & 0.520 & Spatial \\
+        4 & \texttt{x\_center} & 0.497 & Spatial \\
+        5 & \texttt{is\_long\_distance} & 0.476 & Spatial \\
+        6 & \texttt{detour\_length} & 0.473 & Spatial \\
+        7 & \texttt{time\_start} & 0.428 & Original \\
+        8 & \texttt{y\_center} & 0.424 & Spatial \\
+        9 & \texttt{destination\_distance\_from\_city\_center} & 0.412 & Spatial \\
+        10 & \texttt{source\_distance\_from\_city\_center} & 0.396 & Spatial \\
+        11 & \texttt{is\_medium\_distance} & 0.395 & Spatial \\
+        12 & \texttt{source\_cluster} & 0.384 & Cluster \\
+        13 & \texttt{is\_noon} & 0.378 & Temporal \\
+        14 & \texttt{trip\_centrality} & 0.368 & Spatial \\
+        15 & \texttt{destination\_pca\_1} & 0.367 & PCA \\
+        16 & \texttt{source\_pca\_2} & 0.359 & PCA \\
+        17 & \texttt{destination\_y\_sin\_1} & 0.358 & Fourier \\
+        18 & \texttt{source\_pca\_1} & 0.335 & PCA \\
+        19 & \texttt{destination\_pca\_2} & 0.308 & PCA \\
+        20 & \texttt{destination\_y} & 0.289 & Original \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Distance based features dominate the top 10 poisitions, and all 4 pca features appear in the top 20, confirming their value for dimensionality reduction. Cluster features rank moderately high (12th), capturing spatial zone patterns. Original coordinate features rank lower (20+), but are retained due to PCA high correlations.
+
+Based on the combined ranking and the correlation analysis, we decided to eliminated all temporal features, all fourier features, all cell features 7 of the spatial features.
+
+The retained features are the 6 original features, the 2 cluster features, the 4 pca features and the following 10 spatial features:
+\begin{itemize}
+    \item \texttt{x\_center}
+    \item \texttt{y\_center}
+    \item \texttt{euclidean\_distance}
+    \item \texttt{detour\_length}
+    \item \texttt{is\_short\_distance}
+    \item \texttt{is\_medium\_distance}
+    \item \texttt{is\_long\_distance}
+    \item \texttt{source\_distance\_from\_city\_center}
+    \item \texttt{destination\_distance\_from\_city\_center}
+    \item \texttt{trip\_centrality}
+\end{itemize}
+
+The feature selection was validated through a dedicated experiment comparing against the full feature set:
+
+\begin{table}[htbp]
+    \centering
+    \caption{Feature selection validation results.}
+    \label{tab:feature_selection_validation}
+    \begin{tabular}{lrrr}
+        \toprule
+        \textbf{Metric} & \textbf{All features} & \textbf{Selected features} & \textbf{Change} \\
+        \midrule
+        \textbf{Features} & 52 & 22 & \textbf{-58\%} \\
+        \textbf{Average MAE (s)} & 27.63 & 27.66 & \textbf{+0.03s} \\
+        \textbf{Average MAPE (\%)} & 13.26 & 13.27 & \textbf{+0.01\%} \\
+        \textbf{Average Training Time (s)} & 0.81 & 0.49 & \textbf{-40\%} \\
+        \textbf{Best Model} & XGBoost (27.33s) & XGBoost (27.33s) & \textbf{Identical} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+With only 0.03s MAE increase, 0.01\% MAPE increase, and a 40\% reduction in training time, the feature selection was successful in retaining the most informative features while eliminating redundancy and reducing computational cost.
+
+\subsection{Hyperparameter Tuning}
+Systematic hyperparameter optimization was performed for all three gradient boosting models using Optuna~\cite{akiba2019optuna} with the Tree-structured Parzen Estimator (TPE) sampler~\cite{bergstra2011algorithms}.
+The optimization objective was to minimize Mean Absolute Error (MAE) across 5-fold stratified cross-validation.
+A two-phase approach was employed to balance exploration and exploitation. Phase 1 was a broad search with 100 trials per model, while Phase 2 was a more focused search on the best performing regions with 50 trials per model.
+The optimization process totaled 450 trials (150 per model) without early stopping, leveraging the fast training times enabled by the compact dataset.
+
+The results of the hyperparameter tuning are summarized in \autoref{tab:hyperparameter_tuning_results}.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Hyperparameter tuning results.}
+    \label{tab:hyperparameter_tuning_results}
+    \begin{tabular}{llrrrr}
+        \toprule
+        \textbf{Model} & \textbf{Phase} & \textbf{Best MAE (s)} & \textbf{Best MAPE (\%)} & \textbf{Training Time (s)} \\
+        \midrule
+        CatBoost & 1 & 26.72 & 12.80 & 11.56 \\
+        CatBoost & 2 & 26.70 & 12.81 & 14.70 \\
+        LightGBM & 1 & 26.58 & 12.78 & 2.60 \\
+        LightGBM & 2 & 26.51 & 12.77 & 2.95 \\
+        XGBoost & 1 & 26.69 & 12.82 & 7.47 \\
+        XGBoost & 2 & 26.63 & 12.83 & 9.44 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+LightGBM achieved the lowest MAE of 26.51\,s and MAPE of 12.77\% on cross-validation with a training time of 2.95\,s, and was therefore selected for downstream evaluation on the held-out scenarios.
+Its training efficiency was superior to both XGBoost and CatBoost, being 3x and 5x faster respectively, and its performance was the best and most consistent across both phases of the tuning process.
+
+\subsection{Final Model}
+The selected model is LightGBM with the following hyperparameters seen in \autoref{tab:final_lgbm}, chosen via cross-validated tuning for minimum MAE:
+
+\begin{table}[htbp]
+    \centering
+    \caption{Final LightGBM hyperparameters.}
+    \label{tab:final_lgbm}
+    \begin{tabular}{lr}
+        \toprule
+        \textbf{Parameter} & \textbf{Value} \\
+        \midrule
+        \texttt{max\_depth} & 14 \\
+        \texttt{n\_estimators} & 1100 \\
+        \texttt{num\_leaves} & 104 \\
+        \texttt{learning\_rate} & 0.043 \\
+        \texttt{subsample} & 0.958 \\
+        \texttt{colsample\_bytree} & 0.692 \\
+        \texttt{min\_child\_samples} & 38 \\
+        \texttt{min\_split\_gain} & $1.2 \times 10^{-5}$ \\
+        \texttt{reg\_alpha} & $6.7 \times 10^{-6}$ \\
+        \texttt{reg\_lambda} & $3.5 \times 10^{-5}$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
