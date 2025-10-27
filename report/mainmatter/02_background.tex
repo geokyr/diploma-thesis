@@ -47,11 +47,19 @@ A few representative deep learning models are:
 
 \end{itemize}
 
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figures/feedforward-neural-network.png}
+    \caption{Feedforward neural network architecture with input layer, two hidden layers, and output layer.}
+    \label{fig:feedforward-neural-network}
+\end{figure}
+
 Neural networks are flexible and scalable but can be data-hungry, prone to overfitting, and require careful regularization and tuning to achieve optimal results.
 
 \section{Model Performance Metrics}
 
 Model evaluation is essential for assessing predictive reliability.
+In the following metrics, $y_i$ denotes the true value, $\hat{y}_i$ represents the predicted value for the $i$-th observation, and $n$ is the total number of samples.
 Key metrics for regression models include~\cite{bishop2006pattern}:
 
 \begin{itemize}
@@ -161,6 +169,12 @@ Prominent MLOps platforms include cloud-native solutions (AWS SageMaker, Google 
 \section{Concept Drift}
 
 Concept drift is the phenomenon where the statistical properties of the target variable change over time, leading to reduced model accuracy~\cite{lu2018learning}.
+Formally, concept drift occurs when the joint probability distribution changes over time:
+\[
+    P_t(X, y) \neq P_{t+k}(X, y) \, ,
+\]
+where $P_t(X, y)$ is the distribution at time $t$ and $P_{t+k}(X, y)$ is the distribution at some future time $t+k$.
+More specifically, drift can affect the conditional distribution $P(y|X)$ (real concept drift) or the input distribution $P(X)$ (virtual drift).
 This effect is especially critical in streaming and non-stationary environments, such as online monitoring, finance, or cybersecurity.
 
 Concept drift manifests in various forms:
@@ -171,6 +185,13 @@ Concept drift manifests in various forms:
     \item \textbf{Incremental}: stepwise, small alterations over time.
 \end{itemize}
 
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/drift-categories.png}
+    \caption{Categories of concept drift.}
+    \label{fig:drift-categories}
+\end{figure}
+
 Detection strategies are categorized as error-rate monitoring (e.g., DDM, EDDM, HLFR), statistical tests, and ensembles.
 Drift detectors can monitor prediction error, data distribution, or model performance metrics.
 Notable techniques include Hierarchical Hypothesis Testing (HHT), Linear Four Rates (LFR), and ensemble detectors, each with distinct strengths relevant to the type and speed of drift.
@@ -179,7 +200,7 @@ Accurate and timely drift detection is paramount for maintaining predictive accu
 Systems often employ sliding windows or reference distributions to test for shifts, and performance degradation often triggers retraining and adaptation processes.
 
 Concept drift adaptation strategies help machine learning models stay accurate as data changes over time.
-The main approaches include frequent retraining (updating the model on new data), online learning (incremental updates with each new sample), window-based methods (using only recent data for training), and ensemble methods (combining several models and favoring those performing best on recent data).
+The main approaches include frequent retraining (updating the model on new data), online learning (incremental updates with each new sample), window-based methods (using only recent data for training), and ensemble methods (combining several models and favoring those performing best on recent data)~\cite{gama2014survey, zliobaite2014survey}.
 Some strategies rely on drift detectors to trigger adaptation, while others update models continuously regardless of detected drift.
 The goal is to respond quickly to changes, maintaining reliable predictions in evolving environments.
 
@@ -208,17 +229,20 @@ Each agent, be it a car, bus, bicycle, or pedestrian is simulated explicitly, wi
 
 Core functionalities and capabilities include:
 \begin{itemize}
-    \item \textbf{Microscopic Simulation}: Models each vehicle and pedestrian individually, supporting realistic behaviors such as lane changes, right-of-way rules, and traffic light interactions.
-    \item \textbf{Multi-modal Traffic}: Simulates not only private cars but also public transport, bicycles, pedestrians, and intermodal trips within the same environment.
-    \item \textbf{Flexible Network Import}: Supports importing road networks from OpenStreetMap, commercial formats (VISUM, Vissim, NavTeq), and others, or allows users to create synthetic networks.
-    \item \textbf{Demand Generation}: Generates vehicle flows using origin-destination matrices, real traffic counts, or synthetic (random and virtual population-based) demand models.
-    \item \textbf{Traffic Management}: Enables the testing and evaluation of traffic lights, routing policies, eco-aware navigation, and urban policies before real-world deployment.
+    \item \textbf{Microscopic and Multi-modal Simulation}: Models each vehicle, pedestrian, bicycle, and public transport unit individually, supporting realistic behaviors such as lane changes, right-of-way rules, traffic light interactions, and intermodal trips within the same environment.
+    \item \textbf{Flexible Input and Demand Modeling}: Supports importing road networks from OpenStreetMap, commercial formats (VISUM, Vissim, NavTeq), or synthetic networks, and generates vehicle flows using origin-destination matrices, real traffic counts, or virtual population-based demand models.
+    \item \textbf{Traffic Management and Policy Testing}: Enables the evaluation of traffic lights, routing policies, eco-aware navigation, and urban policies before real-world deployment.
     \item \textbf{Real-time Control and Interoperability}: Offers APIs like TraCI for live, programmatic control of the simulation and integration with external tools, such as vehicle communication (C2X) simulators.
-    \item \textbf{Comprehensive Visualization}: Provides tools for route finding, visualization and detailed performance monitoring.
-    \item \textbf{Extensive Simulation Outputs}: Generates vehicle trajectories, trip statistics, traffic states, environmental metrics, and more in XML or CSV, enabling detailed analysis.
-    \item \textbf{High Performance and Scalability}: Efficiently manages large networks (10,000+ edges; 100,000+ vehicles) and supports parallel simulations on various platforms (Windows, Linux, macOS).
-    \item \textbf{Open Source and Extensible}: Freely available and extensible, with a large user and developer community for enhancements, custom models, and research applications.
+    \item \textbf{Visualization and Output Analytics}: Provides comprehensive visualization tools and generates detailed simulation outputs including vehicle trajectories, trip statistics, traffic states, and environmental metrics in XML or CSV formats.
+    \item \textbf{High Performance and Open Source}: Efficiently manages large networks (10,000+ edges; 100,000+ vehicles) across multiple platforms, and is freely available with an active developer community for extensions and research applications.
 \end{itemize}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/sumo.png}
+    \caption{SUMO simulation environment showing a microscopic traffic simulation with individual vehicle trajectories, real-time visualization, and speed monitoring capabilities.}
+    \label{fig:sumo}
+\end{figure}
 
 These features make SUMO an established tool for transportation planning, intelligent transportation system development, traffic light optimization, and research on smart mobility solutions worldwide.
 

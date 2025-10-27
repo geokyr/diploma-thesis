@@ -58,7 +58,7 @@ The Summarizer formats and structures the data and then uses the OpenRouter API 
 The following core technologies are used in the various platform services:
 
 \begin{itemize}
-    \item \textbf{Infrastructure:} Docker, Docker Compose, uv, Python 3.12
+    \item \textbf{Infrastructure:} Docker, Docker Compose, uv dependency manager~\cite{astral2025uv}, Python 3.12
     \item \textbf{APIs:} FastAPI with Uvicorn, uvloop, httptools and ORJSONResponse, and async httpx clients~\cite{httpx2025} for inter-service calls
     \item \textbf{Frontend:} Dash with Plotly components, Bootstrap theming, Leaflet for interactive maps, xhtml2pdf for report pdf generation
     \item \textbf{ML:} LightGBM, XGBoost, NumPy, pandas, and River for drift detectors

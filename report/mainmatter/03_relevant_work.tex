@@ -13,7 +13,7 @@ Overall, River is focused on streaming adaptation and concept drift handling, ma
 
 \subsection{scikit-multiflow}
 \textbf{scikit-multiflow} is an earlier Python framework for stream learning and concept drift, which was one of River's predecessors~\cite{montiel2018scikit}.
-Inspired by the MOA stream mining software in Java, scikit-multiflow brought popular stream learning algorithms and evaluation tools into the Python ecosystem.
+Inspired by the Massive Online Analysis (MOA) stream mining software in Java, scikit-multiflow brought popular stream learning algorithms and evaluation tools into the Python ecosystem.
 It supports a range of tasks including classification, regression, and even multi-output prediction, and it provides several drift detection algorithms (e.g. ADWIN, DDM, EDDM, Page-Hinkley) as part of its toolkit.
 A key design goal was compatibility with scikit-learn, allowing users to integrate stream learning with familiar APIs.
 The strengths of scikit-multiflow include its breadth of implemented methods, many inherited from the MOA framework, and the ability to simulate data streams with built-in generators for controlled concept drift, e.g. abrupt or gradual drift in synthetic data.
@@ -58,6 +58,13 @@ NannyML's limitations include that it currently supports primarily classificatio
 The techniques can be complex to calibrate. For instance, CBPE assumes the model's probability estimates are well-calibrated and that past relationships hold, which might not always perfectly predict actual performance.
 Additionally, as a specialized library, it may need to be integrated into an existing MLOps setup, as it provides Python APIs and some UI components, but not a full monitoring server on its own.
 In summary, NannyML represents an advanced approach to concept drift monitoring: instead of just detecting drift, it focuses on what that drift means for model accuracy, helping close the gap between drift signals and model maintenance actions.
+
+\subsection{Summary and Limitations}
+While the libraries surveyed above (River, scikit-multiflow, Alibi Detect, Evidently, and NannyML) offer powerful building blocks for drift detection and online learning, they share a common limitation: they are primarily toolkits rather than complete systems.
+Each requires manual integration into an MLOps pipeline, often leaving critical gaps such as automated retraining, model hot-swapping, and end-to-end orchestration to the user.
+Furthermore, none provide a cohesive solution that combines drift detection with automatic adaptation and user-facing interfaces in a single deployable platform.
+In contrast, this work presents a fully integrated microservices architecture that addresses these gaps by implementing consensus-based drift detection, automatic model retraining and deployment, multi-task prediction, real-time simulation integration, and interactive dashboards for both monitoring and end-user predictions.
+By demonstrating this end-to-end workflow in a realistic traffic prediction scenario, the platform showcases how drift detection theory translates into production-ready systems with minimal manual intervention, closing the loop from detection to adaptation in a way that standalone libraries cannot.
 
 \section{ETA Prediction: Literature Overview}
 

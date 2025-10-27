@@ -94,7 +94,7 @@ The base generation periods, in seconds between vehicle departures, are shown in
 \end{table}
 
 To introduce natural variability between simulations and avoid identical traffic patterns, each scenario applies Gaussian noise to the base traffic generation periods.
-Each base period is multiplied by a random value drawn from a normal distribution centered at 1.0 with standard deviation 0.01. This introduces some \emph{stochastic variability} in traffic volumes while preserving the overall hourly pattern shape.
+Each base period is multiplied by a random value drawn from a normal distribution centered at 1.0 with standard deviation 0.01. These values are chosen empirically to introduce some \emph{stochastic variability} in traffic volumes while preserving the overall hourly pattern shape, and to avoid introducing too much noise.
 
 Each scenario uses a distinct random seed that controls the following:
 

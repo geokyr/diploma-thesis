@@ -1,6 +1,17 @@
 \chapter{Introduction}
 \label{ch:intro}
 
+\section{Motivation}
+
+The rapid evolution of \textit{Cooperative, Connected and Automated Mobility (CCAM)} is transforming modern transportation systems.
+CCAM technologies enable vehicles to communicate with each other and with infrastructure, promising safer, more efficient, and more sustainable mobility~\cite{ertrac2022ccam}.
+As intelligent transportation systems become increasingly reliant on machine learning for critical functions such as route optimization, traffic prediction, and safety-critical decision-making, the accuracy and reliability of these models directly impact both operational efficiency and public safety.
+Recent trends in CCAM emphasize the need for real-time adaptability and continuous model refinement as urban environments become more complex and data-driven~\cite{abdi2021travel}.
+
+However, achieving reliable predictions in such dynamic settings presents significant challenges.
+One key use case is \textit{Estimated Time of Arrival (ETA)} prediction for vehicles, a core service in smart mobility that influences traffic management, logistics, and traveler information~\cite{abdi2021travel}.
+Many current mobility systems do not continuously recalibrate their prediction models as new data arrives~\cite{arifi2024eta}.
+
 \section{Problem Statement}
 
 Urban mobility environments are highly dynamic and \textit{non-stationary}, meaning that the statistical properties of traffic data change over time.
@@ -10,28 +21,25 @@ This drift is triggered by many factors: for example, road network changes (e.g.
 Even routine variations like weather and seasonal demand swings can lead to abrupt or gradual shifts in vehicle speeds and congestion levels.
 A model that performs well on dry, low-traffic days may become less accurate during heavy rain or rush-hour peaks if those conditions were not part of its training distribution~\cite{baier2020error}.
 The challenge is that static ML models struggle to maintain accuracy in the face of non-stationarity, as their predictive power deteriorates over time unless the models continually adapt to the evolving urban mobility data~\cite{gama2014survey}.
-Recognizing and addressing this concept drift in cooperative and automated mobility scenarios is therefore a critical problem identified by the research community.
 
-\section{Motivation}
+While concept drift detection and adaptation techniques have been well-studied in the literature~\cite{lu2018learning, greco2025drift}, what remains largely unaddressed is the lack of a \textit{holistic, integrated platform} specifically tailored for CCAM environments.
+Existing solutions are often fragmented or confined to laboratory settings, lacking the integration of critical components needed for systematic drift management in distributed mobility scenarios.
+Current tools may address individual aspects, such as drift detection or model retraining, but they rarely incorporate traffic simulation, continuous monitoring, and adaptive retraining into one seamless, automated loop~\cite{xin2024lit, modesto2025self}.
 
-Given the inevitability of concept drift in real-world intelligent transportation systems, there is a clear need for a practical, drift-aware platform tailored to the mobility domain.
-While concept drift detection and adaptation have been studied in research, existing solutions are often fragmented or confined to laboratory settings~\cite{lu2018learning, greco2025drift}.
-Current tools lack integration of critical components, for instance, traffic simulation, continuous monitoring, and adaptive retraining are rarely all incorporated into one seamless loop.
-This means practitioners may detect drifts, but they often have no automated way to replay scenarios, e.g. via simulation, or update models on the fly in response to those drifts~\cite{xin2024lit, modesto2025self}.
-
-A domain-specific platform would be able to fill this gap by monitoring model performance through time and not just offline metrics, automatically detecting distribution shifts, and triggering model adaptation with minimal human intervention.
-Such an integrated approach is especially vital in \textit{Cooperative, Connected and Automated Mobility (CCAM)} applications where conditions can change rapidly and safety is paramount~\cite{ertrac2022ccam}.
-One key use case is \textit{Estimated Time of Arrival (ETA)} prediction for vehicles, a core service in smart mobility that influences traffic management, logistics, and traveler information~\cite{abdi2021travel}.
-However, many current mobility systems do not continuously recalibrate ETA models as new data, e.g., live traffic feeds or weather updates, arrive~\cite{arifi2024eta}.
-This motivates the creation of a continuous learning platform for mobility: one that integrates traffic simulation to test “what-if” scenarios and generate synthetic data, live performance dashboards to observe errors as they evolve over time, drift detection algorithms to raise alerts when the model performance starts degrading, and an automated retraining pipeline to deploy updated models when needed.
-By addressing these needs, we aim to ensure that mobility prediction models remain accurate and robust despite the ever-changing urban environment.
+This gap motivates the creation of a continuous learning platform for mobility: one that integrates traffic simulation to test "what-if" scenarios, live performance dashboards to observe errors as they evolve, drift detection algorithms to raise alerts when model performance degrades, and an automated retraining pipeline to deploy updated models.
+By monitoring performance through time rather than just offline metrics and triggering adaptation with minimal human intervention, we aim to ensure that mobility prediction models remain accurate and robust despite the ever-changing urban environment, ultimately supporting the safety and reliability requirements of CCAM applications.
 
 \section{Thesis Goal}
 
 The objective of this thesis is to design, implement, and evaluate a microservice-based platform for \textit{continuous machine learning} in urban mobility applications.
 In essence, the goal is to create a \textit{drift-aware ML platform} that supports end-to-end monitoring and adaptation of predictive models in a city traffic context.
 
-The platform will be built using a modular microservice architecture to ensure scalability and flexibility, where each component (orchestration, model serving, drift detection, etc.) operates as an independent service.
+To achieve this, we first establish a reproducible experimental foundation by developing a synthetic dataset generation pipeline using the SUMO traffic simulator~\cite{krajzewicz2012recent}.
+This addresses a critical gap: the lack of standardized, publicly available drift benchmarks in urban mobility research.
+By leveraging SUMO's microscopic traffic simulation capabilities, we can generate controlled scenarios that include both stable conditions and deliberate drift events, such as weather-induced traffic changes, providing labeled data for model training and realistic drift testing.
+This synthetic approach ensures reproducibility, allows for systematic experimentation with different drift patterns, and enables validation of the platform's drift detection and adaptation mechanisms in a controlled yet realistic environment.
+
+Building upon this data foundation, the platform will be built using a modular microservice architecture to ensure scalability and flexibility, where each component (orchestration, model serving, drift detection, etc.) operates as an independent service.
 Crucially, the platform is intended to be model-agnostic and domain-specific: it can host any machine learning model for mobility prediction tasks, but this thesis will demonstrate and evaluate it primarily through the lens of an Estimated Time of Arrival (ETA) prediction use case.
 We focus on ETA because of its importance in CCAM scenarios, helping vehicles and travelers coordinate effectively, and because it provides a tangible benchmark to test how well the platform handles concept drift.
 Upon detecting drift, it will automatically trigger model adaptation, i.e. retraining and model swapping, to self-correct the predictions.
@@ -50,14 +58,14 @@ This thesis makes several contributions to the state of the art in continuous ma
 
     \item \textbf{ETA Prediction Model under Drift:} We designed a feature-engineered ETA prediction model using gradient-boosted decision trees (LightGBM)~\cite{ke2017lightgbm}.
         The model is trained on the above dataset to estimate travel times for vehicles, and we introduce domain-specific features to improve accuracy.
-        More importantly, the model's performance is evaluated under simulated drift scenarios, e.g., a sudden shift from normal traffic to heavy rain conditions that reduce vehicle speeds.
+        More importantly, the model's performance is evaluated under highly-realistic simulation-based drift scenarios, e.g., a sudden shift from normal traffic to heavy rain conditions that reduce vehicle speeds.
         This allowed us to study how concept drift affects ETA prediction accuracy, and to validate that our model, and platform, can detect and respond to these changes.
 
     \item \textbf{Time-Lapse Drift Simulation:} We conducted a time-lapse simulation experiment to rigorously assess drift detection and adaptation in an end-to-end fashion.
         In this setup, the SUMO simulator replays an extended sequence where an initial period of stable conditions is followed by a clear drift event, in this case a transition from dry weather to a storm causing slower traffic.
         The platform's drift detectors monitor the real-time prediction error and successfully detect the concept drift when the environment changes.
         We then measure how the system's automatic adaptation, triggering model retraining with new data from the rainy period, helps recover the model's performance.
-        This experiment provides a realistic validation of the platform's ability to observe, detect, and mitigate drift in a controlled yet lifelike scenario.
+        This exploration provides a realistic validation of the platform's ability to observe, detect, and mitigate drift in a controlled yet lifelike scenario.
 
     \item \textbf{Drift-Aware Platform Implementation:} We present the design and implementation of a platform for continuous learning in mobility, which is a key practical contribution of this work.
         The platform includes components for simulation replay that feed historical or synthetic data through the model as if in real time, live dashboarding of model performance metrics, so that users can visualize concept drift as it happens, pluggable drift detection algorithms with calibration tools to set detection thresholds and minimize false alarms, and an automatic retraining and deployment pipeline, which seamlessly replaces the old model with an updated one when drift is confirmed.
