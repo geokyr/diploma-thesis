@@ -1,4 +1,3 @@
-% TODO: review at the end to remove unused packages
 \ProvidesPackage{thesis}[2025/10/22 Thesis package collection]
 
 \RequirePackage[greek,english]{babel}
@@ -29,9 +28,6 @@
 \RequirePackage[dvipsnames]{xcolor}
 \RequirePackage[justification=centering]{caption}
 
-\counterwithin{figure}{section}
-\counterwithin{equation}{section}
-
 \RequirePackage{parskip}
 \RequirePackage{csquotes}
 
@@ -46,22 +42,3 @@
     giveninits=true,
 ]{biblatex}
 \DeclareNameAlias{author}{family-given}
-
-% TODO: decide if i should keep this or add more formats
-\RequirePackage{listings}
-\lstset{
-    basicstyle=\ttfamily\footnotesize,
-    keywordstyle=\color{blue}\bfseries,
-    commentstyle=\color{gray}\itshape,
-    stringstyle=\color{purple},
-    numberstyle=\tiny\color{gray},
-    numbers=left,
-    numbersep=8pt,
-    stepnumber=1,
-    backgroundcolor=\color{gray!5},
-    frame=single,
-    breaklines=true,
-    showstringspaces=false,
-    tabsize=4,
-    captionpos=b,
-}
