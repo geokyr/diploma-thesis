@@ -116,11 +116,12 @@ Development mode mounts your local `thesis/` directory into containers, allowing
 
 ## Project Structure
 - `appdata/` - Application data, models, logs and other artifacts for the platform
+- `docs/` - Documentation for the project
 - `experiments/` - Machine learning research experiments
 - `outputs/` - Outputs from the experiments (models, metrics, logs)
 - `presentation/` - Presentation files and figures
 - `report/` - Thesis report in LaTeX format
-- `resources/` - Various documents and papers about the project
+- `resources/` - Various resources and files about the project
 - `simulation/` - SUMO configuration files and datasets
 - `thesis/` - Main Python package for the project
   - `backend/` - Main orchestration and control service
