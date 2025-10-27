@@ -3,6 +3,7 @@
 ## To Do
 - Single predict stops hotfix
 - Testing
+- Documentation
 
 ## Precommit Checks
 - Docstrings
