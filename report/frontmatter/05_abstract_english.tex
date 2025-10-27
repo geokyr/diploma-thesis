@@ -1,7 +1,17 @@
 \chapter*{Abstract}
 
-% TODO
+Urban mobility is inherently non-stationary: shifts in weather, demand, and network conditions alter data distributions and degrade model accuracy over time.
+This thesis designs, implements, and evaluates a drift-aware platform for continuous machine learning in Cooperative, Connected, and Automated Mobility (CCAM).
+The system combines a modular microservice architecture for model serving, online monitoring, multi-detector drift consensus, and automated retraining with hot-swap deployment.
+A reproducible SUMO-based dataset for central Athens is constructed under normal and adverse-weather scenarios; concept drift is induced via friction reduction to emulate rain, preserving network topology while yielding measurable shifts (average speed $-13.68\%$, trip duration $+16.74\%$).
 
-\textbf{\textit{Keywords:}} % TODO
+Evaluation centers on Estimated Time of Arrival (ETA) prediction with a LightGBM model enriched by domain features, exercised in a time-lapse experiment with an abrupt drift at the midpoint, due to rain conditions.
+Under drift, baseline errors increase markedly (MAE $30.36\,s \rightarrow 56.93$\,s; MAPE $13.20\% \rightarrow 19.02\%$).
+After detecting drift, the model is fine-tuned using one hour of post-drift data and hot-swapped, recovering performance on a head-to-head window (MAE $-11.00$\,s, $-25.42\%$; MAPE $-2.34$\,pp, $-13.85\%$).
+The platform's modularity is further evidenced by Fuel Consumption and Number of Stops models, and its dashboard and user interface provides real-time interpretability.
+Overall, the results demonstrate a practical, closed-loop approach to detecting, responding to, and mitigating concept drift in realistic urban traffic settings.
+
+\textbf{\textit{Keywords:}}
+Continuous Machine Learning, CCAM, Concept Drift, ETA Prediction, SUMO, Urban Mobility, Gradient Boosted Trees, MLOps, Microservices
 
 \cleardoublepage
