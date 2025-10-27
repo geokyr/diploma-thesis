@@ -4,6 +4,7 @@
 - Single predict stops hotfix
 - Testing
 - Documentation
+- Comparison experiment
 
 ## Precommit Checks
 - Docstrings
