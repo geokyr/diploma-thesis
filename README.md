@@ -5,10 +5,10 @@ Continuous Machine Learning, Concept Drift, MLOps, and Cooperative, Connected an
 ## Quick Start
 This project supports two main workflows:
 
-1. **Research & Development** - For dataset generation and ML research experiments
-2. **Platform Deployment** - For running the full Drift-Aware ML Platform
+1. **Dataset Generation & Machine Learning Research** - For running the dataset generation pipeline and machine learning research experiments
+2. **Platform** - For running the full Drift-Aware ML Platform
 
-## Research & Development Setup
+## Dataset Generation & Machine Learning Research
 Use `uv` to manage dependencies and create isolated environments.
 
 ### Install uv
@@ -63,7 +63,7 @@ The experiments use a dataset of **Synthetic 10-hour Traffic Simulations for Cen
 
 Available formats: CSV and Parquet (~3.3 GB total)
 
-## Platform Deployment
+## Platform
 Use Docker Compose to run the Drift-Aware ML Platform, which consists of the following services:
 - **Backend** (port 8000) - Main orchestration and control service
 - **Predictor Services** (ports 8001, 8002, 8003) - ETA, Fuel, and Stops prediction services
