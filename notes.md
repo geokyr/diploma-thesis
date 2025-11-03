@@ -1,10 +1,9 @@
 # Notes
 
 ## To Do
-- Single predict stops hotfix
+- Presentation
 - Testing
 - Documentation
-- Comparison experiment
 
 ## Precommit Checks
 - Docstrings
