@@ -45,6 +45,13 @@ Using it in a truly live monitoring scenario with continuous streaming data may 
 Additionally, while it identifies drift and performance issues, it doesn't automatically retrain models or suggest fixes, as it's primarily a monitoring dashboard.
 In short, Evidently fills the role of ML monitoring and data validation by making drift detection and model quality checks more accessible and transparent.
 
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/evidently.png}
+    \caption{Evidently: Data drift evaluation.}
+    \label{fig:evidently}
+\end{figure}
+
 \subsection{NannyML}
 \textbf{NannyML} is a newer open-source library specifically focused on post-deployment model monitoring, with an emphasis on detecting concept drift and estimating model performance without immediate ground truth~\cite{grootendorst2023nannyml, mueller2024bench}.
 It aims to answer the question: ``How is my model performing now, given that I might not have labels for the latest predictions?''.
@@ -58,6 +65,13 @@ NannyML's limitations include that it currently supports primarily classificatio
 The techniques can be complex to calibrate. For instance, CBPE assumes the model's probability estimates are well-calibrated and that past relationships hold, which might not always perfectly predict actual performance.
 Additionally, as a specialized library, it may need to be integrated into an existing MLOps setup, as it provides Python APIs and some UI components, but not a full monitoring server on its own.
 In summary, NannyML represents an advanced approach to concept drift monitoring: instead of just detecting drift, it focuses on what that drift means for model accuracy, helping close the gap between drift signals and model maintenance actions.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/nannyml.png}
+    \caption{NannyML: Monitoring estimated performance with the CBPE method}
+    \label{fig:nannyml}
+\end{figure}
 
 \subsection{Summary and Limitations}
 While the libraries surveyed above (River, scikit-multiflow, Alibi Detect, Evidently, and NannyML) offer powerful building blocks for drift detection and online learning, they share a common limitation: they are primarily toolkits rather than complete systems.
@@ -82,6 +96,13 @@ More recently, attention mechanisms and transformers have been introduced.
 AttentionTTE~\cite{li2024attentiontte} employs self-attention to capture global interactions among road segments, combined with a recurrent module for local temporal trends.
 This achieved state-of-the-art results on a large trajectory dataset, indicating the benefit of modeling both local and long-range dependencies in routes.
 Similarly, researchers have explored multi-task learning in deep models, for instance, the WDR (wide-deep-recurrent) model~\cite{guo2019wide} and CoDriver system~\cite{qian2021codriver} incorporated an auxiliary task (learning driver behavior style) to improve ETA predictions, demonstrating that additional contextual signals can improve accuracy.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/attentiontte.png}
+    \caption{AttentionTTE: The self-attention of spatial correlations extraction module.}
+    \label{fig:attentiontte}
+\end{figure}
 
 \subsection{Graph Neural Networks}
 In parallel to sequence-based methods, graph-based approaches have gained prominence for ETA and traffic prediction.
