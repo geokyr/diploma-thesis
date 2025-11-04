@@ -2,20 +2,19 @@
 
 ## Table of Contents
 
-1. [Executive Summary](#1-executive-summary)
-2. [System Architecture](#2-system-architecture)
-3. [Deployment Architecture](#3-deployment-architecture)
-4. [Extensibility and Design Principles](#4-extensibility-and-design-principles)
-5. [Logging and Error Handling](#5-logging-and-error-handling)
-6. [Performance Goals and Achievements](#6-performance-goals-and-achievements)
-7. [Platform Capabilities Summary](#7-platform-capabilities-summary)
-8. [Architectural Strengths](#8-architectural-strengths)
-9. [Architectural Trade-offs](#9-architectural-trade-offs)
-10. [API Endpoints Reference](#10-api-endpoints-reference)
-11. [Conclusion](#11-conclusion)
+- [Executive Summary](#executive-summary)
+- [System Architecture](#system-architecture)
+- [Deployment Architecture](#deployment-architecture)
+- [Extensibility and Design Principles](#extensibility-and-design-principles)
+- [Logging and Error Handling](#logging-and-error-handling)
+- [Performance Goals and Achievements](#performance-goals-and-achievements)
+- [Platform Capabilities Summary](#platform-capabilities-summary)
+- [Architectural Strengths](#architectural-strengths)
+- [Architectural Trade-offs](#architectural-trade-offs)
+- [API Endpoints Reference](#api-endpoints-reference)
+- [Conclusion](#conclusion)
 
 ## Executive Summary
-
 The **Drift-Aware ML Platform** is a comprehensive, microservice-based system designed for real-time monitoring, concept drift detection, and adaptive model retraining in machine learning applications. Built specifically for traffic prediction scenarios, the platform demonstrates a production-ready architecture that seamlessly integrates multiple ML models, continuous performance monitoring, automated drift detection, and intelligent model adaptation.
 
 The platform operates as a simulated real-time framework where:
@@ -29,7 +28,6 @@ The platform operates as a simulated real-time framework where:
 ## System Architecture
 
 ### High-Level Design
-
 The platform follows a **microservices architecture** with six independent services communicating via HTTP/REST APIs:
 
 ```mermaid
@@ -115,11 +113,11 @@ graph TB
 - Each detector has a grace period (5000 samples) before activating
 
 **Calibration Process**:
-1. Platform starts in **CALIBRATING** state
-2. Collects 10,000 error samples from baseline data
-3. Automatically tunes detector hyperparameters by iterating through candidate values and selecting parameters that avoid false positives on baseline data
-4. Transitions to **STABLE** state when calibration completes
-5. After drift detection and model retraining, detectors recalibrate
+- Platform starts in **CALIBRATING** state
+- Collects 10,000 error samples from baseline data
+- Automatically tunes detector hyperparameters by iterating through candidate values and selecting parameters that avoid false positives on baseline data
+- Transitions to **STABLE** state when calibration completes
+- After drift detection and model retraining, detectors recalibrate
 
 **State Transition Diagram**:
 
@@ -177,18 +175,18 @@ stateDiagram-v2
 
 **Two Main Interfaces**:
 
-1. **Admin Dashboard**:
-- Simulation controls (Start/Pause/Resume/Reset)
-- Real-time metrics charts (MAE over time for each ML task)
-- Drift state indicators (Calibrating/Stable/Drifted/Retraining)
-- Chronological notification feed
-- AI-generated summary report viewer and PDF download at the end of the simulation
+- **Admin Dashboard**:
+  - Simulation controls (Start/Pause/Resume/Reset)
+  - Real-time metrics charts (MAE over time for each ML task)
+  - Drift state indicators (Calibrating/Stable/Drifted/Retraining)
+  - Chronological notification feed
+  - AI-generated summary report viewer and PDF download at the end of the simulation
 
-2. **User Interface**:
-- Interactive map (OpenStreetMap tiles) for source/destination selection
-- Click-based trip specification
-- Route preview using the SUMO network and `sumolib`
-- Real-time predictions from all available ML models
+- **User Interface**:
+  - Interactive map (OpenStreetMap tiles) for source/destination selection
+  - Click-based trip specification
+  - Route preview using the SUMO network and `sumolib`
+  - Real-time predictions from all available ML models
 
 **State Management**:
 - **dcc.Store** components for client-side state (snapshot, ML tasks, user map coordinates selection, route preview features, notifications, report)
@@ -212,11 +210,11 @@ stateDiagram-v2
 - Receives notification feed and metrics from backend after simulation completion
 
 **Report Generation Process**:
-1. Backend detects simulation completion
-2. Collects all notifications and metrics from stores
-3. Sends request to summarizer with formatted and structured JSON data
-4. LLM analyzes data using detailed system prompt
-5. Generates comprehensive markdown report covering:
+- Backend detects simulation completion
+- Collects all notifications and metrics from stores
+- Sends request to summarizer with formatted and structured JSON data
+- LLM analyzes data using detailed system prompt
+- Generates comprehensive markdown report covering:
   - Executive summary
   - Timeline of major events
   - Performance analysis per ML task
@@ -230,7 +228,6 @@ stateDiagram-v2
 - Artifact cleaning to remove LLM special tokens
 
 ### Technology Stack
-
 **Infrastructure**:
 - **Docker**: Containerization
 - **Docker Compose**: Multi-container orchestration
@@ -274,27 +271,26 @@ stateDiagram-v2
 ### Data Flow
 
 #### Simulation Tick Flow
+- **TimelapseDriver.run_tick()** advances clock by `interval_seconds * speed_multiplier` (1 second * 300 = 5 simulated minutes)
 
-1. **TimelapseDriver.run_tick()** advances clock by `interval_seconds * speed_multiplier` (1 second * 300 = 5 simulated minutes)
+- **Parallel Prediction Requests**: Backend sends concurrent requests to all predictor services for the time window
 
-2. **Parallel Prediction Requests**: Backend sends concurrent requests to all predictor services for the time window
-
-3. **Predictor Processing**:
+- **Predictor Processing**:
    ```
    DataLoader → Load window → FeatureEngineering → Model.predict() → Compute MAE
    ```
 
-4. **Drift Detection**: For each ML task with predictions:
+- **Drift Detection**: For each ML task with predictions:
    ```
    Error Points → DriftWorker → Process through detectors → Return state
    ```
 
-5. **State Updates**:
+- **State Updates**:
   - MetricsStore receives (timestamp, MAE, n_samples)
   - DriftInfo updated based on detector responses
   - State transitions handled: CALIBRATING → STABLE → DRIFTED → RETRAINING
 
-6. **Retraining Trigger**:
+- **Retraining Trigger**:
   - When drift detected, platform starts collecting data
   - After 3600 seconds (1 hour) of collection:
     - Submit retraining job to predictor's ProcessPoolExecutor
@@ -302,30 +298,28 @@ stateDiagram-v2
     - On completion, ModelManager loads new version
     - Drift detectors recalibrate
 
-7. **Frontend Update**:
+- **Frontend Update**:
   - Interval callback fires
   - Fetches latest snapshot from backend
   - Updates UI components via pattern-matching callbacks
   - Charts re-render with new metrics
 
 #### User Prediction Flow
-
-1. User clicks map to select source/destination
-2. Frontend sends route preview request to any predictor
-3. Predictor uses SumoService to compute shortest path
-4. Frontend renders route polyline on map
-5. User clicks "Predict" button
-6. Backend.PredictionService sends parallel requests to all predictors
-7. Each predictor:
+- User clicks map to select source/destination
+- Frontend sends route preview request to any predictor
+- Predictor uses SumoService to compute shortest path
+- Frontend renders route polyline on map
+- User clicks "Predict" button
+- Backend.PredictionService sends parallel requests to all predictors
+- Each predictor:
   - Uses FeatureCalibrator to transform input (on-the-fly feature engineering)
   - Runs inference with current model
   - Returns prediction value
-8. Frontend displays predictions for all ML tasks
+- Frontend displays predictions for all ML tasks
 
 ## Deployment Architecture
 
 ### Docker Compose Orchestration
-
 The platform uses **Docker Compose** for multi-container orchestration, providing several key benefits:
 
 - **Service Isolation** - Each component runs in its own container with independent lifecycle management
@@ -337,14 +331,14 @@ The platform uses **Docker Compose** for multi-container orchestration, providin
 
 To deploy the platform in production mode, a single command starts all services: `docker compose up -d`. This triggers the following sequence:
 
-1. Docker builds images for each service if not already built
-2. Creates an internal network for service communication
-3. Starts services in dependency order:
+- Docker builds images for each service if not already built
+- Creates an internal network for service communication
+- Starts services in dependency order:
   - Drift service and all three predictor services start first
   - Backend waits for drift and all predictors to report healthy status
   - Summarizer starts independently in parallel
   - Frontend waits for backend to be healthy before starting
-4. All services run in detached mode, continuing in the background
+- All services run in detached mode, continuing in the background
 
 **Service Environment Variables**:
 
@@ -382,7 +376,6 @@ Docker Compose automatically creates an internal network for inter-service commu
 - `8080`: Frontend
 
 ### Docker Image Architecture
-
 All services use a similar Dockerfile structure with service-specific customizations. This approach maximizes consistency while allowing targeted optimization for each component.
 
 **Key Design Decisions**:
@@ -403,52 +396,48 @@ All services use a similar Dockerfile structure with service-specific customizat
 The predictor services are significantly larger due to the inclusion of multiple gradient boosting frameworks and their dependencies, while other services remain relatively lightweight.
 
 ### Resource Requirements
-
-**Minimum**: 4 CPU cores, 8 GB RAM, 10 GB disk (thesis demonstration)
-
-**Recommended**: 8+ CPU cores, 16 GB RAM, 20 GB disk (development and experimentation)
-
-**Production**: 16+ CPU cores, 32 GB RAM, 100 GB disk (concurrent users and scaled deployment)
+- **Minimum**: 4 CPU cores, 8 GB RAM, 10 GB disk (thesis demonstration)
+- **Recommended**: 8+ CPU cores, 16 GB RAM, 20 GB disk (development and experimentation)
+- **Production**: 16+ CPU cores, 32 GB RAM, 100 GB disk (concurrent users and scaled deployment)
 
 Predictor services consume the most resources due to ML model inference, while other services remain lightweight. For scaling, deploy multiple predictor replicas behind a load balancer (horizontal) or increase RAM for larger models (vertical).
 
 ### Configuration Management
-
 **Centralized Configuration**:
 
 The platform uses a single, centralized YAML configuration file that defines all system parameters. This configuration is loaded once at import time and accessed throughout the codebase.
 
 **Key Configuration Categories**:
 
-1. **Logging**: File rotation settings (max size 10MB, 5 backups)
+- **Logging**: File rotation settings (max size 10MB, 5 backups)
 
-2. **Services**: Host, ports, environment, event loop (uvloop), HTTP server (httptools)
+- **Services**: Host, ports, environment, event loop (uvloop), HTTP server (httptools)
 
-3. **Simulation/Timelapse**:
+- **Simulation/Timelapse**:
   - Speed multiplier: 300x
   - Interval: 1 second real-time = 5 minutes simulation time
   - Collection period: 3600 seconds (1 hour) after drift detection
 
-4. **Drift Detection**:
+- **Drift Detection**:
   - Smoothing window: 2500 samples
   - Grace period: 5000 samples
   - Calibration window: 10,000 samples
   - Consensus threshold: 3 out of 4 detectors
   - Detector hyperparameter candidate lists
 
-5. **Model Retraining**:
+- **Model Retraining**:
   - Max workers: 1 (ProcessPoolExecutor)
   - Max retries: 3
   - Training samples: 53,229 for the ETA task
   - Shrink factor: 0.5 for the retraining of models
 
-6. **ML Tasks**:
+- **ML Tasks**:
   - Task-specific column names for the prediction tasks
   - Task-specific parameters (e.g., ETA min duration: 30s, min distance: 200m)
 
-7. **Feature Engineering**: Parameters for temporal, spatial, Fourier, clustering, and PCA features for the prediction tasks
+- **Feature Engineering**: Parameters for temporal, spatial, Fourier, clustering, and PCA features for the prediction tasks
 
-8. **Summarizer**:
+- **Summarizer**:
   - OpenRouter API base URL and model selection
   - System prompt defining the report structure and guidelines
   - Retry logic and timeout settings
@@ -462,8 +451,7 @@ The platform uses a single, centralized YAML configuration file that defines all
 - Creates required directories on initialization
 
 ### Dependency Management
-
-**uv Package Manager**:
+**uv**:
 - Modern, fast Python package manager (Rust-based)
 - Lockfile-based dependency resolution (`uv.lock`)
 - Optional dependency groups for modular installation
@@ -491,7 +479,6 @@ This modular approach allows:
 - Separate research/development environment from production services
 
 ### Production Considerations
-
 The current platform implementation prioritizes functional architecture and core ML operations for thesis demonstration. However, several enhancements would be critical for production deployment:
 
 **Performance Optimization**:
@@ -514,7 +501,6 @@ The current security posture relies on internal Docker networking and exposes se
 - **Secrets Management** - Replace environment variables with Docker secrets for sensitive data like API keys
 
 ### Extensibility and Customization
-
 The platform architecture supports several extension patterns for adapting to new requirements:
 
 **Adding New ML Tasks**:
@@ -534,7 +520,6 @@ The Dash-based frontend supports visual customization through theme changes (Boo
 ## Extensibility and Design Principles
 
 ### Backend Abstraction
-
 The backend service is **completely agnostic** to ML task specifics:
 - Requests predictions for **timestamp windows** without knowing feature details
 - Stores **error points** and **MAE** without understanding model architecture
@@ -546,7 +531,6 @@ This abstraction enables:
 - **Modifying features**: Update feature engineering in predictor, backend unaffected
 
 ### Predictor Service Pattern
-
 All three predictor services use the **same codebase** with different configurations:
 - Service identity determined by `SERVICE` environment variable
 - `ml_task` property derived from service name
@@ -556,17 +540,16 @@ All three predictor services use the **same codebase** with different configurat
   - Task-specific column mappings
 
 ### Feature Engineering Architecture
-
 **FeatureCalibrator Pattern**:
 
 The platform uses a clever approach to feature engineering:
 
-1. **Precomputed Features** (Training/Batch Inference):
+- **Precomputed Features** (Training/Batch Inference):
   - Features are computed during data preparation phase
   - Stored in Parquet files for fast loading
   - DataLoader loads pre-engineered features for batch predictions
 
-2. **On-the-Fly Features** (Single Prediction):
+- **On-the-Fly Features** (Single Prediction):
   - FeatureCalibrator loaded from saved joblib artifact for each task
   - Computes features on raw input (source and destination coordinates, timestamps)
   - Enables user predictions without precomputation
@@ -576,7 +559,6 @@ The platform uses a clever approach to feature engineering:
 Currently, batch predictions use precomputed features, which limits the platform to predefined datasets. This was done as a trade-off between performance and complexity, considering the limited resources available for the thesis. The natural evolution is to use FeatureCalibrator for all predictions, eliminating the precomputation requirement and enabling true online learning.
 
 ### Data Loader Abstraction
-
 `DataLoader` provides a simple interface for time-window data loading, based on a start and end timestamp. The data is loaded from a Parquet file, filtered by the start and end timestamp, and returned as a pandas DataFrame.
 
 **Current Implementation**: Reads from local Parquet files
@@ -590,7 +572,6 @@ Currently, batch predictions use precomputed features, which limits the platform
 The interface remains unchanged; only the implementation needs updating.
 
 ### Model Registry Pattern
-
 The platform implements a simple versioning system for managing machine learning models. Each prediction task (eta, fuel, stops) maintains its own model registry under `appdata/models/{ml_task}/`, where models are organized in incrementally numbered version directories (v1, v2, v3, etc.).
 
 **Directory Structure:**
@@ -623,7 +604,6 @@ The ModelManager class provides simple operations for version management:
 - Auto-incrementing version numbers based on existing versions
 
 ### Reusable Service Components
-
 **Common Service Pattern** (`thesis/common/service.py`):
 
 `PlatformServiceConfig` provides reusable service configuration:
@@ -654,7 +634,6 @@ There are a lot of Pydantic models shared across all services, with some example
 ## Logging and Error Handling
 
 ### Current State
-
 **Logging**:
 - Centralized logger setup via `thesis/common/logger.py`
 - Log rotation configured (10MB max file size, 5 backups)
@@ -666,7 +645,6 @@ There are a lot of Pydantic models shared across all services, with some example
 - Graceful degradation for failed service requests
 
 ### Future Improvements
-
 While the current implementation provides basic logging and error handling, production deployment would benefit from:
 - Structured logging with JSON format for easier parsing
 - Centralized log aggregation (e.g., ELK stack, Loki)
@@ -682,7 +660,6 @@ Another important improvement would be to perform proper testing of the platform
 The platform was designed with a primary goal: **simulate 72,000 seconds (20 hours) of traffic data in approximately 4-5 minutes**, achieving a 300x speed multiplier. This ambitious target drove several architectural decisions and required strategic compromises.
 
 ### Key Architectural Compromises
-
 To achieve the 300x speedup, several pragmatic design decisions were made:
 
 **Feature Precomputation** - The most significant compromise was implementing precomputed features for batch predictions. While this limits the platform to predefined datasets, it dramatically reduces computational overhead. Features are calculated once during data preparation and stored in Parquet files. During simulation, each 5-minute batch window is processed in under a second through fast timestamp-based filtering and vectorized operations.
@@ -692,7 +669,6 @@ To achieve the 300x speedup, several pragmatic design decisions were made:
 **Single-Worker Retraining** - Each predictor uses one worker process for retraining jobs, preventing resource contention while enabling true background processing. Multiple predictors can retrain simultaneously without impacting simulation progress.
 
 ### Performance Validation
-
 The platform successfully achieves all performance objectives:
 
 - **72,000 seconds simulated in ~4-5 minutes** - Target 300x speedup achieved
@@ -707,7 +683,6 @@ The implementation demonstrates that strategic compromises (precomputed features
 ## Platform Capabilities Summary
 
 ### Monitoring and Observability
-
 - **Real-Time Metrics**: MAE tracking for each ML task with circular buffer storage
 - **Drift State Visualization**: Clear indicators of detector states (Calibrating/Stable/Drifted/Retraining)
 - **Event Timeline**: Chronological feed of platform events with timestamps
@@ -715,7 +690,6 @@ The implementation demonstrates that strategic compromises (precomputed features
 - **Snapshot API**: Complete system state accessible at any time
 
 ### Drift Detection
-
 - **Consensus-Based Approach**: 3 out of 4 detectors must agree to reduce false positives
 - **Automatic Calibration**: Detectors self-tune on baseline data without manual tuning
 - **Online Processing**: Detectors update incrementally without storing full history
@@ -723,7 +697,6 @@ The implementation demonstrates that strategic compromises (precomputed features
 - **Graceful Degradation**: Failed calibration returns to drifted state for retry
 
 ### Model Adaptation
-
 - **Automatic Retraining**: Triggered by drift detection without manual intervention
 - **Data Collection**: Intelligently collects 1 hour of post-drift data for retraining
 - **Background Processing**: Retraining runs in separate processes to avoid blocking predictions
@@ -733,14 +706,12 @@ The implementation demonstrates that strategic compromises (precomputed features
 - **Dynamic Model Sizing**: Retrained models scale based on available data
 
 ### User Interaction
-
 - **Interactive Map**: Click-based trip specification with route preview
 - **Multi-Model Predictions**: Single request gets predictions from all models
 - **Real-Time Response**: Predictions computed on-demand with feature engineering
 - **Route Visualization**: Shortest path rendered on map using SUMO network
 
 ### Analysis and Reporting
-
 - **AI-Generated Reports**: Comprehensive markdown summaries of platform behavior
 - **PDF Export**: Reports downloadable for offline analysis
 - **Structured Analysis**: Executive summary, timeline, performance analysis, insights
@@ -749,35 +720,30 @@ The implementation demonstrates that strategic compromises (precomputed features
 ## Architectural Strengths
 
 ### Scalability
-
 - **Microservices**: Each component can scale independently
 - **Stateless APIs**: Most services are stateless (except in-memory stores that can be replaced with a database)
 - **Async I/O**: High concurrency with minimal resource overhead using async/await patterns
 - **Process Isolation**: Drift workers and retraining jobs don't block main threads
 
 ### Maintainability
-
 - **Clear Separation of Concerns**: Each service has well-defined responsibilities
 - **Centralized Configuration**: Single source of truth for all parameters
 - **Type Safety**: Pydantic models ensure data contract enforcement
 - **Modular Dependencies**: Services install only required packages via uv dependency groups
 
 ### Extensibility
-
 - **Plugin Architecture**: New ML tasks integrate with minimal code changes
 - **Swappable Components**: DataLoader, FeatureCalibrator, ModelManager can be replaced with other similar implementations
 - **Template Services**: Predictor services use shared codebase
 - **Open APIs**: RESTful interfaces enable third-party integrations
 
 ### Resilience
-
 - **Graceful Degradation**: Service failures don't cascade
 - **Retry Logic**: Transient failures automatically recovered
 - **Health Checks**: Automatic service monitoring and restart
 - **Isolation**: Drift workers and retraining jobs in separate processes
 
 ### Backend as Source of Truth
-
 The backend service functions as the centralized source of truth for all platform state, ensuring consistency across distributed components:
 
 - **Centralized State Storage**: All critical state is maintained in the backend's in-memory stores (metrics, notifications, drift information, report status). This eliminates the need for complex distributed state synchronization across services.
@@ -789,7 +755,6 @@ The backend service functions as the centralized source of truth for all platfor
 - **Optimistic UI Updates**: The frontend implements optimistic updates for better user experience—UI changes happen immediately on button clicks, then the frontend synchronizes with the backend to confirm the state change. If the backend reports a different state, the UI updates accordingly.
 
 ### Concurrent Operations
-
 The platform leverages Python's async/await and multiprocessing capabilities for efficient concurrent operations:
 
 **Asynchronous I/O Patterns**:
@@ -809,7 +774,6 @@ The platform leverages Python's async/await and multiprocessing capabilities for
 ## Architectural Trade-offs
 
 ### In-Memory Storage vs Persistence
-
 **Decision**: Use in-memory stores (deques) for metrics and notifications
 
 **Pros**:
@@ -825,7 +789,6 @@ The platform leverages Python's async/await and multiprocessing capabilities for
 **Rationale**: Suitable for demonstration platform considering we do not need persistent storage; production would use a database like TimescaleDB or similar.
 
 ### Precomputed Features vs On-the-Fly
-
 **Decision**: Use precomputed features for batch, FeatureCalibrator for single predictions
 
 **Pros**:
@@ -839,7 +802,6 @@ The platform leverages Python's async/await and multiprocessing capabilities for
 **Rationale**: Pragmatic for thesis; future work can unify using FeatureCalibrator for all.
 
 ### Synchronous Retraining vs Streaming
-
 **Decision**: Collect data window, then retrain synchronously
 
 **Pros**:
@@ -854,7 +816,6 @@ The platform leverages Python's async/await and multiprocessing capabilities for
 **Rationale**: Appropriate for simulated environment; online learning would be next evolution.
 
 ### Consensus vs Single Detector
-
 **Decision**: Require 3 out of 4 detectors to agree
 
 **Pros**:
@@ -868,11 +829,9 @@ The platform leverages Python's async/await and multiprocessing capabilities for
 **Rationale**: Improves reliability in noisy environments; threshold configurable per use case.
 
 ## API Endpoints Reference
-
 This section provides a comprehensive listing of all REST API endpoints exposed by each service in the platform. All services use FastAPI with automatic OpenAPI documentation available at `http://{service_host}:{service_port}/docs`.
 
 ### Backend Service (Port 8000)
-
 The backend service exposes three groups of endpoints for simulation control, monitoring, and user predictions.
 
 **Health Check**:
@@ -895,7 +854,6 @@ The backend service exposes three groups of endpoints for simulation control, mo
 - `POST /predict/trip` - Predict trip metrics (ETA, fuel, stops) for user-specified trip
 
 ### Predictor Services (Ports 8001-8003)
-
 All three predictor services (eta, fuel, stops) expose identical endpoints with task-specific behavior.
 
 **Health Check**:
@@ -911,7 +869,6 @@ All three predictor services (eta, fuel, stops) expose identical endpoints with 
 - `GET /retrain/status/{job_id}` - Poll retraining job status and post-adaptation evaluation results
 
 ### Drift Service (Port 8004)
-
 The drift service manages drift detection workers and detector calibration.
 
 **Health Check**:
@@ -923,7 +880,6 @@ The drift service manages drift detection workers and detector calibration.
 - `POST /drift/reset` - Reset drift detection state for specified ML tasks
 
 ### Summarizer Service (Port 8005)
-
 The summarizer service generates AI-powered analytical reports using external LLM APIs.
 
 **Health Check**:
@@ -933,20 +889,18 @@ The summarizer service generates AI-powered analytical reports using external LL
 - `POST /report/generate` - Generate markdown report from notifications and metrics
 
 ### Frontend Service (Port 8080)
-
 The frontend service is built with Dash and does not expose a REST API. Instead, it provides a web interface accessible at `http://localhost:8080` with the **Admin Dashboard** and **User Interface** tabs available.
 
 The frontend communicates with the backend service exclusively through the backend's REST API endpoints.
 
 ## Conclusion
-
 The Drift-Aware ML Platform demonstrates a **production-ready architecture** for continuous machine learning in dynamic environments. Its microservices design, consensus-based drift detection, automated retraining pipeline, and comprehensive monitoring capabilities provide a robust foundation for adaptive ML systems.
 
 **Key Design Principles**:
-1. **Consensus-Based Drift Detection**: Multi-algorithm approach reduces false positives
-2. **Automatic Detector Calibration**: Self-tuning eliminates manual hyperparameter selection
-3. **Backend Abstraction**: ML task-agnostic orchestration enables easy extension
-4. **Isolated Drift Workers**: Per-task processes prevent interference and blocking
-5. **Feature Calibrator Pattern**: Enables both efficient batch and flexible single predictions
+- **Consensus-Based Drift Detection**: Multi-algorithm approach reduces false positives
+- **Automatic Detector Calibration**: Self-tuning eliminates manual hyperparameter selection
+- **Backend Abstraction**: ML task-agnostic orchestration enables easy extension
+- **Isolated Drift Workers**: Per-task processes prevent interference and blocking
+- **Feature Calibrator Pattern**: Enables both efficient batch and flexible single predictions
 
 The platform successfully addresses the challenge of **concept drift in production ML systems** while maintaining **simplicity, extensibility, and reliability**. Its architecture serves as a blueprint for building adaptive ML platforms in domains where data distributions evolve over time.
