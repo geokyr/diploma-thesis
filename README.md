@@ -117,7 +117,7 @@ Development mode mounts your local `thesis/` directory into containers, allowing
 ## Contributions
 This diploma thesis includes contributions by **Georgios Angelis** and **Serafeim Tzelepis**.
 
-The platform’s conceptualization was a joint effort. The Fuel Consumption model was implemented by Georgios Angelis, while the Number of Stops model was implemented by Serafeim Tzelepis. Parts of the platform are also based on their work, including the Drift service (Serafeim Tzelepis) and the Summarizer service (Georgios Angelis).
+The platform's conceptualization was a joint effort. The Fuel Consumption model was implemented by Georgios Angelis, while the Number of Stops model was implemented by Serafeim Tzelepis. Parts of the platform are also based on their work, including the Drift service (Serafeim Tzelepis) and the Summarizer service (Georgios Angelis).****
 
 ## Repository Structure
 - `appdata/` - Application data, models, logs and other artifacts for the platform
