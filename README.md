@@ -1,11 +1,11 @@
-# thesis
+# diploma-thesis
 
-Continuous Machine Learning, Concept Drift, MLOps, and Cooperative, Connected and Automated Mobility applications for my Thesis at ECE NTUA
+Continuous Machine Learning for Cooperative, Connected and Automated Mobility applications for my Diploma Thesis at ECE NTUA
 
 ## Quick Start
 This project supports two main workflows:
 
-1. **Dataset Generation & Machine Learning Research** - For running the dataset generation pipeline and machine learning research experiments
+1. **Dataset Generation & Machine Learning Research** - For running the dataset generation simulation and machine learning research experiments
 2. **Platform** - For running the full Drift-Aware ML Platform
 
 ## Dataset Generation & Machine Learning Research
@@ -24,8 +24,8 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ### Clone and install dependencies
 ```bash
-git clone https://github.com/geokyr/thesis
-cd thesis
+git clone https://github.com/geokyr/diploma-thesis
+cd diploma-thesis
 ```
 
 Install specific dependency groups based on your needs:
@@ -44,13 +44,13 @@ uv sync --all-extras
 ### Running Scripts
 All scripts should be invoked via `uv run` to use the correct virtual environment.
 
-#### Dataset Generation
+#### Dataset Generation Simulation
 ```bash
 # Run the dataset generation simulation
 uv run simulation/simulation.py
 ```
 
-#### ML Research Experiments
+#### Machine Learning Research Experiments
 ```bash
 # Run the baseline research experiment
 uv run experiments/baseline_research.py
@@ -119,8 +119,8 @@ Development mode mounts your local `thesis/` directory into containers, allowing
 - `docs/` - Documentation for the project
 - `experiments/` - Machine learning research experiments
 - `outputs/` - Outputs from the experiments (models, metrics, logs)
-- `presentation/` - Presentation files and figures
-- `report/` - Thesis report in LaTeX format
+- `presentation/` - Presentation in LaTeX
+- `report/` - Report in LaTeX
 - `resources/` - Various resources and files about the project
 - `simulation/` - SUMO configuration files and datasets
 - `thesis/` - Main Python package for the project
