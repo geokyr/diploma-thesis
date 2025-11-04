@@ -6,11 +6,11 @@
 3. [Experimental Methodology](#experimental-methodology)
 4. [Transformation Experiments](#transformation-experiments)
 5. [Feature Engineering](#feature-engineering)
-6. [Hyperparameter Tuning](#hyperparameter-tuning)
-7. [Final Model](#final-model)
+6. [Feature Selection](#feature-selection)
+7. [Hyperparameter Tuning](#hyperparameter-tuning)
+8. [Final Model](#final-model)
 
 ## Overview
-
 This document describes the complete research process for developing a machine learning model for Estimated Time of Arrival (ETA) prediction in urban environments.
 
 **Research Objectives:**
@@ -27,15 +27,13 @@ This document describes the complete research process for developing a machine l
 ## Dataset
 
 ### Data Source
-
 This research utilizes synthetic traffic data generated through microscopic traffic simulation using SUMO (Simulation of Urban MObility) for a 3.58 km² area of central Athens. The simulation generates Floating Car Data (FCD) with per-second vehicle telemetry over a 10-hour period, producing approximately 11.1 million timestep records.
 
 The training dataset comprises 53978 vehicle trips collected under standard traffic conditions on a base network (friction coefficient = 1.0). Traffic demand follows realistic hourly patterns derived from Athens Mobility Observatory data, with morning and evening peak periods reflecting typical urban congestion patterns.
 
 For comprehensive details on the simulation pipeline, network characteristics, traffic demand modeling, and concept drift scenarios, refer to the [Dataset Generation Documentation](dataset.md).
 
-### Data Transformation: From FCD to Trip-Level Features
-
+### From FCD to Trip-Level Features
 The raw FCD output consists of per-second telemetry records with the following schema:
 
 | Field | Description | Unit |
@@ -82,8 +80,7 @@ This trip-level representation forms the foundation for feature engineering and 
 
 ## Experimental Methodology
 
-### 1. Experiment Tracking System
-
+### Experiment Tracking System
 A systematic experiment tracking framework was implemented to manage the iterative research process and ensure reproducibility across all experiments.
 
 **Architecture:**
@@ -132,8 +129,7 @@ The research pipeline consists of three main components:
 
 This modular architecture enabled rapid experimentation while maintaining code quality, reproducibility, and systematic tracking of over 30 distinct experiment configurations throughout the research process.
 
-### 2. Cross-Validation Strategy
-
+### Cross-Validation Strategy
 **Method:** Stratified 5-Fold Cross-Validation
 
 **Stratification:** Based on trip duration (target variable)
@@ -146,8 +142,7 @@ This modular architecture enabled rapid experimentation while maintaining code q
 - Test and rain datasets reserved for final evaluation
 - No data leakage between folds
 
-### 3. Evaluation Metrics
-
+### Evaluation Metrics
 Primary metrics used across all experiments:
 
 | Metric | Description | Why Used |
@@ -156,8 +151,7 @@ Primary metrics used across all experiments:
 | **MAPE** | Mean Absolute Percentage Error (\%) | Relative error, scale-independent |
 | **Training Time** | Model fitting duration (seconds) | Practical deployment consideration |
 
-### 4. Baseline Models
-
+### Baseline Models
 Four model families were evaluated:
 
 1. **Linear Regression** - Simple baseline for comparison
@@ -179,13 +173,11 @@ Four model families were evaluated:
 Linear Regression established a baseline MAE of 31.46s, which gradient boosting methods improved upon by 12-13% (3.2-3.7 seconds), confirming the value of non-linear modeling for this task. All subsequent experiments focused on the three gradient boosting models due to their superior performance.
 
 ## Transformation Experiments
-
 Before conducting feature engineering, a series of transformation experiments were performed to determine whether transforming features or the target variable could improve model performance. Data transformations are commonly used to address skewness, normalize distributions, or improve model convergence.
 
 ### Tested Transformations
 
 #### Feature Transformations
-
 1. **Log Transformation** (`transform_features_log`)
   - Applied `log(1 + x)` transformation to the `distance` feature
   - **Rationale:** Distance often exhibits right-skewed distribution; log transformation can normalize this
@@ -197,7 +189,6 @@ Before conducting feature engineering, a series of transformation experiments we
   - **Implementation:** Fitted on training data, applied to validation/test data
 
 #### Target Transformations
-
 3. **Log Transformation** (`transform_target_log`)
   - Applied `log(1 + y)` to travel time, with inverse `exp(y) - 1` for predictions
   - **Rationale:** Travel time may exhibit log-normal distribution
@@ -211,7 +202,6 @@ Before conducting feature engineering, a series of transformation experiments we
   - **Rationale:** Non-parametric transformation robust to outliers
 
 ### Experiment Results
-
 All transformation experiments used the original 6 features (baseline configuration) with 5-fold stratified cross-validation:
 
 | Experiment | Transformation | Average MAE (s) | Improvement | Best Model |
@@ -224,29 +214,21 @@ All transformation experiments used the original 6 features (baseline configurat
 | `transform_target_quantile` | Quantile(duration) | 27.90 | 0.07s (0.25%) | LightGBM (27.71s) |
 
 ### Key Findings
-
 1. **Feature transformations ineffective:** Both log transformation and standard scaling of features showed no meaningful improvement over the baseline. This is expected for tree-based gradient boosting models, which are inherently invariant to monotonic transformations and feature scaling.
-
 2. **Target transformations marginal:** Target transformations showed slight improvements (0.04-0.07s), but the gains were minimal relative to baseline performance (0.14-0.25% improvement).
-
 3. **Added complexity not justified:** While target transformations provided small improvements, they introduce additional complexity in the prediction pipeline (requiring inverse transformation) and make model interpretation more difficult.
-
 4. **Tree-based model robustness:** Gradient boosting models handle the original feature and target distributions effectively without requiring explicit transformations, unlike linear models or neural networks that often benefit from normalization.
 
 ### Decision
-
 **No transformations were applied in subsequent experiments.** The minimal performance gains did not justify the added complexity, and tree-based models demonstrated sufficient robustness to handle the untransformed data. This decision simplified the feature engineering pipeline and maintained model interpretability.
 
 ## Feature Engineering
-
 Feature engineering was conducted systematically to evaluate the impact of different feature groups on prediction performance. Each feature group was tested independently by adding it to the original features, and all groups were also combined to assess their collective contribution.
 
 ### Feature Groups
-
 The following feature groups were developed for ETA prediction:
 
-#### 1. Original Features (6 features)
-
+#### Original Features - 6 features
 Base features extracted directly from the simulation FCD data. These features serve as the baseline for all experiments.
 
 - `source_x`, `source_y` - Trip origin coordinates (meters)
@@ -254,16 +236,14 @@ Base features extracted directly from the simulation FCD data. These features se
 - `time_start` - Trip start timestamp (seconds)
 - `distance` - Route distance traveled (meters)
 
-#### 2. Temporal Features (5 features)
-
+#### Temporal Features - 5 features
 Time-based patterns extracted from trip start time. These features encode temporal patterns.
 
 - `hour_bin` - Hour of day (0-10)
 - `is_morning`, `is_noon`, `is_afternoon` - Time period indicators
 - `is_rush_hour` - Peak traffic period indicator
 
-#### 3. Spatial Features (17 features)
-
+#### Spatial Features - 17 features
 Geometric and geographic relationships derived from coordinates and distances. These features capture urban structure and geometric relationships that influence travel time.
 
 - `x_center`, `y_center` - Trip midpoint coordinates
@@ -277,16 +257,14 @@ Geometric and geographic relationships derived from coordinates and distances. T
 - `trip_centrality_change` - Change in radial distance from origin to destination
 - `trip_centrality` - Radial distance of trip midpoint from city center
 
-#### 4. Fourier Features (16 features)
-
+#### Fourier Features - 16 features
 Sinusoidal positional encoding of spatial coordinates. These features capture spatial patterns in the coordinate space.
 
 - Sine and cosine transforms of coordinates at 2 frequency scales
 - Applied to: `source_x`, `source_y`, `destination_x`, `destination_y`
 - Pattern: `{coordinate}_sin_{0|1}` and `{coordinate}_cos_{0|1}`
 
-#### 5. Cell Features (4 features)
-
+#### Cell Features - 4 features
 Spatial discretization into fixed-size grid cells. These features capture spatial patterns in the grid space.
 
 - `source_cell_x`, `source_cell_y` - Origin grid cell indices
@@ -294,8 +272,7 @@ Spatial discretization into fixed-size grid cells. These features capture spatia
 
 **Parameters:** Cell size = 100 meters
 
-#### 6. Cluster Features (2 features)
-
+#### Cluster Features - 2 features
 K-Means clustering on coordinates to discretize spatial regions. These features capture spatial patterns in the cluster space.
 
 - `source_cluster` - Cluster ID for trip origin (0-19)
@@ -303,8 +280,7 @@ K-Means clustering on coordinates to discretize spatial regions. These features 
 
 **Parameters:** K=20 clusters, fitted on training data coordinates
 
-#### 7. PCA Features (4 features)
-
+#### PCA Features - 4 features
 Principal Component Analysis for dimensionality reduction. These features capture dominant spatial variance in a reduced dimensional space.
 
 - `source_pca_1`, `source_pca_2` - First two principal components of origin coordinates
@@ -313,7 +289,6 @@ Principal Component Analysis for dimensionality reduction. These features captur
 **Parameters:** 2 components, fitted on combined origin/destination coordinates
 
 ### Feature Engineering Experiments
-
 Each feature group was evaluated through dedicated experiments to assess its contribution to prediction performance. The experiments followed a systematic approach:
 
 1. **Individual Group Testing:** Each feature group was added to the original features independently
@@ -322,7 +297,6 @@ Each feature group was evaluated through dedicated experiments to assess its con
 4. **Model Comparison:** Three gradient boosting models (CatBoost, LightGBM, XGBoost) were evaluated for each configuration
 
 #### Experiment Results
-
 The following table summarizes the average MAE (in seconds) across all models for each feature engineering experiment:
 
 | Experiment | Feature Configuration | Total Features | Average MAE (s) | Improvement | Best Model |
@@ -339,21 +313,15 @@ The following table summarizes the average MAE (in seconds) across all models fo
 **Key Findings:**
 
 1. **All feature groups provide improvement:** Every feature group showed positive impact over the baseline, ranging from 0.10s to 0.34s MAE reduction.
-
 2. **Fourier features most effective individually:** The `features_fourier` experiment achieved the best single-group performance (27.69s MAE), demonstrating the value of positional encoding.
-
 3. **Combined features perform best:** The `features_all` experiment achieved the lowest MAE (27.63s), indicating complementary information across feature groups.
-
 4. **Model consistency:** XGBoost performed best on most feature configurations, though LightGBM was competitive and significantly faster to train.
-
 5. **Diminishing returns:** The improvement from combining all features (0.34s) is less than the sum of individual improvements, suggesting some overlap in captured information.
 
-### Feature Selection
-
+## Feature Selection
 After evaluating the combined feature set (`features_all` with 52 features), systematic feature selection was performed to identify the most valuable features while reducing dimensionality, training time, and model complexity.
 
-#### Selection Methods
-
+### Selection Methods
 Four complementary feature importance methods were applied to rank all 52 features:
 
 1. **Gain-Based Importance**
@@ -376,8 +344,7 @@ Four complementary feature importance methods were applied to rank all 52 featur
   - Identified highly correlated features (|r| > 0.95)
   - Found 44 correlated pairs requiring resolution
 
-#### Combined Ranking
-
+### Combined Ranking
 The three importance-based methods (gain, permutation, SHAP) were aggregated into a combined ranking:
 
 1. **Normalization:** Scores from each method normalized to [0, 1] range
@@ -415,8 +382,7 @@ The three importance-based methods (gain, permutation, SHAP) were aggregated int
 - Cluster features rank moderately high (12th), capturing spatial zone patterns
 - Original coordinate features rank lower (20+), but are retained due to PCA high correlations
 
-#### Selection Decision
-
+### Selection Decision
 Based on the combined ranking, correlation analysis, and domain knowledge, the following features were eliminated:
 
 **Dropped Features (30 total):**
@@ -440,8 +406,7 @@ Based on the combined ranking, correlation analysis, and domain knowledge, the f
 - **Cluster (2):** `source_cluster`, `destination_cluster`
 - **PCA (4):** `source_pca_1`, `source_pca_2`, `destination_pca_1`, `destination_pca_2`
 
-#### Performance Impact
-
+### Performance Impact
 The feature selection was validated through a dedicated experiment (`features_selection`) comparing against the full feature set:
 
 | Configuration | Features | Average MAE (s) | Average MAPE (%) | Average Training Time (s) | Best Model |
@@ -460,13 +425,10 @@ The feature selection was validated through a dedicated experiment (`features_se
 
 The feature selection successfully identified and retained the most informative features while eliminating redundancy and reducing computational cost.
 
-
 ## Hyperparameter Tuning
-
 Systematic hyperparameter optimization was performed for all three gradient boosting models using Optuna with the Tree-structured Parzen Estimator (TPE) sampler. The optimization objective was to minimize Mean Absolute Error (MAE) across 5-fold stratified cross-validation.
 
 ### Tuning Strategy
-
 A two-phase approach was employed to balance exploration and exploitation:
 
 **Phase 1: Broad Search (100 trials per model)**
@@ -484,7 +446,6 @@ A two-phase approach was employed to balance exploration and exploitation:
 The optimization process totaled 450 trials (150 per model) without early stopping, leveraging the fast training times enabled by the compact dataset
 
 ### Tuning Results
-
 **Best Results by Model and Phase:**
 
 | Model | Phase | Best MAE (s) | Best MAPE (%) | Training Time (s) | Trial # |
@@ -504,7 +465,6 @@ The optimization process totaled 450 trials (150 per model) without early stoppi
 4. **Model Stability:** LightGBM showed most consistent performance across trials; CatBoost showed highest variability
 
 ## Final Model
-
 LightGBM with the following optimized hyperparameters was selected as the final model:
 
 | Parameter | Value |
