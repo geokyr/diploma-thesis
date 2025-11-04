@@ -1,18 +1,17 @@
 # Notes
 
 ## To Do
-- Presentation
-- Testing
 - Documentation
+- Testing
 
-## Precommit Checks
+## Checks
 - Docstrings
 - Typing/dataclasses/TypedDicts
 - Config
 - Logging
 - Error handling
 
-## To Check
+## Pending
 - backend/*
 - common/*
 - drift/*
