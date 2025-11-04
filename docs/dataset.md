@@ -166,21 +166,21 @@ The simulation pipeline was developed iteratively to address challenges in creat
 
 ### Initial Attempts: Alternative Drift Mechanisms
 
-#### 1. Lane Closure Approach
+#### Lane Closure Approach
 This approach used SUMO's `closingLaneReroute` mechanism to mark specific lanes as closed, with vehicles calculating routes at insertion time. The critical issue: vehicles would stop at green traffic lights when approaching closed lanes, remaining stationary until SUMO's automatic teleportation mechanism activated after 300 seconds—a clear simulation failure.
 
 The root cause was the absence of rerouting devices. Adding them would allow dynamic recalculation around closures, but this also meant that all vehicles would reroute based on real-time conditions, fundamentally altering traffic behavior compared to the base scenario. As a result, isolating the effect of closures from dynamic rerouting became impossible.
 
 **Outcome:** Abandoned due to vehicle teleportation artifacts and inability to maintain comparable traffic behavior.
 
-#### 2. Network Topology Modification
+#### Network Topology Modification
 This approach used SUMO's `netedit` tool to physically remove closed lanes or edges, with junctions automatically recalculated. Removing edges reduced network capacity, causing vehicles to be inserted at different times due to congestion delays—breaking temporal comparability between scenarios.
 
 The sensitivity was highly non-linear and unpredictable: closing major roads like Panepistimiou (a main thoroughfare) sometimes produced minimal impact, while closing minor edges would completely bottleneck the network. Network analysis metrics (betweenness centrality, edge importance) were used to identify strategic closures, but finding combinations that were realistic (e.g., metro construction, roadworks) while producing detectable but not catastrophic drift proved extremely difficult.
 
 **Outcome:** Rejected due to timing shifts, non-linear sensitivity, and difficulty calibrating realistic yet effective closure scenarios.
 
-#### 3. Vehicle Behavior Modification
+#### Vehicle Behavior Modification
 This approach altered Krauss car-following model parameters (acceleration, deceleration, sigma), vehicle type distributions, driver imperfection, reaction times, and speed factors to simulate aggressive or cautious driving patterns. Parameters explored included modifying default vehicle type attributes such as `accel`, `decel`, `speedFactor`, `sigma`, and `tau`.
 
 Behavior changes produced only subtle effects on aggregate traffic patterns, didn't correspond to clear real-world events (unlike rain or construction), and lacked ground truth for validation of "realistic" parameter ranges.
@@ -265,10 +265,10 @@ The complete pipeline consists of nine steps:
 
 ### Pipeline Steps (Detailed)
 
-#### Step 1: OSM Data Extraction
+#### OSM Data Extraction
 Downloads OpenStreetMap data for the Athens bounding box using SUMO's `osmGet.py` tool. The extraction includes all specified road types (motorways through service roads), building polygons for visualization, and compressed output in gzip format. The bounding box coordinates define a ~4.3 km² area in central Athens.
 
-#### Step 2: Network Building
+#### Network Building
 Converts raw OSM data into SUMO-compatible network format using `osmBuild.py`. This process:
 - Applies typemaps to convert OSM road types to SUMO edge types
 - Removes redundant geometry points while preserving road shape
@@ -279,13 +279,13 @@ Converts raw OSM data into SUMO-compatible network format using `osmBuild.py`. T
 - Preserves original street names for visualization
 - Creates both network file (edges, lanes, junctions) and polygon file (buildings, areas)
 
-#### Step 3: Rain Network Creation
+#### Rain Network Creation
 Parses the base network XML file and modifies all lane elements to include a friction attribute set to 0.4. This is accomplished through XML manipulation: reading the gzipped network file, finding all lane elements, setting their friction attribute, and writing the modified network to a new gzipped file. This creates an identical network topology with altered physics parameters.
 
-#### Step 4: GUI Settings
+#### GUI Settings
 Writes a simple XML configuration file for SUMO-GUI that sets the visualization scheme to "real world" and sets a delay value for simulation playback. This file is referenced by the simulation configuration but is not required for headless execution.
 
-#### Step 5: Configuration Files
+#### Configuration Files
 Generates SUMO configuration files (`.sumocfg`) for each scenario by invoking SUMO with save-configuration mode. Each configuration specifies:
 - Network file path (base network for train/test, rain network for rain scenario)
 - Route/trip file path (scenario-specific)
@@ -296,7 +296,7 @@ Generates SUMO configuration files (`.sumocfg`) for each scenario by invoking SU
 - Error handling (ignore route errors, continue simulation)
 - Logging preferences (verbose output, statistics, no per-step logging)
 
-#### Step 6: Trip Generation
+#### Trip Generation
 Generates random origin-destination pairs using SUMO's `randomTrips.py` tool for each scenario. The generation process:
 - Uses the appropriate network file (base or rain) for route validation
 - Applies scenario-specific random seed for reproducibility
@@ -306,7 +306,7 @@ Generates random origin-destination pairs using SUMO's `randomTrips.py` tool for
 - Validates that all trips have feasible routes through the network
 - Outputs trip definitions in SUMO XML format
 
-#### Step 7: Simulation Execution
+#### Simulation Execution
 Runs the SUMO microscopic traffic simulation using the generated configuration file. The simulation:
 - Loads the network (base or rain variant)
 - Processes all trips according to their departure times
@@ -319,7 +319,7 @@ Runs the SUMO microscopic traffic simulation using the generated configuration f
 
 The simulation runs for 36000 seconds (10 hours) and processes between 54,000-56,000 trips depending on the scenario.
 
-#### Step 8: Format Conversion
+#### Format Conversion
 Converts the FCD CSV output to Apache Parquet format for efficient storage and faster access. The conversion:
 - Loads the CSV file into a pandas DataFrame
 - Writes the DataFrame to Parquet using PyArrow engine
@@ -328,7 +328,7 @@ Converts the FCD CSV output to Apache Parquet format for efficient storage and f
 
 The Parquet format enables efficient columnar access patterns used in subsequent data preprocessing and machine learning pipelines.
 
-#### Step 9: Exploratory Data Analysis
+#### Exploratory Data Analysis
 Performs initial analysis on the FCD data to validate simulation quality and generate summary statistics. The analysis:
 - Loads and preprocesses the Parquet FCD data
 - Aggregates telemetry by hour for temporal analysis
