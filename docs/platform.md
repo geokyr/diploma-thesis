@@ -5,11 +5,9 @@
 - [Executive Summary](#executive-summary)
 - [System Architecture](#system-architecture)
 - [Deployment Architecture](#deployment-architecture)
-- [Extensibility and Design Principles](#extensibility-and-design-principles)
-- [Logging and Error Handling](#logging-and-error-handling)
+- [Cross-Cutting Architecture Qualities](#cross-cutting-architecture-qualities)
 - [Performance Goals and Achievements](#performance-goals-and-achievements)
 - [Platform Capabilities Summary](#platform-capabilities-summary)
-- [Architectural Strengths](#architectural-strengths)
 - [Architectural Trade-offs](#architectural-trade-offs)
 - [API Endpoints Reference](#api-endpoints-reference)
 
@@ -516,156 +514,42 @@ Adding new drift detectors requires implementing a detector class with update lo
 
 The Dash-based frontend supports visual customization through theme changes (Bootstrap themes like CYBORG, DARKLY, SLATE), adding new visualization components with Plotly graphs, modifying notification levels and colors, and creating custom callbacks for new data displays. The pattern-matching callback system enables dynamic UI generation based on available ML tasks.
 
-## Extensibility and Design Principles
+## Cross-Cutting Architecture Qualities
 
-### Backend Abstraction
-The backend service is **completely agnostic** to ML task specifics:
-- Requests predictions for **timestamp windows** without knowing feature details
-- Stores **error points** and **MAE** without understanding model architecture
-- Triggers **retraining** based on drift signals without involvement in the ML pipeline
+### Extensibility Patterns
+The backend remains **ML-task agnostic**: it requests predictions for timestamp windows, stores only error/MAE points, and initiates retraining from drift signals without ever decoding task-specific features. That abstraction allows teams to add new predictors, swap models in the registry, or adjust feature engineering without touching backend code.
 
-This abstraction enables:
-- **Adding new ML tasks**: Deploy new predictor service, backend automatically detects it
-- **Changing models**: Swap model files in registry, no backend changes needed
-- **Modifying features**: Update feature engineering in predictor, backend unaffected
+All predictor services share a single codebase whose behaviour is resolved at runtime. The `SERVICE` environment variable and derived `ml_task` drive task-specific lookup tables, FeatureCalibrator classes, and column mappings. This pattern keeps configuration-driven differences close to the code that needs them while reusing the same deployment artefact across eta, fuel, and stops.
 
-### Predictor Service Pattern
-All three predictor services use the **same codebase** with different configurations:
-- Service identity determined by `SERVICE` environment variable
-- `ml_task` property derived from service name
-- Task-specific behavior handled through:
-  - Task-specific lookup dictionaries for configuration parameters
-  - Task-specific FeatureCalibrator classes
-  - Task-specific column mappings
+Feature engineering balances performance and flexibility. Batch inference pulls Parquet datasets with precomputed features so each 5-minute window is processed in well under a second. Single predictions invoke task-specific FeatureCalibrator artefacts that rebuild temporal, spatial, Fourier, and clustering features from raw coordinates and timestamps. Moving batch workloads onto the calibrators is the next evolution toward online learning because it would eliminate the dependency on pre-generated datasets.
 
-### Feature Engineering Architecture
-**FeatureCalibrator Pattern**:
+`DataLoader` offers a narrow interface—load data between two timestamps—and currently backs that contract with local Parquet filtering. Because callers never see the storage implementation, the same interface can hang off TimescaleDB queries, Kafka subscriptions, cloud object storage, or streaming APIs as requirements change.
 
-The platform uses a clever approach to feature engineering:
+Each task keeps its models in `appdata/models/{ml_task}/vN` directories containing a `model.joblib` artefact and a `metadata.json` descriptor. Metadata records lineage (base version), hyperparameters, training windows, and model types. The `ModelManager` helper loads specific versions, persists new releases with auto-incrementing IDs, and preserves older versions for rollback or A/B experimentation.
 
-- **Precomputed Features** (Training/Batch Inference):
-  - Features are computed during data preparation phase
-  - Stored in Parquet files for fast loading
-  - DataLoader loads pre-engineered features for batch predictions
+### Shared Service Foundations
+`PlatformServiceConfig` (located in `thesis/common/service.py`) standardises how services derive their identity, construct filesystem paths, and resolve URLs for peer communication across development and production environments. FastAPI applications share unified scaffolding: lifespan context managers coordinate startup/shutdown work, ORJSON handles high-performance serialisation, and `/health` endpoints expose status for Docker health checks and external monitors.
 
-- **On-the-Fly Features** (Single Prediction):
-  - FeatureCalibrator loaded from saved joblib artifact for each task
-  - Computes features on raw input (source and destination coordinates, timestamps)
-  - Enables user predictions without precomputation
+Pydantic models form the common language between services. Schemas such as `SimulationSnapshot`, `DriftInfo`, `MetricPoint`, `Notification`, and `HealthResponse` guarantee typed contracts, simplify validation, and drive the generated OpenAPI documentation. Combined with centralised dependency declarations (via uv dependency groups) and configuration management, these foundations keep maintenance predictable as the codebase grows.
 
-**Limitation and Future Work**:
+State management also follows a consistent pattern: the backend owns authoritative in-memory stores for metrics, drift information, notifications, and report content. The frontend polls those endpoints and applies optimistic UI updates so user actions feel immediate while reconciliation happens against backend truth. Predictor services remain stateless aside from their loaded model versions, which keeps scaling and restarts straightforward.
 
-Currently, batch predictions use precomputed features, which limits the platform to predefined datasets. This was done as a trade-off between performance and complexity, considering the limited resources available for the thesis. The natural evolution is to use FeatureCalibrator for all predictions, eliminating the precomputation requirement and enabling true online learning.
+### Observability and Diagnostics
+Logging is set up centrally through `thesis/common/logger.py`, producing service-specific log files under `appdata/logs/{service}/` with rotation capped at 10MB and five backups. While the thesis deployment leans on these rotating files, the architecture anticipates production upgrades such as JSON-formatted structured logs, aggregation pipelines (ELK, Loki), and distributed tracing via OpenTelemetry.
 
-### Data Loader Abstraction
-`DataLoader` provides a simple interface for time-window data loading, based on a start and end timestamp. The data is loaded from a Parquet file, filtered by the start and end timestamp, and returned as a pandas DataFrame.
+Error handling follows a graceful degradation philosophy. Critical integration points wrap requests in protective try/except blocks so transient failures bubble up as notifications rather than crashes. Planned improvements include richer alerting, error monitoring, and automated testing coverage (unit, integration, performance, and end-to-end) beyond the functional checks used during development.
 
-**Current Implementation**: Reads from local Parquet files
+### Resilience and Concurrency
+Graceful degradation, retry logic, and health probes combine to keep faults localised. Should a predictor or summariser stumble, the backend records the issue, exposes it through notifications, and carries on with the simulation loop. Docker health checks restart unhealthy containers, and stateless service design keeps recovery simple.
 
-**Extensible Design**: Can be replaced with:
-- Database queries (e.g., TimescaleDB, InfluxDB)
-- Message queue consumption (e.g., Kafka, RabbitMQ)
-- Cloud storage (e.g., S3, Google Cloud Storage)
-- Real-time data streams
-
-The interface remains unchanged; only the implementation needs updating.
-
-### Model Registry Pattern
-The platform implements a simple versioning system for managing machine learning models. Each prediction task (eta, fuel, stops) maintains its own model registry under `appdata/models/{ml_task}/`, where models are organized in incrementally numbered version directories (v1, v2, v3, etc.).
-
-**Directory Structure:**
-
-Each model version consists of two files stored in its version directory:
-- `model.joblib` - The serialized machine learning model (LightGBM regressor)
-- `metadata.json` - Version information and training metadata
-
-**Metadata Contents:**
-
-The metadata file tracks essential information about each model version:
-- Task identifier (eta, fuel, or stops)
-- Current version number and base version it was trained from
-- Model type (e.g., LGBMRegressor)
-- Training time window (start and end timestamps from simulation)
-- Model-specific parameters (e.g., number of estimators added during retraining)
-
-**Key Benefits:**
-
-- **Version Tracking** - Maintains clear lineage of model evolution through base_version references
-- **Hot-Swapping** - Services can load new model versions without restarting
-- **Rollback Capability** - Previous model versions remain available if new models underperform
-- **Experimentation Support** - Multiple versions can coexist for A/B testing or comparison
-
-**ModelManager Interface:**
-
-The ModelManager class provides simple operations for version management:
-- Loading specific model versions by number
-- Saving new versions with automatic metadata generation
-- Auto-incrementing version numbers based on existing versions
-
-### Reusable Service Components
-**Common Service Pattern** (`thesis/common/service.py`):
-
-`PlatformServiceConfig` provides reusable service configuration:
-- Derives service identity from environment
-- Constructs service-specific paths
-- Provides URLs for inter-service communication
-- Handles development vs production environment
-
-**Standardized FastAPI Structure:**
-
-All API services (backend, predictors, drift, summarizer) follow a consistent structure for reliability and maintainability:
-
-- **Lifespan Management** - Services use a lifespan context manager to properly initialize resources at startup (loading models, establishing connections) and clean up resources at shutdown (closing connections, releasing memory)
-- **Fast JSON Serialization** - All services use ORJSON as the default response format for improved serialization performance compared to standard JSON
-- **Health Monitoring** - Every service exposes a `/health` endpoint that returns the service status (healthy/unhealthy) and service identity, enabling Docker health checks and monitoring
-
-**Common Schemas**:
-
-The platform uses Pydantic models to ensure type safety and data validation across service boundaries. These schemas also help with auto generating API docs in FastAPI.
-
-There are a lot of Pydantic models shared across all services, with some examples being:
-- `SimulationSnapshot`
-- `DriftInfo`
-- `MetricPoint`
-- `Notification`
-- `HealthResponse`
-
-## Logging and Error Handling
-
-### Current State
-**Logging**:
-- Centralized logger setup via `thesis/common/logger.py`
-- Log rotation configured (10MB max file size, 5 backups)
-- Service-specific log directories (`appdata/logs/{service}/`)
-- Logs created but not extensively used in production mode
-
-**Error Handling**:
-- Basic try-except blocks in critical sections
-- Graceful degradation for failed service requests
-
-### Future Improvements
-While the current implementation provides basic logging and error handling, production deployment would benefit from:
-- Structured logging with JSON format for easier parsing
-- Centralized log aggregation (e.g., ELK stack, Loki)
-- Distributed tracing (e.g., OpenTelemetry)
-- Error monitoring and alerting
-
-**Note**: The platform prioritizes functional architecture and core ML operations. Comprehensive observability infrastructure is intentionally deferred for thesis scope management.
-
-Another important improvement would be to perform proper testing of the platform, including unit tests for the services, integration tests, performance tests and end-to-end tests, other than the functional tests performed during the development process.
+Concurrency is achieved through layered techniques. The backend exploits `asyncio.gather` and `httpx.AsyncClient` for non-blocking network calls so each simulation tick can fan out to multiple services without additional threads. Long-running tasks, such as retraining job monitoring, are dispatched via `asyncio.create_task` to keep the main loop responsive. CPU-bound work is isolated with multiprocessing: per-task drift workers execute detectors in their own processes, and each predictor relies on a single-worker `ProcessPoolExecutor` to train models without starving inference requests.
 
 ## Performance Goals and Achievements
 
 The platform was designed with a primary goal: **simulate 72,000 seconds (20 hours) of traffic data in approximately 4-5 minutes**, achieving a 300x speed multiplier. This ambitious target drove several architectural decisions and required strategic compromises.
 
 ### Key Architectural Compromises
-To achieve the 300x speedup, several pragmatic design decisions were made:
-
-**Feature Precomputation** - The most significant compromise was implementing precomputed features for batch predictions. While this limits the platform to predefined datasets, it dramatically reduces computational overhead. Features are calculated once during data preparation and stored in Parquet files. During simulation, each 5-minute batch window is processed in under a second through fast timestamp-based filtering and vectorized operations.
-
-**In-Memory State** - Using circular buffers (`deque`) for metrics and notifications eliminates database I/O overhead. For a demonstration platform running 4-5 minute simulations, persistence provides minimal value compared to the performance gains.
-
-**Single-Worker Retraining** - Each predictor uses one worker process for retraining jobs, preventing resource contention while enabling true background processing. Multiple predictors can retrain simultaneously without impacting simulation progress.
+Hitting the 300x target meant leaning on three trade-offs explored in detail later: precomputing batch features to avoid heavy runtime transforms, keeping operational state in memory for zero-latency access, and limiting each predictor to a single retraining worker so inference threads stay responsive.
 
 ### Performance Validation
 The platform successfully achieves all performance objectives:
@@ -680,95 +564,13 @@ The platform successfully achieves all performance objectives:
 The implementation demonstrates that strategic compromises (precomputed features, in-memory storage) enable the required performance while maintaining architectural flexibility for future enhancements toward full online learning.
 
 ## Platform Capabilities Summary
+This section stitches together how the individual services collaborate during a simulation run:
 
-### Monitoring and Observability
-- **Real-Time Metrics**: MAE tracking for each ML task with circular buffer storage
-- **Drift State Visualization**: Clear indicators of detector states (Calibrating/Stable/Drifted/Retraining)
-- **Event Timeline**: Chronological feed of platform events with timestamps
-- **Performance Charts**: Time-series visualization of model performance with drift detection windows
-- **Snapshot API**: Complete system state accessible at any time
-
-### Drift Detection
-- **Consensus-Based Approach**: 3 out of 4 detectors must agree to reduce false positives
-- **Automatic Calibration**: Detectors self-tune on baseline data without manual tuning
-- **Online Processing**: Detectors update incrementally without storing full history
-- **Isolated State**: Each ML task has dedicated worker process for independence
-- **Graceful Degradation**: Failed calibration returns to drifted state for retry
-
-### Model Adaptation
-- **Automatic Retraining**: Triggered by drift detection without manual intervention
-- **Data Collection**: Intelligently collects 1 hour of post-drift data for retraining
-- **Background Processing**: Retraining runs in separate processes to avoid blocking predictions
-- **Async Polling**: Retraining jobs are polled asynchronously by the backend to check for completion
-- **Retry Logic**: Failed jobs automatically retry up to 3 times
-- **Hot-Swapping**: New models loaded when retraining succeeds without service downtime
-- **Dynamic Model Sizing**: Retrained models scale based on available data
-
-### User Interaction
-- **Interactive Map**: Click-based trip specification with route preview
-- **Multi-Model Predictions**: Single request gets predictions from all models
-- **Real-Time Response**: Predictions computed on-demand with feature engineering
-- **Route Visualization**: Shortest path rendered on map using SUMO network
-
-### Analysis and Reporting
-- **AI-Generated Reports**: Comprehensive markdown summaries of platform behavior
-- **PDF Export**: Reports downloadable for offline analysis
-- **Structured Analysis**: Executive summary, timeline, performance analysis, insights
-- **Data-Driven Conclusions**: LLM analyzes actual metrics and events
-
-## Architectural Strengths
-
-### Scalability
-- **Microservices**: Each component can scale independently
-- **Stateless APIs**: Most services are stateless (except in-memory stores that can be replaced with a database)
-- **Async I/O**: High concurrency with minimal resource overhead using async/await patterns
-- **Process Isolation**: Drift workers and retraining jobs don't block main threads
-
-### Maintainability
-- **Clear Separation of Concerns**: Each service has well-defined responsibilities
-- **Centralized Configuration**: Single source of truth for all parameters
-- **Type Safety**: Pydantic models ensure data contract enforcement
-- **Modular Dependencies**: Services install only required packages via uv dependency groups
-
-### Extensibility
-- **Plugin Architecture**: New ML tasks integrate with minimal code changes
-- **Swappable Components**: DataLoader, FeatureCalibrator, ModelManager can be replaced with other similar implementations
-- **Template Services**: Predictor services use shared codebase
-- **Open APIs**: RESTful interfaces enable third-party integrations
-
-### Resilience
-- **Graceful Degradation**: Service failures don't cascade
-- **Retry Logic**: Transient failures automatically recovered
-- **Health Checks**: Automatic service monitoring and restart
-- **Isolation**: Drift workers and retraining jobs in separate processes
-
-### Backend as Source of Truth
-The backend service functions as the centralized source of truth for all platform state, ensuring consistency across distributed components:
-
-- **Centralized State Storage**: All critical state is maintained in the backend's in-memory stores (metrics, notifications, drift information, report status). This eliminates the need for complex distributed state synchronization across services.
-
-- **Frontend Polling Pattern**: The frontend periodically polls the backend for updates rather than maintaining its own state. This simplifies the frontend implementation and ensures it always displays the current backend state.
-
-- **Stateless Predictor Services**: Predictor services are intentionally stateless (except for the ModelManager which maintains the loaded model version). They respond to requests but don't track simulation state, making them easier to scale and restart without state loss.
-
-- **Optimistic UI Updates**: The frontend implements optimistic updates for better user experience—UI changes happen immediately on button clicks, then the frontend synchronizes with the backend to confirm the state change. If the backend reports a different state, the UI updates accordingly.
-
-### Concurrent Operations
-The platform leverages Python's async/await and multiprocessing capabilities for efficient concurrent operations:
-
-**Asynchronous I/O Patterns**:
-
-- **Parallel Requests**: The backend uses `asyncio.gather` to send prediction and drift detection requests to multiple services simultaneously. Each simulation tick processes all three ML tasks (eta, fuel, stops) in parallel rather than sequentially, significantly improving throughput.
-
-- **Background Tasks**: Fire-and-forget operations like retraining job monitoring use `asyncio.create_task` to run in the background without blocking the main simulation tick loop. This ensures the simulation continues progressing while retraining jobs execute.
-
-- **Non-Blocking I/O**: All HTTP requests and I/O operations throughout the platform use async patterns with `httpx.AsyncClient`, allowing a single thread to handle many concurrent connections efficiently.
-
-**Process-Based Parallelism**:
-
-- **Drift Workers**: Each ML task runs its drift detectors in a separate process for complete isolation. This prevents any issues in one drift detection task from affecting others and allows true parallel computation on multi-core systems.
-
-- **Retraining Jobs**: Each predictor service uses a `ProcessPoolExecutor` with a single worker process to handle retraining. This prevents model training from blocking the predictor's API endpoints, allowing it to continue serving predictions during retraining, while also not drawing too much CPU resources from the system.
+- **Monitoring pipeline**: The backend snapshot endpoint streams metrics, drift state, and notifications in one payload, which the Dash frontend renders as charts, timelines, and status indicators. Because the frontend consumes the same API contract exposed to third parties, operational visibility stays consistent across UI and automation.
+- **Drift-detection loop**: Predictors push error windows to the drift service, four detectors evaluate them in per-task worker processes, and the backend keeps the authoritative drift state. Automatic calibration and grace periods avoid manual tuning while failed calibrations fall back to the drifted state so the system can recover safely.
+- **Adaptation lifecycle**: When drift is confirmed, the backend coordinates data collection windows and asks each predictor to start retraining in the background. Async polling tracks job status, built-in retry logic (three attempts) shields against transient failures, and successful runs hot-swap new versions—complete with dynamic model sizing—via the model registry without taking inference endpoints offline.
+- **User interaction**: Operators manage the simulation clock, inspect health, and trigger reports through the admin dashboard, while end users plan trips via the interactive map. Both experiences rely on live predictions that blend precomputed batch features with on-demand FeatureCalibrator transformations.
+- **Insight generation**: After a run, the backend forwards the same metrics and notifications used for monitoring to the summarizer service, which calls an LLM to produce Markdown and PDF reports, closing the feedback loop between system telemetry and human-readable insights.
 
 ## Architectural Trade-offs
 
