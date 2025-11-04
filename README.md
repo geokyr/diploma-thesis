@@ -7,7 +7,7 @@ This work brings together:
 
 - A **SUMO-based synthetic traffic dataset** for central Athens (train / test / rain scenarios)
 - **Machine learning research** for Estimated Time of Arrival (ETA) prediction
-- A full **drift-aware ML platform** with microservices, including a dashboard for monitoring, and automated drift detection and adaptation
+- A full **drift-aware ML platform** with microservices, including a dashboard for monitoring, automated drift detection and adaptation, and support for multiple models
 
 The **dataset** used in this work is publicly available on Zenodo, under [10.5281/zenodo.16950674](https://zenodo.org/records/16950674)
 
@@ -44,7 +44,7 @@ git clone https://github.com/geokyr/diploma-thesis
 cd diploma-thesis
 ```
 
-Install specific dependency groups based on your needs:
+Install specific dependency groups based on your needs, for example:
 
 ```bash
 # For dataset generation
@@ -101,7 +101,7 @@ docker compose logs -f
 docker compose down
 ```
 
-Access the platform at `http://localhost:8080`
+Access the platform running locally at `http://localhost:8080`.
 
 #### Development Mode
 For development with hot-reload (code changes reflected immediately):
@@ -120,13 +120,12 @@ docker compose down
 Development mode mounts your local `thesis/` directory into containers, allowing you to modify code without rebuilding images.
 
 ## Repository Structure
-- `appdata/` - Application data, models, logs and other artifacts for the platform
+- `appdata/` - Data, models, logs and other artifacts for the platform
 - `docs/` - Documentation for the project
 - `experiments/` - Machine learning research experiments
 - `outputs/` - Outputs from the experiments (models, metrics, logs)
 - `presentation/` - Presentation in LaTeX
 - `report/` - Report in LaTeX
-- `resources/` - Various resources and files about the project
 - `simulation/` - SUMO configuration files and datasets
 - `thesis/` - Python package including all the project code
   - `backend/` - Main orchestrator and control service
