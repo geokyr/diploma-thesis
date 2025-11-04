@@ -114,7 +114,12 @@ docker compose down
 
 Development mode mounts your local `thesis/` directory into containers, allowing you to modify code without rebuilding images.
 
-## Project Structure
+## Contributions
+This diploma thesis includes contributions by **Georgios Angelis** and **Serafeim Tzelepis**.
+
+The platform’s conceptualization was a joint effort. The Fuel Consumption model was implemented by Georgios Angelis, while the Number of Stops model was implemented by Serafeim Tzelepis. Parts of the platform are also based on their work, including the Drift service (Serafeim Tzelepis) and the Summarizer service (Georgios Angelis).
+
+## Repository Structure
 - `appdata/` - Application data, models, logs and other artifacts for the platform
 - `docs/` - Documentation for the project
 - `experiments/` - Machine learning research experiments
@@ -123,8 +128,8 @@ Development mode mounts your local `thesis/` directory into containers, allowing
 - `report/` - Report in LaTeX
 - `resources/` - Various resources and files about the project
 - `simulation/` - SUMO configuration files and datasets
-- `thesis/` - Main Python package for the project
-  - `backend/` - Main orchestration and control service
+- `thesis/` - Python package including all the project code
+  - `backend/` - Main orchestrator and control service
   - `common/` - Shared modules and configuration
   - `drift/` - Concept drift detection service
   - `eta/` - ETA prediction task
@@ -134,9 +139,3 @@ Development mode mounts your local `thesis/` directory into containers, allowing
   - `simulation/` - Dataset generation simulation with SUMO
   - `stops/` - Number of stops prediction task
   - `summarizer/` - LLM summarization service
-
-## Contributions
-
-This diploma thesis includes contributions by Georgios Angelis and Serafeim Tzelepis.
-
-The platform’s conceptualization was a joint effort. The Fuel Consumption model was implemented by Georgios Angelis, while the Number of Stops model was implemented by Serafeim Tzelepis. Parts of the platform are also based on their work, including the Drift service (Serafeim Tzelepis) and the Summarizer service (Georgios Angelis).
