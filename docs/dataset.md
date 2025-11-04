@@ -1,15 +1,15 @@
 # Dataset
 
 ## Table of Contents
-1. [Overview](#overview)
-2. [SUMO Simulation Framework](#sumo-simulation-framework)
-3. [Network Generation](#network-generation)
-4. [Traffic Demand Generation](#traffic-demand-generation)
-5. [Iterative Development Process](#iterative-development-process)
-6. [Final Concept Drift Scenario](#final-concept-drift-scenario)
-7. [Pipeline Implementation](#pipeline-implementation)
-8. [Dataset Characteristics](#dataset-characteristics)
-9. [Reproducibility](#reproducibility)
+- [Overview](#overview)
+- [SUMO Simulation Framework](#sumo-simulation-framework)
+- [Network Generation](#network-generation)
+- [Traffic Demand Generation](#traffic-demand-generation)
+- [Iterative Development Process](#iterative-development-process)
+- [Final Concept Drift Scenario](#final-concept-drift-scenario)
+- [Pipeline Implementation](#pipeline-implementation)
+- [Dataset Characteristics](#dataset-characteristics)
+- [Reproducibility](#reproducibility)
 
 ## Overview
 This document describes the pipeline for generating synthetic traffic datasets used in this thesis for Estimated Time of Arrival prediction, Fuel Consumption estimation, and Number of Stops prediction under concept drift conditions. The datasets were created using SUMO (Simulation of Urban MObility) and are publicly available on Zenodo.
@@ -60,11 +60,11 @@ The dataset underwent four iterations during development:
 ### Why SUMO?
 [SUMO (Simulation of Urban MObility)](https://sumo.dlr.de) is an open-source, microscopic traffic simulation package developed by the German Aerospace Center (DLR). It was selected for:
 
-1. **Microscopic Modeling:** Individual vehicle behavior with realistic car-following models (Krauss model)
-2. **OSM Integration:** Direct import from OpenStreetMap with road types, lanes, and speed limits
-3. **Rich Telemetry:** Per-second FCD output with position, speed, fuel, waiting time
-4. **Reproducibility:** Deterministic simulation with seed control
-5. **Active Development:** Well-documented, widely used in academic research
+- **Microscopic Modeling:** Individual vehicle behavior with realistic car-following models (Krauss model)
+- **OSM Integration:** Direct import from OpenStreetMap with road types, lanes, and speed limits
+- **Rich Telemetry:** Per-second FCD output with position, speed, fuel, waiting time
+- **Reproducibility:** Deterministic simulation with seed control
+- **Active Development:** Well-documented, widely used in academic research
 
 ### Network Statistics
 The simulation area covers central Athens with the following characteristics:
@@ -86,15 +86,15 @@ The simulation area covers central Athens with the following characteristics:
 ### Tool Selection
 While SUMO provides `osmWebWizard.py`, a web-based GUI that wraps the network generation process, we opted to use the underlying command-line tools, `osmGet.py` and `osmBuild.py`, directly. This decision was motivated by:
 
-1. **Programmatic Control:** CLI invocation from Python scripts for reproducibility
-2. **Parameter Access:** Fine-grained control over netconvert and polyconvert options not exposed by the web UI
-3. **Automation:** Scripted pipeline execution without manual interaction
+- **Programmatic Control:** CLI invocation from Python scripts for reproducibility
+- **Parameter Access:** Fine-grained control over netconvert and polyconvert options not exposed by the web UI
+- **Automation:** Scripted pipeline execution without manual interaction
 
 ### Network Generation Overview
 The network generation consists of two main stages performed once at the beginning of the pipeline:
 
-1. **OSM Data Extraction:** Downloads OpenStreetMap data for the Athens bounding box, including roads, junctions, traffic lights, and building polygons
-2. **Network Building:** Converts raw OSM data into SUMO-compatible network format with proper road types, traffic light control, and junction geometry
+- **OSM Data Extraction:** Downloads OpenStreetMap data for the Athens bounding box, including roads, junctions, traffic lights, and building polygons
+- **Network Building:** Converts raw OSM data into SUMO-compatible network format with proper road types, traffic light control, and junction geometry
 
 Additionally, a third variant is created for the rain scenario by applying a global friction reduction to all lanes in the base network.
 
@@ -105,13 +105,13 @@ The simulation includes only passenger cars, excluding other vehicle types such 
 
 Despite the relatively higher representation of motorcycles in Athens traffic, all of the above classes were excluded from the simulation for the following reasons:
 
-1. **Behavioral Heterogeneity:** Motorcycles exhibit significantly different driving behaviors compared to passenger cars, including lane-splitting, different acceleration profiles, and distinct gap-acceptance patterns. Modeling these behaviors would require separate vehicle type configurations and validation procedures.
+- **Behavioral Heterogeneity:** Motorcycles exhibit significantly different driving behaviors compared to passenger cars, including lane-splitting, different acceleration profiles, and distinct gap-acceptance patterns. Modeling these behaviors would require separate vehicle type configurations and validation procedures.
 
-2. **Insufficient Training Data:** Even with 10-15% representation, the absolute number of motorcycle trips would provide inadequate samples for machine learning models to reliably learn class-specific prediction patterns, particularly when combined with the feature space dimensionality.
+- **Insufficient Training Data:** Even with 10-15% representation, the absolute number of motorcycle trips would provide inadequate samples for machine learning models to reliably learn class-specific prediction patterns, particularly when combined with the feature space dimensionality.
 
-3. **Class Imbalance:** The resulting class imbalance would necessitate specialized handling techniques (e.g., oversampling, class-weighted loss functions) that add methodological complexity while providing marginal predictive improvements for the minority class.
+- **Class Imbalance:** The resulting class imbalance would necessitate specialized handling techniques (e.g., oversampling, class-weighted loss functions) that add methodological complexity while providing marginal predictive improvements for the minority class.
 
-4. **Task Focus:** The primary objective of this research is concept drift detection and model retraining strategies, not multi-modal traffic prediction. Restricting the vehicle fleet to passenger cars allows for clearer isolation of drift effects without confounding factors introduced by heterogeneous vehicle behaviors.
+- **Task Focus:** The primary objective of this research is concept drift detection and model retraining strategies, not multi-modal traffic prediction. Restricting the vehicle fleet to passenger cars allows for clearer isolation of drift effects without confounding factors introduced by heterogeneous vehicle behaviors.
 
 By focusing on the dominant vehicle class (passenger cars), the dataset maintains methodological simplicity while capturing the primary traffic dynamics relevant to the prediction tasks and research objectives.
 
@@ -151,10 +151,10 @@ Each scenario uses a distinct random seed to ensure reproducibility while genera
 | **rain** | 314159 | Drift dataset with different patterns + rain network |
 
 The seed controls:
-1. Gaussian noise applied to traffic generation periods
-2. Random trip generation (origin-destination pairs)
-3. Departure and arrival positions on edges
-4. Vehicle behavior stochasticity in SUMO
+- Gaussian noise applied to traffic generation periods
+- Random trip generation (origin-destination pairs)
+- Departure and arrival positions on edges
+- Vehicle behavior stochasticity in SUMO
 
 ### Trip Generation
 Random origin-destination pairs are generated for each scenario using SUMO's `randomTrips.py` tool. Trips are distributed according to the hourly traffic generation periods (after Gaussian noise application), validated for route feasibility, and assigned random departure/arrival positions on edges. This process is performed separately for each scenario (train, test, rain) using the respective random seeds.
@@ -189,9 +189,9 @@ Behavior changes produced only subtle effects on aggregate traffic patterns, did
 
 ### Key Insights
 The iterative exploration led to important insights that motivated the final approach:
-1. Drift mechanisms must preserve network validity and route feasibility
-2. Drift should correspond to clear, real-world phenomena for interpretability
-3. Physics-based parameters (like friction) have measurable, predictable effects
+- Drift mechanisms must preserve network validity and route feasibility
+- Drift should correspond to clear, real-world phenomena for interpretability
+- Physics-based parameters (like friction) have measurable, predictable effects
 
 ## Final Concept Drift Scenario
 Based on the lessons learned from alternative approaches, the final drift mechanism uses **friction-based rain simulation**.
@@ -199,11 +199,11 @@ Based on the lessons learned from alternative approaches, the final drift mechan
 ### Rain Scenario Design
 The rain scenario introduces concept drift by simulating adverse weather conditions through reduced road surface friction. This approach was chosen because:
 
-1. **Physical Realism:** Rain directly reduces tire-road friction, a well-understood phenomenon
-2. **Interpretability:** Clear causal relationship between friction and vehicle behavior
-3. **Measurable Impact:** Reduced friction increases braking distances, decreases acceleration, and lowers average speeds
-4. **Network Preservation:** No topology changes—all routes remain valid
-5. **SUMO Support:** Native friction parameter in lane definitions
+- **Physical Realism:** Rain directly reduces tire-road friction, a well-understood phenomenon
+- **Interpretability:** Clear causal relationship between friction and vehicle behavior
+- **Measurable Impact:** Reduced friction increases braking distances, decreases acceleration, and lowers average speeds
+- **Network Preservation:** No topology changes—all routes remain valid
+- **SUMO Support:** Native friction parameter in lane definitions
 
 ### Implementation
 A modified network is created by parsing the base network XML and applying a global friction reduction to all lanes. The friction parameter is set to 0.4 (down from the default 1.0) uniformly across all lanes in the network. This modified network is saved separately and used for the rain scenario simulation.
@@ -213,10 +213,10 @@ A modified network is created by parsing the base network XML and applying a glo
 ### Friction Effects
 SUMO's friction parameter affects vehicle dynamics in several ways:
 
-1. **Maximum Acceleration:** Reduced by the square root of the friction coefficient
-2. **Maximum Deceleration:** Reduced by the square root of the friction coefficient
-3. **Cornering Speed:** Lower friction requires slower speeds on curves
-4. **Emergency Braking:** Increased stopping distances
+- **Maximum Acceleration:** Reduced by the square root of the friction coefficient
+- **Maximum Deceleration:** Reduced by the square root of the friction coefficient
+- **Cornering Speed:** Lower friction requires slower speeds on curves
+- **Emergency Braking:** Increased stopping distances
 
 **Result:** Vehicles in the rain scenario experience slower acceleration from stops, earlier and gentler braking, longer trip completion times, and different congestion patterns.
 
@@ -239,29 +239,29 @@ The pipeline is implemented as a modular Python package and orchestrated by a ma
 ### Pipeline Overview
 The complete pipeline consists of nine steps:
 
-1. **OSM Data Extraction** → Download OpenStreetMap data for Athens bounding box
-2. **Network Building** → Convert OSM data to SUMO network format
-3. **Rain Network Creation** → Generate friction-modified network for drift scenario
-4. **GUI Settings** → Write SUMO-GUI visualization settings
-5. **Configuration Files** → Generate simulation configuration files per scenario
-6. **Trip Generation** → Create random origin-destination pairs per scenario
-7. **Simulation Execution** → Run SUMO simulation per scenario
-8. **Format Conversion** → Convert CSV output to Parquet format
-9. **Exploratory Analysis** → Generate statistics and plots
+- **OSM Data Extraction** → Download OpenStreetMap data for Athens bounding box
+- **Network Building** → Convert OSM data to SUMO network format
+- **Rain Network Creation** → Generate friction-modified network for drift scenario
+- **GUI Settings** → Write SUMO-GUI visualization settings
+- **Configuration Files** → Generate simulation configuration files per scenario
+- **Trip Generation** → Create random origin-destination pairs per scenario
+- **Simulation Execution** → Run SUMO simulation per scenario
+- **Format Conversion** → Convert CSV output to Parquet format
+- **Exploratory Analysis** → Generate statistics and plots
 
 ### Execution Flow
 **Phase 1: Network Preparation (Once)**
-1. Extract OSM data for central Athens using the specified bounding box
-2. Build SUMO network from OSM data with traffic lights, junctions, and road geometry
-3. Create rain network variant with reduced friction (0.4)
-4. Write GUI settings file for visualization
+- Extract OSM data for central Athens using the specified bounding box
+- Build SUMO network from OSM data with traffic lights, junctions, and road geometry
+- Create rain network variant with reduced friction (0.4)
+- Write GUI settings file for visualization
 
 **Phase 2: Scenario Simulation (For Each: Train, Test, Rain)**
-1. Create simulation configuration file referencing the appropriate network (base or rain)
-2. Generate random trips with scenario-specific seed and traffic patterns
-3. Execute SUMO simulation with FCD output enabled
-4. Convert FCD CSV output to compressed Parquet format
-5. Perform exploratory data analysis and generate summary plots
+- Create simulation configuration file referencing the appropriate network (base or rain)
+- Generate random trips with scenario-specific seed and traffic patterns
+- Execute SUMO simulation with FCD output enabled
+- Convert FCD CSV output to compressed Parquet format
+- Perform exploratory data analysis and generate summary plots
 
 ### Pipeline Steps (Detailed)
 

@@ -1,14 +1,14 @@
 # ETA
 
 ## Table of Contents
-1. [Overview](#overview)
-2. [Dataset](#dataset)
-3. [Experimental Methodology](#experimental-methodology)
-4. [Transformation Experiments](#transformation-experiments)
-5. [Feature Engineering](#feature-engineering)
-6. [Feature Selection](#feature-selection)
-7. [Hyperparameter Tuning](#hyperparameter-tuning)
-8. [Final Model](#final-model)
+- [Overview](#overview)
+- [Dataset](#dataset)
+- [Experimental Methodology](#experimental-methodology)
+- [Transformation Experiments](#transformation-experiments)
+- [Feature Engineering](#feature-engineering)
+- [Feature Selection](#feature-selection)
+- [Hyperparameter Tuning](#hyperparameter-tuning)
+- [Final Model](#final-model)
 
 ## Overview
 This document describes the complete research process for developing a machine learning model for Estimated Time of Arrival (ETA) prediction in urban environments.
@@ -51,14 +51,14 @@ To construct a trip-level dataset suitable for machine learning, the FCD records
 
 **Aggregation Pipeline:**
 
-1. **Grouping:** Records grouped by unique vehicle ID, representing individual trips from insertion to removal
-2. **Temporal Features:** Extract first and last timestep per vehicle to derive:
+- **Grouping:** Records grouped by unique vehicle ID, representing individual trips from insertion to removal
+- **Temporal Features:** Extract first and last timestep per vehicle to derive:
   - `time_start`: Trip departure timestamp (seconds)
   - `duration`: Trip completion time (last timestep - first timestep)
-3. **Spatial Features:** Extract first and last position per vehicle to derive:
+- **Spatial Features:** Extract first and last position per vehicle to derive:
   - `source_x`, `source_y`: Origin coordinates (meters)
   - `destination_x`, `destination_y`: Destination coordinates (meters)
-4. **Distance Calculation:** Extract final odometer reading per vehicle:
+- **Distance Calculation:** Extract final odometer reading per vehicle:
   - `distance`: Total route distance traveled (meters)
 
 **Filtering Criteria:**
@@ -87,19 +87,19 @@ A systematic experiment tracking framework was implemented to manage the iterati
 
 The research pipeline consists of three main components:
 
-1. **Experiment Scripts** (`experiments/` directory)
+- **Experiment Scripts** (`experiments/` directory)
   - Dedicated Python script for each experiment configuration
   - Minimal boilerplate code through shared library functions
   - Clear naming convention (e.g., `baseline_research.py`, `features_spatial.py`, `tuning_lightgbm.py`)
 
-2. **Reusable Library** (`thesis/` package)
+- **Reusable Library** (`thesis/` package)
   - Centralized feature engineering logic
   - Common model training and evaluation utilities
   - Dataset loading and preprocessing functions
   - Cross-validation and stratification helpers
   - Eliminates code duplication across experiments
 
-3. **Automated Output Management** (`outputs/` directory)
+- **Automated Output Management** (`outputs/` directory)
   - Each experiment automatically creates a structured output directory
   - Standard subdirectories: `models/`, `logs/`, `results/`
   - Trained model artifacts saved as joblib files for reproducibility
@@ -154,10 +154,10 @@ Primary metrics used across all experiments:
 ### Baseline Models
 Four model families were evaluated:
 
-1. **Linear Regression** - Simple baseline for comparison
-2. **CatBoost** - Gradient boosting with categorical feature handling
-3. **LightGBM** - Fast gradient boosting
-4. **XGBoost** - Robust gradient boosting
+- **Linear Regression** - Simple baseline for comparison
+- **CatBoost** - Gradient boosting with categorical feature handling
+- **LightGBM** - Fast gradient boosting
+- **XGBoost** - Robust gradient boosting
 
 **Rationale:** Gradient boosting methods have demonstrated superior performance on tabular data with complex feature interactions, making them well-suited for regression tasks with spatial and temporal features. Linear Regression serves as a simple baseline to quantify the value of non-linear modeling approaches.
 
@@ -178,26 +178,26 @@ Before conducting feature engineering, a series of transformation experiments we
 ### Tested Transformations
 
 #### Feature Transformations
-1. **Log Transformation** (`transform_features_log`)
+- **Log Transformation** (`transform_features_log`)
   - Applied `log(1 + x)` transformation to the `distance` feature
   - **Rationale:** Distance often exhibits right-skewed distribution; log transformation can normalize this
   - **Implementation:** Applied to training data, then to validation/test data
 
-2. **Standard Scaling** (`transform_features_standard`)
+- **Standard Scaling** (`transform_features_standard`)
   - Applied standardization (zero mean, unit variance) to all features
   - **Rationale:** Ensures all features are on the same scale
   - **Implementation:** Fitted on training data, applied to validation/test data
 
 #### Target Transformations
-3. **Log Transformation** (`transform_target_log`)
+- **Log Transformation** (`transform_target_log`)
   - Applied `log(1 + y)` to travel time, with inverse `exp(y) - 1` for predictions
   - **Rationale:** Travel time may exhibit log-normal distribution
 
-4. **Box-Cox Transformation** (`transform_target_boxcox`)
+- **Box-Cox Transformation** (`transform_target_boxcox`)
   - Power transformation to make data more Gaussian-like
   - **Rationale:** Automatically finds optimal power parameter λ to normalize distribution
 
-5. **Quantile Transformation** (`transform_target_quantile`)
+- **Quantile Transformation** (`transform_target_quantile`)
   - Maps data to uniform or normal distribution using quantiles
   - **Rationale:** Non-parametric transformation robust to outliers
 
@@ -214,10 +214,10 @@ All transformation experiments used the original 6 features (baseline configurat
 | `transform_target_quantile` | Quantile(duration) | 27.90 | 0.07s (0.25%) | LightGBM (27.71s) |
 
 ### Key Findings
-1. **Feature transformations ineffective:** Both log transformation and standard scaling of features showed no meaningful improvement over the baseline. This is expected for tree-based gradient boosting models, which are inherently invariant to monotonic transformations and feature scaling.
-2. **Target transformations marginal:** Target transformations showed slight improvements (0.04-0.07s), but the gains were minimal relative to baseline performance (0.14-0.25% improvement).
-3. **Added complexity not justified:** While target transformations provided small improvements, they introduce additional complexity in the prediction pipeline (requiring inverse transformation) and make model interpretation more difficult.
-4. **Tree-based model robustness:** Gradient boosting models handle the original feature and target distributions effectively without requiring explicit transformations, unlike linear models or neural networks that often benefit from normalization.
+- **Feature transformations ineffective:** Both log transformation and standard scaling of features showed no meaningful improvement over the baseline. This is expected for tree-based gradient boosting models, which are inherently invariant to monotonic transformations and feature scaling.
+- **Target transformations marginal:** Target transformations showed slight improvements (0.04-0.07s), but the gains were minimal relative to baseline performance (0.14-0.25% improvement).
+- **Added complexity not justified:** While target transformations provided small improvements, they introduce additional complexity in the prediction pipeline (requiring inverse transformation) and make model interpretation more difficult.
+- **Tree-based model robustness:** Gradient boosting models handle the original feature and target distributions effectively without requiring explicit transformations, unlike linear models or neural networks that often benefit from normalization.
 
 ### Decision
 **No transformations were applied in subsequent experiments.** The minimal performance gains did not justify the added complexity, and tree-based models demonstrated sufficient robustness to handle the untransformed data. This decision simplified the feature engineering pipeline and maintained model interpretability.
@@ -291,10 +291,10 @@ Principal Component Analysis for dimensionality reduction. These features captur
 ### Feature Engineering Experiments
 Each feature group was evaluated through dedicated experiments to assess its contribution to prediction performance. The experiments followed a systematic approach:
 
-1. **Individual Group Testing:** Each feature group was added to the original features independently
-2. **Combined Testing:** All feature groups were combined to assess collective impact
-3. **Cross-Validation:** All experiments used 5-fold stratified cross-validation on the training dataset
-4. **Model Comparison:** Three gradient boosting models (CatBoost, LightGBM, XGBoost) were evaluated for each configuration
+- **Individual Group Testing:** Each feature group was added to the original features independently
+- **Combined Testing:** All feature groups were combined to assess collective impact
+- **Cross-Validation:** All experiments used 5-fold stratified cross-validation on the training dataset
+- **Model Comparison:** Three gradient boosting models (CatBoost, LightGBM, XGBoost) were evaluated for each configuration
 
 #### Experiment Results
 The following table summarizes the average MAE (in seconds) across all models for each feature engineering experiment:
@@ -312,11 +312,11 @@ The following table summarizes the average MAE (in seconds) across all models fo
 
 **Key Findings:**
 
-1. **All feature groups provide improvement:** Every feature group showed positive impact over the baseline, ranging from 0.10s to 0.34s MAE reduction.
-2. **Fourier features most effective individually:** The `features_fourier` experiment achieved the best single-group performance (27.69s MAE), demonstrating the value of positional encoding.
-3. **Combined features perform best:** The `features_all` experiment achieved the lowest MAE (27.63s), indicating complementary information across feature groups.
-4. **Model consistency:** XGBoost performed best on most feature configurations, though LightGBM was competitive and significantly faster to train.
-5. **Diminishing returns:** The improvement from combining all features (0.34s) is less than the sum of individual improvements, suggesting some overlap in captured information.
+- **All feature groups provide improvement:** Every feature group showed positive impact over the baseline, ranging from 0.10s to 0.34s MAE reduction.
+- **Fourier features most effective individually:** The `features_fourier` experiment achieved the best single-group performance (27.69s MAE), demonstrating the value of positional encoding.
+- **Combined features perform best:** The `features_all` experiment achieved the lowest MAE (27.63s), indicating complementary information across feature groups.
+- **Model consistency:** XGBoost performed best on most feature configurations, though LightGBM was competitive and significantly faster to train.
+- **Diminishing returns:** The improvement from combining all features (0.34s) is less than the sum of individual improvements, suggesting some overlap in captured information.
 
 ## Feature Selection
 After evaluating the combined feature set (`features_all` with 52 features), systematic feature selection was performed to identify the most valuable features while reducing dimensionality, training time, and model complexity.
@@ -324,22 +324,22 @@ After evaluating the combined feature set (`features_all` with 52 features), sys
 ### Selection Methods
 Four complementary feature importance methods were applied to rank all 52 features:
 
-1. **Gain-Based Importance**
+- **Gain-Based Importance**
   - Used LightGBM's built-in split gain importance
   - Measures feature contribution to loss reduction across all tree splits
   - Reflects how frequently and effectively each feature is used in decision trees
 
-2. **Permutation Importance**
+- **Permutation Importance**
   - Model-agnostic approach measuring feature impact
   - Computed increase in MAE when each feature is randomly shuffled
   - Captures actual predictive impact independent of model architecture
 
-3. **SHAP Values**
+- **SHAP Values**
   - Shapley Additive Explanations from game theory
   - Quantifies each feature's contribution to individual predictions
   - Captures feature interactions and non-linear effects
 
-4. **Correlation Analysis**
+- **Correlation Analysis**
   - Computed Pearson correlation between all feature pairs
   - Identified highly correlated features (|r| > 0.95)
   - Found 44 correlated pairs requiring resolution
@@ -347,9 +347,9 @@ Four complementary feature importance methods were applied to rank all 52 featur
 ### Combined Ranking
 The three importance-based methods (gain, permutation, SHAP) were aggregated into a combined ranking:
 
-1. **Normalization:** Scores from each method normalized to [0, 1] range
-2. **Aggregation:** Mean rank computed across the three methods for each feature
-3. **Final Score:** Weighted combination of normalized importance and rank
+- **Normalization:** Scores from each method normalized to [0, 1] range
+- **Aggregation:** Mean rank computed across the three methods for each feature
+- **Final Score:** Weighted combination of normalized importance and rank
 
 **Top 20 Features by Combined Score:**
 
@@ -417,11 +417,11 @@ The feature selection was validated through a dedicated experiment (`features_se
 
 **Key Results:**
 
-1. **Negligible accuracy loss:** Only 0.03s (0.1%) MAE increase despite removing 58% of features
-2. **Significant training speedup:** 40% reduction in training time (0.81s → 0.49s)
-3. **Maintained best performance:** XGBoost achieved identical MAE (27.33s) in both configurations
-4. **Improved efficiency:** 22 features provide 99.9% of the predictive power of 52 features
-5. **Enhanced interpretability:** Smaller, more focused feature set easier to understand and maintain
+- **Negligible accuracy loss:** Only 0.03s (0.1%) MAE increase despite removing 58% of features
+- **Significant training speedup:** 40% reduction in training time (0.81s → 0.49s)
+- **Maintained best performance:** XGBoost achieved identical MAE (27.33s) in both configurations
+- **Improved efficiency:** 22 features provide 99.9% of the predictive power of 52 features
+- **Enhanced interpretability:** Smaller, more focused feature set easier to understand and maintain
 
 The feature selection successfully identified and retained the most informative features while eliminating redundancy and reducing computational cost.
 
@@ -459,10 +459,10 @@ The optimization process totaled 450 trials (150 per model) without early stoppi
 
 **Key Observations:**
 
-1. **Best Performance:** LightGBM achieved the lowest MAE (26.51s) across all 450 trials
-2. **Training Efficiency:** LightGBM training time (2.60-2.95s) significantly faster than CatBoost (11.56-14.70s) and XGBoost (7.47-9.44s), and also a lot more consistent across trials, especially compared to CatBoost
-3. **Phase Convergence:** Phase 2 focused search provided minimal improvements over Phase 1, indicating effective initial parameter space coverage
-4. **Model Stability:** LightGBM showed most consistent performance across trials; CatBoost showed highest variability
+- **Best Performance:** LightGBM achieved the lowest MAE (26.51s) across all 450 trials
+- **Training Efficiency:** LightGBM training time (2.60-2.95s) significantly faster than CatBoost (11.56-14.70s) and XGBoost (7.47-9.44s), and also a lot more consistent across trials, especially compared to CatBoost
+- **Phase Convergence:** Phase 2 focused search provided minimal improvements over Phase 1, indicating effective initial parameter space coverage
+- **Model Stability:** LightGBM showed most consistent performance across trials; CatBoost showed highest variability
 
 ## Final Model
 LightGBM with the following optimized hyperparameters was selected as the final model:
@@ -482,7 +482,7 @@ LightGBM with the following optimized hyperparameters was selected as the final 
 
 **Selection Rationale:**
 
-1. **Accuracy:** Best MAE (26.51s) across all 450 tuning trials
-2. **Speed:** Training time ~3x faster than XGBoost and ~5x faster than CatBoost
-3. **Efficiency:** Strong performance with minimal computational cost, ideal for retraining scenarios
-4. **Consistency:** Low variance across cross-validation folds, indicating robust generalization
+- **Accuracy:** Best MAE (26.51s) across all 450 tuning trials
+- **Speed:** Training time ~3x faster than XGBoost and ~5x faster than CatBoost
+- **Efficiency:** Strong performance with minimal computational cost, ideal for retraining scenarios
+- **Consistency:** Low variance across cross-validation folds, indicating robust generalization
