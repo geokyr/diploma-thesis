@@ -11,7 +11,7 @@ This work brings together:
 
 The **dataset** used in this work is publicly available on Zenodo, under the DOI [10.5281/zenodo.16950674](https://zenodo.org/records/16950674)
 
-The repo is structured as a **monorepo**: dataset generation, ML experiments, platform code, and LaTeX sources for the thesis report and presentation all live here.
+The repo is structured as a **monorepo**: dataset generation, ML experiments, platform code, and LaTeX sources for the [report](report/main.pdf) and [presentation](presentation/main.pdf) all live here.
 
 ## Contributions
 This diploma thesis includes contributions by **Georgios Angelis** and **Serafeim Tzelepis**.
