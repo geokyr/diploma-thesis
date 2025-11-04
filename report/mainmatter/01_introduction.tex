@@ -26,7 +26,7 @@ While concept drift detection and adaptation techniques have been well-studied i
 Existing solutions are often fragmented or confined to laboratory settings, lacking the integration of critical components needed for systematic drift management in distributed mobility scenarios.
 Current tools may address individual aspects, such as drift detection or model retraining, but they rarely incorporate traffic simulation, continuous monitoring, and adaptive retraining into one seamless, automated loop~\cite{xin2024lit, modesto2025self}.
 
-This gap motivates the creation of a continuous learning platform for mobility: one that integrates traffic simulation to test "what-if" scenarios, live performance dashboards to observe errors as they evolve, drift detection algorithms to raise alerts when model performance degrades, and an automated retraining pipeline to deploy updated models.
+This gap motivates the creation of a continuous machine learning platform for mobility: one that integrates traffic simulation to test "what-if" scenarios, live performance dashboards to observe errors as they evolve, drift detection algorithms to raise alerts when model performance degrades, and an automated retraining pipeline to deploy updated models.
 By monitoring performance through time rather than just offline metrics and triggering adaptation with minimal human intervention, we aim to ensure that mobility prediction models remain accurate and robust despite the ever-changing urban environment, ultimately supporting the safety and reliability requirements of CCAM applications.
 
 \begin{figure}[ht]
@@ -74,7 +74,7 @@ This thesis makes several contributions to the state of the art in continuous ma
         We then measure how the system's automatic adaptation, triggering model retraining with new data from the rainy period, helps recover the model's performance.
         This exploration provides a realistic validation of the platform's ability to observe, detect, and mitigate drift in a controlled yet lifelike scenario.
 
-    \item \textbf{Drift-Aware Platform Implementation:} We present the design and implementation of a platform for continuous learning in mobility, which is a key practical contribution of this work.
+    \item \textbf{Drift-Aware Platform Implementation:} We present the design and implementation of a platform for continuous machine learning in mobility, which is a key practical contribution of this work.
         The platform includes components for simulation replay that feed historical or synthetic data through the model as if in real time, live dashboarding of model performance metrics, so that users can visualize concept drift as it happens, pluggable drift detection algorithms with calibration tools to set detection thresholds and minimize false alarms, and an automatic retraining and deployment pipeline, which seamlessly replaces the old model with an updated one when drift is confirmed.
         The entire system is built with modern software frameworks, such as containerized microservices, REST APIs for model serving, and event-driven triggers for retraining, to ensure it can be deployed in real operational environments.
         By open-sourcing the platform and detailing its architecture, we enable other researchers and practitioners to reproduce our approach and extend it to their own cooperative and automated mobility applications.
@@ -107,7 +107,7 @@ The remainder of this thesis is structured as follows:
         The results validate the platform's ability to maintain model accuracy over time.
 
     \item \textbf{Chapter 7: Conclusions} - Summarizes the contributions and findings of the thesis.
-        We reflect on the success of the continuous learning approach for CCAM applications and any limitations observed.
+        We reflect on the success of the continuous machine learning approach for CCAM applications and any limitations observed.
         Finally, we outline future research directions, such as improvements to platform scaling and monitoring, or integrating the system with real-time data streams.
 
 \end{itemize}
