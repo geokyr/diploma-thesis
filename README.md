@@ -134,3 +134,9 @@ Development mode mounts your local `thesis/` directory into containers, allowing
   - `simulation/` - Dataset generation simulation with SUMO
   - `stops/` - Number of stops prediction task
   - `summarizer/` - LLM summarization service
+
+## Contributions
+
+This diploma thesis includes work by Georgios Angelis and Serafeim Tzelepis.
+
+The whole platform conceptualization was a joint effort. On top of that, the Fuel Consumption model was implemented by Georgios Angelis and the Number of Stops model by Serafeim Tzelepis. Parts of the platform were also based on their work, such as the Drift service by Serafeim Tzelepis, and the Summarizer service by Georgios Angelis.
