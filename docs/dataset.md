@@ -12,13 +12,11 @@
 9. [Reproducibility](#reproducibility)
 
 ## Overview
-
 This document describes the pipeline for generating synthetic traffic datasets used in this thesis for Estimated Time of Arrival prediction, Fuel Consumption estimation, and Number of Stops prediction under concept drift conditions. The datasets were created using SUMO (Simulation of Urban MObility) and are publicly available on Zenodo.
 
 **Dataset DOI:** [10.5281/zenodo.16950674](https://zenodo.org/records/16950674)
 
 ### Dataset Summary
-
 The following table summarizes the characteristics of all three generated datasets:
 
 | Metric | Train | Test | Rain |
@@ -46,7 +44,6 @@ The following table summarizes the characteristics of all three generated datase
 - `waiting`: Time spent waiting since last stop (s)
 
 ### Dataset Versions
-
 The dataset underwent four iterations during development:
 
 | Version | Scenarios | Outputs | Format | Notes |
@@ -61,7 +58,6 @@ The dataset underwent four iterations during development:
 ## SUMO Simulation Framework
 
 ### Why SUMO?
-
 [SUMO (Simulation of Urban MObility)](https://sumo.dlr.de) is an open-source, microscopic traffic simulation package developed by the German Aerospace Center (DLR). It was selected for:
 
 1. **Microscopic Modeling:** Individual vehicle behavior with realistic car-following models (Krauss model)
@@ -71,7 +67,6 @@ The dataset underwent four iterations during development:
 5. **Active Development:** Well-documented, widely used in academic research
 
 ### Network Statistics
-
 The simulation area covers central Athens with the following characteristics:
 
 | Metric | Value |
@@ -89,7 +84,6 @@ The simulation area covers central Athens with the following characteristics:
 ## Network Generation
 
 ### Tool Selection
-
 While SUMO provides `osmWebWizard.py`, a web-based GUI that wraps the network generation process, we opted to use the underlying command-line tools, `osmGet.py` and `osmBuild.py`, directly. This decision was motivated by:
 
 1. **Programmatic Control:** CLI invocation from Python scripts for reproducibility
@@ -97,7 +91,6 @@ While SUMO provides `osmWebWizard.py`, a web-based GUI that wraps the network ge
 3. **Automation:** Scripted pipeline execution without manual interaction
 
 ### Network Generation Overview
-
 The network generation consists of two main stages performed once at the beginning of the pipeline:
 
 1. **OSM Data Extraction:** Downloads OpenStreetMap data for the Athens bounding box, including roads, junctions, traffic lights, and building polygons
@@ -108,7 +101,6 @@ Additionally, a third variant is created for the rain scenario by applying a glo
 Detailed implementation of these steps is described in the [Pipeline Implementation](#pipeline-implementation) section.
 
 ### Vehicle Classes
-
 The simulation includes only passenger cars, excluding other vehicle types such as buses, trucks (HDV/LDV), and motorcycles. According to data from the Hellenic Statistical Authority (ELSTAT), the Greek vehicle fleet composition shows that buses and trucks each represent approximately 3-5% of registered vehicles, while motorcycles account for a more substantial proportion (approximately 15% in urban areas).
 
 Despite the relatively higher representation of motorcycles in Athens traffic, all of the above classes were excluded from the simulation for the following reasons:
@@ -126,7 +118,6 @@ By focusing on the dominant vehicle class (passenger cars), the dataset maintain
 ## Traffic Demand Generation
 
 ### Traffic Generation Periods
-
 Traffic demand follows a realistic hourly pattern designed to mimic real-world Athens traffic patterns observed in sources such as the Athens Mobility Observatory and similar traffic monitoring platforms. The pattern captures characteristic morning and evening rush hours with a midday decline typical of urban traffic. The base generation periods (in seconds between vehicle departures) are:
 
 | Hour           | Period (s) | Vehicles/hr |
@@ -148,11 +139,9 @@ Traffic demand follows a realistic hourly pattern designed to mimic real-world A
 - **Evening Peak (15:00-18:00):** Increased traffic simulating evening rush
 
 ### Stochastic Traffic Volume
-
 To introduce natural variability between simulations and avoid identical traffic patterns, each scenario applies Gaussian noise to the base traffic generation periods. Each base period is multiplied by a random value drawn from a normal distribution centered at 1.0 with standard deviation 0.01. This introduces some **stochastic variability** in traffic volumes while preserving the overall hourly pattern shape.
 
 ### Random Seeds
-
 Each scenario uses a distinct random seed to ensure reproducibility while generating different traffic patterns:
 
 | Scenario | Seed | Purpose |
@@ -168,19 +157,16 @@ The seed controls:
 4. Vehicle behavior stochasticity in SUMO
 
 ### Trip Generation
-
 Random origin-destination pairs are generated for each scenario using SUMO's `randomTrips.py` tool. Trips are distributed according to the hourly traffic generation periods (after Gaussian noise application), validated for route feasibility, and assigned random departure/arrival positions on edges. This process is performed separately for each scenario (train, test, rain) using the respective random seeds.
 
 Detailed implementation is described in the [Pipeline Implementation](#pipeline-implementation) section.
 
 ## Iterative Development Process
-
 The simulation pipeline was developed iteratively to address challenges in creating realistic, diverse, and concept-drift-compatible datasets. Several drift mechanisms were explored before settling on the final approach.
 
 ### Initial Attempts: Alternative Drift Mechanisms
 
 #### 1. Lane Closure Approach
-
 This approach used SUMO's `closingLaneReroute` mechanism to mark specific lanes as closed, with vehicles calculating routes at insertion time. The critical issue: vehicles would stop at green traffic lights when approaching closed lanes, remaining stationary until SUMO's automatic teleportation mechanism activated after 300 seconds—a clear simulation failure.
 
 The root cause was the absence of rerouting devices. Adding them would allow dynamic recalculation around closures, but this also meant that all vehicles would reroute based on real-time conditions, fundamentally altering traffic behavior compared to the base scenario. As a result, isolating the effect of closures from dynamic rerouting became impossible.
@@ -188,7 +174,6 @@ The root cause was the absence of rerouting devices. Adding them would allow dyn
 **Outcome:** Abandoned due to vehicle teleportation artifacts and inability to maintain comparable traffic behavior.
 
 #### 2. Network Topology Modification
-
 This approach used SUMO's `netedit` tool to physically remove closed lanes or edges, with junctions automatically recalculated. Removing edges reduced network capacity, causing vehicles to be inserted at different times due to congestion delays—breaking temporal comparability between scenarios.
 
 The sensitivity was highly non-linear and unpredictable: closing major roads like Panepistimiou (a main thoroughfare) sometimes produced minimal impact, while closing minor edges would completely bottleneck the network. Network analysis metrics (betweenness centrality, edge importance) were used to identify strategic closures, but finding combinations that were realistic (e.g., metro construction, roadworks) while producing detectable but not catastrophic drift proved extremely difficult.
@@ -196,7 +181,6 @@ The sensitivity was highly non-linear and unpredictable: closing major roads lik
 **Outcome:** Rejected due to timing shifts, non-linear sensitivity, and difficulty calibrating realistic yet effective closure scenarios.
 
 #### 3. Vehicle Behavior Modification
-
 This approach altered Krauss car-following model parameters (acceleration, deceleration, sigma), vehicle type distributions, driver imperfection, reaction times, and speed factors to simulate aggressive or cautious driving patterns. Parameters explored included modifying default vehicle type attributes such as `accel`, `decel`, `speedFactor`, `sigma`, and `tau`.
 
 Behavior changes produced only subtle effects on aggregate traffic patterns, didn't correspond to clear real-world events (unlike rain or construction), and lacked ground truth for validation of "realistic" parameter ranges.
@@ -204,18 +188,15 @@ Behavior changes produced only subtle effects on aggregate traffic patterns, did
 **Outcome:** Insufficient drift magnitude and poor interpretability.
 
 ### Key Insights
-
 The iterative exploration led to important insights that motivated the final approach:
 1. Drift mechanisms must preserve network validity and route feasibility
 2. Drift should correspond to clear, real-world phenomena for interpretability
 3. Physics-based parameters (like friction) have measurable, predictable effects
 
 ## Final Concept Drift Scenario
-
 Based on the lessons learned from alternative approaches, the final drift mechanism uses **friction-based rain simulation**.
 
 ### Rain Scenario Design
-
 The rain scenario introduces concept drift by simulating adverse weather conditions through reduced road surface friction. This approach was chosen because:
 
 1. **Physical Realism:** Rain directly reduces tire-road friction, a well-understood phenomenon
@@ -225,13 +206,11 @@ The rain scenario introduces concept drift by simulating adverse weather conditi
 5. **SUMO Support:** Native friction parameter in lane definitions
 
 ### Implementation
-
 A modified network is created by parsing the base network XML and applying a global friction reduction to all lanes. The friction parameter is set to 0.4 (down from the default 1.0) uniformly across all lanes in the network. This modified network is saved separately and used for the rain scenario simulation.
 
 **Friction Value Selection:** The chosen value of 0.4 technically falls within the snow/ice range according to road surface friction coefficients, rather than the wet road range (μ ≈ 0.5-0.8). This decision was intentional: the objective was to produce a significant and detectable concept drift for model evaluation, rather than to precisely simulate realistic rain conditions. The 0.4 coefficient ensures measurable performance degradation while maintaining simulation stability and avoiding extreme scenarios that would lead to complete traffic collapse.
 
 ### Friction Effects
-
 SUMO's friction parameter affects vehicle dynamics in several ways:
 
 1. **Maximum Acceleration:** Reduced by the square root of the friction coefficient
@@ -242,7 +221,6 @@ SUMO's friction parameter affects vehicle dynamics in several ways:
 **Result:** Vehicles in the rain scenario experience slower acceleration from stops, earlier and gentler braking, longer trip completion times, and different congestion patterns.
 
 ### Concept Drift Characteristics
-
 The rain scenario introduces measurable distributional shifts compared to the baseline test scenario:
 
 | Metric               | Test (Baseline) | Rain (Drift) | Change      |
@@ -256,11 +234,9 @@ The rain scenario introduces measurable distributional shifts compared to the ba
 The most significant impacts are on average speed (reduced by 13.68%) and trip duration (increased by 16.74%), demonstrating clear concept drift that challenges machine learning models trained on baseline conditions.
 
 ## Pipeline Implementation
-
 The pipeline is implemented as a modular Python package and orchestrated by a main script. It follows a linear execution model: network generation steps are performed once, followed by per-scenario loops for traffic generation and simulation.
 
 ### Pipeline Overview
-
 The complete pipeline consists of nine steps:
 
 1. **OSM Data Extraction** → Download OpenStreetMap data for Athens bounding box
@@ -274,7 +250,6 @@ The complete pipeline consists of nine steps:
 9. **Exploratory Analysis** → Generate statistics and plots
 
 ### Execution Flow
-
 **Phase 1: Network Preparation (Once)**
 1. Extract OSM data for central Athens using the specified bounding box
 2. Build SUMO network from OSM data with traffic lights, junctions, and road geometry
@@ -291,11 +266,9 @@ The complete pipeline consists of nine steps:
 ### Pipeline Steps (Detailed)
 
 #### Step 1: OSM Data Extraction
-
 Downloads OpenStreetMap data for the Athens bounding box using SUMO's `osmGet.py` tool. The extraction includes all specified road types (motorways through service roads), building polygons for visualization, and compressed output in gzip format. The bounding box coordinates define a ~4.3 km² area in central Athens.
 
 #### Step 2: Network Building
-
 Converts raw OSM data into SUMO-compatible network format using `osmBuild.py`. This process:
 - Applies typemaps to convert OSM road types to SUMO edge types
 - Removes redundant geometry points while preserving road shape
@@ -307,15 +280,12 @@ Converts raw OSM data into SUMO-compatible network format using `osmBuild.py`. T
 - Creates both network file (edges, lanes, junctions) and polygon file (buildings, areas)
 
 #### Step 3: Rain Network Creation
-
 Parses the base network XML file and modifies all lane elements to include a friction attribute set to 0.4. This is accomplished through XML manipulation: reading the gzipped network file, finding all lane elements, setting their friction attribute, and writing the modified network to a new gzipped file. This creates an identical network topology with altered physics parameters.
 
 #### Step 4: GUI Settings
-
 Writes a simple XML configuration file for SUMO-GUI that sets the visualization scheme to "real world" and sets a delay value for simulation playback. This file is referenced by the simulation configuration but is not required for headless execution.
 
 #### Step 5: Configuration Files
-
 Generates SUMO configuration files (`.sumocfg`) for each scenario by invoking SUMO with save-configuration mode. Each configuration specifies:
 - Network file path (base network for train/test, rain network for rain scenario)
 - Route/trip file path (scenario-specific)
@@ -327,7 +297,6 @@ Generates SUMO configuration files (`.sumocfg`) for each scenario by invoking SU
 - Logging preferences (verbose output, statistics, no per-step logging)
 
 #### Step 6: Trip Generation
-
 Generates random origin-destination pairs using SUMO's `randomTrips.py` tool for each scenario. The generation process:
 - Uses the appropriate network file (base or rain) for route validation
 - Applies scenario-specific random seed for reproducibility
@@ -338,7 +307,6 @@ Generates random origin-destination pairs using SUMO's `randomTrips.py` tool for
 - Outputs trip definitions in SUMO XML format
 
 #### Step 7: Simulation Execution
-
 Runs the SUMO microscopic traffic simulation using the generated configuration file. The simulation:
 - Loads the network (base or rain variant)
 - Processes all trips according to their departure times
@@ -352,7 +320,6 @@ Runs the SUMO microscopic traffic simulation using the generated configuration f
 The simulation runs for 36000 seconds (10 hours) and processes between 54,000-56,000 trips depending on the scenario.
 
 #### Step 8: Format Conversion
-
 Converts the FCD CSV output to Apache Parquet format for efficient storage and faster access. The conversion:
 - Loads the CSV file into a pandas DataFrame
 - Writes the DataFrame to Parquet using PyArrow engine
@@ -362,7 +329,6 @@ Converts the FCD CSV output to Apache Parquet format for efficient storage and f
 The Parquet format enables efficient columnar access patterns used in subsequent data preprocessing and machine learning pipelines.
 
 #### Step 9: Exploratory Data Analysis
-
 Performs initial analysis on the FCD data to validate simulation quality and generate summary statistics. The analysis:
 - Loads and preprocesses the Parquet FCD data
 - Aggregates telemetry by hour for temporal analysis
@@ -377,11 +343,9 @@ Performs initial analysis on the FCD data to validate simulation quality and gen
 Results are logged to console and plots are saved to the plots directory.
 
 ## Reproducibility
-
 The pipeline is designed for full reproducibility and extensibility with all configuration parameters centralized in a YAML configuration file.
 
 ### Key Design Principles
-
 - **Modular Pipeline:** Each step is an independent function with well-defined inputs and outputs
 - **Centralized Configuration:** All parameters stored in a YAML file with structured dataclass access
 - **Deterministic Execution:** Random seeds control all stochastic elements (traffic noise, trip generation, vehicle behavior)
@@ -389,7 +353,6 @@ The pipeline is designed for full reproducibility and extensibility with all con
 - **Automatic Validation:** Path existence and command success are validated at each step
 
 ### Customization Points
-
 The pipeline can be easily adapted to generate new datasets by modifying configuration parameters. Key customization points include:
 
 - **Geographic Area:** Change the bounding box to simulate any OSM-covered region
