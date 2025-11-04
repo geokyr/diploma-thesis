@@ -6,14 +6,14 @@
 3. [Network Generation](#network-generation)
 4. [Traffic Demand Generation](#traffic-demand-generation)
 5. [Iterative Development Process](#iterative-development-process)
-6. [Concept Drift Scenario](#concept-drift-scenario)
+6. [Final Concept Drift Scenario](#final-concept-drift-scenario)
 7. [Pipeline Implementation](#pipeline-implementation)
 8. [Dataset Characteristics](#dataset-characteristics)
 9. [Reproducibility](#reproducibility)
 
 ## Overview
 
-This document describes the pipeline for generating synthetic traffic datasets used in this thesis for ETA prediction, fuel consumption estimation, and number of stops prediction under concept drift conditions. The datasets were created using SUMO (Simulation of Urban MObility) and are publicly available on Zenodo.
+This document describes the pipeline for generating synthetic traffic datasets used in this thesis for Estimated Time of Arrival prediction, Fuel Consumption estimation, and Number of Stops prediction under concept drift conditions. The datasets were created using SUMO (Simulation of Urban MObility) and are publicly available on Zenodo.
 
 **Dataset DOI:** [10.5281/zenodo.16950674](https://zenodo.org/records/16950674)
 
@@ -23,7 +23,7 @@ The following table summarizes the characteristics of all three generated datase
 
 | Metric | Train | Test | Rain |
 |--------|-------|------|------|
-| **Purpose** | Model training | Model evaluation | Concept drift testing |
+| **Purpose** | Model training | Model evaluation | Concept drift evaluation |
 | **Network** | Base (friction=1.0) | Base (friction=1.0) | Rain (friction=0.4) |
 | **Random Seed** | 13 | 2025 | 314159 |
 | **Simulation Duration** | 36000 s (10 hours) | 36000 s (10 hours) | 36000 s (10 hours) |
@@ -53,10 +53,10 @@ The dataset underwent four iterations during development:
 |---------|-----------|---------|--------|-------|
 | **v1** | Base, Lane Closure, Rain | FCD, Emission (separate files) | CSV (train/test split per scenario) | Early exploration with lane closures |
 | **v2** | Base, Rain | FCD, Emission | CSV (train/test split) | Simplified to two scenarios |
-| **v3** | Train (base), Test (base), Rain | FCD only | CSV (3 files) | Final scenario structure |
-| **v4** | Train (base), Test (base), Rain | FCD only | CSV + Parquet (3 files each) | **Current/Published version** |
+| **v3** | Train (base), Test (base), Rain | FCD with selected Emission outputs | CSV (3 files) | Final scenario structure |
+| **v4** | Train (base), Test (base), Rain | FCD with selected Emission outputs | CSV + Parquet (3 files each) | **Current/Published version** |
 
-**Current Version (v4)** is available on Zenodo and includes both CSV and Parquet formats for efficient storage and fast columnar access. Earlier versions explored alternative drift mechanisms (lane closures) and included emission outputs, which were ultimately deemed unnecessary for the machine learning tasks.
+**Current Version (v4)** is available on Zenodo and includes both CSV and Parquet formats for efficient storage and fast columnar access. Earlier versions explored alternative drift mechanisms with lane closures and included all emission outputs, which were ultimately deemed unnecessary for the machine learning tasks, with the exception of a few selected ones that were merged into the FCD output.
 
 ## SUMO Simulation Framework
 
@@ -88,7 +88,7 @@ The simulation area covers central Athens with the following characteristics:
 
 ## Network Generation
 
-### Tool Selection: osmGet and osmBuild
+### Tool Selection
 
 While SUMO provides `osmWebWizard.py`, a web-based GUI that wraps the network generation process, we opted to use the underlying command-line tools, `osmGet.py` and `osmBuild.py`, directly. This decision was motivated by:
 
@@ -109,9 +109,9 @@ Detailed implementation of these steps is described in the [Pipeline Implementat
 
 ### Vehicle Classes
 
-The simulation includes only passenger cars, excluding other vehicle types such as buses, trucks (HDV/LDV), and motorcycles. According to data from the Hellenic Statistical Authority (ELSTAT), the Greek vehicle fleet composition shows that buses and trucks each represent approximately 3-5% of registered vehicles, while motorcycles account for a more substantial proportion (approximately 10-15% in urban areas).
+The simulation includes only passenger cars, excluding other vehicle types such as buses, trucks (HDV/LDV), and motorcycles. According to data from the Hellenic Statistical Authority (ELSTAT), the Greek vehicle fleet composition shows that buses and trucks each represent approximately 3-5% of registered vehicles, while motorcycles account for a more substantial proportion (approximately 15% in urban areas).
 
-Despite the relatively higher representation of motorcycles in Athens traffic, they were excluded from the simulation for the following reasons:
+Despite the relatively higher representation of motorcycles in Athens traffic, all of the above classes were excluded from the simulation for the following reasons:
 
 1. **Behavioral Heterogeneity:** Motorcycles exhibit significantly different driving behaviors compared to passenger cars, including lane-splitting, different acceleration profiles, and distinct gap-acceptance patterns. Modeling these behaviors would require separate vehicle type configurations and validation procedures.
 
@@ -210,7 +210,7 @@ The iterative exploration led to important insights that motivated the final app
 2. Drift should correspond to clear, real-world phenomena for interpretability
 3. Physics-based parameters (like friction) have measurable, predictable effects
 
-## Concept Drift Scenario
+## Final Concept Drift Scenario
 
 Based on the lessons learned from alternative approaches, the final drift mechanism uses **friction-based rain simulation**.
 
