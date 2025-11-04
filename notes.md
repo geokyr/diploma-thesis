@@ -2,9 +2,10 @@
 
 ## To Do
 - Documentation
-- Testing
 
 ## Checks
+- Abstractions
+- Testing
 - Docstrings
 - Typing/dataclasses/TypedDicts
 - Config
