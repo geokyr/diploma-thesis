@@ -1,8 +1,5 @@
 # Notes
 
-## To Do
-- Documentation
-
 ## Checks
 - Abstractions
 - Testing
