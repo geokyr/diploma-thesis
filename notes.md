@@ -1,13 +1,13 @@
 # Notes
 
 ## Checks
-- Abstractions
-- Testing
 - Docstrings
 - Typing/dataclasses/TypedDicts
 - Config
 - Logging
 - Error handling
+- Testing
+- Abstractions
 
 ## Pending
 - backend/*
