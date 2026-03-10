@@ -26,18 +26,22 @@ The core focus of this work is an end-to-end platform for deploying, monitoring,
 
 ### Admin Dashboard
 The platform provides a comprehensive administrative dashboard to monitor streaming predictions, actively detect data drift, and examine automated model swap processes. It also displays the real-time health and metadata for every deployed model.
+
 ![Admin Dashboard](report/figures/dashboard-retraining.png)
 
 ### User Interface
 A client interface is provided for users to interact directly with the active models. It serves as a practical tool to specify trip details and receive immediate predictions for ETA, fuel consumption, and number of stops, enabling users to explore and study the models' behavior on the fly.
+
 ![User Interface](report/figures/ui-retraining.png)
 
 ### Automated AI Reporting
 At the end of the simulation, the platform generates automated LLM-based summary reports. These reports evaluate the newly trained components and succinctly explain the performance changes that occurred during the run for the administrators.
+
 ![AI Report](report/figures/dashboard-report.png)
 
 ### Model Adaptation Effectiveness
 To showcase the effectiveness of the platform's retraining process, the following comparison illustrates predictive performance before and after a model swap. It demonstrates how the new model successfully adapts to the shifted data distribution.
+
 ![Post-swap Comparison](report/figures/postswap-comparison.png)
 
 ## Quick Start
@@ -47,6 +51,7 @@ This project supports two main workflows:
 2. **Platform** - For running the full Drift-Aware ML Platform
 
 ### Dataset Generation & Machine Learning Research
+
 ![Simulation Map](report/figures/simulation-map.png)
 
 Use `uv` to manage dependencies and create isolated environments.
@@ -93,6 +98,7 @@ uv run experiments/baseline_research.py
 ```
 
 ### Platform
+
 ![Platform Architecture](report/figures/platform-architecture.png)
 
 Use Docker Compose to run the Drift-Aware ML Platform, which consists of the following services:
