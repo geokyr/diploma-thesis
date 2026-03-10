@@ -2,9 +2,6 @@
 
 Continuous Machine Learning for Cooperative, Connected and Automated Mobility applications for my Diploma Thesis at ECE NTUA
 
-![Admin Dashboard](report/figures/dashboard-retraining.png)
-![User Interface](report/figures/ui-retrained.png)
-
 ## Overview
 This work brings together:
 
@@ -22,6 +19,26 @@ The repo is structured as a **monorepo**: dataset generation, ML experiments, pl
 This diploma thesis includes contributions by **Georgios Angelis** and **Serafeim Tzelepis**.
 
 The platform's conceptualization was a joint effort. The Fuel Consumption model was implemented by Georgios Angelis, while the Number of Stops model was implemented by Serafeim Tzelepis. Parts of the platform are also based on their work, including the Drift service (Serafeim Tzelepis) and the Summarizer service (Georgios Angelis).
+
+## The Drift-Aware ML Platform
+
+The core focus of this work is an end-to-end platform for deploying, monitoring, and maintaining machine learning models in dynamic environments. It detects concept drift in real-time, automatically retrains models upon performance degradation, and smoothly hot-swaps them, all while providing comprehensive analytics and LLM-generated incident reports to administrators.
+
+### Admin Dashboard
+The platform provides a comprehensive administrative dashboard to monitor streaming predictions, actively detect data drift, and examine automated model swap processes. It also displays the real-time health and metadata for every deployed model.
+![Admin Dashboard](report/figures/dashboard-retraining.png)
+
+### User Interface
+A client interface is provided for users to interact directly with the active models. It serves as a practical tool to specify trip details and receive immediate predictions for ETA, fuel consumption, and number of stops, enabling users to explore and study the models' behavior on the fly.
+![User Interface](report/figures/ui-retraining.png)
+
+### Automated AI Reporting
+At the end of the simulation, the platform generates automated LLM-based summary reports. These reports evaluate the newly trained components and succinctly explain the performance changes that occurred during the run for the administrators.
+![AI Report](report/figures/dashboard-report.png)
+
+### Model Adaptation Effectiveness
+To showcase the effectiveness of the platform's retraining process, the following comparison illustrates predictive performance before and after a model swap. It demonstrates how the new model successfully adapts to the shifted data distribution.
+![Post-swap Comparison](report/figures/postswap-comparison.png)
 
 ## Quick Start
 This project supports two main workflows:
