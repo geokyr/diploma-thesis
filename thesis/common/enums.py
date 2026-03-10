@@ -195,6 +195,7 @@ class NotificationLevel(StrEnum):
     Notification levels.
 
     Attributes:
+        INFO: Info level.
         SUCCESS: Success level.
         WARNING: Warning level.
         DANGER: Danger level.
