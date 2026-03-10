@@ -2,6 +2,9 @@
 
 Continuous Machine Learning for Cooperative, Connected and Automated Mobility applications for my Diploma Thesis at ECE NTUA
 
+![Admin Dashboard](report/figures/dashboard-retraining.png)
+![User Interface](report/figures/ui-retrained.png)
+
 ## Overview
 This work brings together:
 
@@ -27,6 +30,8 @@ This project supports two main workflows:
 2. **Platform** - For running the full Drift-Aware ML Platform
 
 ### Dataset Generation & Machine Learning Research
+![Simulation Map](report/figures/simulation-map.png)
+
 Use `uv` to manage dependencies and create isolated environments.
 
 #### Install uv
@@ -71,6 +76,8 @@ uv run experiments/baseline_research.py
 ```
 
 ### Platform
+![Platform Architecture](report/figures/platform-architecture.png)
+
 Use Docker Compose to run the Drift-Aware ML Platform, which consists of the following services:
 - **Backend** (port 8000) - Main orchestration and control service
 - **Predictor** (ports 8001, 8002, 8003) - ETA, Fuel, and Stops prediction services
@@ -140,3 +147,10 @@ Development mode mounts your local `thesis/` directory into containers, allowing
   - `simulation/` - Dataset generation simulation with SUMO
   - `stops/` - Number of stops prediction task
   - `summarizer/` - LLM summarization service
+
+## Future Work
+The following areas have been identified for future code quality improvements:
+- **Config**: Solidify configuration management and validation.
+- **Logging**: Enhance log coverage and formatting.
+- **Error Handling**: Implement robust explicit error handling for API endpoints.
+- **Testing**: Establish a comprehensive testing suite using `pytest`.
