@@ -9,7 +9,9 @@ This work brings together:
 - **Machine learning research** for Estimated Time of Arrival (ETA) prediction
 - A full **drift-aware ML platform** with microservices, including a dashboard for monitoring, automated drift detection and adaptation, and support for multiple models
 
-The **dataset** used in this work is publicly available on Zenodo, under the DOI [10.5281/zenodo.16950674](https://zenodo.org/records/16950674)
+The **dataset** used in this work is publicly available on Zenodo, under the DOI [10.5281/zenodo.16950674](https://zenodo.org/records/16950674).
+
+For convenience, the repository also includes the three preprocessed parquet inputs, derived from the dataset above and used by the platform, under [appdata/data](appdata/data).
 
 The accompanying [report](report/main.pdf) and [presentation](presentation/main.pdf) can be viewed for more details.
 
@@ -121,6 +123,8 @@ OPENROUTER_API_KEY=your_api_key_here
 
 Docker Compose will automatically load environment variables from this file.
 
+If you prefer not to keep the raw `.env` locally, store the OpenRouter key in your GitHub repository secrets for CI usage or keep it in a password manager, then recreate `.env` when running the platform locally.
+
 #### Production Mode
 ```bash
 # Start all services
@@ -152,7 +156,8 @@ docker compose down
 Development mode mounts your local `thesis/` directory into containers, allowing you to modify code without rebuilding images.
 
 ## Repository Structure
-- `appdata/` - Data, models, logs and other artifacts for the platform
+- `appdata/` - Platform artifacts and generated inputs
+  - `appdata/data/` - Preprocessed parquet inputs used by the platform runtime
 - `docs/` - Documentation for the project
 - `experiments/` - Machine learning research experiments
 - `outputs/` - Outputs from the experiments (models, metrics, logs)

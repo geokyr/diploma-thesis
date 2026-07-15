@@ -1,4 +1,5 @@
 data/
+!appdata/data/
 
 .venv/
 .env
